@@ -1,7 +1,7 @@
 package navik.auth.service;
 
-import navik.auth.entity.Role;
-import navik.auth.entity.Member;
+import navik.domain.users.entity.Role;
+import navik.domain.users.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -76,8 +76,8 @@ public class OAuthAttributes {
                 .build();
     }
 
-    public Member toEntity() {
-        return Member.builder()
+    public User toEntity() {
+        return User.builder()
                 .name(name)
                 .email(email)
                 .role(Role.USER)

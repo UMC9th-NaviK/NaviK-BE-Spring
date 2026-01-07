@@ -1,7 +1,7 @@
 package navik.auth.service;
 
-import navik.auth.entity.Member;
-import navik.auth.repository.MemberRepository;
+import navik.domain.users.entity.User;
+import navik.domain.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
@@ -21,7 +21,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
-    private final MemberRepository memberRepository;
+    private final UserRepository memberRepository;
 
     @Setter
     private OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
@@ -37,23 +37,23 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName,
                 oAuth2User.getAttributes());
 
-        Member member = saveOrUpdate(attributes);
+        User user = saveOrUpdate(attributes);
 
         // Member ID를 Principal Name으로 사용하기 위해 attributes에 memberId 추가
         Map<String, Object> newAttributes = new java.util.HashMap<>(attributes.getAttributes());
-        newAttributes.put("memberId", String.valueOf(member.getId()));
+        newAttributes.put("memberId", String.valueOf(user.getId()));
 
         return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(member.getRoleKey())),
+                Collections.singleton(new SimpleGrantedAuthority(user.getRoleKey())),
                 newAttributes,
                 "memberId");
     }
 
-    private Member saveOrUpdate(OAuthAttributes attributes) {
-        Member member = memberRepository.findByEmail(attributes.getEmail())
-                .map(entity -> entity.update(attributes.getName()))
+    private User saveOrUpdate(OAuthAttributes attributes) {
+        User user = memberRepository.findByEmail(attributes.getEmail())
+                //.map(entity -> entity.update(attributes.getName()))
                 .orElse(attributes.toEntity());
 
-        return memberRepository.save(member);
+        return memberRepository.save(user);
     }
 }
