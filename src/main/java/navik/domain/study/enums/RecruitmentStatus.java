@@ -1,0 +1,15 @@
+package navik.domain.study.enums;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum RecruitmentStatus {
+
+    RECURRING("모집중"),
+    INPROGRESS("진행중"),
+    EDIT("종료");
+
+    private final String label;
+}
