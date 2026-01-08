@@ -1,4 +1,4 @@
-package navik.domain.Recruitment.entity;
+package navik.domain.recruitment.entity;
 
 import java.time.LocalDate;
 
@@ -15,8 +15,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import navik.domain.Recruitment.enums.CompanySize;
-import navik.domain.Recruitment.enums.IndustryType;
+import navik.domain.recruitment.enums.CompanySize;
+import navik.domain.recruitment.enums.IndustryType;
 import navik.global.common.BaseEntity;
 
 @Entity

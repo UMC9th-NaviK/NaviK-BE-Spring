@@ -1,4 +1,4 @@
-package navik.domain.Recruitment.enums;
+package navik.domain.recruitment.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
