@@ -9,7 +9,7 @@ public enum RecruitmentStatus {
 
     RECURRING("모집중"),
     INPROGRESS("진행중"),
-    EDIT("종료");
+    CLOSED("종료");
 
     private final String label;
 }

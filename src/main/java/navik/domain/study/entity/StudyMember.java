@@ -40,8 +40,8 @@ public class StudyMember extends BaseEntity {
     private boolean active;
 
     @Column(name = "member_study_start", nullable = false)
-    private LocalDateTime MemberStart;
+    private LocalDateTime memberStart;
 
-    @Column(name = "study_end", nullable = false)
-    private LocalDateTime MemberEnd;
+    @Column(name = "member_study_end", nullable = false)
+    private LocalDateTime memberEnd;
 }

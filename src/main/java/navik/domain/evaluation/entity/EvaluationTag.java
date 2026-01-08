@@ -15,7 +15,7 @@ public class EvaluationTag extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @Column(name = "tag_type", nullable = false)
     @Enumerated(EnumType.STRING)

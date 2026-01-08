@@ -17,7 +17,7 @@ public class Evaluation extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id")
@@ -36,8 +36,4 @@ public class Evaluation extends BaseEntity {
 
     @Column(name = "comment", nullable = false)
     private String comment;
-
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
 }
