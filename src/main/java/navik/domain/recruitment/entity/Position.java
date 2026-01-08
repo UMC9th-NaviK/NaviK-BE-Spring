@@ -1,4 +1,4 @@
-package navik.domain.position.entity;
+package navik.domain.recruitment.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,11 +17,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.job.entity.Job;
-import navik.domain.position.enums.AreaType;
-import navik.domain.position.enums.EducationType;
-import navik.domain.position.enums.EmploymentType;
-import navik.domain.position.enums.ExperienceType;
-import navik.domain.recruitment.entity.Recruitment;
+import navik.domain.recruitment.enums.AreaType;
+import navik.domain.recruitment.enums.EducationType;
+import navik.domain.recruitment.enums.EmploymentType;
+import navik.domain.recruitment.enums.ExperienceType;
 import navik.global.common.BaseEntity;
 
 @Entity
