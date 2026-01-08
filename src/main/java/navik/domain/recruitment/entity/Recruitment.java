@@ -1,6 +1,6 @@
 package navik.domain.recruitment.entity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -55,8 +55,8 @@ public class Recruitment extends BaseEntity {
 	private IndustryType industryType;
 
 	@Column(name = "start_date")
-	private LocalDate startDate;
+	private LocalDateTime startDate;
 
 	@Column(name = "end_date")
-	private LocalDate endDate;
+	private LocalDateTime endDate;
 }
