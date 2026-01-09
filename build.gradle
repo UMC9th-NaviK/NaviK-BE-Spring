@@ -59,6 +59,12 @@ dependencies {
     // Vector Search
     implementation 'org.hibernate.orm:hibernate-vector:7.2.0.Final'
 
+    // Selenium
+    implementation 'org.seleniumhq.selenium:selenium-java:4.39.0'
+
+    // JSoup
+    implementation 'org.jsoup:jsoup:1.22.1'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
