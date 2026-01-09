@@ -19,7 +19,7 @@ import navik.global.common.BaseEntity;
 
 @Entity
 @Getter
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Table(name = "evaluation_tags")

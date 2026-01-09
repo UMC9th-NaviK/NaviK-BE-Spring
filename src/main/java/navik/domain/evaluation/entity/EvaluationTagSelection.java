@@ -1,6 +1,5 @@
-package navik.domain.board.entity;
+package navik.domain.evaluation.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -14,7 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import navik.domain.users.entity.User;
 import navik.global.common.BaseEntity;
 
 @Entity
@@ -22,28 +20,18 @@ import navik.global.common.BaseEntity;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-@Table(name = "comments")
-public class Comment extends BaseEntity {
+@Table(name = "evaluation_tag_selections")
+public class EvaluationTagSelection extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
-	private User user;
+	@JoinColumn(name = "evaluation_id")
+	private Evaluation evaluation;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "comment_id")
-	private Comment comment;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "board_id")
-	private Board board;
-
-	@Column(name = "comment_content", nullable = false)
-	private String commentContent;
-
-	@Column(name = "comment_deleted", nullable = false)
-	private boolean commentDeleted;
+	@JoinColumn(name = "tag_id")
+	private EvaluationTag tag;
 }
