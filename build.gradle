@@ -68,6 +68,9 @@ dependencies {
     // Google Cloud Vision API
     implementation 'com.google.cloud:google-cloud-vision'
 
+    // WebClient
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
