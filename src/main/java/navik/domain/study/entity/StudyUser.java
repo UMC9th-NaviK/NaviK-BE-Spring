@@ -25,7 +25,7 @@ import navik.global.entity.BaseEntity;
 
 @Entity
 @Getter
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Table(name = "study_users")
