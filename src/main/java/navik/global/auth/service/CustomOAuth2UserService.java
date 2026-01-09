@@ -15,13 +15,13 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import navik.domain.users.entity.User;
-import navik.domain.users.repository.userRepository;
+import navik.domain.users.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
-	private final userRepository userRepository;
+	private final UserRepository userRepository;
 
 	@Setter
 	private OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
