@@ -1,4 +1,4 @@
-package navik.domain.kpi.enitiy;
+package navik.domain.kpi.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

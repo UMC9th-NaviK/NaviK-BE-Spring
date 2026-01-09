@@ -1,4 +1,4 @@
-package navik.domain.kpi.enitiy;
+package navik.domain.kpi.entity;
 
 import org.hibernate.annotations.Array;
 import org.hibernate.annotations.JdbcTypeCode;
