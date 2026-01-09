@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum RecruitmentStatus {
 
-    RECURRING("모집중"),
-    INPROGRESS("진행중"),
-    CLOSED("종료");
+	RECURRING("모집중"),
+	IN_PROGRESS("진행중"),
+	CLOSED("종료");
 
-    private final String label;
+	private final String label;
 }

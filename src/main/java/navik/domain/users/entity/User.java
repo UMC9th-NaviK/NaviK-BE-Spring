@@ -19,7 +19,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.job.entity.Job;
-import navik.global.common.BaseEntity;
+import navik.domain.users.enums.Role;
+import navik.domain.users.enums.UserStatus;
+import navik.global.entity.BaseEntity;
 
 @Entity
 @Getter
@@ -29,42 +31,40 @@ import navik.global.common.BaseEntity;
 @Table(name = "users")
 public class User extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private String name;
+	@Column(nullable = false)
+	private String name;
 
-    @Column(nullable = false, unique = true)
-    @Builder.Default
-    private String nickname = "사용자" + UUID.randomUUID().toString().substring(0, 5);
+	@Column(nullable = false, unique = true)
+	@Builder.Default
+	private String nickname = "사용자" + UUID.randomUUID().toString().substring(0, 5);
 
+	@Column(nullable = false, unique = true)
+	private String email;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private Role role;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role;
+	@JoinColumn(name = "job_id")
+	@ManyToOne(fetch = FetchType.LAZY)
+	private Job job;
 
-    @JoinColumn(name = "job_id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Job job;
+	@Column(nullable = false)
+	private String socialId; // 소셜 로그인 제공자에서 주는 ID
 
-    @Column(nullable = false)
-    private String socialId; // 소셜 로그인 제공자에서 주는 ID
+	@Column(nullable = false)
+	private String socialType; // google, kakao, naver
 
-    @Column(nullable = false)
-    private String socialType; // google, kakao, naver
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	@Builder.Default
+	private UserStatus userStatus = UserStatus.PENDING;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private UserStatus userStatus = UserStatus.PENDING;
-
-
-    public String getRoleKey() {
-        return this.role.getKey();
-    }
+	public String getRoleKey() {
+		return this.role.getKey();
+	}
 }

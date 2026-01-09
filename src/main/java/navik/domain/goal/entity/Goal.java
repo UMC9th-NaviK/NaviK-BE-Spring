@@ -16,8 +16,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import navik.auth.entity.Member;
-import navik.global.common.BaseEntity;
+import navik.domain.users.entity.User;
+import navik.global.entity.BaseEntity;
 
 @Entity
 @Getter
@@ -43,5 +43,5 @@ public class Goal extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
-	private Member user;
+	private User user;
 }

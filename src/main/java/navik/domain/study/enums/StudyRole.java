@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum StudyRole {
 
-    STUDYLEADER("스터디장"),
-    STUDYMEMBER("스터디원");
+	STUDY_LEADER("스터디장"),
+	STUDY_MEMBER("스터디원");
 
-    private final String label;
+	private final String label;
 }

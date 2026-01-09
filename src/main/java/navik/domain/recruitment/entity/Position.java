@@ -21,7 +21,7 @@ import navik.domain.recruitment.enums.AreaType;
 import navik.domain.recruitment.enums.EducationType;
 import navik.domain.recruitment.enums.EmploymentType;
 import navik.domain.recruitment.enums.ExperienceType;
-import navik.global.common.BaseEntity;
+import navik.global.entity.BaseEntity;
 
 @Entity
 @Getter

@@ -17,7 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.recruitment.enums.CompanySize;
 import navik.domain.recruitment.enums.IndustryType;
-import navik.global.common.BaseEntity;
+import navik.global.entity.BaseEntity;
 
 @Entity
 @Getter
