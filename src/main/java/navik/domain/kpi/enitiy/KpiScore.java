@@ -9,30 +9,36 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import navik.domain.job.entity.Job;
+import navik.domain.users.entity.User;
 import navik.global.common.BaseEntity;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-@Table(name = "kpi_cards")
-public class KpiCard extends BaseEntity {
+@Table(name = "kpi_scores",
+	uniqueConstraints = @UniqueConstraint(columnNames = {"kpi_card_id", "user_id"}))
+public class KpiScore extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "job_id")
-	private Job job;
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "kpi_card_id", nullable = false)
+	private KpiCard kpiCard;
 
-	@Column(name = "content", nullable = false)
-	private String content;
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
+
+	@Column(name = "score", nullable = false)
+	private Integer score;
 }
