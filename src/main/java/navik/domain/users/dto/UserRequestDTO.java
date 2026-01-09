@@ -13,7 +13,7 @@ public class UserRequestDTO {
 	@AllArgsConstructor
 	@NoArgsConstructor
 	@Getter
-	public static class BasicInfoDto{
+	public static class BasicInfoDto {
 		@NotBlank
 		private String name;
 		@NotBlank

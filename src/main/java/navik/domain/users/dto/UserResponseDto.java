@@ -26,7 +26,7 @@ public class UserResponseDTO {
 	@AllArgsConstructor
 	@NoArgsConstructor
 	@Getter
-	public static class BasicInfoDto{
+	public static class BasicInfoDto {
 		@NotNull
 		private Long id;
 		@NotBlank

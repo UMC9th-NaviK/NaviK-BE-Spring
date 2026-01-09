@@ -13,6 +13,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import navik.global.apiPayload.code.status.AuthErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.auth.JwtUserDetails;
 import navik.global.auth.annotation.AuthUser;
 
 @Component
@@ -42,6 +43,6 @@ public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
 			throw new GeneralExceptionHandler(AuthErrorCode.UNAUTHORIZED);
 		}
 
-		return principal;
+		return ((JwtUserDetails)principal).getUserId();
 	}
 }

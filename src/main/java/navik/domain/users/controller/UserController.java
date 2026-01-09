@@ -27,22 +27,18 @@ public class UserController implements UserControllerDocs {
 	private final UserCommandService userCommandService;
 
 	@GetMapping("/me")
-	public ApiResponse<UserResponseDTO.UserInfoDTO> getMyInfo(@AuthUser UserDetails userDetails) {
-		Long userId = Long.parseLong(userDetails.getUsername());
-		UserResponseDTO.UserInfoDTO myInfo = userQueryService.getMyInfo(userId);
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK, myInfo);
+	public ApiResponse<UserResponseDTO.UserInfoDTO> getMyInfo(@AuthUser Long userId) {
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getMyInfo(userId));
 	}
 
 	@GetMapping("/{userId}")
 	public ApiResponse<UserResponseDTO.UserInfoDTO> getUser(@PathVariable Long userId) {
-		UserResponseDTO.UserInfoDTO userInfo = userQueryService.getUserInfo(userId);
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userInfo);
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getUserInfo(userId));
 	}
 
 	@PostMapping("/me/basic-info")
-	public ApiResponse<UserResponseDTO.BasicInfoDto> register(@AuthUser UserDetails userDetails,
+	public ApiResponse<UserResponseDTO.BasicInfoDto> register(@AuthUser Long userId,
 		@RequestBody @Valid UserRequestDTO.BasicInfoDto req) {
-		Long userId = Long.parseLong(userDetails.getUsername());
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userCommandService.updateBasicInfo(userId,req));
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userCommandService.updateBasicInfo(userId, req));
 	}
 }
