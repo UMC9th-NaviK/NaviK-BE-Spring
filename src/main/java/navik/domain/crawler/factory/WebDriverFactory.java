@@ -1,4 +1,4 @@
-package navik.domain.crawler.service;
+package navik.domain.crawler.factory;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
