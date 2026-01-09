@@ -10,12 +10,10 @@ public class NaverOcrRequestDto {
 	@Getter
 	@Builder
 	public static class JsonRequest {
-		@Builder.Default
-		private String version = "V2";    // V2 엔진 권장
+		private String version;   // V2 엔진 권장
 		private String requestId;    // 요청 식별을 위한 UUID
 		private long timestamp;    // 요청 시각
-		@Builder.Default
-		private String lang = "ko";    // 한국어 이미지
+		private String lang;    // 이미지에 적힌 언어
 		private List<Image> image;    // 호출 당 1개의 이미지 OCR
 	}
 
