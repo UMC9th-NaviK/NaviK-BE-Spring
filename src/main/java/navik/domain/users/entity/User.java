@@ -72,5 +72,6 @@ public class User extends BaseEntity {
 		this.name = name;
 		this.nickname = nickname;
 		this.job = job;
+		this.userStatus = UserStatus.ACTIVE;
 	}
 }
