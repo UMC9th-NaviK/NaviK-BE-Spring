@@ -26,7 +26,7 @@ import navik.global.entity.BaseEntity;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Table(name = "position_kpis")
-public class PositionKPI extends BaseEntity {
+public class PositionKpi extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
