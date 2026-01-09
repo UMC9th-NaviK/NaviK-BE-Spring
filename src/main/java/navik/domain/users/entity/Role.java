@@ -1,4 +1,4 @@
-package navik.auth.entity;
+package navik.domain.users.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

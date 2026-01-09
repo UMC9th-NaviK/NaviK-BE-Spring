@@ -1,8 +1,8 @@
 package navik.domain.users.service;
 
 import navik.domain.users.dto.UserResponseDto;
-import navik.auth.entity.Member;
-import navik.auth.repository.MemberRepository;
+import navik.domain.users.entity.User;
+import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import lombok.RequiredArgsConstructor;
@@ -15,17 +15,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class UserService {
 
-    private final MemberRepository memberRepository;
+    private final UserRepository memberRepository;
 
     public UserResponseDto getUser(Long userId) {
-        Member member = memberRepository.findById(userId)
+        User user = memberRepository.findById(userId)
                 .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
-        return UserResponseDto.from(member);
+        return UserResponseDto.from(user);
     }
 
     public UserResponseDto getMyInfo(Long userId) {
-        Member member = memberRepository.findById(userId)
+        User user = memberRepository.findById(userId)
                 .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
-        return UserResponseDto.from(member);
+        return UserResponseDto.from(user);
     }
 }
