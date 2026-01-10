@@ -22,7 +22,7 @@ public class NaverOcrRequestDto {
 	public static class Image {
 		private String format;    // jpg, jpeg, png, pdf, tif, tiff
 		private String name;    // 이미지 식별 이름
-		private String url;    // 공개된 이미지 URL
-		private String data;   // 또는 Base64 인코딩 데이터 (우선순위)
+		private String url;    // 공개된 이미지 URL 넘기기
+		private String data;   // 또는 Base64 인코딩 데이터 넘기기 (우선순위)
 	}
 }
