@@ -46,7 +46,7 @@ public class PageResponseDto<T> {
 
     public PageResponseDto(Page<T> page) {
         this.content = page.getContent();
-        this.pageNumber = page.getNumber() + 1; // 0-based to 1-based
+        this.pageNumber = page.getNumber(); // 0-based로 수정
         this.pageSize = page.getSize();
         this.totalPages = page.getTotalPages();
         this.totalElements = page.getTotalElements();
