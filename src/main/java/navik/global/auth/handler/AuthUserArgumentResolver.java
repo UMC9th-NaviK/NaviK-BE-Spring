@@ -18,30 +18,30 @@ import navik.global.auth.annotation.AuthUser;
 @Component
 public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
 
-	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
-		return parameter.hasParameterAnnotation(AuthUser.class);
-	}
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return parameter.hasParameterAnnotation(AuthUser.class);
+    }
 
-	@Override
-	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-		NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+    @Override
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
 
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-		// 인증 정보가 없거나 익명 사용자인 경우 예외 발생
-		if (authentication == null || authentication instanceof AnonymousAuthenticationToken
-			|| !authentication.isAuthenticated()) {
-			throw new GeneralExceptionHandler(AuthErrorCode.UNAUTHORIZED);
-		}
+        // 인증 정보가 없거나 익명 사용자인 경우 예외 발생
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken
+                || !authentication.isAuthenticated()) {
+            throw new GeneralExceptionHandler(AuthErrorCode.UNAUTHORIZED);
+        }
 
-		Object principal = authentication.getPrincipal();
+        Object principal = authentication.getPrincipal();
 
-		// Principal이 UserDetails 타입인지 확인
-		if (!(principal instanceof UserDetails)) {
-			throw new GeneralExceptionHandler(AuthErrorCode.UNAUTHORIZED);
-		}
+        // Principal이 UserDetails 타입인지 확인
+        if (!(principal instanceof UserDetails)) {
+            throw new GeneralExceptionHandler(AuthErrorCode.UNAUTHORIZED);
+        }
 
-		return principal;
-	}
+        return principal;
+    }
 }
