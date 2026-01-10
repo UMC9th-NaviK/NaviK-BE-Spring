@@ -33,6 +33,7 @@ public class NaverOcrService implements OcrService {
 	private final WebClient webClient;
 
 	/**
+	 * 200px 이하의 이미지는 불필요 이미지로 판단하여, API 비용 절감을 위해 제외됩니다.
 	 * 네이버 권장 사항
 	 * 	  - 최대 용량: 50MB
 	 *    - 지원 확장자: "jpg", "jpeg", "png", "pdf", "tif", "tiff"
