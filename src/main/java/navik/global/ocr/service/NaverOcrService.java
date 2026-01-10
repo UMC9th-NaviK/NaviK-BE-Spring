@@ -57,14 +57,22 @@ public class NaverOcrService implements OcrService {
 			return "";
 		}
 
-		// 3. 지원 확장자 검사
+		// 3. API 호출 비용 절감을 위한 작은 이미지 제외
+		int width = metadata.getWidth();
+		int height = metadata.getHeight();
+		if (isTrashImage(width, height)) {
+			log.info("[NaverOcrService] 매우 작은 이미지입니다.");
+			return "";
+		}
+
+		// 4. 이미지 확장자 검사
 		String extension = metadata.getExtension();
 		if (!isSupportedExtension(extension)) {
 			log.warn("[NaverOcrService] 미지원 확장자입니다.");
 			return "";
 		}
 
-		// 4. API 호출 결과 반환
+		// 5. API 호출 결과 반환
 		return requestApi(imageUrl, extension);
 	}
 
@@ -113,5 +121,9 @@ public class NaverOcrService implements OcrService {
 
 	private boolean isSupportedFileSize(long size) {
 		return size > 0 && size <= NaverOcrConstant.MAX_FILE_SIZE;
+	}
+
+	private boolean isTrashImage(int width, int height) {
+		return width <= NaverOcrConstant.TRASH_PIXEL_SIZE || height <= NaverOcrConstant.TRASH_PIXEL_SIZE;
 	}
 }
