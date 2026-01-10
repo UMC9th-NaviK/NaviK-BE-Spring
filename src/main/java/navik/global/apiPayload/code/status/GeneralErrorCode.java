@@ -33,7 +33,8 @@ public enum GeneralErrorCode implements BaseCode {
 
 	// 5. External / DB (외부 서비스, 데이터베이스)
 	EXTERNAL_API_ERROR(HttpStatus.BAD_GATEWAY, "EXTERNAL_502", "외부 API 호출 중 오류가 발생했습니다."),
-	DB_CONSTRAINT_VIOLATION(HttpStatus.CONFLICT, "DB_409", "데이터 무결성 제약 조건을 위반했습니다.");
+	DB_CONSTRAINT_VIOLATION(HttpStatus.CONFLICT, "DB_409", "데이터 무결성 제약 조건을 위반했습니다."),
+	INVALID_SORT_OPTION(HttpStatus.BAD_REQUEST, "SORT_400", "지원하지 않는 정렬 기준입니다.");
 
 	/**
 	 * HTTP 상태 코드
