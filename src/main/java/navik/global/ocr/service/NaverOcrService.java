@@ -82,6 +82,7 @@ public class NaverOcrService implements OcrService {
 			.version(NaverOcrConstant.RECOMMENDED_VERSION)
 			.requestId(UUID.randomUUID().toString())
 			.timestamp(System.currentTimeMillis())
+			.lang(NaverOcrConstant.LANG_KOREAN)
 			.images(List.of(image))
 			.build();
 
