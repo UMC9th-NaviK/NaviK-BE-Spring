@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-public class NaverOcrResponseDto {
+public class NaverOcrResponseDTO {
 
 	@Getter
 	@NoArgsConstructor

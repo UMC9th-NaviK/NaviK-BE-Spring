@@ -8,14 +8,14 @@ import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.Imaging;
 import org.springframework.stereotype.Component;
 
-import navik.global.ocr.dto.ImageMetadata;
+import navik.global.ocr.dto.ImageMetadataDTO;
 
 @Component
 public class ImageHelper {
 
 	private final int TIMEOUT_MS = 3000;
 
-	public ImageMetadata getMetadata(String imageUrl) {
+	public ImageMetadataDTO getMetadata(String imageUrl) {
 		try {
 			URL url = new URL(imageUrl);
 
@@ -26,7 +26,7 @@ public class ImageHelper {
 			InputStream stream = connection.getInputStream();
 			ImageInfo imageInfo = Imaging.getImageInfo(stream, "");
 
-			return ImageMetadata.builder()
+			return ImageMetadataDTO.builder()
 				.fileSize(connection.getContentLengthLong())
 				.width(imageInfo.getWidth())
 				.height(imageInfo.getHeight())

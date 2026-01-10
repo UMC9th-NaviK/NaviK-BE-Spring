@@ -5,11 +5,11 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 
-public class NaverOcrRequestDto {
+public class NaverOcrRequestDTO {
 
 	@Getter
 	@Builder
-	public static class JsonRequest {
+	public static class ImagePayload {
 		private String version;   // V2 엔진 권장
 		private String requestId;    // 요청 식별을 위한 UUID
 		private long timestamp;    // 요청 시각
