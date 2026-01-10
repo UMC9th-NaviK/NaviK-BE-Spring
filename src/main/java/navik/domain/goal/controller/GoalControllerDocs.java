@@ -3,6 +3,8 @@ package navik.domain.goal.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.goal.dto.GoalRequestDTO;
 import navik.domain.goal.dto.GoalResponseDTO;
@@ -34,11 +36,17 @@ public interface GoalControllerDocs {
         사용자의 새로운 목표를 생성합니다.
         - 처음 생성 시 상태는 기본적으로 `NONE`(미정)으로 설정됩니다.
         """)
+	@io.swagger.v3.oas.annotations.responses.ApiResponses(
+		value = {@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "CREATED")
+		})
 	ApiResponse<GoalResponseDTO.InfoDTO> createGoal(Long userId, GoalRequestDTO.CreateDTO req);
 
 	@Operation(summary = "목표 상태 변경", description = "목표의 진행 상태를 변경합니다.")
 	ApiResponse<GoalResponseDTO.InfoDTO> updateGoalStatus(Long goalId, GoalStatus status);
 
 	@Operation(summary = "목표 삭제", description = "목표를 삭제합니다.")
+	@io.swagger.v3.oas.annotations.responses.ApiResponses(
+		value = {@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "DELETED")
+	})
 	ApiResponse<Void> deleteGoal (Long goalId);
 }
