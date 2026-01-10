@@ -9,7 +9,7 @@ import org.apache.commons.imaging.Imaging;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
-import navik.global.ocr.dto.ImageInfoDto;
+import navik.global.ocr.dto.ImageMetadata;
 
 @Component
 @RequiredArgsConstructor
@@ -17,7 +17,7 @@ public class ImageHelper {
 
 	private final int TIMEOUT_MS = 3000;
 
-	public ImageInfoDto getImageInfo(String imageUrl) {
+	public ImageMetadata getMetadata(String imageUrl) {
 		try {
 			URL url = new URL(imageUrl);
 			URLConnection connection = url.openConnection();
@@ -28,11 +28,11 @@ public class ImageHelper {
 			InputStream stream = connection.getInputStream();
 			ImageInfo imageInfo = Imaging.getImageInfo(stream, "");
 
-			return ImageInfoDto.builder()
+			return ImageMetadata.builder()
 				.fileSize(fileSize)
 				.width(imageInfo.getWidth())
 				.height(imageInfo.getHeight())
-				.format(imageInfo.getFormatName())
+				.format(imageInfo.getFormatName().toLowerCase())
 				.build();
 		} catch (Exception e) {
 			return null;
