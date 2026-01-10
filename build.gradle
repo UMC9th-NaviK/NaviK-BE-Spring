@@ -71,6 +71,9 @@ dependencies {
     // WebClient
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+    // Apache Commons Image Library
+    implementation 'org.apache.commons:commons-imaging:1.0.0-alpha6'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
