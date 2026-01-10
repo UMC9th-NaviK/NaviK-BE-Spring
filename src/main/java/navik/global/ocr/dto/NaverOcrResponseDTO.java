@@ -9,7 +9,7 @@ public class NaverOcrResponseDTO {
 
 	@Getter
 	@NoArgsConstructor
-	public static class Response {
+	public static class OcrResponse {
 		private String version;
 		private String requestId;
 		private long timestamp;

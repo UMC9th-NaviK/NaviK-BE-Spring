@@ -41,7 +41,7 @@ public class NaverOcrService implements OcrService {
 	 * @return
 	 */
 	@Override
-	public String extractTextFromUrl(String imageUrl) {
+	public String extractFromImageUrl(String imageUrl) {
 
 		// 1. 이미지 메타데이터 추출
 		ImageMetadataDTO metadata = imageHelper.getMetadata(imageUrl);
