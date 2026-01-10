@@ -8,11 +8,9 @@ import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.Imaging;
 import org.springframework.stereotype.Component;
 
-import lombok.RequiredArgsConstructor;
 import navik.global.ocr.dto.ImageMetadata;
 
 @Component
-@RequiredArgsConstructor
 public class ImageHelper {
 
 	private final int TIMEOUT_MS = 3000;
@@ -32,7 +30,7 @@ public class ImageHelper {
 				.fileSize(connection.getContentLengthLong())
 				.width(imageInfo.getWidth())
 				.height(imageInfo.getHeight())
-				.format(imageInfo.getFormatName().toLowerCase())
+				.extension(imageInfo.getFormat().getDefaultExtension().toLowerCase())
 				.build();
 		} catch (Exception e) {
 			return null;

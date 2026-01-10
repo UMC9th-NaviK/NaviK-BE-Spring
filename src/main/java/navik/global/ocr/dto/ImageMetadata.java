@@ -8,8 +8,8 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class ImageMetadata {
-	private final String format;
-	private final int width;
-	private final int height;
-	private final long fileSize;
+	private final String extension; // 확장자
+	private final int width;        // 가로 길이
+	private final int height;       // 세로 길이
+	private final long fileSize;    // 용량
 }
