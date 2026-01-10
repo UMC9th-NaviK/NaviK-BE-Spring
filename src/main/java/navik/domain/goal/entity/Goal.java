@@ -37,9 +37,9 @@ public class Goal extends BaseEntity {
 	@Column(name = "end_date", nullable = false)
 	private LocalDate endDate;
 
-	@Column(name = "is_completed", nullable = false)
+	@Column(name = "status", nullable = false)
 	@Builder.Default
-	private boolean isCompleted = false;
+	private GoalStatus status = GoalStatus.NONE;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
