@@ -19,9 +19,8 @@ public class CrawlerActionHelper {
 	 *
 	 * @param wait
 	 * @param jobCode
-	 * @throws Exception
 	 */
-	public void applyJobFilter(WebDriverWait wait, JobCode jobCode) throws Exception {
+	public void applyJobFilter(WebDriverWait wait, JobCode jobCode) {
 		String step1 = jobCode.getJobCode();
 		String step2 = jobCode.getDetailCode();
 
@@ -50,9 +49,8 @@ public class CrawlerActionHelper {
 	 * 검색 이후 '최신 업데이트 순'으로 정렬하는 메서드입니다.
 	 *
 	 * @param wait
-	 * @throws Exception
 	 */
-	public void applySort(WebDriverWait wait) throws Exception {
+	public void applySort(WebDriverWait wait) {
 		WebElement sortElement = wait.until(ExpectedConditions.elementToBeClickable(
 			By.cssSelector("#orderTab option[value='3']")    // 3: 최신 업데이트 순
 		));
@@ -63,9 +61,8 @@ public class CrawlerActionHelper {
 	 * 검색 이후 '한 페이지에 보이는 공고 개수'를 설정하는 메서드입니다.
 	 *
 	 * @param wait
-	 * @throws Exception
 	 */
-	private void applyQuantity(WebDriverWait wait) throws Exception {
+	private void applyQuantity(WebDriverWait wait) {
 		WebElement quantityElement = wait.until(ExpectedConditions.elementToBeClickable(
 			By.cssSelector("#pstab option[value='50']")    // 한 페이지 당 50개씩 노출
 		));
