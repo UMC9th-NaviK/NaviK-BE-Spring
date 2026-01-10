@@ -64,14 +64,18 @@ public class User extends BaseEntity {
 	@Builder.Default
 	private UserStatus userStatus = UserStatus.PENDING;
 
+	@Column(name = "is_entry_level")
+	private boolean isEntryLevel;
+
 	public String getRoleKey() {
 		return this.role.getKey();
 	}
 
-	public void updateBasicInfo(String name, String nickname, Job job) {
+	public void updateBasicInfo(String name, String nickname, boolean isEntryLevel, Job job) {
 		this.name = name;
 		this.nickname = nickname;
 		this.job = job;
+		this.isEntryLevel = isEntryLevel;
 		this.userStatus = UserStatus.ACTIVE;
 	}
 }

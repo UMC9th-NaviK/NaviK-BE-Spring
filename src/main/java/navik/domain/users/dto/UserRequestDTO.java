@@ -20,6 +20,7 @@ public class UserRequestDTO {
 		private String nickname;
 		@NotNull
 		private Long jobId;
-		//todo: 경력 타입..?
+		@NotNull
+		private boolean isEntryLevel;
 	}
 }

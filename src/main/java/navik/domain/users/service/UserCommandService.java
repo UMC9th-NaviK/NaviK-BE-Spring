@@ -26,7 +26,7 @@ public class UserCommandService {
 	public UserResponseDTO.BasicInfoDto updateBasicInfo(Long userId, UserRequestDTO.BasicInfoDto req) {
 		User user = userQueryService.getUser(userId);
 		Job job = jobRepository.getReferenceById(req.getJobId());
-		user.updateBasicInfo(req.getName(), req.getNickname(), job);
+		user.updateBasicInfo(req.getName(), req.getNickname(), req.isEntryLevel(), job);
 
 		return UserConverter.toBasicInfoDto(user);
 	}
