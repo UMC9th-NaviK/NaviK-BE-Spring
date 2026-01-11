@@ -14,6 +14,7 @@ public class BoardConverter {
                 .boardId(board.getId())
                 .userId(board.getUser().getId())
                 .nickname(board.getUser().getNickname())
+                .jobType(board.getUser().getJob().getJobType())
                 .articleTitle(board.getArticleTitle())
                 .articleContent(board.getArticleContent())
                 .likeCount((int)likeCount)

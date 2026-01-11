@@ -44,4 +44,8 @@ public class Board extends BaseEntity {
 
 	@Column(name = "article_deleted", nullable = false)
 	private Boolean articleDeleted;
+
+	public void incrementArticleViews() {
+		this.articleViews++;
+	}
 }
