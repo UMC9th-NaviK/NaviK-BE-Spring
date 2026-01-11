@@ -35,7 +35,8 @@ public enum GeneralErrorCode implements BaseCode {
     DB_CONSTRAINT_VIOLATION(HttpStatus.CONFLICT, "DB_409", "데이터 무결성 제약 조건을 위반했습니다."),
 
     // 6. Board (게시글)
-    BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "BOARD_404", "존재하지 않는 게시글입니다.");
+    BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "BOARD_404", "존재하지 않는 게시글입니다."),
+    AUTH_BOARD_NOT_WRITER(HttpStatus.UNAUTHORIZED, "BOARD_401_01", "해당 게시글의 작성자가 아닙니다.");
 
     /**
      * HTTP 상태 코드
