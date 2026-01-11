@@ -1,7 +1,7 @@
 package navik.domain.board.service;
 
 import lombok.RequiredArgsConstructor;
-import navik.domain.board.converter.BoardConverter;
+import navik.domain.board.converter.CommentConverter;
 import navik.domain.board.dto.CommentCreateRequestDTO;
 import navik.domain.board.entity.Board;
 import navik.domain.board.entity.Comment;
@@ -29,7 +29,7 @@ public class CommentService {
                     .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.COMMENT_NOT_FOUND));
         }
 
-        Comment newComment = BoardConverter.toComment(request, userId, board, parentComment);
+        Comment newComment = CommentConverter.toComment(request, userId, board, parentComment);
         return commentRepository.save(newComment).getId();
     }
 

@@ -4,8 +4,6 @@ import navik.domain.board.dto.BoardResponseDTO;
 import navik.domain.board.dto.CommentCreateRequestDTO;
 import navik.domain.board.entity.Board;
 import navik.domain.board.entity.Comment;
-import navik.domain.users.entity.User;
-
 public class BoardConverter {
 
     public static BoardResponseDTO toResponse(
@@ -23,15 +21,6 @@ public class BoardConverter {
                 .commentCount((int)commentCount)
                 .viewCount(board.getArticleViews())
                 .createdAt(board.getCreatedAt())
-                .build();
-    }
-
-    public static Comment toComment(CommentCreateRequestDTO request, Long userId, Board board, Comment parentComment) {
-        return Comment.builder()
-                .id(userId)
-                .board(board)
-                .content(request.getContent())
-                .parentComment(parentComment)
                 .build();
     }
 }
