@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
     // 전체 조회
-    Page<Board> findByArticleDeletedFalse(Pageable pageable);
+    Page<Board> findAll(Pageable pageable);
 
     // 직무별 조회
-    Page<Board> findByJobDeletedFalse(Pageable pageable, JobType jobType);
+    Page<Board> findByJobType(Pageable pageable, JobType jobType);
 }
