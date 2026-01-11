@@ -52,4 +52,12 @@ public class PageResponseDto<T> {
         this.totalElements = page.getTotalElements();
         this.last = page.isLast();
     }
+
+    /**
+     * Page 객체를 PageResponseDto로 변환하는 정적 팩토리 매서드
+     */
+
+    public static <T> PageResponseDto<T> of(Page<T> page) {
+        return new PageResponseDto<>(page);
+    }
 }
