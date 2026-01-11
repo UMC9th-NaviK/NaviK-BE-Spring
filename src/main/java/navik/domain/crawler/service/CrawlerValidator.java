@@ -15,7 +15,7 @@ public class CrawlerValidator {
 		return CrawlerConstant.INVALID_RECRUITMENT_TITLES.contains(title);
 	}
 
-	private boolean isValidUrl(String url) {
+	public boolean isValidDetailUrl(String url) {
 		Pattern pattern = Pattern.compile(JobKoreaConstant.RECRUITMENT_DETAIL_URL_PATTERN);
 		Matcher matcher = pattern.matcher(url);
 		return matcher.matches();

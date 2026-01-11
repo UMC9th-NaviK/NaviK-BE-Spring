@@ -1,6 +1,5 @@
 package navik.domain.crawler.service;
 
-import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -25,7 +24,7 @@ import navik.domain.crawler.factory.JsoupFactory;
 import navik.global.ocr.service.OcrService;
 
 /**
- * 크롤러의 데이터 추출을 담당하는 메서드입니다.
+ * 채용 공고 상세 페이지의 데이터 추출을 담당하는 메서드입니다.
  */
 @Component
 @RequiredArgsConstructor
@@ -52,10 +51,11 @@ public class CrawlerDataExtractor {
 	/**
 	 * 채용 공고의 고유 식별 번호를 추출합니다.
 	 *
-	 * @param url
+	 * @param wait
 	 * @return
 	 */
-	public String extractPostId(String url) {
+	public String extractPostId(WebDriverWait wait) {
+		String url = extractCurrentUrl(wait);
 		String recruitmentDetailUrlPattern = JobKoreaConstant.RECRUITMENT_DETAIL_URL_PATTERN;
 		Pattern pattern = Pattern.compile(recruitmentDetailUrlPattern);
 		Matcher matcher = pattern.matcher(url);
@@ -216,11 +216,13 @@ public class CrawlerDataExtractor {
 	 * @param wait
 	 * @return
 	 */
-	public String extractRecruitmentDetail(WebDriverWait wait) throws IOException {
+	public String extractRecruitmentDetail(WebDriverWait wait) {
 		String iframeUrl = extractIframeUrl(wait);
 		Document recruitmentDocument = jsoupFactory.createDocument(iframeUrl);
 		return extractRecruitmentTable(recruitmentDocument)    // HTML Table 추출
-			+ extractRecruitmentImage(recruitmentDocument);    // 이미지 추출
+			+ "<OCR 결과>"
+			+ extractRecruitmentImage(recruitmentDocument)     // 이미지 추출
+			+ "</OCR 결과>";
 	}
 
 	/**
