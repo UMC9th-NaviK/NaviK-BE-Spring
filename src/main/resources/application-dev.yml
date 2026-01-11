@@ -85,6 +85,6 @@ spring:
 
 # 네이버 OCR API
 naver:
-  service:
-    url: ${NAVER_SERVICE_URL}
-    secretKey: ${NAVER_SERVICE_SECRET_KEY}
+  ocr:
+    url: ${NAVER_OCR_URL}
+    secretKey: ${NAVER_OCR_SECRET_KEY}
