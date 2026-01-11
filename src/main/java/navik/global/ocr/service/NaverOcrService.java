@@ -25,9 +25,9 @@ import navik.global.ocr.dto.NaverOcrResponseDTO;
 @RequiredArgsConstructor
 public class NaverOcrService implements OcrService {
 
-	@Value("${naver.service.url}")
+	@Value("${naver.ocr.url}")
 	private String apiUrl;
-	@Value("${naver.service.secretKey}")
+	@Value("${naver.ocr.secretKey}")
 	private String secretKey;
 	private final ImageHelper imageHelper;
 	private final WebClient webClient;
@@ -113,7 +113,7 @@ public class NaverOcrService implements OcrService {
 			.collect(Collectors.joining(" "));
 
 		// 5. OCR 결과 반환
-		return result.toString().trim();
+		return result.trim();
 	}
 
 	private boolean isSupportedExtension(String extension) {
