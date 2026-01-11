@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.board.converter.BoardConverter;
 import navik.domain.board.dto.BoardCreateRequestDTO;
 import navik.domain.board.dto.BoardResponseDTO;
+import navik.domain.board.dto.BoardUpdateRequestDTO;
 import navik.domain.board.entity.Board;
 import navik.domain.board.repository.BoardLikeRepository;
 import navik.domain.board.repository.BoardRepository;
@@ -17,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class BoardService {
      * @return
      */
     public Page<BoardResponseDTO> getBoardList(Pageable pageable) {
-        return boardRepository.findByArticleDeletedFalse(pageable)
+        return boardRepository.findAll(pageable)
                 .map(board -> BoardConverter.toResponse(
                         board,
                         boardLikeRepository.countLikeByBoard(board),
@@ -49,13 +49,19 @@ public class BoardService {
      * @return
      */
     public Page<BoardResponseDTO> getBoardListByJob(Pageable pageable, JobType jobType) {
-        return boardRepository.findByJobDeletedFalse(pageable, jobType)
+        return boardRepository.findByUserJobType(jobType, pageable)
                 .map(board -> BoardConverter.toResponse(
                         board,
                         boardLikeRepository.countLikeByBoard(board),
                         commentRepository.countCommentByBoard(board)
                 ));
     }
+
+    /**
+     * 상세 게시글 조회
+     * @param boardId
+     * @return
+     */
 
     public BoardResponseDTO getBoardDetail(Long boardId) {
         Board board = boardRepository.findById(boardId)
@@ -71,21 +77,55 @@ public class BoardService {
         );
     }
 
-    public Long createBoard(User user, BoardCreateRequestDTO request) {
+    /**
+     *
+     * @param userId
+     * @param request
+     * @return
+     */
+    public Long createBoard(Long userId, BoardCreateRequestDTO request) {
+
         Board board = Board.builder()
-                .user(user)
+                .id(userId)
                 .articleTitle(request.getArticleTitle())
                 .articleContent(request.getArticleContent())
                 .articleViews(0)
-                .articleDeleted(false)
                 .build();
 
         return boardRepository.save(board).getId();
     }
 
-    // 게시글 삭제
+    /**
+     * 게시글 수정
+     * @param boardId
+     * @param user
+     * @param request
+     * @return
+     */
+    public Long updateBoard(Long boardId, User user, BoardUpdateRequestDTO request) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
 
+        if (!board.getUser().getId().equals(user.getId())) {
+            throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_BOARD_NOT_WRITER);
+        }
 
+        board.updateBoard(request.getArticleTitle(), request.getArticleContent());
+        return boardRepository.save(board).getId();
+    }
 
-    // 게시글 수정
+    /**
+     * 게시글 삭제
+     * @param boardId
+     * @param user
+     */
+    public void deleteBoard(Long boardId, User user) {
+        Board board = boardRepository.findById(boardId) // 게시글 찾을 수 없음
+                .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
+
+        if (!board.getUser().getId().equals(user.getId())) { // 게시글 작성자가 아님
+            throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_BOARD_NOT_WRITER);
+        }
+        boardRepository.delete(board);
+    }
 }

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.board.dto.BoardCreateRequestDTO;
 import navik.domain.board.dto.BoardResponseDTO;
+import navik.domain.board.dto.BoardUpdateRequestDTO;
 import navik.domain.job.enums.JobType;
 import navik.domain.users.entity.User;
 import navik.global.apiPayload.ApiResponse;
@@ -34,5 +35,19 @@ public interface BoardControllerDocs {
 
     @Operation(summary = "게시글 작성", description = "새로운 게시글을 작성합니다.")
     @Parameter(name = "userId", description = "작성자 ID (경로변수)", example = "1")
-    ApiResponse<Long> createBoard(BoardCreateRequestDTO request, User user);
+    ApiResponse<Long> createBoard(BoardCreateRequestDTO request, Long userId);
+
+    @Operation(summary = "게시글 수정", description = "게시글의 제목과 내용을 수정합니다.")
+    @Parameters({
+            @Parameter(name = "boardId", description = "수정할 게시글 ID", example = "1"),
+            @Parameter(name = "userId", description = "작성자 ID (경로변수)", example = "1")
+    })
+    ApiResponse<Long> updateBoard(Long boardId, BoardUpdateRequestDTO request, User user);
+
+    @Operation(summary = "게시글 삭제", description = "게시글을 삭제 합니다.")
+    @Parameters({
+            @Parameter(name = "boardId", description = "삭제할 게시글 ID", example = "1"),
+            @Parameter(name = "userId", description = "작성자 ID (경로변수)", example = "1")
+    })
+    ApiResponse<Object> deleteBoard(Long boardId, User user);
 }

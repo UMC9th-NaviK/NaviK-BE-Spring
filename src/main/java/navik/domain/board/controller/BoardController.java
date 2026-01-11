@@ -4,11 +4,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import navik.domain.board.dto.BoardCreateRequestDTO;
 import navik.domain.board.dto.BoardResponseDTO;
+import navik.domain.board.dto.BoardUpdateRequestDTO;
 import navik.domain.board.service.BoardService;
 import navik.domain.job.enums.JobType;
 import navik.domain.users.entity.User;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.PageResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +30,7 @@ public class BoardController implements BoardControllerDocs {
      */
     @GetMapping("/") // 전체
     public ApiResponse<PageResponseDto<BoardResponseDTO>> getBoards(
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable
     ) {
         Page<BoardResponseDTO> boardList = boardService.getBoardList(pageable);
 
@@ -45,7 +47,6 @@ public class BoardController implements BoardControllerDocs {
      */
     @GetMapping("/jobs") // 전체
     public ApiResponse<PageResponseDto<BoardResponseDTO>> getBoardsByJob(
-            // Pagable로 리팩터링, @SwaggerPagable 이걸 사용하면 좋음. swagger ui에서 불필요한 페이저블의 필드가 사라지고 page, size 두 개만 노출됨
             @RequestParam JobType jobType,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable
             ) {
@@ -70,15 +71,48 @@ public class BoardController implements BoardControllerDocs {
     /**
      * 게시글 생성
      * @param request
-     * @param user
+     * @param userId
      * @return
      */
     @PostMapping("/")
     public ApiResponse<Long> createBoard(
             @RequestBody @Valid BoardCreateRequestDTO request,
-            @RequestAttribute User user
+            @AuthUser Long userId
     ) {
-        Long boardId = boardService.createBoard(user, request);
+        Long boardId = boardService.createBoard(userId, request);
         return ApiResponse.onSuccess(GeneralSuccessCode._OK, boardId);
     }
+
+    /**
+     * 게시글 수정
+     * @param boardId
+     * @param request
+     * @param user
+     * @return
+     */
+    @PutMapping("/{boardId}")
+    public ApiResponse<Long> updateBoard(
+            @PathVariable Long boardId,
+            @RequestBody @Valid BoardUpdateRequestDTO request,
+            @RequestAttribute User user
+    ) {
+        Long updatedBoardId = boardService.updateBoard(boardId, user, request);
+        return ApiResponse.onSuccess(GeneralSuccessCode._OK, updatedBoardId);
+    }
+
+    /**
+     * 게시글 삭제
+     * @param boardId
+     * @param user
+     * @return
+     */
+    @DeleteMapping("/{boardId}")
+    public ApiResponse<Object> deleteBoard(
+            @PathVariable Long boardId,
+            @RequestAttribute User user
+    ) {
+        boardService.deleteBoard(boardId, user);
+        return ApiResponse.onSuccess(GeneralSuccessCode._DELETED);
+    }
 }
+

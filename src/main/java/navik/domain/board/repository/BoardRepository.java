@@ -6,6 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
@@ -13,5 +16,6 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     Page<Board> findAll(Pageable pageable);
 
     // 직무별 조회
-    Page<Board> findByJobType(Pageable pageable, JobType jobType);
+    @Query("select b from Board b where b.user.job.jobType = :jobType")
+    Page<Board> findByUserJobType(@Param("jobType") JobType jobType, Pageable pageable);
 }
