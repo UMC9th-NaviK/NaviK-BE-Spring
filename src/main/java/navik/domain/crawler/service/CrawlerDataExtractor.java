@@ -1,5 +1,6 @@
 package navik.domain.crawler.service;
 
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.crawler.constant.JobKoreaConstant;
+import navik.domain.crawler.factory.JsoupFactory;
 import navik.global.ocr.service.OcrService;
 
 /**
@@ -35,6 +37,7 @@ public class CrawlerDataExtractor {
 	 */
 	@Qualifier("naverOcrService")
 	private final OcrService ocrService;
+	private final JsoupFactory jsoupFactory;
 
 	/**
 	 * 현재 화면의 URL를 추출합니다.
@@ -81,6 +84,21 @@ public class CrawlerDataExtractor {
 		WebElement companyNameElement = wait.until(ExpectedConditions.presenceOfElementLocated(
 			By.cssSelector("h2[data-sentry-element='Typography']")));
 		return companyNameElement.getText();
+	}
+
+	/**
+	 * 채용 공고의 회사 로고를 추출합니다.
+	 * '회사 내용 상세보기' 정적 페이지를 얻어 Jsoup으로 추출합니다.
+	 *
+	 * @param wait
+	 * @return
+	 */
+	public String extractCompanyLogo(WebDriverWait wait) {
+		WebElement companyMoreElement = wait.until(ExpectedConditions.presenceOfElementLocated(
+			By.cssSelector("a[data-sentry-component='MoreButton']")));
+		String companyUrl = companyMoreElement.getAttribute("href");
+		Document companyDocument = jsoupFactory.createDocument(companyUrl);
+		return companyDocument.selectFirst("div.logo img").attr("src");
 	}
 
 	/**
@@ -189,34 +207,34 @@ public class CrawlerDataExtractor {
 	}
 
 	/**
-	 * iframe으로부터 정적 공고 페이지를 추출하고, 상세 내용 추출은 Jsoup으로 위임합니다.
-	 *
-	 * @param wait
-	 * @return
-	 */
-	public String extractIframeUrl(WebDriverWait wait) {
-		WebElement detailIframe = wait.until(ExpectedConditions.presenceOfElementLocated(
-			By.cssSelector("#details-section iframe")
-		));
-		return detailIframe.getDomAttribute("src");
-	}
-
-	/**
-	 * 정적 공고 페이지의 상세 내용을 추출합니다.
+	 * iframe으로부터 채용 공고 정적 페이지를 얻고, Jsoup 기반으로 상세 내용을 파싱합니다.
 	 *
 	 * 잡코리아 채용 공고의 유형은 다음과 같습니다.
 	 * 	 1. HTML 테이블 태그 기반
 	 * 	 2. 이미지 기반
 	 * 위 두 가지 경우의 수를 모두 처리합니다.
 	 *
-	 * @param document
+	 * @param wait
 	 * @return
 	 */
-	public String extractRecruitmentDetail(Document document) {
-		StringBuilder result = new StringBuilder();
-		result.append(extractRecruitmentTable(document));    // HTML Table 추출
-		result.append(extractRecruitmentImage(document));    // 이미지 추출
-		return result.toString();
+	public String extractRecruitmentDetail(WebDriverWait wait) throws IOException {
+		String iframeUrl = extractIframeUrl(wait);
+		Document recruitmentDocument = jsoupFactory.createDocument(iframeUrl);
+		return extractRecruitmentTable(recruitmentDocument)    // HTML Table 추출
+			+ extractRecruitmentImage(recruitmentDocument);    // 이미지 추출
+	}
+
+	/**
+	 * iframe으로부터 정적 공고 페이지의 url를 추출합니다.
+	 *
+	 * @param wait
+	 * @return
+	 */
+	private String extractIframeUrl(WebDriverWait wait) {
+		WebElement detailIframe = wait.until(ExpectedConditions.presenceOfElementLocated(
+			By.cssSelector("#details-section iframe")
+		));
+		return detailIframe.getDomAttribute("src");
 	}
 
 	private String extractRecruitmentTable(Document document) {
