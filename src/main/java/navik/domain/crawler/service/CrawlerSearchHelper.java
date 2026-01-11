@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 import navik.domain.crawler.enums.JobCode;
 
 /**
- * 크롤러의 행동을 담당하는 클래스입니다.
+ * 크롤러의 검색 작업을 담당하는 클래스입니다.
  */
 @Component
-public class CrawlerActionHelper {
+public class CrawlerSearchHelper {
 
 	/**
 	 * 검색 전 직무 필터를 적용하는 메서드입니다.
@@ -39,10 +39,14 @@ public class CrawlerActionHelper {
 	 * @param wait
 	 * @throws Exception
 	 */
-	public void search(WebDriverWait wait) throws Exception {
+	public void search(WebDriverWait wait) {
 		WebElement searchButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("dev-btn-search")));
 		searchButton.click();
-		Thread.sleep(5000); // 검색 결과 대기를 위한 sleep
+		try {
+			Thread.sleep(5000); // 검색 결과 대기를 위한 sleep
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
@@ -62,7 +66,7 @@ public class CrawlerActionHelper {
 	 *
 	 * @param wait
 	 */
-	private void applyQuantity(WebDriverWait wait) {
+	public void applyQuantity(WebDriverWait wait) {
 		WebElement quantityElement = wait.until(ExpectedConditions.elementToBeClickable(
 			By.cssSelector("#pstab option[value='50']")    // 한 페이지 당 50개씩 노출
 		));

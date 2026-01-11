@@ -1,0 +1,158 @@
+package navik.domain.crawler.service;
+
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import navik.domain.crawler.constant.CrawlerConstant;
+import navik.domain.crawler.constant.JobKoreaConstant;
+import navik.domain.crawler.dto.RecruitmentPost;
+import navik.domain.crawler.enums.JobCode;
+import navik.domain.crawler.factory.WebDriverFactory;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class CrawlerService {
+
+	private final WebDriverFactory webDriverFactory;
+	private final CrawlerSearchHelper crawlerSearchHelper;
+	private final CrawlerDataExtractor crawlerDataExtractor;
+	private final CrawlerValidator crawlerValidator;
+
+	/**
+	 * 스케쥴링에 의해 주기적으로 실행되는 메서드입니다.
+	 */
+	public void scheduledCrawl() {
+		// 1. 크롬 드라이버 생성
+		WebDriver driver = webDriverFactory.createChromeDriver();
+		WebDriverWait wait = webDriverFactory.createDriverWait(driver);
+
+		// 2. JobCode(직무)별 크롤링
+		try {
+			for (JobCode jobCode : JobCode.values()) {
+				log.info("===[{}] 직무 크롤링 시작 ===", jobCode.name());
+				driver.get(JobKoreaConstant.BASE_URL);
+				search(wait, jobCode);    // 직무 기반 필터 적용 및 검색
+				processPage(driver, wait, CrawlerConstant.CRAWL_PAGES_PER_JOB); // 페이지 수 만큼 파싱
+			}
+		} catch (Exception exception) {
+			log.error("스케쥴링 작업 중 오류 발생\n{}", exception.getMessage());
+		} finally {
+			driver.quit(); // 리소스 해제
+		}
+	}
+
+	/**
+	 * 필터를 적용하여 직무 별 검색을 수행합니다.
+	 *
+	 * @param wait
+	 * @param jobCode
+	 */
+	private void search(WebDriverWait wait, JobCode jobCode) {
+		crawlerSearchHelper.applyJobFilter(wait, jobCode);    // 필터 적용
+		crawlerSearchHelper.search(wait);    // 검색
+		crawlerSearchHelper.applySort(wait); // 정렬
+		crawlerSearchHelper.applyQuantity(wait);    // 한 페이지 당 보여질 개수 설정
+	}
+
+	/**
+	 * 검색 이후 pages만큼 페이지를 처리합니다.
+	 *
+	 * @param driver
+	 * @param wait
+	 * @param pages
+	 */
+	private void processPage(WebDriver driver, WebDriverWait wait, int pages) {
+		// 1. 현재 위치 keep
+		String originalWindow = driver.getWindowHandle();
+		String baseUrl = driver.getCurrentUrl();
+
+		// 2. 해당 페이지로 이동
+		for (int currentPage = 1; currentPage <= pages; currentPage++) {
+
+			// currentPage로 이동
+			String newUrl = baseUrl.replace("#anchorGICnt_\\d+", "#anchorGICnt_" + currentPage);
+			driver.get(newUrl);
+
+			// 현재 페이지의 총 공고 개수 확인
+			List<WebElement> recruitmentElements = wait.until(
+				ExpectedConditions.presenceOfAllElementsLocatedBy(
+					By.cssSelector("tr[data-index] strong a")
+				)
+			);
+			log.info("{}페이지에서 총 {}개의 공고 발견", currentPage, recruitmentElements.size());
+
+			// 하나씩 채용 공고 처리
+			for (int currentPost = 1; currentPost <= recruitmentElements.size(); currentPost++) {
+
+				// 채용 공고 클릭 및 새 창 대기
+				recruitmentElements.get(currentPost).click();
+				wait.until(ExpectedConditions.numberOfWindowsToBe(2));
+
+				// 새 창의 핸들 찾기
+				String newWindow = String.valueOf(driver.getWindowHandles().stream()
+					.filter(handle -> !handle.equals(originalWindow))
+					.findFirst());
+
+				// 새 창으로 초점 전환
+				driver.switchTo().window(newWindow);
+
+				// 상세 처리
+				processDetailPost(wait);
+			}
+		}
+	}
+
+	private boolean processDetailPost(WebDriverWait wait) {
+
+		// 1. 채용 공고 상세 페이지 url 유효성 검사
+		String link = crawlerDataExtractor.extractCurrentUrl(wait);
+		if (!crawlerValidator.isValidDetailUrl(link)) {
+			log.info("유효하지 않은 채용 공고 링크: {}", link);
+			return false;
+		}
+
+		// 2. 제목 유효성 검사
+		String title = crawlerDataExtractor.extractTitle(wait);
+		if (crawlerValidator.isSkipTitle(title)) {
+			log.info("유효하지 않은 채용 공고 제목: {}", title);
+			return false;
+		}
+
+		// 3. 나머지 데이터 추출
+		String postId = crawlerDataExtractor.extractPostId(wait);
+		String companyName = crawlerDataExtractor.extractCompanyName(wait);
+		String companyLogo = crawlerDataExtractor.extractCompanyLogo(wait);
+		String companyInfo = crawlerDataExtractor.extractCompanyInfo(wait);
+		String qualification = crawlerDataExtractor.extractQualification(wait);
+		String timeInfo = crawlerDataExtractor.extractTimeInfo(wait);
+		String outline = crawlerDataExtractor.extractOutline(wait);
+		String recruitmentDetail = crawlerDataExtractor.extractRecruitmentDetail(wait);
+
+		// 4. LLM 전달용 DTO 작성
+		RecruitmentPost recruitmentPost = RecruitmentPost.builder()
+			.link(link)
+			.title(title)
+			.postId(postId)
+			.companyName(companyName)
+			.companyLogo(companyLogo)
+			.companyInfo(companyInfo)
+			.qualification(qualification)
+			.timeInfo(timeInfo)
+			.outline(outline)
+			.recruitmentDetail(recruitmentDetail)
+			.build();
+
+		// 5. LLM 호출
+
+		return true;
+	}
+}
