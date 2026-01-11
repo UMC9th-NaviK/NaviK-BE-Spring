@@ -36,7 +36,11 @@ public enum GeneralErrorCode implements BaseCode {
 
     // 6. Board (게시글)
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "BOARD_404", "존재하지 않는 게시글입니다."),
-    AUTH_BOARD_NOT_WRITER(HttpStatus.UNAUTHORIZED, "BOARD_401_01", "해당 게시글의 작성자가 아닙니다.");
+    AUTH_BOARD_NOT_WRITER(HttpStatus.UNAUTHORIZED, "BOARD_401_01", "해당 게시글의 작성자가 아닙니다."),
+
+    // 7. Comment (댓글)
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT_404", "존재하지 않는 댓글입니다."),
+    AUTH_COMMENT_NOT_WRITER(HttpStatus.UNAUTHORIZED, "COMMENT_401_01", "해당 댓글의 작성자가 아닙니다.");
 
     /**
      * HTTP 상태 코드
