@@ -26,9 +26,9 @@ public class BoardConverter {
                 .build();
     }
 
-    public static Comment toComment(CommentCreateRequestDTO request, User user, Board board, Comment parentComment) {
+    public static Comment toComment(CommentCreateRequestDTO request, Long userId, Board board, Comment parentComment) {
         return Comment.builder()
-                .user(user)
+                .id(userId)
                 .board(board)
                 .content(request.getContent())
                 .parentComment(parentComment)

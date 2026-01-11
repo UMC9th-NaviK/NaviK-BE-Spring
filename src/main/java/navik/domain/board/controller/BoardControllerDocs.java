@@ -8,7 +8,6 @@ import navik.domain.board.dto.BoardCreateRequestDTO;
 import navik.domain.board.dto.BoardResponseDTO;
 import navik.domain.board.dto.BoardUpdateRequestDTO;
 import navik.domain.job.enums.JobType;
-import navik.domain.users.entity.User;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.dto.PageResponseDto;
 import org.springdoc.core.annotations.ParameterObject;
@@ -42,12 +41,12 @@ public interface BoardControllerDocs {
             @Parameter(name = "boardId", description = "수정할 게시글 ID", example = "1"),
             @Parameter(name = "userId", description = "작성자 ID (경로변수)", example = "1")
     })
-    ApiResponse<Long> updateBoard(Long boardId, BoardUpdateRequestDTO request, User user);
+    ApiResponse<Long> updateBoard(Long boardId, BoardUpdateRequestDTO request, Long userId);
 
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제 합니다.")
     @Parameters({
             @Parameter(name = "boardId", description = "삭제할 게시글 ID", example = "1"),
             @Parameter(name = "userId", description = "작성자 ID (경로변수)", example = "1")
     })
-    ApiResponse<Object> deleteBoard(Long boardId, User user);
+    ApiResponse<Object> deleteBoard(Long boardId, Long userId);
 }

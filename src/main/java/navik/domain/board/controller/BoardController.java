@@ -7,7 +7,6 @@ import navik.domain.board.dto.BoardResponseDTO;
 import navik.domain.board.dto.BoardUpdateRequestDTO;
 import navik.domain.board.service.BoardService;
 import navik.domain.job.enums.JobType;
-import navik.domain.users.entity.User;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
@@ -74,6 +73,7 @@ public class BoardController implements BoardControllerDocs {
      * @param userId
      * @return
      */
+
     @PostMapping("/")
     public ApiResponse<Long> createBoard(
             @RequestBody @Valid BoardCreateRequestDTO request,
@@ -87,31 +87,31 @@ public class BoardController implements BoardControllerDocs {
      * 게시글 수정
      * @param boardId
      * @param request
-     * @param user
+     * @param userId
      * @return
      */
     @PutMapping("/{boardId}")
     public ApiResponse<Long> updateBoard(
             @PathVariable Long boardId,
             @RequestBody @Valid BoardUpdateRequestDTO request,
-            @RequestAttribute User user
+            @AuthUser Long userId
     ) {
-        Long updatedBoardId = boardService.updateBoard(boardId, user, request);
+        Long updatedBoardId = boardService.updateBoard(boardId, userId, request);
         return ApiResponse.onSuccess(GeneralSuccessCode._OK, updatedBoardId);
     }
 
     /**
      * 게시글 삭제
      * @param boardId
-     * @param user
+     * @param userId
      * @return
      */
     @DeleteMapping("/{boardId}")
     public ApiResponse<Object> deleteBoard(
             @PathVariable Long boardId,
-            @RequestAttribute User user
+            @AuthUser Long userId
     ) {
-        boardService.deleteBoard(boardId, user);
+        boardService.deleteBoard(boardId, userId);
         return ApiResponse.onSuccess(GeneralSuccessCode._DELETED);
     }
 }

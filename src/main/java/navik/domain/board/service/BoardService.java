@@ -98,15 +98,15 @@ public class BoardService {
     /**
      * 게시글 수정
      * @param boardId
-     * @param user
+     * @param userId
      * @param request
      * @return
      */
-    public Long updateBoard(Long boardId, User user, BoardUpdateRequestDTO request) {
+    public Long updateBoard(Long boardId, Long userId, BoardUpdateRequestDTO request) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
 
-        if (!board.getUser().getId().equals(user.getId())) {
+        if (!board.getUser().getId().equals(userId)) {
             throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_BOARD_NOT_WRITER);
         }
 
@@ -117,13 +117,13 @@ public class BoardService {
     /**
      * 게시글 삭제
      * @param boardId
-     * @param user
+     * @param userId
      */
-    public void deleteBoard(Long boardId, User user) {
+    public void deleteBoard(Long boardId, Long userId) {
         Board board = boardRepository.findById(boardId) // 게시글 찾을 수 없음
                 .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
 
-        if (!board.getUser().getId().equals(user.getId())) { // 게시글 작성자가 아님
+        if (!board.getUser().getId().equals(userId)) { // 게시글 작성자가 아님
             throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_BOARD_NOT_WRITER);
         }
         boardRepository.delete(board);
