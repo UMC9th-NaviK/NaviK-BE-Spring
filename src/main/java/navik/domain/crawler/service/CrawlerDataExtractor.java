@@ -98,7 +98,8 @@ public class CrawlerDataExtractor {
 			By.cssSelector("a[data-sentry-component='MoreButton']")));
 		String companyUrl = companyMoreElement.getAttribute("href");
 		Document companyDocument = jsoupFactory.createDocument(companyUrl);
-		return companyDocument.selectFirst("div.logo img").attr("src");
+		String companyLogo = companyDocument.selectFirst("div.logo img").attr("src");
+		return applyHttpsPrefix(companyLogo);
 	}
 
 	/**
@@ -121,10 +122,8 @@ public class CrawlerDataExtractor {
 		);
 
 		// 경력, 학력 2가지만 추출
-		int limit = Math.min(items.size(), 2);
 		StringBuilder result = new StringBuilder();
-
-		for (int i = 0; i < limit; i++) {
+		for (int i = 0; i < Math.min(items.size(), 2); i++) {
 			WebElement item = items.get(i);
 			WebElement keyElement = item.findElement(By.cssSelector("span[style*='min-width:80px']"));
 
@@ -267,7 +266,8 @@ public class CrawlerDataExtractor {
 			if (img.closest("p.visual") != null) {
 				continue;    // 채용 공고가 아닌, 회사 소개 이미지에 해당하는 경우 제외
 			}
-			imageSet.add(img.absUrl("src"));
+			String imgUrl = applyHttpsPrefix(img.absUrl("src"));
+			imageSet.add(imgUrl);
 		}
 
 		// 2. 필터링된 이미지들에 대해 OCR 호출
@@ -281,5 +281,17 @@ public class CrawlerDataExtractor {
 
 		// 3. 결과 반환
 		return result.toString();
+	}
+
+	/**
+	 * 'https:'가 누락된 경우, 해당 prefix를 추가합니다.
+	 *
+	 * @param url
+	 * @return
+	 */
+	private String applyHttpsPrefix(String url) {
+		if (url.startsWith("//"))
+			return "https:" + url;
+		return url;
 	}
 }
