@@ -74,6 +74,10 @@ dependencies {
     // Apache Commons Image Library
     implementation 'org.apache.commons:commons-imaging:1.0.0-alpha6'
 
+    // Spring AI
+    implementation platform("org.springframework.ai:spring-ai-bom:1.1.2")
+    implementation "org.springframework.ai:spring-ai-starter-model-openai"
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
