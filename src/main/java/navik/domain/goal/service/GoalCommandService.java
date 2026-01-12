@@ -1,5 +1,6 @@
 package navik.domain.goal.service;
 
+import navik.domain.users.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ public class GoalCommandService {
 	private final GoalRepository goalRepository;
 	private final UserQueryService userQueryService;
 	private final GoalQueryService goalQueryService;
+    private final UserRepository userRepository;
 
 	public GoalResponseDTO.InfoDTO createGoal(Long userId, GoalRequestDTO.CreateDTO req){
 		User user = userQueryService.getUser(userId);
@@ -31,16 +33,16 @@ public class GoalCommandService {
 		return GoalConverter.toInfoDto(newGoal);
 	}
 
-	public GoalResponseDTO.InfoDTO updateGoalStatus(Long goalId, GoalStatus status) {
-		Goal goal = goalQueryService.getGoal(goalId);
+	public GoalResponseDTO.InfoDTO updateGoalStatus(Long userId, Long goalId, GoalStatus status) {
+		Goal goal = goalQueryService.getAuthorizedGoal(userId, goalId);
 
 		goal.updateStatus(status);
 
 		return GoalConverter.toInfoDto(goal);
 	}
 
-	public void deleteGoal(Long goalId) {
-		Goal goal = goalQueryService.getGoal(goalId);
+	public void deleteGoal(Long userId, Long goalId) {
+		Goal goal = goalQueryService.getAuthorizedGoal(userId, goalId);
 
 		goalRepository.delete(goal);
 	}

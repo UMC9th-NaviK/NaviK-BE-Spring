@@ -1,5 +1,6 @@
 package navik.domain.goal.service;
 
+import navik.global.apiPayload.code.status.AuthErrorCode;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,16 @@ public class GoalQueryService {
 		return goalRepository.findById(goalId).orElseThrow(
 			()->new GeneralExceptionHandler(GeneralErrorCode.ENTITY_NOT_FOUND));
 	}
+
+    public Goal getAuthorizedGoal(Long userId, Long goalId) {
+        Goal goal = getGoal(goalId);
+
+        if (!goal.getUser().getId().equals(userId)) {
+            throw new GeneralExceptionHandler(AuthErrorCode.AUTH_FORBIDDEN);
+        }
+
+        return goal;
+    }
 
 	public CursorResponseDto<GoalResponseDTO.PreviewDTO> getGoals(Long userId, Long cursor, Integer size, String sortBy) {
 		PageRequest pageRequest = PageRequest.of(0, size);

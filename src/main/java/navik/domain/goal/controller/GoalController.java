@@ -25,41 +25,44 @@ import navik.global.dto.CursorResponseDto;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/goals")
-public class GoalController implements GoalControllerDocs{
+public class GoalController implements GoalControllerDocs {
 
-	private final GoalQueryService goalQueryService;
-	private final GoalCommandService goalCommandService;
+    private final GoalQueryService goalQueryService;
+    private final GoalCommandService goalCommandService;
 
-	@Override
-	@GetMapping("/list")
-	public ApiResponse<CursorResponseDto<GoalResponseDTO.PreviewDTO>> getGoals(
-		@AuthUser Long userId,
-		@RequestParam(required = false) Long cursor,
-		@RequestParam(defaultValue = "10") Integer size,
-		@RequestParam String sortBy) {
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK, goalQueryService.getGoals(userId, cursor, size, sortBy));
-	}
+    @Override
+    @GetMapping("/list")
+    public ApiResponse<CursorResponseDto<GoalResponseDTO.PreviewDTO>> getGoals(
+            @AuthUser Long userId,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam String sortBy) {
+        return ApiResponse.onSuccess(GeneralSuccessCode._OK, goalQueryService.getGoals(userId, cursor, size, sortBy));
+    }
 
-	@Override
-	@PostMapping
-	public ApiResponse<GoalResponseDTO.InfoDTO> createGoal(
-		@AuthUser Long userId,
-		@RequestBody @Valid GoalRequestDTO.CreateDTO req) {
-		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, goalCommandService.createGoal(userId, req));
-	}
+    @Override
+    @PostMapping
+    public ApiResponse<GoalResponseDTO.InfoDTO> createGoal(
+            @AuthUser Long userId,
+            @RequestBody @Valid GoalRequestDTO.CreateDTO req) {
+        return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, goalCommandService.createGoal(userId, req));
+    }
 
-	@Override
-	@PatchMapping("/{goalId}/status")
-	public ApiResponse<GoalResponseDTO.InfoDTO> updateGoalStatus(
-		@PathVariable Long goalId,
-		@RequestParam GoalStatus status) {
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK, goalCommandService.updateGoalStatus(goalId,status));
-	}
+    @Override
+    @PatchMapping("/{goalId}/status")
+    public ApiResponse<GoalResponseDTO.InfoDTO> updateGoalStatus(
+            @AuthUser Long userId,
+            @PathVariable Long goalId,
+            @RequestParam GoalStatus status) {
+        return ApiResponse.onSuccess(GeneralSuccessCode._OK, goalCommandService.updateGoalStatus(userId, goalId, status));
+    }
 
-	@Override
-	@DeleteMapping("/{goalId}")
-	public ApiResponse<Void> deleteGoal(@PathVariable Long goalId) {
-		goalCommandService.deleteGoal(goalId);
-		return ApiResponse.onSuccess(GeneralSuccessCode._DELETED, null);
-	}
+    @Override
+    @DeleteMapping("/{goalId}")
+    public ApiResponse<Void> deleteGoal(
+            @AuthUser Long userId,
+            @PathVariable Long goalId) {
+        goalCommandService.deleteGoal(userId, goalId);
+        return ApiResponse.onSuccess(GeneralSuccessCode._DELETED, null);
+    }
 }

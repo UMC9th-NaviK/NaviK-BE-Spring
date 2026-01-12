@@ -36,7 +36,7 @@ public class UserResponseDTO {
 		@NotNull
 		private Long jobId;
 		@NotNull
-		private boolean isEntryLevel;
+		private Boolean isEntryLevel;
 	}
 
 	@Builder

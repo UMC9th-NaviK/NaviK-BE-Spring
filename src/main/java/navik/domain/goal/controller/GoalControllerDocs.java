@@ -42,11 +42,11 @@ public interface GoalControllerDocs {
 	ApiResponse<GoalResponseDTO.InfoDTO> createGoal(Long userId, GoalRequestDTO.CreateDTO req);
 
 	@Operation(summary = "목표 상태 변경", description = "목표의 진행 상태를 변경합니다.")
-	ApiResponse<GoalResponseDTO.InfoDTO> updateGoalStatus(Long goalId, GoalStatus status);
+	ApiResponse<GoalResponseDTO.InfoDTO> updateGoalStatus(Long userId, Long goalId, GoalStatus status);
 
 	@Operation(summary = "목표 삭제", description = "목표를 삭제합니다.")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses(
 		value = {@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "DELETED")
 	})
-	ApiResponse<Void> deleteGoal (Long goalId);
+	ApiResponse<Void> deleteGoal (Long userId, Long goalId);
 }

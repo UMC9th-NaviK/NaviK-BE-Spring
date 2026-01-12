@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import navik.domain.goal.entity.Goal;
 
+import java.util.Optional;
+
 public interface GoalRepository extends JpaRepository<Goal, Long> {
 	Slice<Goal> findByUserIdOrderByCreatedAtDescIdDesc(Long userId, PageRequest pageRequest);
 
@@ -15,4 +17,6 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
 	Slice<Goal> findByUserIdOrderByEndDateAscIdAsc(Long userId, PageRequest pageRequest);
 
 	Slice<Goal> findByUserIdAndIdLessThanOrderByEndDateAscIdAsc(Long userId, Long cursor, PageRequest pageRequest);
+
+    Optional<Object> findByIdAndUserId(Long userId, Long goalId);
 }
