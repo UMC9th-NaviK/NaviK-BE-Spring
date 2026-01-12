@@ -12,12 +12,13 @@ import navik.domain.crawler.constant.JobKoreaConstant;
 public class CrawlerValidator {
 
 	public boolean isSkipTitle(String title) {
-		return CrawlerConstant.INVALID_RECRUITMENT_TITLES.contains(title);
+		return CrawlerConstant.INVALID_RECRUITMENT_TITLES.stream()
+			.anyMatch(title::contains);
 	}
 
 	public boolean isValidDetailUrl(String url) {
 		Pattern pattern = Pattern.compile(JobKoreaConstant.RECRUITMENT_DETAIL_URL_PATTERN);
 		Matcher matcher = pattern.matcher(url);
-		return matcher.matches();
+		return matcher.find();
 	}
 }

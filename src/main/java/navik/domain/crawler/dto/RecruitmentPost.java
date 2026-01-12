@@ -1,5 +1,7 @@
 package navik.domain.crawler.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.Builder;
 import lombok.Getter;
 
@@ -19,7 +21,8 @@ public class RecruitmentPost {
 	private String recruitmentDetail;
 
 	public String toHtmlString() {
-		return "\n<링크>" + link + "</링크>\n"
+		return "\n<현재 시간>" + LocalDateTime.now() + "</현재 시간>\n"
+			+ "\n<링크>" + link + "</링크>\n"
 			+ "\n<제목>" + title + "</제목>\n"
 			+ "\n<공고 ID>" + postId + "</공고 ID>\n"
 			+ "\n<회사명>" + companyName + "</회사명>\n"

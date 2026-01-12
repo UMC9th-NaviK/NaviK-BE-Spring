@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.crawler.constant.JobKoreaConstant;
 import navik.domain.crawler.factory.JsoupFactory;
 import navik.global.ocr.service.OcrService;
@@ -26,6 +27,7 @@ import navik.global.ocr.service.OcrService;
 /**
  * 채용 공고 상세 페이지의 데이터 추출을 담당하는 메서드입니다.
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CrawlerDataExtractor {
@@ -57,9 +59,11 @@ public class CrawlerDataExtractor {
 	public String extractPostId(WebDriverWait wait) {
 		String url = extractCurrentUrl(wait);
 		String recruitmentDetailUrlPattern = JobKoreaConstant.RECRUITMENT_DETAIL_URL_PATTERN;
-		Pattern pattern = Pattern.compile(recruitmentDetailUrlPattern);
-		Matcher matcher = pattern.matcher(url);
-		return matcher.group(1);
+		Matcher matcher = Pattern.compile(recruitmentDetailUrlPattern).matcher(url);
+		if (matcher.find()) {
+			return matcher.group(1);
+		}
+		return "";
 	}
 
 	/**
@@ -182,13 +186,19 @@ public class CrawlerDataExtractor {
 	 * @return
 	 */
 	public String extractTimeInfo(WebDriverWait wait) {
-		WebElement countdownElement = wait.until(ExpectedConditions.presenceOfElementLocated(
-			By.cssSelector("span[data-sentry-component='Countdown']")
-		));
+		String countdownText = "알수없음";
+		try {
+			WebElement countdownElement = wait.until(ExpectedConditions.presenceOfElementLocated(
+				By.cssSelector("span[data-sentry-component='Countdown']")
+			));
+			countdownText = countdownElement.getText();
+		} catch (Exception exception) {
+			log.info("남은 기간이 표시되지 않은 공고입니다.");
+		}
 		WebElement dateElement = wait.until(ExpectedConditions.presenceOfElementLocated(
 			By.cssSelector("div[data-sentry-component='SimpleTable']")
 		));
-		return "남은기간 " + countdownElement.getText() + ", " + dateElement.getText();
+		return "남은기간 " + countdownText + ", " + dateElement.getText();
 	}
 
 	/**
@@ -217,8 +227,8 @@ public class CrawlerDataExtractor {
 	 * @return
 	 */
 	public String extractRecruitmentDetail(WebDriverWait wait) {
-		String iframeUrl = extractIframeUrl(wait);
-		Document recruitmentDocument = jsoupFactory.createDocument(iframeUrl);
+		String recruitmentDetailUrl = JobKoreaConstant.BASE_URL + extractIframeUrl(wait);
+		Document recruitmentDocument = jsoupFactory.createDocument(recruitmentDetailUrl);
 		return extractRecruitmentTable(recruitmentDocument)    // HTML Table 추출
 			+ "<OCR 결과>"
 			+ extractRecruitmentImage(recruitmentDocument)     // 이미지 추출
@@ -286,7 +296,7 @@ public class CrawlerDataExtractor {
 	}
 
 	/**
-	 * 'https:'가 누락된 경우, 해당 prefix를 추가합니다.
+	 * 이미지 url에 'https:'가 누락된 경우, 추가합니다.
 	 *
 	 * @param url
 	 * @return
