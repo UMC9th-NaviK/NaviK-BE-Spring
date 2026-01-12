@@ -6,7 +6,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import navik.domain.goal.entity.Goal;
+import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface GoalRepository extends JpaRepository<Goal, Long> {
@@ -19,4 +22,7 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
 	Slice<Goal> findByUserIdAndIdLessThanOrderByEndDateAscIdAsc(Long userId, Long cursor, PageRequest pageRequest);
 
     Optional<Object> findByIdAndUserId(Long userId, Long goalId);
+
+    @Query("SELECT g FROM Goal g JOIN FETCH g.user WHERE g.endDate IN :endDates")
+	List<Goal> findByEndDateIn(List<LocalDate> endDates);
 }

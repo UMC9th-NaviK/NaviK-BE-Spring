@@ -59,18 +59,6 @@ public class NotificationCommandService {
         notificationRepository.save(notification);
     }
 
-    // d-day 알림
-    public void checkDeadLineAndNotify(Long userId, Notifiable target, LocalDate endDate){
-        long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), endDate);
-
-
-        if (notificationConfig.shouldNotifyForDeadline(target.getNotificationType(), daysLeft)) {
-            NotificationMessageStrategy strategy = strategyMap.get(target.getNotificationType());
-            String content = strategy.createDeadlineMessage(target, daysLeft);
-            createNotification(userId, target, content);
-        }
-    }
-
     // 완료 알림
     public void checkCompletionAndNotify(Long userId, Notifiable target) {
         if (target.isCompleted()) {
@@ -78,5 +66,12 @@ public class NotificationCommandService {
             String content = strategy.createDeadlineMessage(target, 0);
             createNotification(userId, target, content);
         }
+    }
+
+    public void createDeadlineNotification(Long userId, Notifiable target, LocalDate endDate) {
+        long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), endDate);
+        NotificationMessageStrategy strategy = strategyMap.get(target.getNotificationType());
+        String content = strategy.createDeadlineMessage(target, daysLeft);
+        createNotification(userId, target, content);
     }
 }
