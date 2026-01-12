@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.job.entity.Job;
 import navik.domain.job.exception.code.JobErrorCode;
 import navik.domain.job.repository.JobRepository;
@@ -23,6 +24,7 @@ import navik.global.ai.dto.LLMResponseDTO;
 import navik.global.ai.service.EmbeddingService;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -71,5 +73,7 @@ public class RecruitmentCommandService {
 			// KPI saveAll
 			positionKpiRepository.saveAll(kpis);
 		});
+
+		log.info("채용 공고 적재 완료 - {}", request.getLink());
 	}
 }

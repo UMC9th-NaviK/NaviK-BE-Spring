@@ -143,13 +143,17 @@ public class CrawlerService {
 
 		// 1. 채용 공고 상세 페이지 url 유효성 검사
 		String link = crawlerDataExtractor.extractCurrentUrl(wait);
-		if (!crawlerValidator.isValidDetailUrl(link))
+		if (!crawlerValidator.isValidDetailUrl(link)) {
 			log.info("유효하지 않은 채용 공고 링크: {}", link);
+			return;
+		}
 
 		// 2. 제목 유효성 검사
 		String title = crawlerDataExtractor.extractTitle(wait);
-		if (crawlerValidator.isSkipTitle(title))
+		if (crawlerValidator.isSkipTitle(title)) {
 			log.info("유효하지 않은 채용 공고 제목: {}", title);
+			return;
+		}
 
 		// 3. 나머지 데이터 추출 및 DTO 작성
 		RecruitmentPost recruitmentPost = RecruitmentPost.builder()
@@ -168,7 +172,7 @@ public class CrawlerService {
 		// 4. LLM 호출
 		String html = recruitmentPost.toHtmlString();
 		LLMResponseDTO.Recruitment result = llmService.getRecruitment(html);
-		log.info("[LLM 채용 공고 결과]: {}", result);
+		log.info("[LLM 채용 공고 결과] {}", result);
 
 		// 5. DB 적재
 		recruitmentCommandService.createRecruitment(result);

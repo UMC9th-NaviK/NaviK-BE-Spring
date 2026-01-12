@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.domain.crawler.service.CrawlerService;
-import navik.global.ocr.service.NaverOcrService;
 
 /**
- * TODO: 실 환경 메모리 테스트 후 서버 분리 및 스웨거 설명 추가 예정
+ * TODO: 실 환경에서 직접 트리거 해보고 스웨거 문서화, 메모리 테스트해볼 생각입니다.
+ *
  */
 @Slf4j
 @RestController
@@ -19,7 +19,6 @@ import navik.global.ocr.service.NaverOcrService;
 public class CrawlerController {
 
 	private final CrawlerService crawlerService;
-	private final NaverOcrService naverOcrService;
 
 	/**
 	 * TODO: 스케쥴러 동작 테스트용 api 삭제 예정
@@ -28,4 +27,8 @@ public class CrawlerController {
 	public void directCrawl() {
 		crawlerService.scheduledCrawl();
 	}
+
+	/**
+	 * TODO: 개발자 따로, PM, 디자이너 따로
+	 */
 }
