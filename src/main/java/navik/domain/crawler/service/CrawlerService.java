@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import navik.domain.crawler.constants.CrawlerConstant;
 import navik.domain.crawler.constants.JobKoreaConstant;
 import navik.domain.crawler.dto.RecruitmentPost;
 import navik.domain.crawler.enums.JobCode;
@@ -39,7 +38,7 @@ public class CrawlerService {
 	/**
 	 * 스케쥴링에 의해 주기적으로 실행되는 메서드입니다.
 	 */
-	public void scheduledCrawl() {
+	public void scheduledCrawl(Integer pagesToCrawl) {
 		// 1. 크롬 드라이버 생성
 		WebDriver driver = webDriverFactory.createChromeDriver();
 		WebDriverWait wait = webDriverFactory.createDriverWait(driver);
@@ -50,7 +49,7 @@ public class CrawlerService {
 				log.info("=== [{}] 직무 크롤링 시작 ===", jobCode.name());
 				driver.get(JobKoreaConstant.RECRUITMENT_LIST_URL);
 				search(wait, jobCode);    // 직무 기반 필터 적용 및 검색
-				processPages(driver, wait, CrawlerConstant.CRAWL_PAGES_PER_JOB); // 페이지 수 만큼 파싱
+				processPages(driver, wait, pagesToCrawl); // 페이지 수 만큼 파싱
 			}
 		} catch (Exception exception) {
 			log.error("스케쥴링 작업 중 오류 발생\n{}", exception.getMessage());
