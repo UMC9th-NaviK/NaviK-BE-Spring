@@ -1,0 +1,80 @@
+name: EC2 배포
+
+on:
+  push:
+    branches: ["main"]
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: GitHub 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Gradle 실행 권한 부여
+        run: chmod +x gradlew
+
+      - name: JDK 17 설치
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Spring Boot JAR 빌드 (테스트 제외)
+        run: ./gradlew clean bootJar -x test
+
+      - name: AWS 자격 증명 설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: ECR 리포지토리 존재 여부 확인 및 생성
+        run: |
+          aws ecr describe-repositories --repository-names "$ECR_REPOSITORY" --region "$AWS_REGION" >/dev/null 2>&1 \
+          || aws ecr create-repository --repository-name "$ECR_REPOSITORY" --region "$AWS_REGION"
+
+      - name: Amazon ECR 로그인
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: 🏷Docker 이미지 태그 생성
+        id: meta
+        run: echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      - name: Docker 이미지 빌드 및 태깅
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.meta.outputs.tag }} .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.meta.outputs.tag }} $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Docker 이미지 ECR에 푸시
+        run: |
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.meta.outputs.tag }}
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: EC2 접속 후 Docker Compose로 배포
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd /home/ubuntu/app
+
+            export ECR_IMAGE=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}
+            export IMAGE_TAG=${{ steps.meta.outputs.tag }}
+
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} \
+              | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+
+            docker compose pull
+            docker compose up -d
+            docker image prune -f
