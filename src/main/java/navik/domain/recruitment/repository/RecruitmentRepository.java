@@ -4,5 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import navik.domain.recruitment.entity.Recruitment;
 
-public interface RecruitmentRepository extends JpaRepository<Long, Recruitment> {
+public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> {
+	boolean existsByPostId(String postId);
 }
