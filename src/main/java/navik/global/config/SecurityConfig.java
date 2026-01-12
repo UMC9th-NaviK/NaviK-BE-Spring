@@ -52,8 +52,6 @@ public class SecurityConfig {
 				// 4. S3 관련
 				.requestMatchers("/v1/s3/**").permitAll()
 
-				.requestMatchers("/v1/crawler/**").permitAll()
-
 				// 그 외 모든 요청은 인증 필요
 				.anyRequest().authenticated())
 
