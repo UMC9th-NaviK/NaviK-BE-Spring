@@ -12,7 +12,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +21,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import navik.global.apiPayload.code.status.AuthErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.auth.JwtUserDetails;
 import navik.global.auth.dto.TokenDto;
 
 @Slf4j
@@ -50,12 +50,20 @@ public class JwtTokenProvider {
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.joining(","));
 
+		Object principal = authentication.getPrincipal();
+
+		String status = null;
+		if (principal instanceof JwtUserDetails userDetails) {
+			status = userDetails.getStatus();
+		}
+
 		long now = (new Date()).getTime();
 		Date accessTokenExpiresIn = new Date(now + accessTokenValidityInMilliseconds);
 
 		return Jwts.builder()
 			.subject(authentication.getName())
 			.claim(AUTHORITIES_KEY, authorities)
+			.claim("status", status)
 			.expiration(accessTokenExpiresIn)
 			.signWith(key)
 			.compact();
@@ -98,7 +106,11 @@ public class JwtTokenProvider {
 			.map(SimpleGrantedAuthority::new)
 			.collect(Collectors.toList());
 
-		UserDetails principal = new User(claims.getSubject(), "", authorities);
+		// status claim 읽기
+		String status = claims.get("status", String.class);
+		Long userId = Long.parseLong(claims.getSubject());
+
+		UserDetails principal = new JwtUserDetails(userId, status, authorities);
 
 		return new UsernamePasswordAuthenticationToken(principal, "", authorities);
 	}

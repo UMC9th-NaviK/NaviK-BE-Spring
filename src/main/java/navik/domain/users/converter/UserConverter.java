@@ -1,0 +1,26 @@
+package navik.domain.users.converter;
+
+import navik.domain.users.dto.UserResponseDTO;
+import navik.domain.users.entity.User;
+
+public class UserConverter {
+
+	public static UserResponseDTO.UserInfoDTO toUserInfoDTO(User user) {
+		return UserResponseDTO.UserInfoDTO.builder()
+			.id(user.getId())
+			.name(user.getName())
+			.email(user.getEmail())
+			.role(user.getRole())
+			.socialType(user.getSocialType())
+			.build();
+	}
+
+	public static UserResponseDTO.BasicInfoDto toBasicInfoDto(User user) {
+		return UserResponseDTO.BasicInfoDto.builder()
+			.id(user.getId())
+			.name(user.getName())
+			.nickname(user.getNickname())
+			.jobId(user.getJob().getId())
+			.build();
+	}
+}
