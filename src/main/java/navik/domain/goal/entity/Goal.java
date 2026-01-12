@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import navik.domain.notification.entity.Notifiable;
+import navik.domain.notification.entity.NotificationType;
 import navik.domain.users.entity.User;
 import navik.global.entity.BaseEntity;
 
@@ -17,7 +19,7 @@ import navik.global.entity.BaseEntity;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Table(name = "goals")
-public class Goal extends BaseEntity {
+public class Goal extends BaseEntity implements Notifiable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,4 +43,20 @@ public class Goal extends BaseEntity {
 	public void updateStatus(GoalStatus status) {
 		this.status = status;
 	}
+
+
+    @Override
+    public NotificationType getNotificationType() {
+        return NotificationType.GOAL;
+    }
+
+    @Override
+    public Long getNotifiableId() {
+        return this.id;
+    }
+
+    @Override
+    public boolean isCompleted() {
+        return this.status == GoalStatus.COMPLETED;
+    }
 }

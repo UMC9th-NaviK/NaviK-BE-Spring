@@ -2,10 +2,81 @@ package navik.domain.notification.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import navik.domain.notification.config.NotificationConfig;
+import navik.domain.notification.entity.Notifiable;
+import navik.domain.notification.entity.Notification;
+import navik.domain.notification.entity.NotificationType;
+import navik.domain.notification.repository.NotificationRepository;
+import navik.domain.notification.strategy.NotificationMessageStrategy;
+import navik.domain.users.entity.User;
+import navik.domain.users.service.UserQueryService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class NotificationCommandService {
+
+    private final UserQueryService userQueryService;
+    private final NotificationRepository notificationRepository;
+    private final NotificationConfig notificationConfig;
+
+    private final Map<NotificationType, NotificationMessageStrategy> strategyMap;
+
+    public NotificationCommandService(
+            UserQueryService userQueryService,
+            NotificationRepository notificationRepository,
+            NotificationConfig notificationConfig,
+            List<NotificationMessageStrategy> strategies
+    ) {
+        this.userQueryService = userQueryService;
+        this.notificationRepository = notificationRepository;
+        this.notificationConfig = notificationConfig;
+
+        this.strategyMap = strategies.stream()
+                .collect(Collectors.toMap(
+                        NotificationMessageStrategy::getNotificationType,
+                        strategy -> strategy
+                ));
+    }
+
+    public void createNotification(Long userId, Notifiable target, String content){
+
+        User user = userQueryService.getUser(userId);
+
+        Notification notification = Notification.builder()
+                .user(user)
+                .type(target.getNotificationType())
+                .relateId(target.getNotifiableId())
+                .content(content)
+                .build();
+
+        notificationRepository.save(notification);
+    }
+
+    // d-day 알림
+    public void checkDeadLineAndNotify(Long userId, Notifiable target, LocalDate endDate){
+        long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), endDate);
+
+
+        if (notificationConfig.shouldNotifyForDeadline(target.getNotificationType(), daysLeft)) {
+            NotificationMessageStrategy strategy = strategyMap.get(target.getNotificationType());
+            String content = strategy.createDeadlineMessage(target, daysLeft);
+            createNotification(userId, target, content);
+        }
+    }
+
+    // 완료 알림
+    public void checkCompletionAndNotify(Long userId, Notifiable target) {
+        if (target.isCompleted()) {
+            NotificationMessageStrategy strategy = strategyMap.get(target.getNotificationType());
+            String content = strategy.createDeadlineMessage(target, 0);
+            createNotification(userId, target, content);
+        }
+    }
 }
