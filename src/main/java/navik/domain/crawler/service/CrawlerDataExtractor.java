@@ -102,7 +102,7 @@ public class CrawlerDataExtractor {
 			By.cssSelector("a[data-sentry-component='MoreButton']")));
 		String companyUrl = companyMoreElement.getAttribute("href");
 		Document companyDocument = jsoupFactory.createDocument(companyUrl);
-		String companyLogo = companyDocument.selectFirst("div.logo img").attr("src");
+		String companyLogo = companyDocument.selectFirst(".logo img").attr("src");
 		return applyHttpsPrefix(companyLogo);
 	}
 
