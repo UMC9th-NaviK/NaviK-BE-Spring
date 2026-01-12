@@ -1,4 +1,4 @@
-package navik.domain.crawler.service;
+package navik.domain.crawler.util;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;

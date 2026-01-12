@@ -1,4 +1,4 @@
-package navik.domain.crawler.service;
+package navik.domain.crawler.util;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import navik.domain.crawler.constant.JobKoreaConstant;
+import navik.domain.crawler.constants.JobKoreaConstant;
 import navik.domain.crawler.factory.JsoupFactory;
 import navik.global.ocr.service.OcrService;
 

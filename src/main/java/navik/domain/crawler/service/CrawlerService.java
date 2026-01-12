@@ -12,11 +12,14 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import navik.domain.crawler.constant.CrawlerConstant;
-import navik.domain.crawler.constant.JobKoreaConstant;
+import navik.domain.crawler.constants.CrawlerConstant;
+import navik.domain.crawler.constants.JobKoreaConstant;
 import navik.domain.crawler.dto.RecruitmentPost;
 import navik.domain.crawler.enums.JobCode;
 import navik.domain.crawler.factory.WebDriverFactory;
+import navik.domain.crawler.util.CrawlerDataExtractor;
+import navik.domain.crawler.util.CrawlerSearchHelper;
+import navik.domain.crawler.util.CrawlerValidator;
 import navik.domain.recruitment.service.RecruitmentCommandService;
 import navik.global.ai.dto.LLMResponseDTO;
 import navik.global.ai.service.LLMService;
@@ -124,7 +127,7 @@ public class CrawlerService {
 					));
 					processETL(wait);
 				} catch (Exception exception) {
-					log.error("상세 페이지 처리 중 오류 발생\n{}", exception.getMessage());
+					log.error("상세 페이지 처리 중 오류 발생: {}", exception.getMessage());
 				} finally {
 					driver.close();
 					driver.switchTo().window(originalWindow);

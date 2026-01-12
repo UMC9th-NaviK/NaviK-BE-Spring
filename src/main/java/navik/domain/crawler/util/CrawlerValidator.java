@@ -1,12 +1,12 @@
-package navik.domain.crawler.service;
+package navik.domain.crawler.util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Component;
 
-import navik.domain.crawler.constant.CrawlerConstant;
-import navik.domain.crawler.constant.JobKoreaConstant;
+import navik.domain.crawler.constants.CrawlerConstant;
+import navik.domain.crawler.constants.JobKoreaConstant;
 
 @Component
 public class CrawlerValidator {

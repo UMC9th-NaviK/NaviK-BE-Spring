@@ -6,7 +6,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Component;
 
-import navik.domain.crawler.constant.CrawlerConstant;
+import navik.domain.crawler.constants.CrawlerConstant;
 
 @Component
 public class WebDriverFactory {

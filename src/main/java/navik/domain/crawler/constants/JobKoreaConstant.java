@@ -1,4 +1,4 @@
-package navik.domain.crawler.constant;
+package navik.domain.crawler.constants;
 
 public class JobKoreaConstant {
 	public static final String BASE_URL = "https://www.jobkorea.co.kr";

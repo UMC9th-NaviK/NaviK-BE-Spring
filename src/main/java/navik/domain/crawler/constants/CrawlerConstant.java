@@ -1,4 +1,4 @@
-package navik.domain.crawler.constant;
+package navik.domain.crawler.constants;
 
 import java.time.Duration;
 import java.util.List;
