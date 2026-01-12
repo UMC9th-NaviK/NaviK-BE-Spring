@@ -19,7 +19,6 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 @RequiredArgsConstructor
 public class UserCommandService {
 	private final JobRepository jobRepository;
-	private final UserRepository userRepository;
 	private final UserQueryService userQueryService;
 
 	@Transactional

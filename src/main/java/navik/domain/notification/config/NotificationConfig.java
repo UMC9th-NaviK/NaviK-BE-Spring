@@ -17,9 +17,4 @@ public class NotificationConfig {
     public List<Integer> getNotificationDays(NotificationType type) {
         return DEADLINE_NOTIFICATION_DAYS.getOrDefault(type, List.of());
     }
-
-    public boolean shouldNotifyForDeadline(NotificationType type, long daysLeft) {
-        List<Integer> notificationDays = getNotificationDays(type);
-        return notificationDays.contains((int) daysLeft);
-    }
 }

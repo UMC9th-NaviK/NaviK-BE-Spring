@@ -1,8 +1,6 @@
 package navik.domain.notification.service;
 
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import navik.domain.notification.config.NotificationConfig;
 import navik.domain.notification.entity.Notifiable;
 import navik.domain.notification.entity.Notification;
 import navik.domain.notification.entity.NotificationType;
@@ -24,19 +22,16 @@ public class NotificationCommandService {
 
     private final UserQueryService userQueryService;
     private final NotificationRepository notificationRepository;
-    private final NotificationConfig notificationConfig;
 
     private final Map<NotificationType, NotificationMessageStrategy> strategyMap;
 
     public NotificationCommandService(
             UserQueryService userQueryService,
             NotificationRepository notificationRepository,
-            NotificationConfig notificationConfig,
             List<NotificationMessageStrategy> strategies
     ) {
         this.userQueryService = userQueryService;
         this.notificationRepository = notificationRepository;
-        this.notificationConfig = notificationConfig;
 
         this.strategyMap = strategies.stream()
                 .collect(Collectors.toMap(

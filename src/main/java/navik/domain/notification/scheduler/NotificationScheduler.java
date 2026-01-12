@@ -46,4 +46,14 @@ public class NotificationScheduler {
                 );
         }
     }
+
+    @Scheduled(cron = "0 0 8 * * *")
+    public void checkStudyCompleted() {
+        LocalDate today = LocalDate.now();
+        //todo
+        // 1. 오늘 종료된 스터디들에 대해 : List<Study>
+        // 2. 스터디에 참여한 사용자들에 대해 : List<StudyUser>
+        // 3. notificationCommandService.createCompletionNotification(userId, study);
+
+    }
 }
