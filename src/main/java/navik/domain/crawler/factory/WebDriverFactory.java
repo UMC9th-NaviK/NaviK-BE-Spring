@@ -22,9 +22,9 @@ public class WebDriverFactory {
 		options.addArguments("--disable-dev-shm-usage");
 		options.addArguments("--remote-allow-origins=*");
 		options.addArguments("--disable-blink-features=AutomationControlled");
+		options.addArguments("--headless=new"); // UI 없이 실행
 
 		// 멀티스레딩 시 포트 충돌 처리 필요
-		// options.addArguments("--headless"); 이거는 UI 없이 실행하는 모드
 
 		return new ChromeDriver(options);
 	}

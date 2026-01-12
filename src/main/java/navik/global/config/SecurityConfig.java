@@ -52,6 +52,9 @@ public class SecurityConfig {
 				// 4. S3 관련
 				.requestMatchers("/v1/s3/**").permitAll()
 
+				// TODO: 인증 적용 (임시 해제)
+				.requestMatchers("/v1/crawler/**").permitAll()
+
 				// 그 외 모든 요청은 인증 필요
 				.anyRequest().authenticated())
 
