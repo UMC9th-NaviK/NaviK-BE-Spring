@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum AttendStatus {
 
-    ACCEPTANCE("수락"),
-    WAITING("대기"),
-    REJECTION("거절");
+	ACCEPTANCE("수락"),
+	WAITING("대기"),
+	REJECTION("거절");
 
-    private final String label;
+	private final String label;
 }

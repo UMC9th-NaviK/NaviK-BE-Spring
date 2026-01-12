@@ -2,6 +2,7 @@ package navik.global.apiPayload.code.status;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
 import org.springframework.http.HttpStatus;
 
 /**
@@ -11,22 +12,22 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum GeneralSuccessCode implements BaseCode {
-    _OK(HttpStatus.OK, "COMMON200", "성공입니다."),
-    _CREATED(HttpStatus.CREATED, "COMMON201", "요청 성공 및 리소스 생성됨"),
-    _DELETED(HttpStatus.NO_CONTENT, "COMMON204", "삭제가 완료되었습니다.");
+	_OK(HttpStatus.OK, "COMMON200", "성공입니다."),
+	_CREATED(HttpStatus.CREATED, "COMMON201", "요청 성공 및 리소스 생성됨"),
+	_DELETED(HttpStatus.NO_CONTENT, "COMMON204", "삭제가 완료되었습니다.");
 
-    /**
-     * HTTP 상태 코드
-     */
-    private final HttpStatus httpStatus;
+	/**
+	 * HTTP 상태 코드
+	 */
+	private final HttpStatus httpStatus;
 
-    /**
-     * 성공 코드
-     */
-    private final String code;
+	/**
+	 * 성공 코드
+	 */
+	private final String code;
 
-    /**
-     * 성공 메시지
-     */
-    private final String message;
+	/**
+	 * 성공 메시지
+	 */
+	private final String message;
 }
