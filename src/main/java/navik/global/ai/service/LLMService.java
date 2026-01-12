@@ -15,7 +15,7 @@ public class LLMService {
 
 	private final ChatClient.Builder chatClientBuilder;
 
-	public LLMResponseDTO.Recruitment getCrawledDataDTO(String text) {
+	public LLMResponseDTO.Recruitment getRecruitment(String text) {
 
 		ChatClient chatClient = chatClientBuilder.build();
 

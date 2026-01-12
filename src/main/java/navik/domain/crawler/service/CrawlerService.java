@@ -17,7 +17,8 @@ import navik.domain.crawler.constant.JobKoreaConstant;
 import navik.domain.crawler.dto.RecruitmentPost;
 import navik.domain.crawler.enums.JobCode;
 import navik.domain.crawler.factory.WebDriverFactory;
-import navik.domain.recruitment.dto.RecruitmentResponseDTO;
+import navik.domain.recruitment.service.RecruitmentCommandService;
+import navik.global.ai.dto.LLMResponseDTO;
 import navik.global.ai.service.LLMService;
 
 @Slf4j
@@ -30,6 +31,7 @@ public class CrawlerService {
 	private final CrawlerDataExtractor crawlerDataExtractor;
 	private final CrawlerValidator crawlerValidator;
 	private final LLMService llmService;
+	private final RecruitmentCommandService recruitmentCommandService;
 
 	/**
 	 * 스케쥴링에 의해 주기적으로 실행되는 메서드입니다.
@@ -120,7 +122,7 @@ public class CrawlerService {
 					wait.until(ExpectedConditions.not(
 						ExpectedConditions.urlToBe("about:blank")
 					));
-					extractData(wait);
+					processETL(wait);
 				} catch (Exception exception) {
 					log.error("상세 페이지 처리 중 오류 발생\n{}", exception.getMessage());
 				} finally {
@@ -131,52 +133,44 @@ public class CrawlerService {
 		}
 	}
 
-	private boolean extractData(WebDriverWait wait) {
+	/**
+	 * 채용 공고에 대한 데이터 추출, 변환, 적재 작업을 수행하는 메서드입니다.
+	 *
+	 * @param wait
+	 * @return
+	 */
+	private void processETL(WebDriverWait wait) {
 
 		// 1. 채용 공고 상세 페이지 url 유효성 검사
 		String link = crawlerDataExtractor.extractCurrentUrl(wait);
-		if (!crawlerValidator.isValidDetailUrl(link)) {
+		if (!crawlerValidator.isValidDetailUrl(link))
 			log.info("유효하지 않은 채용 공고 링크: {}", link);
-			return false;
-		}
 
 		// 2. 제목 유효성 검사
 		String title = crawlerDataExtractor.extractTitle(wait);
-		if (crawlerValidator.isSkipTitle(title)) {
+		if (crawlerValidator.isSkipTitle(title))
 			log.info("유효하지 않은 채용 공고 제목: {}", title);
-			return false;
-		}
 
-		// 3. 나머지 데이터 추출
-		String postId = crawlerDataExtractor.extractPostId(wait);
-		String companyName = crawlerDataExtractor.extractCompanyName(wait);
-		String companyLogo = crawlerDataExtractor.extractCompanyLogo(wait);
-		String companyInfo = crawlerDataExtractor.extractCompanyInfo(wait);
-		String qualification = crawlerDataExtractor.extractQualification(wait);
-		String timeInfo = crawlerDataExtractor.extractTimeInfo(wait);
-		String outline = crawlerDataExtractor.extractOutline(wait);
-		String recruitmentDetail = crawlerDataExtractor.extractRecruitmentDetail(wait);
-
-		// 4. LLM 전달용 DTO 작성
+		// 3. 나머지 데이터 추출 및 DTO 작성
 		RecruitmentPost recruitmentPost = RecruitmentPost.builder()
 			.link(link)
 			.title(title)
-			.postId(postId)
-			.companyName(companyName)
-			.companyLogo(companyLogo)
-			.companyInfo(companyInfo)
-			.qualification(qualification)
-			.timeInfo(timeInfo)
-			.outline(outline)
-			.recruitmentDetail(recruitmentDetail)
+			.postId(crawlerDataExtractor.extractPostId(wait))
+			.companyName(crawlerDataExtractor.extractCompanyName(wait))
+			.companyLogo(crawlerDataExtractor.extractCompanyLogo(wait))
+			.companyInfo(crawlerDataExtractor.extractCompanyInfo(wait))
+			.qualification(crawlerDataExtractor.extractQualification(wait))
+			.timeInfo(crawlerDataExtractor.extractTimeInfo(wait))
+			.outline(crawlerDataExtractor.extractOutline(wait))
+			.recruitmentDetail(crawlerDataExtractor.extractRecruitmentDetail(wait))
 			.build();
 
-		// 5. LLM 호출
+		// 4. LLM 호출
 		String html = recruitmentPost.toHtmlString();
-		RecruitmentResponseDTO.LLMResponse result = llmService.getCrawledDataDTO(html);
+		LLMResponseDTO.Recruitment result = llmService.getRecruitment(html);
+		log.info("[LLM 채용 공고 결과]: {}", result);
 
-		System.out.println(result);
-
-		return true;
+		// 5. DB 적재
+		recruitmentCommandService.createRecruitment(result);
 	}
 }
