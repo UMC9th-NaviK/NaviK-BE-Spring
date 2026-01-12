@@ -21,6 +21,7 @@ public class UserConverter {
 			.name(user.getName())
 			.nickname(user.getNickname())
 			.jobId(user.getJob().getId())
+			.isEntryLevel(user.getIsEntryLevel())
 			.build();
 	}
 }

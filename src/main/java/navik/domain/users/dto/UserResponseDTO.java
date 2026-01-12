@@ -35,7 +35,8 @@ public class UserResponseDTO {
 		private String nickname;
 		@NotNull
 		private Long jobId;
-		//todo: 경력 타입..?
+		@NotNull
+		private Boolean isEntryLevel;
 	}
 
 	@Builder

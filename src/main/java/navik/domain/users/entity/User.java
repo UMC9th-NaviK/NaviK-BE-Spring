@@ -65,7 +65,7 @@ public class User extends BaseEntity {
 	private UserStatus userStatus = UserStatus.PENDING;
 
 	@Column(name = "is_entry_level")
-	private boolean isEntryLevel;
+	private Boolean isEntryLevel;
 
 	public String getRoleKey() {
 		return this.role.getKey();
