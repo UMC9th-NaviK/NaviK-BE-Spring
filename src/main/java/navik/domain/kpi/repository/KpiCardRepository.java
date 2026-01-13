@@ -1,5 +1,6 @@
 package navik.domain.kpi.repository;
 
+import java.util.Optional;
 import navik.domain.kpi.repository.projection.KpiCardGridItemView;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
@@ -18,5 +19,8 @@ public interface KpiCardRepository extends JpaRepository<KpiCard, Long> {
             order by c.id asc
             """)
     List<KpiCardGridItemView> findGridByJobId(@Param("jobId") Long jobId);
+
+    Optional<KpiCard> findById(Long id);
+
 
 }

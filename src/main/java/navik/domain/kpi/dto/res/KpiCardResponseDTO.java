@@ -7,4 +7,26 @@ public class KpiCardResponseDTO {
             String name
     ) {
     }
+
+    public record Content(
+            String title,
+            String content
+    ) {
+    }
+
+    public record Detail(
+            Long kpiCardId,
+            String name,
+            Content content
+    ) {
+    }
+
+    public record AllDetail(
+            Long kpiCardId,
+            String name,
+            Content strong,
+            Content weak
+    ) {
+    }
+
 }

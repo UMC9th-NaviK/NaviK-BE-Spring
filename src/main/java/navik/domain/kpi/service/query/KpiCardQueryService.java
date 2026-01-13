@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.job.repository.JobRepository;
 import navik.domain.kpi.dto.res.KpiCardResponseDTO;
 import navik.domain.kpi.dto.res.KpiCardResponseDTO.GridItem;
+import navik.domain.kpi.entity.KpiCard;
+import navik.domain.kpi.enums.KpiCardType;
+import navik.domain.kpi.exception.code.KpiErrorCode;
 import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.users.exception.code.JobErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
@@ -29,7 +32,28 @@ public class KpiCardQueryService {
                 .toList();
     }
 
-    //TODO : KPICard Detail 조회
-    //핵심 역량인지 극복역량인지에 따라 조건에 달리
-    //직군에 따라서도
+    public KpiCardResponseDTO.Detail getCardDetail(Long cardId, KpiCardType type) {
+
+        KpiCard card = kpiCardRepository.findById(cardId)
+                .orElseThrow(() -> new GeneralExceptionHandler(KpiErrorCode.KPI_CARD_NOT_FOUND));
+
+        return new KpiCardResponseDTO.Detail(
+                card.getId(),
+                card.getName(),
+                type.toContent(card)
+        );
+    }
+
+    public KpiCardResponseDTO.AllDetail getCardAllDetail(Long cardId) {
+        KpiCard card = kpiCardRepository.findById(cardId)
+                .orElseThrow(() -> new GeneralExceptionHandler(KpiErrorCode.KPI_CARD_NOT_FOUND));
+
+        return new KpiCardResponseDTO.AllDetail(
+                card.getId(),
+                card.getName(),
+                new KpiCardResponseDTO.Content(card.getStrongTitle(), card.getStrongContent()),
+                new KpiCardResponseDTO.Content(card.getWeakTitle(), card.getWeakContent())
+        );
+    }
 }
+
