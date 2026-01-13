@@ -1,5 +1,6 @@
 package navik.global.apiPayload.exception;
 
+import navik.domain.kpi.exception.InvalidKpiCardTypeException;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.BaseCode;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.LinkedHashMap;
@@ -122,5 +124,19 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 		log.warn("GeneralException: {} - {}", code.getCode(), code.getMessage());
 		return ApiResponse.onFailure(code, null);
 	}
+
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ApiResponse<Object> handleTypeMismatch(
+			MethodArgumentTypeMismatchException e,
+			HttpServletRequest request
+	) {
+		GeneralExceptionHandler ghe = ExceptionUtils.findGeneralException(e);
+
+		return ApiResponse.onFailure(
+				GeneralErrorCode.INVALID_TYPE_VALUE,
+				null
+		);
+	}
+
 
 }
