@@ -1,0 +1,25 @@
+package navik.domain.kpi.dto.res;
+
+import java.util.List;
+
+public class KpiScoreResponseDTO {
+
+    public record Initialize(
+
+            int createdCount,
+            int updatedCount,
+            List<Item> items
+
+    ) {
+    }
+
+    public record Item(
+
+            Long kpiCardId,
+            Integer score,
+            boolean created
+
+    ) {
+    }
+
+}
