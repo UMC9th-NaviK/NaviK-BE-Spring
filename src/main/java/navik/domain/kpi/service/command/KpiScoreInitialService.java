@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class KpiScoreCommandService {
+public class KpiScoreInitialService {
 
     private final KpiScoreRepository kpiScoreRepository;
     private final KpiCardRepository kpiCardRepository;

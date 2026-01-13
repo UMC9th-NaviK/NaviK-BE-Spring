@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/kpi-cards")
-public class KpiCardQueryController {
+public class KpiCardController {
 
     private final KpiCardQueryService kpiCardQueryService;
 
