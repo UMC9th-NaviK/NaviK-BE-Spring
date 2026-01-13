@@ -7,7 +7,8 @@ import navik.domain.kpi.dto.res.KpiCardResponseDTO;
 import navik.domain.kpi.dto.res.KpiCardResponseDTO.GridItem;
 import navik.domain.kpi.entity.KpiCard;
 import navik.domain.kpi.enums.KpiCardType;
-import navik.domain.kpi.exception.code.KpiErrorCode;
+import navik.domain.kpi.exception.code.KpiCardErrorCode;
+import navik.domain.kpi.exception.code.KpiScoreErrorCode;
 import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.users.exception.code.JobErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
@@ -35,7 +36,7 @@ public class KpiCardQueryService {
     public KpiCardResponseDTO.Detail getCardDetail(Long cardId, KpiCardType type) {
 
         KpiCard card = kpiCardRepository.findById(cardId)
-                .orElseThrow(() -> new GeneralExceptionHandler(KpiErrorCode.KPI_CARD_NOT_FOUND));
+                .orElseThrow(() -> new GeneralExceptionHandler(KpiCardErrorCode.KPI_CARD_NOT_FOUND));
 
         return new KpiCardResponseDTO.Detail(
                 card.getId(),
@@ -46,7 +47,7 @@ public class KpiCardQueryService {
 
     public KpiCardResponseDTO.AllDetail getCardAllDetail(Long cardId) {
         KpiCard card = kpiCardRepository.findById(cardId)
-                .orElseThrow(() -> new GeneralExceptionHandler(KpiErrorCode.KPI_CARD_NOT_FOUND));
+                .orElseThrow(() -> new GeneralExceptionHandler(KpiCardErrorCode.KPI_CARD_NOT_FOUND));
 
         return new KpiCardResponseDTO.AllDetail(
                 card.getId(),

@@ -6,7 +6,7 @@ import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
 import navik.domain.kpi.dto.res.KpiScoreResponseDTO;
 import navik.domain.kpi.dto.res.KpiScoreResponseDTO.Initialize;
 import navik.domain.kpi.service.command.KpiScoreInitialService;
-import navik.domain.kpi.service.command.KpiScoreUpdateService;
+import navik.domain.kpi.service.command.KpiScoreIncrementService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class KpiScoreController {
 
     private final KpiScoreInitialService kpiScoreInitialService;
-    private final KpiScoreUpdateService kpiScoreUpdateService;
+    private final KpiScoreIncrementService kpiScoreIncrementService;
 
     @PutMapping("/initialize")
     public ApiResponse<Initialize> initialize(
@@ -42,7 +42,7 @@ public class KpiScoreController {
             @PathVariable Long kpiCardId,
             @Valid @RequestBody(required = false) KpiScoreRequestDTO.Increment request
     ) {
-        var response = kpiScoreUpdateService.incrementKpiScore(userId, kpiCardId, request);
+        var response = kpiScoreIncrementService.incrementKpiScore(userId, kpiCardId, request);
         return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
     }
 

@@ -4,8 +4,6 @@ import java.util.Arrays;
 import navik.domain.kpi.dto.res.KpiCardResponseDTO;
 import navik.domain.kpi.entity.KpiCard;
 import navik.domain.kpi.exception.InvalidKpiCardTypeException;
-import navik.domain.kpi.exception.code.KpiErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 public enum KpiCardType {
 
