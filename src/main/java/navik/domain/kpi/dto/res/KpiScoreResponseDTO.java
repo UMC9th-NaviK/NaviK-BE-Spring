@@ -22,4 +22,9 @@ public class KpiScoreResponseDTO {
     ) {
     }
 
+    public record Increment(
+            Long kpiCardId,
+            Integer score
+    ) {}
+
 }
