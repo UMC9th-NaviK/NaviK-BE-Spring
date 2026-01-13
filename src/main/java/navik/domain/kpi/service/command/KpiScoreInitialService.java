@@ -10,7 +10,8 @@ import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
 import navik.domain.kpi.dto.res.KpiScoreResponseDTO;
 import navik.domain.kpi.entity.KpiCard;
 import navik.domain.kpi.entity.KpiScore;
-import navik.domain.kpi.exception.code.KpiErrorCode;
+import navik.domain.kpi.exception.code.KpiCardErrorCode;
+import navik.domain.kpi.exception.code.KpiScoreErrorCode;
 import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.kpi.repository.KpiScoreRepository;
 import navik.domain.users.entity.User;
@@ -41,7 +42,7 @@ public class KpiScoreInitialService {
 
         // 중복 검증
         if (cardIds.stream().distinct().count() != cardIds.size()) {
-            throw new GeneralExceptionHandler(KpiErrorCode.DUPLICATED_KPI_CARD_ID);
+            throw new GeneralExceptionHandler(KpiScoreErrorCode.DUPLICATED_KPI_CARD_ID);
         }
 
         User userRef = userRepository.getReferenceById(userId);
@@ -55,7 +56,7 @@ public class KpiScoreInitialService {
                 .toList();
 
         if (!missing.isEmpty()) {
-            throw new GeneralExceptionHandler(KpiErrorCode.KPI_CARD_NOT_FOUND);
+            throw new GeneralExceptionHandler(KpiCardErrorCode.KPI_CARD_NOT_FOUND);
         }
 
         // 기존 점수 조회
@@ -110,12 +111,12 @@ public class KpiScoreInitialService {
 
     private void validateItems(List<KpiScoreRequestDTO.Item> items) {
         if (items == null || items.isEmpty()) {
-            throw new GeneralExceptionHandler(KpiErrorCode.EMPTY_KPI_SCORES);
+            throw new GeneralExceptionHandler(KpiScoreErrorCode.EMPTY_KPI_SCORES);
         }
 
         for (KpiScoreRequestDTO.Item item : items) {
             if (item.kpiCardId() == null || item.score() == null) {
-                throw new GeneralExceptionHandler(KpiErrorCode.INVALID_KPI_SCORE_REQUEST);
+                throw new GeneralExceptionHandler(KpiScoreErrorCode.INVALID_KPI_SCORE_REQUEST);
             }
         }
     }
