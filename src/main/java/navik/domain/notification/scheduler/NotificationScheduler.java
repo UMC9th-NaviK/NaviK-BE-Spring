@@ -7,6 +7,7 @@ import navik.domain.goal.repository.GoalRepository;
 import navik.domain.notification.config.NotificationConfig;
 import navik.domain.notification.entity.NotificationType;
 import navik.domain.notification.service.NotificationCommandService;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -19,41 +20,45 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NotificationScheduler {
 
-    private final GoalRepository goalRepository;
-    private final NotificationCommandService notificationCommandService;
-    private final NotificationConfig notificationConfig;
+	private final GoalRepository goalRepository;
+	private final NotificationCommandService notificationCommandService;
+	private final NotificationConfig notificationConfig;
 
-    /**
-     * 매일 오전 9시에 알림 대상 목표의 마감일을 체크하여 D-day 알림 생성
-     * NotificationConfig에 설정된 날짜(예: D-1, D-3, D-7)에 해당하는 목표만 조회
-     */
-    @Scheduled(cron = "0 0 9 * * *")
-    public void checkGoalDeadlines() {
+	/**
+	 * 매일 오전 9시에 알림 대상 목표의 마감일을 체크하여 D-day 알림 생성
+	 * NotificationConfig에 설정된 날짜(예: D-1, D-3, D-7)에 해당하는 목표만 조회
+	 */
+	@Scheduled(cron = "0 0 9 * * *")
+	public void checkGoalDeadlines() {
 
-        List<Integer> notificationDays = notificationConfig.getNotificationDays(NotificationType.GOAL);
+		List<Integer> notificationDays = notificationConfig.getNotificationDays(NotificationType.GOAL);
 
-        List<LocalDate> targetEndDates = notificationDays.stream()
-                .map(days -> LocalDate.now().plusDays(days))
-                .collect(Collectors.toList());
+		List<LocalDate> targetEndDates = notificationDays.stream()
+			.map(days -> LocalDate.now().plusDays(days))
+			.collect(Collectors.toList());
 
-        List<Goal> targetGoals = goalRepository.findByEndDateIn(targetEndDates);
+		List<Goal> targetGoals = goalRepository.findByEndDateIn(targetEndDates);
 
-        for (Goal goal : targetGoals) {
-            notificationCommandService.createDeadlineNotification(
-                    goal.getUser().getId(),
-                    goal,
-                    goal.getEndDate()
-                );
-        }
-    }
+		for (Goal goal : targetGoals) {
+			try {
+				notificationCommandService.createDeadlineNotification(
+					goal.getUser().getId(),
+					goal,
+					goal.getEndDate()
+				);
+			} catch (Exception e) {
+				log.error("❌ 알림 생성 실패 - Goal ID: {}, User ID: {}", goal.getId(), goal.getUser().getId(), e);
+			}
+		}
+	}
 
-    @Scheduled(cron = "0 0 8 * * *")
-    public void checkStudyCompleted() {
-        LocalDate today = LocalDate.now();
-        //todo
-        // 1. 오늘 종료된 스터디들에 대해 : List<Study>
-        // 2. 스터디에 참여한 사용자들에 대해 : List<StudyUser>
-        // 3. notificationCommandService.createCompletionNotification(userId, study);
+	@Scheduled(cron = "0 0 8 * * *")
+	public void checkStudyCompleted() {
+		LocalDate today = LocalDate.now();
+		//todo
+		// 1. 오늘 종료된 스터디들에 대해 : List<Study>
+		// 2. 스터디에 참여한 사용자들에 대해 : List<StudyUser>
+		// 3. notificationCommandService.createCompletionNotification(userId, study);
 
-    }
+	}
 }

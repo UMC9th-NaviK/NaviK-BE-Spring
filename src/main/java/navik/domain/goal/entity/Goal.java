@@ -33,7 +33,7 @@ public class Goal extends BaseEntity implements Notifiable {
 
 	@Column(name = "status", nullable = false)
 	@Builder.Default
-    @Enumerated(EnumType.STRING)
+	@Enumerated(EnumType.STRING)
 	private GoalStatus status = GoalStatus.NONE;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -44,19 +44,18 @@ public class Goal extends BaseEntity implements Notifiable {
 		this.status = status;
 	}
 
+	@Override
+	public NotificationType getNotificationType() {
+		return NotificationType.GOAL;
+	}
 
-    @Override
-    public NotificationType getNotificationType() {
-        return NotificationType.GOAL;
-    }
+	@Override
+	public Long getNotifiableId() {
+		return this.id;
+	}
 
-    @Override
-    public Long getNotifiableId() {
-        return this.id;
-    }
-
-    @Override
-    public boolean isCompleted() {
-        return this.status == GoalStatus.COMPLETED;
-    }
+	@Override
+	public boolean isCompleted() {
+		return this.status == GoalStatus.COMPLETED;
+	}
 }

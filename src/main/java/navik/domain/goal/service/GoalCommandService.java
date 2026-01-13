@@ -1,6 +1,7 @@
 package navik.domain.goal.service;
 
 import navik.domain.users.repository.UserRepository;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +23,9 @@ public class GoalCommandService {
 	private final GoalRepository goalRepository;
 	private final UserQueryService userQueryService;
 	private final GoalQueryService goalQueryService;
-    private final UserRepository userRepository;
+	private final UserRepository userRepository;
 
-	public GoalResponseDTO.InfoDTO createGoal(Long userId, GoalRequestDTO.CreateDTO req){
+	public GoalResponseDTO.InfoDTO createGoal(Long userId, GoalRequestDTO.CreateDTO req) {
 		User user = userQueryService.getUser(userId);
 
 		Goal newGoal = GoalConverter.toEntity(user, req);

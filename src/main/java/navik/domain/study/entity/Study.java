@@ -19,6 +19,7 @@ import navik.domain.notification.entity.Notifiable;
 import navik.domain.notification.entity.NotificationType;
 import navik.domain.study.enums.RecruitmentStatus;
 import navik.global.entity.BaseEntity;
+
 import org.aspectj.weaver.ast.Not;
 
 @Entity
@@ -55,18 +56,18 @@ public class Study extends BaseEntity implements Notifiable {
 	@Column(name = "social_id", nullable = false)
 	private String socialId;
 
-    @Override
-    public NotificationType getNotificationType() {
-        return NotificationType.STUDY;
-    }
+	@Override
+	public NotificationType getNotificationType() {
+		return NotificationType.STUDY;
+	}
 
-    @Override
-    public Long getNotifiableId() {
-        return this.id;
-    }
+	@Override
+	public Long getNotifiableId() {
+		return this.id;
+	}
 
-    @Override
-    public boolean isCompleted() {
-        return LocalDateTime.now().isAfter(this.endDate);
-    }
+	@Override
+	public boolean isCompleted() {
+		return LocalDateTime.now().isAfter(this.endDate);
+	}
 }

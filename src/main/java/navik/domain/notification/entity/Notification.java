@@ -49,7 +49,7 @@ public class Notification extends BaseEntity {
 	@Builder.Default
 	private Boolean isRead = false;
 
-    public void setIsRead() {
-        this.isRead = true;
-    }
+	public void setIsRead() {
+		this.isRead = true;
+	}
 }
