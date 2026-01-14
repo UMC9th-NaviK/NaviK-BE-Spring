@@ -1,18 +1,5 @@
 package navik.domain.kpi.controller;
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
-import navik.domain.kpi.dto.res.KpiScoreResponseDTO;
-import navik.domain.kpi.dto.res.KpiScoreResponseDTO.Initialize;
-import navik.domain.kpi.dto.res.KpiScoreResponseDTO.Percentile;
-import navik.domain.kpi.service.command.KpiScoreInitialService;
-import navik.domain.kpi.service.command.KpiScoreIncrementService;
-import navik.domain.kpi.service.query.KpiScoreQueryService;
-import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
-import navik.global.auth.annotation.AuthUser;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +7,19 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
+import navik.domain.kpi.dto.res.KpiScoreResponseDTO;
+import navik.domain.kpi.dto.res.KpiScoreResponseDTO.Initialize;
+import navik.domain.kpi.dto.res.KpiScoreResponseDTO.Percentile;
+import navik.domain.kpi.service.command.KpiScoreIncrementService;
+import navik.domain.kpi.service.command.KpiScoreInitialService;
+import navik.domain.kpi.service.query.KpiScoreQueryService;
+import navik.global.apiPayload.ApiResponse;
+import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.auth.annotation.AuthUser;
 
 @RestController
 @RequiredArgsConstructor
