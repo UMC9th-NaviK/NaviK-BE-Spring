@@ -61,4 +61,7 @@ public class Position extends BaseEntity {
 	@Column(name = "area_type")
 	@Enumerated(EnumType.STRING)
 	private AreaType areaType;
+
+	@Column(name = "detail_address")
+	private String detailAddress;
 }
