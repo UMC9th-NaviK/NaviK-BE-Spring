@@ -8,24 +8,24 @@ import org.springframework.http.HttpStatus;
  */
 public interface BaseCode {
 
-    /**
-     * 에러(성공)에 해당하는 HTTP 상태를 반환합니다.
-     *
-     * @return {@link HttpStatus}
-     */
-    HttpStatus getHttpStatus();
+	/**
+	 * 에러(성공)에 해당하는 HTTP 상태를 반환합니다.
+	 *
+	 * @return {@link HttpStatus}
+	 */
+	HttpStatus getHttpStatus();
 
-    /**
-     * 에러(성공)를 식별하는 고유한 코드 문자열을 반환합니다.
-     *
-     * @return 에러 코드
-     */
-    String getCode();
+	/**
+	 * 에러(성공)를 식별하는 고유한 코드 문자열을 반환합니다.
+	 *
+	 * @return 에러 코드
+	 */
+	String getCode();
 
-    /**
-     * 에러(성공)에 대한 설명 메시지를 반환합니다.
-     *
-     * @return 에러 메시지
-     */
-    String getMessage();
+	/**
+	 * 에러(성공)에 대한 설명 메시지를 반환합니다.
+	 *
+	 * @return 에러 메시지
+	 */
+	String getMessage();
 }
