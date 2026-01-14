@@ -3,6 +3,7 @@ package navik.domain.kpi.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,17 +27,15 @@ public interface KpiScoreRepository extends JpaRepository<KpiScore, Long> {
 
 	Optional<KpiScore> findByUserIdAndKpiCard_Id(Long userId, Long kpiCardId);
 
-	// 상위 3개
 	@Query("""
 		    select ks
 		      from KpiScore ks
-		      join fetch ks.kpiCard kc
+		      join fetch ks.kpiCard
 		     where ks.user.id = :userId
 		     order by ks.score desc, ks.id desc
 		""")
-	List<KpiScore> findTop3ByUserIdWithCard(@Param("userId") Long userId);
+	List<KpiScore> findTopByUserIdWithCard(@Param("userId") Long userId, Pageable pageable);
 
-	// 하위 3개
 	@Query("""
 		    select ks
 		      from KpiScore ks
@@ -44,7 +43,7 @@ public interface KpiScoreRepository extends JpaRepository<KpiScore, Long> {
 		     where ks.user.id = :userId
 		     order by ks.score asc, ks.id asc
 		""")
-	List<KpiScore> findBottom3ByUserIdWithCard(@Param("userId") Long userId);
+	List<KpiScore> findBottomByUserIdWithCard(@Param("userId") Long userId, Pageable pageable);
 
 	// Score 백분위
 	@Query(value = """

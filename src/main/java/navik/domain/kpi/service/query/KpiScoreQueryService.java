@@ -2,12 +2,12 @@ package navik.domain.kpi.service.query;
 
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.kpi.dto.res.KpiCardResponseDTO;
-import navik.domain.kpi.dto.res.KpiCardResponseDTO.GridItem;
 import navik.domain.kpi.dto.res.KpiScoreResponseDTO;
 import navik.domain.kpi.exception.code.KpiScoreErrorCode;
 import navik.domain.kpi.repository.KpiScoreRepository;
@@ -20,8 +20,8 @@ public class KpiScoreQueryService {
 
 	private final KpiScoreRepository kpiScoreRepository;
 
-	public List<GridItem> getTop3KpiCards(Long userId) {
-		return kpiScoreRepository.findTop3ByUserIdWithCard(userId).stream()
+	public List<KpiCardResponseDTO.GridItem> getTop3KpiCards(Long userId) {
+		return kpiScoreRepository.findTopByUserIdWithCard(userId, PageRequest.of(0, 3)).stream()
 			.map(ks -> new KpiCardResponseDTO.GridItem(
 				ks.getKpiCard().getId(),
 				ks.getKpiCard().getName()
@@ -30,7 +30,7 @@ public class KpiScoreQueryService {
 	}
 
 	public List<KpiCardResponseDTO.GridItem> getBottom3KpiCards(Long userId) {
-		return kpiScoreRepository.findBottom3ByUserIdWithCard(userId).stream()
+		return kpiScoreRepository.findBottomByUserIdWithCard(userId, PageRequest.of(0, 3)).stream()
 			.map(ks -> new KpiCardResponseDTO.GridItem(
 				ks.getKpiCard().getId(),
 				ks.getKpiCard().getName()
