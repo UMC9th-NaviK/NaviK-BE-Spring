@@ -29,10 +29,6 @@ public class Board extends BaseEntity {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
-	@Builder.Default
-	private List<Comment> commentList = new ArrayList<>();
-
 	@Column(name = "article_title", nullable = false)
 	private String articleTitle;
 

@@ -1,19 +1,19 @@
 package navik.domain.board.converter;
 
-import navik.domain.board.dto.BoardResponseDTO;
-import navik.domain.board.dto.CommentCreateRequestDTO;
+import navik.domain.board.dto.BoardDTO;
 import navik.domain.board.entity.Board;
-import navik.domain.board.entity.Comment;
+
 public class BoardConverter {
 
-    public static BoardResponseDTO toResponse(
+    public static BoardDTO toResponse(
             Board board,
             long likeCount,
             long commentCount
     ) {
-        return BoardResponseDTO.builder()
+        return BoardDTO.builder()
                 .boardId(board.getId())
                 .userId(board.getUser().getId())
+                .jobType(board.getUser().getJob().getJobType()) // 경력도 추가해야함
                 .nickname(board.getUser().getNickname())
                 .articleTitle(board.getArticleTitle())
                 .articleContent(board.getArticleContent())

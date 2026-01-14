@@ -2,15 +2,14 @@ package navik.domain.board.service;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.board.converter.BoardConverter;
-import navik.domain.board.dto.BoardCreateRequestDTO;
-import navik.domain.board.dto.BoardResponseDTO;
-import navik.domain.board.dto.BoardUpdateRequestDTO;
+import navik.domain.board.dto.BoardCreateDTO;
+import navik.domain.board.dto.BoardDTO;
+import navik.domain.board.dto.BoardUpdateDTO;
 import navik.domain.board.entity.Board;
 import navik.domain.board.repository.BoardLikeRepository;
 import navik.domain.board.repository.BoardRepository;
 import navik.domain.board.repository.CommentRepository;
 import navik.domain.job.enums.JobType;
-import navik.domain.users.entity.User;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import org.springframework.data.domain.Page;
@@ -33,7 +32,7 @@ public class BoardService {
      * @param pageable
      * @return
      */
-    public Page<BoardResponseDTO> getBoardList(Pageable pageable) {
+    public Page<BoardDTO> getBoardList(Pageable pageable) {
         return boardRepository.findAll(pageable)
                 .map(board -> BoardConverter.toResponse(
                         board,
@@ -48,7 +47,7 @@ public class BoardService {
      * @param jobType
      * @return
      */
-    public Page<BoardResponseDTO> getBoardListByJob(Pageable pageable, JobType jobType) {
+    public Page<BoardDTO> getBoardListByJob(Pageable pageable, JobType jobType) {
         return boardRepository.findByUserJobType(jobType, pageable)
                 .map(board -> BoardConverter.toResponse(
                         board,
@@ -63,7 +62,7 @@ public class BoardService {
      * @return
      */
 
-    public BoardResponseDTO getBoardDetail(Long boardId) {
+    public BoardDTO getBoardDetail(Long boardId) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
 
@@ -83,7 +82,7 @@ public class BoardService {
      * @param request
      * @return
      */
-    public Long createBoard(Long userId, BoardCreateRequestDTO request) {
+    public Long createBoard(Long userId, BoardCreateDTO request) {
 
         Board board = Board.builder()
                 .id(userId)
@@ -102,7 +101,7 @@ public class BoardService {
      * @param request
      * @return
      */
-    public Long updateBoard(Long boardId, Long userId, BoardUpdateRequestDTO request) {
+    public Long updateBoard(Long boardId, Long userId, BoardUpdateDTO request) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
 

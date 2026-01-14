@@ -2,9 +2,9 @@ package navik.domain.board.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import navik.domain.board.dto.BoardCreateRequestDTO;
-import navik.domain.board.dto.BoardResponseDTO;
-import navik.domain.board.dto.BoardUpdateRequestDTO;
+import navik.domain.board.dto.BoardCreateDTO;
+import navik.domain.board.dto.BoardDTO;
+import navik.domain.board.dto.BoardUpdateDTO;
 import navik.domain.board.service.BoardService;
 import navik.domain.job.enums.JobType;
 import navik.global.apiPayload.ApiResponse;
@@ -28,12 +28,12 @@ public class BoardController implements BoardControllerDocs {
      * @return
      */
     @GetMapping("/") // 전체
-    public ApiResponse<PageResponseDto<BoardResponseDTO>> getBoards(
+    public ApiResponse<PageResponseDto<BoardDTO>> getBoards(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-        Page<BoardResponseDTO> boardList = boardService.getBoardList(pageable);
+        Page<BoardDTO> boardList = boardService.getBoardList(pageable);
 
-        PageResponseDto<BoardResponseDTO> response = PageResponseDto.of(boardList);
+        PageResponseDto<BoardDTO> response = PageResponseDto.of(boardList);
         return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
     }
 
@@ -45,12 +45,12 @@ public class BoardController implements BoardControllerDocs {
      * @return
      */
     @GetMapping("/jobs") // 전체
-    public ApiResponse<PageResponseDto<BoardResponseDTO>> getBoardsByJob(
+    public ApiResponse<PageResponseDto<BoardDTO>> getBoardsByJob(
             @RequestParam JobType jobType,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable
             ) {
-                Page<BoardResponseDTO> boardList = boardService.getBoardListByJob(pageable, jobType);
-                PageResponseDto<BoardResponseDTO> response = PageResponseDto.of(boardList);
+                Page<BoardDTO> boardList = boardService.getBoardListByJob(pageable, jobType);
+                PageResponseDto<BoardDTO> response = PageResponseDto.of(boardList);
                 return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
     }
 
@@ -60,10 +60,10 @@ public class BoardController implements BoardControllerDocs {
      * @return
      */
     @GetMapping("/{boardId}")
-    public ApiResponse<BoardResponseDTO> getBoardDetail(
+    public ApiResponse<BoardDTO> getBoardDetail(
             @PathVariable Long boardId
     ) {
-        BoardResponseDTO boardDetail = boardService.getBoardDetail(boardId);
+        BoardDTO boardDetail = boardService.getBoardDetail(boardId);
         return ApiResponse.onSuccess(GeneralSuccessCode._OK, boardDetail);
     }
 
@@ -76,7 +76,7 @@ public class BoardController implements BoardControllerDocs {
 
     @PostMapping("/")
     public ApiResponse<Long> createBoard(
-            @RequestBody @Valid BoardCreateRequestDTO request,
+            @RequestBody @Valid BoardCreateDTO request,
             @AuthUser Long userId
     ) {
         Long boardId = boardService.createBoard(userId, request);
@@ -93,11 +93,11 @@ public class BoardController implements BoardControllerDocs {
     @PutMapping("/{boardId}")
     public ApiResponse<Long> updateBoard(
             @PathVariable Long boardId,
-            @RequestBody @Valid BoardUpdateRequestDTO request,
+            @RequestBody @Valid BoardUpdateDTO request,
             @AuthUser Long userId
     ) {
         Long updatedBoardId = boardService.updateBoard(boardId, userId, request);
-        return ApiResponse.onSuccess(GeneralSuccessCode._OK, updatedBoardId);
+        return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, updatedBoardId);
     }
 
     /**

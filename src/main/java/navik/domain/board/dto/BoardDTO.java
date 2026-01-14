@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BoardResponseDTO {
+public class BoardDTO {
     // 프로필사진, 레벨
     private Long boardId;
     private Long userId;

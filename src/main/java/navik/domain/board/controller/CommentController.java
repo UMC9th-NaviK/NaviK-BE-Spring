@@ -2,11 +2,20 @@ package navik.domain.board.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import navik.domain.board.dto.CommentCreateRequestDTO;
+import navik.domain.board.converter.CommentConverter;
+import navik.domain.board.converter.CommentListConverter;
+import navik.domain.board.converter.ReplyConverter;
+import navik.domain.board.dto.CommentCreateDTO;
+import navik.domain.board.dto.CommentListDTO;
+import navik.domain.board.dto.ReplyDTO;
 import navik.domain.board.service.CommentService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
+import navik.global.dto.PageResponseDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,7 +26,28 @@ public class CommentController implements CommentControllerDocs {
     private final CommentService commentService;
 
     /**
-     * 댓글 생성
+     * 게시글 댓글 목록 조회
+     * @param boardId
+     * @param userId
+     * @param pageable
+     * @return
+     */
+
+    @GetMapping("/{boardId}/comments")
+    public ApiResponse<PageResponseDto<CommentListDTO.Comment>> getComments(
+            @PathVariable Long boardId,
+            @AuthUser Long userId,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        CommentListDTO.Parameter parameter = CommentListConverter.toParameter(userId, boardId, pageable);
+        Page<CommentListDTO.Comment> commentPage = commentService.getCommentList(parameter);
+        PageResponseDto<CommentListDTO.Comment> response = PageResponseDto.of(commentPage);
+        return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
+    }
+
+
+    /**
+     * 댓글 작성
      * @param boardId
      * @param request
      * @param userId
@@ -25,14 +55,38 @@ public class CommentController implements CommentControllerDocs {
      */
 
     @PostMapping("/{boardId}/comments")
-    public ApiResponse<Long> addComment(
+    public ApiResponse<CommentCreateDTO.Response> addComment(
             @PathVariable Long boardId,
-            @RequestBody @Valid CommentCreateRequestDTO request,
+            @RequestBody @Valid CommentCreateDTO.Request request,
             @AuthUser Long userId
     ) {
-        Long commentId = commentService.addComment(boardId, userId, request);
-        return ApiResponse.onSuccess(GeneralSuccessCode._OK, commentId);
+        CommentCreateDTO.Parameter parameter = CommentConverter.toParameter(userId, boardId, request);
+        CommentCreateDTO.Response response = commentService.createComment(parameter);
+        return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, response);
     }
+
+    /**
+     * 대댓글 작성
+     * @param boardId
+     * @param commentId
+     * @param request
+     * @param userId
+     * @return
+     */
+    @PostMapping("/{boardId}/comments/{commentId}/replies")
+    public ApiResponse<ReplyDTO.Response> addReply(
+            @PathVariable Long boardId,
+            @PathVariable Long commentId,
+            @RequestBody @Valid ReplyDTO.Request request,
+            @AuthUser Long userId
+    ) {
+        ReplyDTO.Parameter parameter = ReplyConverter.toParameter(userId, boardId, commentId, request);
+
+        ReplyDTO.Response response = commentService.createReply(parameter);
+
+        return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, response);
+    }
+
 
     /**
      * 댓글 삭제
@@ -47,7 +101,7 @@ public class CommentController implements CommentControllerDocs {
             @PathVariable Long commentId,
             @AuthUser Long userId
     ) {
-        commentService.deleteComment(boardId, commentId, userId);
+        commentService.deleteComment(CommentConverter.toDeleteParameter(userId, boardId, commentId));
         return ApiResponse.onSuccess(GeneralSuccessCode._DELETED);
     }
 }
