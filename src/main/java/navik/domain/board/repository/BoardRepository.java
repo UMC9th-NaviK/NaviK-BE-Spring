@@ -1,7 +1,6 @@
 package navik.domain.board.repository;
 
 import navik.domain.board.entity.Board;
-import navik.domain.job.enums.JobType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,6 +15,6 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     Page<Board> findAll(Pageable pageable);
 
     // 직무별 조회
-    @Query("select b from Board b where b.user.job.jobType = :jobType")
-    Page<Board> findByUserJobType(@Param("jobType") JobType jobType, Pageable pageable);
+    @Query("select b from Board b where b.user.job.name = :jobName")
+    Page<Board> findByUserJobType(@Param("jobName") String jobType, Pageable pageable);
 }

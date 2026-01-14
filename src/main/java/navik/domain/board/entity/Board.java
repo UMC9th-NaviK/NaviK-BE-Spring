@@ -6,12 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import navik.domain.job.enums.JobType;
 import navik.domain.users.entity.User;
 import navik.global.entity.BaseEntity;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter

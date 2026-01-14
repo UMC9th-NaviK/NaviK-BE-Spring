@@ -13,7 +13,7 @@ public class BoardConverter {
         return BoardDTO.builder()
                 .boardId(board.getId())
                 .userId(board.getUser().getId())
-                .jobType(board.getUser().getJob().getJobType()) // 경력도 추가해야함
+                .jobType(board.getUser().getJob().getName()) // 경력도 추가해야함
                 .nickname(board.getUser().getNickname())
                 .articleTitle(board.getArticleTitle())
                 .articleContent(board.getArticleContent())

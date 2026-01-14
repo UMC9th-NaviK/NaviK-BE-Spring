@@ -4,9 +4,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import navik.domain.board.dto.BoardCreateDTO;
 import navik.domain.board.dto.BoardDTO;
+import navik.domain.board.dto.BoardLikeDTO;
 import navik.domain.board.dto.BoardUpdateDTO;
+import navik.domain.board.service.BoardLikeService;
 import navik.domain.board.service.BoardService;
-import navik.domain.job.enums.JobType;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BoardController implements BoardControllerDocs {
     private final BoardService boardService;
+    private final BoardLikeService boardLikeService;
+
     /**
      * 게시글 전체조회
      * @param pageable
@@ -46,7 +49,7 @@ public class BoardController implements BoardControllerDocs {
      */
     @GetMapping("/jobs") // 전체
     public ApiResponse<PageResponseDto<BoardDTO>> getBoardsByJob(
-            @RequestParam JobType jobType,
+            @RequestParam String jobType,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable
             ) {
                 Page<BoardDTO> boardList = boardService.getBoardListByJob(pageable, jobType);
@@ -113,6 +116,26 @@ public class BoardController implements BoardControllerDocs {
     ) {
         boardService.deleteBoard(boardId, userId);
         return ApiResponse.onSuccess(GeneralSuccessCode._DELETED);
+    }
+
+    /**
+     * 게시글 좋아요 확인
+     * @param boardId
+     * @param userId
+     * @return
+     */
+    @PostMapping("/{boardId}/likes")
+    public ApiResponse<BoardLikeDTO.Response> toggleLike(
+            @PathVariable Long boardId,
+            @AuthUser Long userId
+    ) {
+        BoardLikeDTO.Parameter parameter = BoardLikeDTO.Parameter.builder()
+                .boardId(boardId)
+                .userId(userId)
+                .build();
+
+        BoardLikeDTO.Response response = boardLikeService.toggleBoardLike(parameter);
+        return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
     }
 }
 

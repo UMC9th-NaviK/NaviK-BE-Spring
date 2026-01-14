@@ -9,7 +9,6 @@ import navik.domain.board.entity.Board;
 import navik.domain.board.repository.BoardLikeRepository;
 import navik.domain.board.repository.BoardRepository;
 import navik.domain.board.repository.CommentRepository;
-import navik.domain.job.enums.JobType;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import org.springframework.data.domain.Page;
@@ -20,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class BoardService {
     private final BoardRepository boardRepository;
     private final BoardLikeRepository boardLikeRepository;
@@ -32,6 +30,7 @@ public class BoardService {
      * @param pageable
      * @return
      */
+    @Transactional
     public Page<BoardDTO> getBoardList(Pageable pageable) {
         return boardRepository.findAll(pageable)
                 .map(board -> BoardConverter.toResponse(
@@ -47,7 +46,8 @@ public class BoardService {
      * @param jobType
      * @return
      */
-    public Page<BoardDTO> getBoardListByJob(Pageable pageable, JobType jobType) {
+    @Transactional
+    public Page<BoardDTO> getBoardListByJob(Pageable pageable, String jobType) {
         return boardRepository.findByUserJobType(jobType, pageable)
                 .map(board -> BoardConverter.toResponse(
                         board,
@@ -61,12 +61,12 @@ public class BoardService {
      * @param boardId
      * @return
      */
-
+    @Transactional
     public BoardDTO getBoardDetail(Long boardId) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
 
-        board.incrementArticleViews(); // 조회수 증가, 동시성 이슈로 redis로 변경예정
+        board.incrementArticleViews(); // 조회수 증가
         boardRepository.save(board); // 변경된 조회수 저장
 
         return BoardConverter.toResponse(
@@ -82,6 +82,7 @@ public class BoardService {
      * @param request
      * @return
      */
+    @Transactional
     public Long createBoard(Long userId, BoardCreateDTO request) {
 
         Board board = Board.builder()
@@ -101,6 +102,7 @@ public class BoardService {
      * @param request
      * @return
      */
+    @Transactional
     public Long updateBoard(Long boardId, Long userId, BoardUpdateDTO request) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
@@ -118,6 +120,7 @@ public class BoardService {
      * @param boardId
      * @param userId
      */
+    @Transactional
     public void deleteBoard(Long boardId, Long userId) {
         Board board = boardRepository.findById(boardId) // 게시글 찾을 수 없음
                 .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
