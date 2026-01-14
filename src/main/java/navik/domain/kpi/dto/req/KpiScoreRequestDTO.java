@@ -34,6 +34,7 @@ public class KpiScoreRequestDTO {
 	public record Increment(
 		@Min(value = 1, message = "delta는 1 이상이어야 합니다.")
 		@Max(value = 100, message = "delta는 100 이하여야 합니다.")
+		@NotNull(message = "delta는 필수입니다.")
 		Integer delta
 	) {
 	}
