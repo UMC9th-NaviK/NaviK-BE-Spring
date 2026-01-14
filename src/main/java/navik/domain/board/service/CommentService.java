@@ -42,7 +42,7 @@ public class CommentService {
 
         // 2. 내가 쓴 댓글이 맞는지 확인
         List<Boolean> isMyComments = comments.stream()
-                .map(comment -> comment.getId().equals(parameter.getUserId()))
+                .map(comment -> comment.getUser().getId().equals(parameter.getUserId()))
                 .toList();
 
         // 3. DTO 변환
@@ -111,7 +111,7 @@ public class CommentService {
                 .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.COMMENT_NOT_FOUND));
 
         // 댓글 작성자가 맞는지 확인
-        if(comment.getUser() != user) {
+        if(comment.getUser().equals(user)) {
             throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_COMMENT_NOT_WRITER);
         }
 

@@ -100,7 +100,7 @@ public class BoardController implements BoardControllerDocs {
             @AuthUser Long userId
     ) {
         Long updatedBoardId = boardService.updateBoard(boardId, userId, request);
-        return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, updatedBoardId);
+        return ApiResponse.onSuccess(GeneralSuccessCode._OK, updatedBoardId);
     }
 
     /**

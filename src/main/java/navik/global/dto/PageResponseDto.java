@@ -20,7 +20,7 @@ public class PageResponseDto<T> {
     private final List<T> content;
 
     /**
-     * 현재 페이지 번호 (1부터 시작)
+     * 현재 페이지 번호 (0부터 시작)
      */
     private final int pageNumber;
 

@@ -9,6 +9,8 @@ import navik.domain.board.entity.Board;
 import navik.domain.board.repository.BoardLikeRepository;
 import navik.domain.board.repository.BoardRepository;
 import navik.domain.board.repository.CommentRepository;
+import navik.domain.users.entity.User;
+import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class BoardService {
+    private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final BoardLikeRepository boardLikeRepository;
     private final CommentRepository commentRepository;
@@ -84,9 +87,10 @@ public class BoardService {
      */
     @Transactional
     public Long createBoard(Long userId, BoardCreateDTO request) {
-
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
         Board board = Board.builder()
-                .id(userId)
+                .user(user)
                 .articleTitle(request.getArticleTitle())
                 .articleContent(request.getArticleContent())
                 .articleViews(0)

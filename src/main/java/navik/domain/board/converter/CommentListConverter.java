@@ -47,7 +47,7 @@ public class CommentListConverter {
     public static CommentListDTO.Comment toComment(Comment comment, Boolean isMyComment) {
         return CommentListDTO.Comment.builder()
                 .commentId(comment.getId())
-                .userId(comment.getId())
+                .userId(comment.getUser().getId())
                 .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
                 .content(comment.getContent())
                 .nickname(comment.getUser().getNickname())

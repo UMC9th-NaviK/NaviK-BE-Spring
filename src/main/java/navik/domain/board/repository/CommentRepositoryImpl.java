@@ -42,7 +42,7 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
                         comment.createdAt.asc()
                 )
                 .offset(pageable.getOffset())
-                .from(comment)
+                .limit(pageable.getPageSize())
                 .fetch();
 
         // 전체 댓글 개수 나타내는 카운트 쿼리

@@ -33,7 +33,7 @@ public class BoardLikeService {
         Board board = boardRepository.findById(parameter.getBoardId())
                 .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
 
-        // 3. 이미 좋아요 놀렀는지 확인
+        // 3. 이미 좋아요 눌렀는지 확인
         Optional<BoardLike> boardLikeOpt = boardLikeRepository.findByBoardAndUser(board, user);
 
         boolean isLiked;
