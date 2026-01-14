@@ -13,6 +13,7 @@ import navik.domain.recruitment.enums.EducationType;
 import navik.domain.recruitment.enums.EmploymentType;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.IndustryType;
+import navik.domain.recruitment.enums.MajorType;
 
 /**
  * Structured Output 관리
@@ -45,6 +46,7 @@ public class LLMResponseDTO {
 			private EducationType educationType;
 			private AreaType areaType;
 			private String detailAddress;
+			private MajorType majorType;
 			private List<String> kpis;
 		}
 	}

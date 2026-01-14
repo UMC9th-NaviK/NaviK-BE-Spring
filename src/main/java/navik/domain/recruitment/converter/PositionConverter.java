@@ -16,6 +16,7 @@ public class PositionConverter {
 			.educationType(dto.getEducationType())
 			.areaType(dto.getAreaType())
 			.detailAddress(dto.getDetailAddress())
+			.majorType(dto.getMajorType())
 			.recruitment(recruitment)
 			.build();
 	}
