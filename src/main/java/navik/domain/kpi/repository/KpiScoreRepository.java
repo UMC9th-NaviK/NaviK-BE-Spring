@@ -23,7 +23,7 @@ public interface KpiScoreRepository extends JpaRepository<KpiScore, Long> {
 		     where ks.user.id = :userId
 		       and ks.kpiCard.id = :kpiCardId
 		""")
-	int incrementScore(Long userId, Long kpiCardId, int delta);
+	int incrementScore(@Param("userId") Long userId, @Param("kpiCardId") Long kpiCardId, @Param("delta") int delta);
 
 	Optional<KpiScore> findByUserIdAndKpiCard_Id(Long userId, Long kpiCardId);
 
