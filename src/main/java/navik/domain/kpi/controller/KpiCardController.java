@@ -6,8 +6,10 @@ import navik.domain.kpi.dto.res.KpiCardResponseDTO;
 import navik.domain.kpi.dto.res.KpiCardResponseDTO.GridItem;
 import navik.domain.kpi.enums.KpiCardType;
 import navik.domain.kpi.service.query.KpiCardQueryService;
+import navik.domain.kpi.service.query.KpiScoreQueryService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.auth.annotation.AuthUser;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class KpiCardController {
 
     private final KpiCardQueryService kpiCardQueryService;
+    private final KpiScoreQueryService kpiScoreQueryService;
 
     @GetMapping
     public ApiResponse<List<GridItem>> getKpiCards(@RequestParam Long jobId) {
@@ -46,6 +49,20 @@ public class KpiCardController {
                 GeneralSuccessCode._OK,
                 kpiCardQueryService.getCardAllDetail(kpiCardId)
         );
+    }
+
+    @GetMapping("/top")
+    public ApiResponse<List<KpiCardResponseDTO.GridItem>> top(@AuthUser Long userId) {
+        return ApiResponse.onSuccess(
+                GeneralSuccessCode._OK,
+                kpiScoreQueryService.getTop3KpiCards(userId));
+    }
+
+    @GetMapping("/bottom")
+    public ApiResponse<List<KpiCardResponseDTO.GridItem>> bottom(@AuthUser Long userId) {
+        return ApiResponse.onSuccess(
+                GeneralSuccessCode._OK,
+                kpiScoreQueryService.getBottom3KpiCards(userId));
     }
 
 }
