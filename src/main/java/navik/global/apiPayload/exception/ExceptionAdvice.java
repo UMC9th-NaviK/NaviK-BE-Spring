@@ -1,14 +1,8 @@
 package navik.global.apiPayload.exception;
 
-import navik.domain.kpi.exception.InvalidKpiCardTypeException;
-import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.BaseCode;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import lombok.extern.slf4j.Slf4j;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -22,9 +16,14 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
+import navik.global.apiPayload.ApiResponse;
+import navik.global.apiPayload.code.status.BaseCode;
+import navik.global.apiPayload.code.status.GeneralErrorCode;
+import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 /**
  * @RestControllerAdvice 어노테이션을 사용하여 모든 @RestController 에서 발생하는 예외를 전역적으로 처리하는 클래스입니다.
@@ -127,16 +126,15 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	public ApiResponse<Object> handleTypeMismatch(
-			MethodArgumentTypeMismatchException e,
-			HttpServletRequest request
+		MethodArgumentTypeMismatchException e,
+		HttpServletRequest request
 	) {
 		GeneralExceptionHandler ghe = ExceptionUtils.findGeneralException(e);
 
 		return ApiResponse.onFailure(
-				GeneralErrorCode.INVALID_TYPE_VALUE,
-				null
+			GeneralErrorCode.INVALID_TYPE_VALUE,
+			null
 		);
 	}
-
 
 }

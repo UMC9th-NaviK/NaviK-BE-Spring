@@ -4,7 +4,8 @@ import java.util.Arrays;
 
 import navik.domain.kpi.dto.res.KpiCardResponseDTO;
 import navik.domain.kpi.entity.KpiCard;
-import navik.domain.kpi.exception.InvalidKpiCardTypeException;
+import navik.global.apiPayload.code.status.GeneralErrorCode;
+import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 public enum KpiCardType {
 
@@ -40,6 +41,8 @@ public enum KpiCardType {
 		return Arrays.stream(values())
 			.filter(t -> t.value.equalsIgnoreCase(value))
 			.findFirst()
-			.orElseThrow(InvalidKpiCardTypeException::new);
+			.orElseThrow(() ->
+				new GeneralExceptionHandler(GeneralErrorCode.INVALID_TYPE_VALUE)
+			);
 	}
 }
