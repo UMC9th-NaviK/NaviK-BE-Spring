@@ -12,6 +12,7 @@ import navik.domain.kpi.service.query.KpiScoreQueryService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,38 +26,38 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/kpi-scores")
 public class KpiScoreController {
 
-    private final KpiScoreInitialService kpiScoreInitialService;
-    private final KpiScoreIncrementService kpiScoreIncrementService;
-    private final KpiScoreQueryService kpiScoreQueryService;
+	private final KpiScoreInitialService kpiScoreInitialService;
+	private final KpiScoreIncrementService kpiScoreIncrementService;
+	private final KpiScoreQueryService kpiScoreQueryService;
 
-    @PutMapping("/initialize")
-    public ApiResponse<Initialize> initialize(
-            @AuthUser Long userId,
-            @Valid @RequestBody KpiScoreRequestDTO.Initialize request
-    ) {
-        KpiScoreResponseDTO.Initialize response =
-                kpiScoreInitialService.initializeKpiScores(userId, request);
+	@PutMapping("/initialize")
+	public ApiResponse<Initialize> initialize(
+		@AuthUser Long userId,
+		@Valid @RequestBody KpiScoreRequestDTO.Initialize request
+	) {
+		KpiScoreResponseDTO.Initialize response =
+			kpiScoreInitialService.initializeKpiScores(userId, request);
 
-        return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, response);
-    }
+		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, response);
+	}
 
-    @PatchMapping("/{kpiCardId}/increment")
-    public ApiResponse<KpiScoreResponseDTO.Increment> increment(
-            @AuthUser Long userId,
-            @PathVariable Long kpiCardId,
-            @Valid @RequestBody(required = false) KpiScoreRequestDTO.Increment request
-    ) {
-        var response = kpiScoreIncrementService.incrementKpiScore(userId, kpiCardId, request);
-        return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
-    }
+	@PatchMapping("/{kpiCardId}/increment")
+	public ApiResponse<KpiScoreResponseDTO.Increment> increment(
+		@AuthUser Long userId,
+		@PathVariable Long kpiCardId,
+		@Valid @RequestBody(required = false) KpiScoreRequestDTO.Increment request
+	) {
+		var response = kpiScoreIncrementService.incrementKpiScore(userId, kpiCardId, request);
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
+	}
 
-    @GetMapping("/{kpiCardId}/percentile")
-    public ApiResponse<KpiScoreResponseDTO.Percentile> percentile(
-            @AuthUser Long userId,
-            @PathVariable Long kpiCardId
-    ) {
-        Percentile response = kpiScoreQueryService.getMyPercentile(userId, kpiCardId);
-        return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
-    }
+	@GetMapping("/{kpiCardId}/percentile")
+	public ApiResponse<KpiScoreResponseDTO.Percentile> percentile(
+		@AuthUser Long userId,
+		@PathVariable Long kpiCardId
+	) {
+		Percentile response = kpiScoreQueryService.getMyPercentile(userId, kpiCardId);
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
+	}
 
 }

@@ -4,34 +4,36 @@ import java.util.List;
 
 public class KpiScoreResponseDTO {
 
-    public record Initialize(
+	public record Initialize(
 
-            int createdCount,
-            int updatedCount,
-            List<Item> items
+		int createdCount,
+		int updatedCount,
+		List<Item> items
 
-    ) {
-    }
+	) {
+	}
 
-    public record Item(
+	public record Item(
 
-            Long kpiCardId,
-            Integer score,
-            boolean created
+		Long kpiCardId,
+		Integer score,
+		boolean created
 
-    ) {
-    }
+	) {
+	}
 
-    public record Increment(
-            Long kpiCardId,
-            Integer score
-    ) {}
+	public record Increment(
+		Long kpiCardId,
+		Integer score
+	) {
+	}
 
-    public record Percentile(
-            Long kpiCardId,
-            Integer score,
-            Integer topPercent,
-            Integer bottomPercent
-    ) {}
+	public record Percentile(
+		Long kpiCardId,
+		Integer score,
+		Integer topPercent,
+		Integer bottomPercent
+	) {
+	}
 
 }
