@@ -44,6 +44,7 @@ public class LLMResponseDTO {
 			private ExperienceType experienceType;
 			private EducationType educationType;
 			private AreaType areaType;
+			private String detailAddress;
 			private List<String> kpis;
 		}
 	}
