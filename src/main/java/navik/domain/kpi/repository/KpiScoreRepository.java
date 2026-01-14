@@ -3,6 +3,7 @@ package navik.domain.kpi.repository;
 import java.util.List;
 import java.util.Optional;
 import navik.domain.kpi.entity.KpiScore;
+import navik.domain.kpi.repository.projection.KpiCardPercentileView;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,32 +15,59 @@ public interface KpiScoreRepository extends JpaRepository<KpiScore, Long> {
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
-        update KpiScore ks
-           set ks.score = ks.score + :delta
-         where ks.user.id = :userId
-           and ks.kpiCard.id = :kpiCardId
-    """)
+                update KpiScore ks
+                   set ks.score = ks.score + :delta
+                 where ks.user.id = :userId
+                   and ks.kpiCard.id = :kpiCardId
+            """)
     int incrementScore(Long userId, Long kpiCardId, int delta);
 
     Optional<KpiScore> findByUserIdAndKpiCard_Id(Long userId, Long kpiCardId);
 
     // 상위 3개
     @Query("""
-        select ks
-          from KpiScore ks
-          join fetch ks.kpiCard kc
-         where ks.user.id = :userId
-         order by ks.score desc, ks.id desc
-    """)
+                select ks
+                  from KpiScore ks
+                  join fetch ks.kpiCard kc
+                 where ks.user.id = :userId
+                 order by ks.score desc, ks.id desc
+            """)
     List<KpiScore> findTop3ByUserIdWithCard(@Param("userId") Long userId);
 
     // 하위 3개
     @Query("""
-        select ks
-          from KpiScore ks
-          join fetch ks.kpiCard
-         where ks.user.id = :userId
-         order by ks.score asc, ks.id asc
-    """)
+                select ks
+                  from KpiScore ks
+                  join fetch ks.kpiCard
+                 where ks.user.id = :userId
+                 order by ks.score asc, ks.id asc
+            """)
     List<KpiScore> findBottom3ByUserIdWithCard(@Param("userId") Long userId);
+
+    // Score 백분위
+    @Query(value = """
+                with ranked as (
+                    select
+                        user_id,
+                        score,
+                        cume_dist() over (
+                            partition by kpi_card_id
+                            order by score
+                        ) as cd
+                    from kpi_scores
+                    where kpi_card_id = :kpiCardId
+                )
+                select
+                    r.score as score,
+                    cast(round((1 - r.cd) * 100) as int) as topPercent,
+                    cast(round(r.cd * 100) as int) as bottomPercent
+                from ranked r
+                where r.user_id = :userId
+            """, nativeQuery = true)
+    KpiCardPercentileView findMyPercentile(
+            @Param("userId") Long userId,
+            @Param("kpiCardId") Long kpiCardId
+    );
+
+
 }

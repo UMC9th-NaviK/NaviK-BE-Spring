@@ -5,11 +5,14 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
 import navik.domain.kpi.dto.res.KpiScoreResponseDTO;
 import navik.domain.kpi.dto.res.KpiScoreResponseDTO.Initialize;
+import navik.domain.kpi.dto.res.KpiScoreResponseDTO.Percentile;
 import navik.domain.kpi.service.command.KpiScoreInitialService;
 import navik.domain.kpi.service.command.KpiScoreIncrementService;
+import navik.domain.kpi.service.query.KpiScoreQueryService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,6 +27,7 @@ public class KpiScoreController {
 
     private final KpiScoreInitialService kpiScoreInitialService;
     private final KpiScoreIncrementService kpiScoreIncrementService;
+    private final KpiScoreQueryService kpiScoreQueryService;
 
     @PutMapping("/initialize")
     public ApiResponse<Initialize> initialize(
@@ -43,6 +47,15 @@ public class KpiScoreController {
             @Valid @RequestBody(required = false) KpiScoreRequestDTO.Increment request
     ) {
         var response = kpiScoreIncrementService.incrementKpiScore(userId, kpiCardId, request);
+        return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
+    }
+
+    @GetMapping("/{kpiCardId}/percentile")
+    public ApiResponse<KpiScoreResponseDTO.Percentile> percentile(
+            @AuthUser Long userId,
+            @PathVariable Long kpiCardId
+    ) {
+        Percentile response = kpiScoreQueryService.getMyPercentile(userId, kpiCardId);
         return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
     }
 

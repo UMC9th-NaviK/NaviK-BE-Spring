@@ -27,4 +27,11 @@ public class KpiScoreResponseDTO {
             Integer score
     ) {}
 
+    public record Percentile(
+            Long kpiCardId,
+            Integer score,
+            Integer topPercent,
+            Integer bottomPercent
+    ) {}
+
 }

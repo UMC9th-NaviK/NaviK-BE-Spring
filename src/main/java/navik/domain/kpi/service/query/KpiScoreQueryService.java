@@ -4,7 +4,10 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import navik.domain.kpi.dto.res.KpiCardResponseDTO;
 import navik.domain.kpi.dto.res.KpiCardResponseDTO.GridItem;
+import navik.domain.kpi.dto.res.KpiScoreResponseDTO;
+import navik.domain.kpi.exception.code.KpiScoreErrorCode;
 import navik.domain.kpi.repository.KpiScoreRepository;
+import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +36,21 @@ public class KpiScoreQueryService {
                 .toList();
     }
 
-    //TODO: KPI Score 전체 순위 조회
+    public KpiScoreResponseDTO.Percentile getMyPercentile(
+            Long userId,
+            Long kpiCardId
+    ) {
+        var view = kpiScoreRepository.findMyPercentile(userId, kpiCardId);
 
+        if (view == null) {
+            throw new GeneralExceptionHandler(KpiScoreErrorCode.KPI_SCORE_NOT_FOUND);
+        }
+
+        return new KpiScoreResponseDTO.Percentile(
+                kpiCardId,
+                view.getScore(),
+                view.getTopPercent(),
+                view.getBottomPercent()
+        );
+    }
 }
