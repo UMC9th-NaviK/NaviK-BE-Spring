@@ -25,7 +25,7 @@ public class UserConverter {
 			.build();
 	}
 
-	public static UserResponseDTO.ProfileDTO toProfileDTO(User user){
+	public static UserResponseDTO.ProfileDTO toProfileDTO(User user) {
 		return UserResponseDTO.ProfileDTO.builder()
 			.profileImageUrl(user.getProfileImageUrl())
 			.nickname(user.getNickname())

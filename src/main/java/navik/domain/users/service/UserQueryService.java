@@ -38,7 +38,7 @@ public class UserQueryService {
 			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
 	}
 
-	public UserResponseDTO.ProfileDTO getProfile(Long userId){
+	public UserResponseDTO.ProfileDTO getProfile(Long userId) {
 		return UserConverter.toProfileDTO(getUser(userId));
 	}
 }

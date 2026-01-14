@@ -49,12 +49,12 @@ public class UserResponseDTO {
 		@NotNull
 		private boolean isDuplicated;
 	}
-g
+
 	@Builder
 	@AllArgsConstructor
 	@NoArgsConstructor
 	@Getter
-	public static class ProfileDTO  {
+	public static class ProfileDTO {
 		@NotNull
 		private String profileImageUrl;
 		@NotNull
