@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import navik.domain.kpi.controller.docs.KpiScoreControllerDocs;
 import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
 import navik.domain.kpi.dto.res.KpiScoreResponseDTO;
 import navik.domain.kpi.dto.res.KpiScoreResponseDTO.Initialize;
@@ -24,13 +25,14 @@ import navik.global.auth.annotation.AuthUser;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/kpi-scores")
-public class KpiScoreController {
+public class KpiScoreController implements KpiScoreControllerDocs {
 
 	private final KpiScoreInitialService kpiScoreInitialService;
 	private final KpiScoreIncrementService kpiScoreIncrementService;
 	private final KpiScoreQueryService kpiScoreQueryService;
 
 	@PutMapping("/initialize")
+	@Override
 	public ApiResponse<Initialize> initialize(
 		@AuthUser Long userId,
 		@Valid @RequestBody KpiScoreRequestDTO.Initialize request
@@ -42,6 +44,7 @@ public class KpiScoreController {
 	}
 
 	@PatchMapping("/{kpiCardId}/increment")
+	@Override
 	public ApiResponse<KpiScoreResponseDTO.Increment> increment(
 		@AuthUser Long userId,
 		@PathVariable Long kpiCardId,
@@ -52,6 +55,7 @@ public class KpiScoreController {
 	}
 
 	@GetMapping("/{kpiCardId}/percentile")
+	@Override
 	public ApiResponse<KpiScoreResponseDTO.Percentile> percentile(
 		@AuthUser Long userId,
 		@PathVariable Long kpiCardId
