@@ -141,7 +141,7 @@ public class CrawlerService {
 	 * @param wait
 	 * @return
 	 */
-	private void processETL(WebDriverWait wait) {
+	public void processETL(WebDriverWait wait) {
 
 		// 1. 채용 공고 상세 페이지 url 유효성 검사
 		String link = crawlerDataExtractor.extractCurrentUrl(wait);
