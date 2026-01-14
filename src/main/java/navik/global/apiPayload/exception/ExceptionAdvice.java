@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -122,19 +121,6 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 		BaseCode code = generalException.getCode();
 		log.warn("GeneralException: {} - {}", code.getCode(), code.getMessage());
 		return ApiResponse.onFailure(code, null);
-	}
-
-	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
-	public ApiResponse<Object> handleTypeMismatch(
-		MethodArgumentTypeMismatchException e,
-		HttpServletRequest request
-	) {
-		GeneralExceptionHandler ghe = ExceptionUtils.findGeneralException(e);
-
-		return ApiResponse.onFailure(
-			GeneralErrorCode.INVALID_TYPE_VALUE,
-			null
-		);
 	}
 
 }
