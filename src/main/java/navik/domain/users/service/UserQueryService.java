@@ -37,4 +37,8 @@ public class UserQueryService {
 		return userRepository.findById(userId)
 			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
 	}
+
+	public UserResponseDTO.ProfileDTO getProfile(Long userId){
+		return UserConverter.toProfileDTO(getUser(userId));
+	}
 }

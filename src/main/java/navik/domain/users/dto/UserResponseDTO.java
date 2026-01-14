@@ -49,4 +49,20 @@ public class UserResponseDTO {
 		@NotNull
 		private boolean isDuplicated;
 	}
+g
+	@Builder
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@Getter
+	public static class ProfileDTO  {
+		@NotNull
+		private String profileImageUrl;
+		@NotNull
+		private String nickname;
+		@NotNull
+		private String job;
+		@NotNull
+		private boolean isEntryLevel;
+
+	}
 }

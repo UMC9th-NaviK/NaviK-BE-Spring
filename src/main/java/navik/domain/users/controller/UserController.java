@@ -47,4 +47,9 @@ public class UserController implements UserControllerDocs {
 	public ApiResponse<UserResponseDTO.NicknameCheckDto> checkNicknameDuplication(@RequestParam String nickname) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.isNicknameDuplicated(nickname));
 	}
+
+	@GetMapping("/profile")
+	public ApiResponse<UserResponseDTO.ProfileDTO> getProfile(@AuthUser Long userId) {
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getProfile(userId));
+	}
 }

@@ -38,6 +38,9 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private String name;
 
+	@Column(name = "profile_Image_url")
+	private String profileImageUrl;
+
 	@Column(nullable = false, unique = true)
 	@Builder.Default
 	private String nickname = "사용자" + UUID.randomUUID().toString().substring(0, 5);
