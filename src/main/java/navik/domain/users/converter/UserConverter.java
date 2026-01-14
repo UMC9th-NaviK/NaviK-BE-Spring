@@ -33,4 +33,14 @@ public class UserConverter {
 			.isEntryLevel(user.getIsEntryLevel())
 			.build();
 	}
+
+	public static UserResponseDTO.MyPageDTO toMyPageDTO(User user){
+		return UserResponseDTO.MyPageDTO.builder()
+			.profileImageUrl(user.getProfileImageUrl())
+			.name(user.getName())
+			.nickname(user.getNickname())
+			.job(user.getJob().getName())
+			.isEntryLevel(user.getIsEntryLevel())
+			.build();
+	}
 }

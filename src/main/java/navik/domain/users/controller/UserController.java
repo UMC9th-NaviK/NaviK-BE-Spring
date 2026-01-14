@@ -27,10 +27,10 @@ public class UserController implements UserControllerDocs {
 	private final UserQueryService userQueryService;
 	private final UserCommandService userCommandService;
 
-	@GetMapping("/me")
-	public ApiResponse<UserResponseDTO.UserInfoDTO> getMyInfo(@AuthUser Long userId) {
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getMyInfo(userId));
-	}
+	// @GetMapping("/me")
+	// public ApiResponse<UserResponseDTO.UserInfoDTO> getMyInfo(@AuthUser Long userId) {
+	// 	return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getMyInfo(userId));
+	// }
 
 	@GetMapping("/{userId}")
 	public ApiResponse<UserResponseDTO.UserInfoDTO> getUser(@PathVariable Long userId) {
@@ -51,5 +51,10 @@ public class UserController implements UserControllerDocs {
 	@GetMapping("/profile")
 	public ApiResponse<UserResponseDTO.ProfileDTO> getProfile(@AuthUser Long userId) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getProfile(userId));
+	}
+
+	@GetMapping("/me")
+	public ApiResponse<UserResponseDTO.MyPageDTO> getMyInfo(@AuthUser Long userId) {
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getMyPage(userId));
 	}
 }

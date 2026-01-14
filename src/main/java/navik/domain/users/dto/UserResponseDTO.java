@@ -65,4 +65,16 @@ public class UserResponseDTO {
 		private boolean isEntryLevel;
 
 	}
+
+	@Builder
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@Getter
+	public static class MyPageDTO {
+		private String profileImageUrl;
+		private String name;
+		private String nickname;
+		private String job;
+		private boolean isEntryLevel;
+	}
 }
