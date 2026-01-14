@@ -1,6 +1,7 @@
 package navik.global.auth.jwt;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +25,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	public static final String AUTHORIZATION_HEADER = "Authorization";
 	public static final String BEARER_PREFIX = "Bearer ";
+
+	// JWT 필터를 적용하지 않을 경로 목록
+	private static final List<String> EXCLUDED_PATHS = List.of(
+		"/v1/auth/refresh"
+	);
 
 	private final JwtTokenProvider jwtTokenProvider;
 
@@ -67,5 +73,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			return bearerToken.substring(7);
 		}
 		return null;
+	}
+
+	@Override
+	protected boolean shouldNotFilter(HttpServletRequest request) {
+		String path = request.getRequestURI();
+		return EXCLUDED_PATHS.stream().anyMatch(path::equals);
 	}
 }
