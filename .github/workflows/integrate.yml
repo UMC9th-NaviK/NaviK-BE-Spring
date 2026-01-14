@@ -1,0 +1,41 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  pr_build:
+    name: PR 머지 결과 검증
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: GitHub 저장소 체크아웃
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: JDK 17 설치
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Gradle 실행 권한 부여
+        run: chmod +x gradlew
+
+      - name: PR 단독 테스트
+        run: ./gradlew test
+
+      - name: develop 기준으로 PR 머지 시뮬레이션
+        run: |
+          git fetch origin develop
+          git checkout --detach origin/develop
+          git merge --no-commit --no-ff $GITHUB_SHA || {
+            echo "❌ develop 브랜치와 병합 시 conflict가 발생합니다."
+            exit 1
+          }
+
+      - name: 머지 결과 빌드 및 테스트
+        run: ./gradlew clean build
