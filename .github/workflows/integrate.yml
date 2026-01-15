@@ -84,7 +84,7 @@ jobs:
             -c "CREATE EXTENSION IF NOT EXISTS vector;"
 
       - name: PR 단독 테스트
-        run: ./gradlew test
+        run: ./gradlew test --stacktrace --info
 
       - name: develop 기준으로 PR 머지 시뮬레이션
         run: |
