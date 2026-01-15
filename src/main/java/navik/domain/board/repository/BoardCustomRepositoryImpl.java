@@ -19,6 +19,32 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
+    public List<Board> findAllByCursor(Long lastId, int pageSize) {
+        QBoard board = QBoard.board;
+        return queryFactory
+                .selectFrom(board)
+                .where(ltBoardId(lastId))
+                .orderBy(board.id.desc())
+                .limit(pageSize)
+                .fetch();
+    }
+
+    @Override
+    public List<Board> findByJobAndCursor(String jobName, Long lastId, int pageSize) {
+        QBoard board = QBoard.board;
+        return queryFactory
+                .selectFrom(board)
+                .where(
+                        board.user.job.name.eq(jobName),
+                        ltBoardId(lastId)
+                )
+                .orderBy(board.id.desc())
+                .limit(pageSize)
+                .fetch();
+    }
+
+
+    @Override
     public List<Board> findHotBoardsByCursor(Integer lastScore, Long lastId, int pageSize) {
         QBoard board = QBoard.board;
         QUser user = QUser.user;
@@ -47,5 +73,9 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
         // 복합 커서 조건: (현재 점수 < 마지막 점수) OR (현재 점수 == 마지막 점수 AND ID < 마지막 ID)
         return scoreSum.lt(lastScore)
                 .or(scoreSum.eq(lastScore).and(board.id.lt(lastId)));
+    }
+
+    private BooleanExpression ltBoardId(Long lastId) {
+        return lastId == null ? null : QBoard.board.id.lt(lastId);
     }
 }

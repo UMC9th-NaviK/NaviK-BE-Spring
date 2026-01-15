@@ -14,6 +14,7 @@ import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.dto.PageResponseDto;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,36 +36,45 @@ public class BoardService {
     private final CommentRepository commentRepository;
 
     /**
-     * 전체 조회
-     *
-     * @param pageable
+     * 전체 게시글 조회
+     * @param lastId
+     * @param pageSize
      * @return
      */
-    @Transactional
-    public Page<BoardResponseDTO.BoardDTO> getBoardList(Pageable pageable) {
-        return boardRepository.findAll(pageable)
-                .map(board -> BoardConverter.toBoardDTO(
-                        board,
-                        boardLikeRepository.countLikeByBoard(board),
-                        commentRepository.countCommentByBoard(board)
-                ));
+    @Transactional(readOnly = true)
+    public PageResponseDto<BoardResponseDTO.BoardDTO> getBoardList(Long lastId, int pageSize) {
+        List<Board> boards = boardCustomRepository.findAllByCursor(lastId, pageSize);
+        return processCursorPage(boards, pageSize);
     }
 
-    /**
-     * 직무별 게시글 조회
-     * @param pageable
-     * @param jobName
-     * @return
-     */
-    @Transactional
-    public Page<BoardResponseDTO.BoardDTO> getBoardListByJob(Pageable pageable, String jobName) {
-        return boardRepository.findByUserJobName(jobName, pageable)
+
+
+    @Transactional(readOnly = true)
+    public PageResponseDto<BoardResponseDTO.BoardDTO> getBoardListByJob(String jobName, Long lastId, int pageSize) {
+        List<Board> boards = boardCustomRepository.findByJobAndCursor(jobName, lastId, pageSize);
+        return processCursorPage(boards, pageSize);
+    }
+
+    private PageResponseDto<BoardResponseDTO.BoardDTO> processCursorPage(List<Board> boards, int pageSize) {
+        List<Long> boardIds = boards.stream().map(Board::getId).collect(Collectors.toList());
+
+        Map<Long, Integer> likeCountMap = getLikeCountMap(boardIds);
+        Map<Long, Integer> commentCountMap = getCommentCountMap(boardIds);
+
+        List<BoardResponseDTO.BoardDTO> doList = boards.stream()
                 .map(board -> BoardConverter.toBoardDTO(
                         board,
-                        boardLikeRepository.countLikeByBoard(board),
-                        commentRepository.countCommentByBoard(board)
-                ));
+                        likeCountMap.getOrDefault(board.getId(), 0),
+                        commentCountMap.getOrDefault(board.getId(), 0)
+                ))
+                .collect(Collectors.toList());
+
+        boolean hasNext = boards.size() >= pageSize;
+        String nextCursor = (hasNext && !boards.isEmpty()) ? boards.get(boards.size()-1).getId().toString() : null;
+
+        return PageResponseDto.of(doList, hasNext, nextCursor);
     }
+
 
     /**
      * HOT 게시판 게시글 조회

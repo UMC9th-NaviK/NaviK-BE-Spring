@@ -26,35 +26,37 @@ public class BoardController implements BoardControllerDocs {
     private final BoardLikeService boardLikeService;
 
     /**
-     * 게시글 전체조회
-     * @param pageable
+     * 게시글 전체 조회
+      * @param lastId
+     * @param pageSize
      * @return
      */
-    @GetMapping("/") // 전체
+    @Override
+    @GetMapping("") // 전체
     public ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getBoards(
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable
+           @RequestParam(value = "cursor", required = false) Long lastId,
+           @RequestParam(value = "size", defaultValue = "10") int pageSize
     ) {
-        Page<BoardResponseDTO.BoardDTO> boardList = boardService.getBoardList(pageable);
-
-        PageResponseDto<BoardResponseDTO.BoardDTO> response = PageResponseDto.of(boardList);
+        PageResponseDto<BoardResponseDTO.BoardDTO> response = boardService.getBoardList(lastId, pageSize);
         return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
     }
 
     /**
      * 게시글 직무별 조회
-     * @param
-     * @param
-     * @param
+     * @param jobName
+     * @param lastId
+     * @param pageSize
      * @return
      */
+    @Override
     @GetMapping("/jobs") // 전체
     public ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getBoardsByJob(
-            @RequestParam String jobType,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable
+          @RequestParam(name = "jobName") String jobName,
+          @RequestParam(value = "cursor", required = false) Long lastId,
+          @RequestParam(value = "size", defaultValue = "10") int pageSize
             ) {
-                Page<BoardResponseDTO.BoardDTO> boardList = boardService.getBoardListByJob(pageable, jobType);
-                PageResponseDto<BoardResponseDTO.BoardDTO> response = PageResponseDto.of(boardList);
-                return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
+               PageResponseDto<BoardResponseDTO.BoardDTO> response = boardService.getBoardListByJob(jobName, lastId, pageSize);
+               return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
     }
 
     /**

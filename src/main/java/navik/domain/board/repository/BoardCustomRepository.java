@@ -7,5 +7,7 @@ import java.util.List;
 
 @Repository
 public interface BoardCustomRepository {
+    List<Board> findAllByCursor(Long lastId, int pageSize);
+    List<Board> findByJobAndCursor(String jobName, Long lastId, int pageSize);
     List<Board> findHotBoardsByCursor(Integer lastScore, Long lastId, int pageSize);
 }

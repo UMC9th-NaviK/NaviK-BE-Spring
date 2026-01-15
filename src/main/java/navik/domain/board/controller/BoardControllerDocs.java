@@ -21,16 +21,32 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Tag(name = "Board", description = "게시판 관련 API")
 public interface BoardControllerDocs {
 
-    @Operation(summary = "게시글 전체 목록 조회", description = "게시글을 페이징하여 최신순으로 조회합니다.")
+    @Operation(
+            summary = "전체 게시글 조회 API",
+            description = "최신순으로 전체 게시글을 조회합니다. 커서 기반 페이징(ID)을 지원합니다."
+    )
+    @Parameters({
+            @Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 ID (첫 조회 시 비움)", example = "100"),
+            @Parameter(name = "size", description = "한 페이지에 가져올 게시글 개수 (기본 10개)", example = "10")
+    })
     ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getBoards(
-            @ParameterObject Pageable pageable // page, size, sort 노출
+            @RequestParam(value = "cursor", required = false) Long lastId,
+            @RequestParam(value = "size", defaultValue = "10") int pageSize
     );
 
-    @Operation(summary = "게시글 직무별 조회", description = "특정 직무에 해당하는 게시글을 페이징하여 최신순으로 조회합니다.")
-    @Parameter(name = "jobType", description = "조회할 직무 타입")
+    @Operation(
+            summary = "직무별 게시글 조회 API",
+            description = "특정 직무에 해당하는 게시글을 최신순으로 조회합니다. 커서 기반 페이징(ID)을 지원합니다."
+    )
+    @Parameters({
+            @Parameter(name = "jobName", description = "조회할 직무의 이름", example = "백엔드"),
+            @Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 ID (첫 조회 시 비움)", example = "90"),
+            @Parameter(name = "size", description = "한 페이지에 가져올 게시글 개수 (기본 10개)", example = "10")
+    })
     ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getBoardsByJob(
-            String jobType,
-            @ParameterObject Pageable pageable
+            @RequestParam(name = "jobName") String jobName,
+            @RequestParam(value = "cursor", required = false) Long lastId,
+            @RequestParam(value = "size", defaultValue = "10") int pageSize
     );
 
     @Operation(
