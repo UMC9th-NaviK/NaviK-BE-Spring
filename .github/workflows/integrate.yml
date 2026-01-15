@@ -24,7 +24,7 @@ jobs:
           --health-timeout=5s
           --health-retries=10
         volumes:
-          - ./.github/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+          - ./.github/postgres:/docker-entrypoint-initdb.d
 
       redis:
         image: redis:7
@@ -60,14 +60,6 @@ jobs:
       - name: Gradle 실행 권한 부여
         run: chmod +x gradlew
 
-      # pgvector 확장 자동 활성화 (init.sql 생성)
-      - name: pgvector init.sql 준비
-        run: |
-          mkdir -p .github/postgres
-          cat > .github/postgres/init.sql <<'SQL'
-          CREATE EXTENSION IF NOT EXISTS vector;
-          SQL
-
       - name: PR 단독 테스트
         run: ./gradlew test
 
@@ -80,6 +72,5 @@ jobs:
             exit 1
           }
 
-      # build가 test를 포함하므로 중복 방지
       - name: 머지 결과 빌드 (테스트 중복 방지)
         run: ./gradlew clean build -x test
