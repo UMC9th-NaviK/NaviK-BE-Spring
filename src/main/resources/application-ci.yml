@@ -27,5 +27,22 @@ spring:
   security:
     oauth2:
       client:
-        registration: { }
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:dummy}
+            client-secret: ${GOOGLE_CLIENT_SECRET:dummy}
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID:dummy}
+            client-secret: ${KAKAO_CLIENT_SECRET:dummy}
+          naver:
+            client-id: ${NAVER_CLIENT_ID:dummy}
+            client-secret: ${NAVER_CLIENT_SECRET:dummy}
         provider: { }
+
+jwt:
+  secret: ${JWT_SECRET:dummy-jwt-secret-for-ci}
+  access-token-validity-in-seconds: 60
+  refresh-token-validity-in-seconds: 60
+
+oauth2:
+  redirect-url: ${OAUTH2_REDIRECT_URL:http://localhost/ci}
