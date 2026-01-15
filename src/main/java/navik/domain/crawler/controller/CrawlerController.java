@@ -1,6 +1,6 @@
 package navik.domain.crawler.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +23,7 @@ public class CrawlerController implements CrawlerControllerDocs {
 	/**
 	 * TODO: 실 배포환경에서 직접 테스트 후 스케쥴러로 등록
 	 */
-	@GetMapping("/schedule")
+	@PostMapping("/schedule")
 	public void triggerSchedule(@RequestParam Integer pagesToCrawl) {
 		crawlerService.scheduledCrawl(pagesToCrawl);
 	}
