@@ -1,4 +1,4 @@
-package navik.domain.users.entity;
+package navik.domain.term.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
