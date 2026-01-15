@@ -35,10 +35,13 @@ jobs:
           --health-retries=10
 
     env:
+      SPRING_ACTIVE_PROFILE: ci
       SPRING_PROFILES_ACTIVE: ci
+
       DB_URL: jdbc:postgresql://localhost:5432/navik
       DB_USER: myuser
       DB_PASSWORD: mypassword
+
       REDIS_HOST: localhost
       REDIS_PORT: 6379
 

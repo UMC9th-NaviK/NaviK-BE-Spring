@@ -1,4 +1,8 @@
 spring:
+  config:
+    activate:
+      on-profile: ci
+
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/navik}
     username: ${DB_USER:myuser}
@@ -21,11 +25,14 @@ spring:
 
   cloud:
     aws:
+      # application.yml이 AWS_REGION을 요구하더라도 CI에서 터지지 않게 기본값 제공(안전장치)
+      region:
+        static: ${AWS_REGION:ap-northeast-2}
       s3:
         enabled: false
 
   jwt:
-    secret: ${JWT_SECRET:ZHVtbXlKd3RTZWNyZXREdW1teUp3dFNlY3JldEtleQ==}
+    secret: ${JWT_SECRET:VGhpc0lzQUNJQmFzZTY0U2VjcmV0S2V5Rm9yQ0lUZXN0c0xvbmdFbm91Z2gxMjM0NTY3ODkw}
     access-token-validity-in-seconds: ${JWT_ACCESS_TTL:180}
     refresh-token-validity-in-seconds: ${JWT_REFRESH_TTL:1209600}
 
