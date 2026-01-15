@@ -42,9 +42,13 @@ public class Board extends BaseEntity {
 		this.articleViews++;
 	}
 
-	public void decrementArticleViews() {
-		if(this.articleViews > 0) {
-			this.articleViews--;
+	public void incrementArticleLikes() {
+		this.articleLikes++;
+	}
+
+	public void decrementArticleLikes() {
+		if(this.articleLikes > 0) {
+			this.articleLikes--;
 		}
 	}
 

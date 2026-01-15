@@ -21,8 +21,13 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
     @Override
     public List<Board> findAllByCursor(Long lastId, int pageSize) {
         QBoard board = QBoard.board;
+        QUser user = QUser.user;
+        QJob job = QJob.job;
+
         return queryFactory
                 .selectFrom(board)
+                .leftJoin(board.user, user).fetchJoin()
+                .leftJoin(user.job, job).fetchJoin()
                 .where(ltBoardId(lastId))
                 .orderBy(board.id.desc())
                 .limit(pageSize)
@@ -32,8 +37,13 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
     @Override
     public List<Board> findByJobAndCursor(String jobName, Long lastId, int pageSize) {
         QBoard board = QBoard.board;
+        QUser user = QUser.user;
+        QJob job = QJob.job;
+
         return queryFactory
                 .selectFrom(board)
+                .leftJoin(board.user, user).fetchJoin()
+                .leftJoin(user.job, job).fetchJoin()
                 .where(
                         board.user.job.name.eq(jobName),
                         ltBoardId(lastId)

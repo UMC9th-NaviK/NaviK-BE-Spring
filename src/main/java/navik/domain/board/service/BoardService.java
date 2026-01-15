@@ -109,7 +109,7 @@ public class BoardService {
         if(!boards.isEmpty() && hasNext) {
             Board lastBoard = boards.get(boards.size() - 1);
             int score = lastBoard.getArticleLikes() + lastBoard.getArticleViews();
-            nextCursor = score + "-" + lastBoard.getId();
+            nextCursor = score + "_" + lastBoard.getId();
         }
 
         return BoardConverter.toHotBoardListDTO(boards, likeCountMap, commentCountMap, nextCursor, hasNext);
