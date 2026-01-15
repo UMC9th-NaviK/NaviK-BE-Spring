@@ -1,10 +1,10 @@
 package navik.global.dto;
 
-import lombok.Getter;
+import java.util.List;
 
 import org.springframework.data.domain.Slice;
 
-import java.util.List;
+import lombok.Getter;
 
 /**
  * 커서 기반 페이지네이션 응답을 위한 DTO 클래스입니다.
@@ -39,5 +39,9 @@ public class CursorResponseDto<T> {
 		this.pageSize = slice.getNumberOfElements();
 		this.nextCursor = nextCursor;
 		this.hasNext = slice.hasNext();
+	}
+
+	public static <T> CursorResponseDto<T> of(Slice<T> slice, String nextCursor) {
+		return new CursorResponseDto<>(slice, nextCursor);
 	}
 }

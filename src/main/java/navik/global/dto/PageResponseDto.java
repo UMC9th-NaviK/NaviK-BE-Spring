@@ -1,10 +1,10 @@
 package navik.global.dto;
 
-import lombok.Getter;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 
-import java.util.List;
+import lombok.Getter;
 
 /**
  * 페이지 기반 페이지네이션 응답을 위한 DTO 클래스입니다.
@@ -51,5 +51,9 @@ public class PageResponseDto<T> {
 		this.totalPages = page.getTotalPages();
 		this.totalElements = page.getTotalElements();
 		this.last = page.isLast();
+	}
+
+	public static <T> PageResponseDto<T> of(Page<T> page) {
+		return new PageResponseDto<>(page);
 	}
 }
