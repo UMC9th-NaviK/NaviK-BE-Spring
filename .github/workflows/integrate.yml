@@ -9,6 +9,41 @@ jobs:
     name: PR 머지 결과 검증
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: navik
+          POSTGRES_USER: myuser
+          POSTGRES_PASSWORD: mypassword
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U myuser -d navik"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+        volumes:
+          - ./.github/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      SPRING_PROFILES_ACTIVE: ci
+      DB_URL: jdbc:postgresql://localhost:5432/navik
+      DB_USER: myuser
+      DB_PASSWORD: mypassword
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+
     steps:
       - name: GitHub 저장소 체크아웃
         uses: actions/checkout@v4
@@ -25,6 +60,14 @@ jobs:
       - name: Gradle 실행 권한 부여
         run: chmod +x gradlew
 
+      # pgvector 확장 자동 활성화 (init.sql 생성)
+      - name: pgvector init.sql 준비
+        run: |
+          mkdir -p .github/postgres
+          cat > .github/postgres/init.sql <<'SQL'
+          CREATE EXTENSION IF NOT EXISTS vector;
+          SQL
+
       - name: PR 단독 테스트
         run: ./gradlew test
 
@@ -37,5 +80,6 @@ jobs:
             exit 1
           }
 
-      - name: 머지 결과 빌드 및 테스트
-        run: ./gradlew clean build
+      # build가 test를 포함하므로 중복 방지
+      - name: 머지 결과 빌드 (테스트 중복 방지)
+        run: ./gradlew clean build -x test
