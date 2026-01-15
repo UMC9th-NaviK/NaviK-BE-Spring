@@ -41,12 +41,14 @@ public class BoardLikeService {
         if(boardLikeOpt.isPresent()) {
             // 이미 좋아요가 있다면 좋아요 취소
             boardLikeRepository.delete(boardLikeOpt.get());
+            board.decrementArticleViews();
             isLiked = false;
         }
         else {
             // 좋아요가 없다면 좋아요 추가
             BoardLike boardLike = BoardLikeConverter.toEntity(user, board);
             boardLikeRepository.save(boardLike);
+            board.incrementArticleViews();
             isLiked = true;
         }
 

@@ -3,9 +3,10 @@ package navik.domain.board.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.board.dto.BoardCreateDTO;
-import navik.domain.board.dto.BoardDTO;
+import navik.domain.board.dto.BoardResponseDTO;
 import navik.domain.board.dto.BoardLikeDTO;
 import navik.domain.board.dto.BoardUpdateDTO;
 import navik.global.apiPayload.ApiResponse;
@@ -13,26 +14,41 @@ import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.PageResponseDto;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "Board", description = "게시판 관련 API")
 public interface BoardControllerDocs {
 
     @Operation(summary = "게시글 전체 목록 조회", description = "게시글을 페이징하여 최신순으로 조회합니다.")
-    ApiResponse<PageResponseDto<BoardDTO>> getBoards(
+    ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getBoards(
             @ParameterObject Pageable pageable // page, size, sort 노출
     );
 
     @Operation(summary = "게시글 직무별 조회", description = "특정 직무에 해당하는 게시글을 페이징하여 최신순으로 조회합니다.")
     @Parameter(name = "jobType", description = "조회할 직무 타입")
-    ApiResponse<PageResponseDto<BoardDTO>> getBoardsByJob(
+    ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getBoardsByJob(
             String jobType,
             @ParameterObject Pageable pageable
     );
 
+    @Operation(
+            summary = "HOT 게시글 조회 API",
+            description = "좋아요와 조회수 합산 점수가 높은 순으로 게시글을 조회합니다. 커서 기반 페이징을 지원합니다."
+    )
+    @Parameters({
+            @Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 '점수_ID' (첫 조회 시에는 비워서 보냅니다)", example = "15_23"),
+            @Parameter(name = "size", description = "한 페이지에 가져올 게시글 개수 (기본 10개)", example = "10")
+    })
+    ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getHotBoards(
+            @RequestParam(value = "cursor", required = false) String cursor,
+            @PageableDefault(size = 10) Pageable pageable
+    );
+
     @Operation(summary = "게시글 상세 조회", description = "특정 게시글의 상세 정보를 조회합니다.")
     @Parameter(name = "boardId", description = "조회할 게시글 ID", example = "1")
-    ApiResponse<BoardDTO> getBoardDetail(Long boardId);
+    ApiResponse<BoardResponseDTO.BoardDTO> getBoardDetail(Long boardId);
 
     @Operation(summary = "게시글 작성", description = "새로운 게시글을 작성합니다.")
     @io.swagger.v3.oas.annotations.responses.ApiResponses(

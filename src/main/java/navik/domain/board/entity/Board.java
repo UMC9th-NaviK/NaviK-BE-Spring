@@ -33,10 +33,19 @@ public class Board extends BaseEntity {
 	private String articleContent;
 
 	@Column(name = "article_views", nullable = false)
-	private Integer articleViews;
+	private Integer articleViews = 0;
+
+	@Column(name = "article_likes", nullable = false)
+	private Integer articleLikes = 0;
 
 	public void incrementArticleViews() {
 		this.articleViews++;
+	}
+
+	public void decrementArticleViews() {
+		if(this.articleViews > 0) {
+			this.articleViews--;
+		}
 	}
 
 	public void updateBoard(String articleTitle, String articleContent) {

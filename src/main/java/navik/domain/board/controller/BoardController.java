@@ -3,7 +3,7 @@ package navik.domain.board.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import navik.domain.board.dto.BoardCreateDTO;
-import navik.domain.board.dto.BoardDTO;
+import navik.domain.board.dto.BoardResponseDTO;
 import navik.domain.board.dto.BoardLikeDTO;
 import navik.domain.board.dto.BoardUpdateDTO;
 import navik.domain.board.service.BoardLikeService;
@@ -31,12 +31,12 @@ public class BoardController implements BoardControllerDocs {
      * @return
      */
     @GetMapping("/") // 전체
-    public ApiResponse<PageResponseDto<BoardDTO>> getBoards(
+    public ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getBoards(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-        Page<BoardDTO> boardList = boardService.getBoardList(pageable);
+        Page<BoardResponseDTO.BoardDTO> boardList = boardService.getBoardList(pageable);
 
-        PageResponseDto<BoardDTO> response = PageResponseDto.of(boardList);
+        PageResponseDto<BoardResponseDTO.BoardDTO> response = PageResponseDto.of(boardList);
         return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
     }
 
@@ -48,13 +48,34 @@ public class BoardController implements BoardControllerDocs {
      * @return
      */
     @GetMapping("/jobs") // 전체
-    public ApiResponse<PageResponseDto<BoardDTO>> getBoardsByJob(
+    public ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getBoardsByJob(
             @RequestParam String jobType,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable
             ) {
-                Page<BoardDTO> boardList = boardService.getBoardListByJob(pageable, jobType);
-                PageResponseDto<BoardDTO> response = PageResponseDto.of(boardList);
+                Page<BoardResponseDTO.BoardDTO> boardList = boardService.getBoardListByJob(pageable, jobType);
+                PageResponseDto<BoardResponseDTO.BoardDTO> response = PageResponseDto.of(boardList);
                 return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
+    }
+
+    /**
+     * HOT 게시글 조회
+     * @param cursor
+     * @param pageable
+     * @return
+     */
+    @GetMapping("/hot")
+    public ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getHotBoards(
+            @RequestParam(value = "cursor", required = false) String cursor,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        BoardResponseDTO.HotBoardListDTO response = boardService.getHotBoardList(cursor, pageable);
+        PageResponseDto<BoardResponseDTO.BoardDTO> result = PageResponseDto.of(
+                response.getBoardList(),
+                response.getHasNext(),
+                response.getNextCursor()
+        );
+
+        return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
     }
 
     /**
@@ -63,10 +84,10 @@ public class BoardController implements BoardControllerDocs {
      * @return
      */
     @GetMapping("/{boardId}")
-    public ApiResponse<BoardDTO> getBoardDetail(
+    public ApiResponse<BoardResponseDTO.BoardDTO> getBoardDetail(
             @PathVariable Long boardId
     ) {
-        BoardDTO boardDetail = boardService.getBoardDetail(boardId);
+        BoardResponseDTO.BoardDTO boardDetail = boardService.getBoardDetail(boardId);
         return ApiResponse.onSuccess(GeneralSuccessCode._OK, boardDetail);
     }
 

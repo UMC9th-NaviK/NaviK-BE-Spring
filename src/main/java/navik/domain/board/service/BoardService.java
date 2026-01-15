@@ -3,9 +3,10 @@ package navik.domain.board.service;
 import lombok.RequiredArgsConstructor;
 import navik.domain.board.converter.BoardConverter;
 import navik.domain.board.dto.BoardCreateDTO;
-import navik.domain.board.dto.BoardDTO;
+import navik.domain.board.dto.BoardResponseDTO;
 import navik.domain.board.dto.BoardUpdateDTO;
 import navik.domain.board.entity.Board;
+import navik.domain.board.repository.BoardCustomRepositoryImpl;
 import navik.domain.board.repository.BoardLikeRepository;
 import navik.domain.board.repository.BoardRepository;
 import navik.domain.board.repository.CommentRepository;
@@ -13,10 +14,15 @@ import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -25,6 +31,7 @@ public class BoardService {
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final BoardLikeRepository boardLikeRepository;
+    private final BoardCustomRepositoryImpl boardCustomRepository;
     private final CommentRepository commentRepository;
 
     /**
@@ -34,9 +41,9 @@ public class BoardService {
      * @return
      */
     @Transactional
-    public Page<BoardDTO> getBoardList(Pageable pageable) {
+    public Page<BoardResponseDTO.BoardDTO> getBoardList(Pageable pageable) {
         return boardRepository.findAll(pageable)
-                .map(board -> BoardConverter.toResponse(
+                .map(board -> BoardConverter.toBoardDTO(
                         board,
                         boardLikeRepository.countLikeByBoard(board),
                         commentRepository.countCommentByBoard(board)
@@ -50,12 +57,71 @@ public class BoardService {
      * @return
      */
     @Transactional
-    public Page<BoardDTO> getBoardListByJob(Pageable pageable, String jobName) {
+    public Page<BoardResponseDTO.BoardDTO> getBoardListByJob(Pageable pageable, String jobName) {
         return boardRepository.findByUserJobName(jobName, pageable)
-                .map(board -> BoardConverter.toResponse(
+                .map(board -> BoardConverter.toBoardDTO(
                         board,
                         boardLikeRepository.countLikeByBoard(board),
                         commentRepository.countCommentByBoard(board)
+                ));
+    }
+
+    /**
+     * HOT 게시판 게시글 조회
+     * @param cursor
+     * @param pageable
+     * @return
+     */
+    @Cacheable(value = "hotBoards", key = "#cursor + #pageable.pageSize", cacheManager = "cacheManager10Sec")
+    @Transactional(readOnly = true)
+    public BoardResponseDTO.HotBoardListDTO getHotBoardList(String cursor, Pageable pageable) {
+        Integer lastScore = null;
+        Long lastId = null;
+
+        if(cursor != null && !cursor.isEmpty()) {
+            String[] parts = cursor.split("_"); // score_id 형태이기 때문에
+            lastScore = Integer.parseInt(parts[0]);
+            lastId = Long.parseLong(parts[1]);
+        }
+
+        // 1. HOT 게시판 리스트 조회
+        List<Board> boards = boardCustomRepository.findHotBoardsByCursor(lastScore, lastId, pageable.getPageSize());
+        List<Long> boardIds = boards.stream().map(Board::getId).collect(Collectors.toList());
+
+        // 2. N+1 방지를 위해 Batch 조회 및 Map 변환시킨다
+        Map<Long, Integer> likeCountMap = getLikeCountMap(boardIds);
+        Map<Long, Integer> commentCountMap = getCommentCountMap(boardIds);
+
+        // 3. 다음 페이지 정보 및 커서를 생성
+        boolean hasNext = boards.size() >= pageable.getPageSize();
+        String nextCursor = null;
+
+        if(!boards.isEmpty() && hasNext) {
+            Board lastBoard = boards.get(boards.size() - 1);
+            int score = lastBoard.getArticleLikes() + lastBoard.getArticleViews();
+            nextCursor = score + "-" + lastBoard.getId();
+        }
+
+        return BoardConverter.toHotBoardListDTO(boards, likeCountMap, commentCountMap, nextCursor, hasNext);
+
+    }
+
+    private Map<Long, Integer> getLikeCountMap(List<Long> boardIds) {
+        return boardLikeRepository.countByBoardIdIn(boardIds).stream()
+                .collect(Collectors.toMap(
+                        obj -> (Long) obj[0],
+                        obj -> ((Long) obj[1]).intValue()
+                ));
+    }
+
+    private Map<Long, Integer> getCommentCountMap(List<Long> boardIds) {
+        if(boardIds.isEmpty()) {
+            return Map.of();
+        }
+        return commentRepository.countByBoardIds(boardIds).stream()
+                .collect(Collectors.toMap(
+                        obj -> (Long) obj[0],
+                        obj -> ((Long) obj[1]).intValue()
                 ));
     }
 
@@ -65,14 +131,14 @@ public class BoardService {
      * @return
      */
     @Transactional
-    public BoardDTO getBoardDetail(Long boardId) {
+    public BoardResponseDTO.BoardDTO getBoardDetail(Long boardId) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
 
         board.incrementArticleViews(); // 조회수 증가
         boardRepository.save(board); // 변경된 조회수 저장
 
-        return BoardConverter.toResponse(
+        return BoardConverter.toBoardDTO(
                 board,
                 boardLikeRepository.countLikeByBoard(board),
                 commentRepository.countCommentByBoard(board)
