@@ -67,6 +67,6 @@ public class Position extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private MajorType majorType;
 
-	@Column(name = "detail_address")
-	private String detailAddress;
+	@Column(name = "work_place")
+	private String workPlace;
 }
