@@ -47,14 +47,14 @@ public class NaverOcrService implements OcrService {
 		// 1. 이미지 메타데이터 추출
 		ImageMetadataDTO metadata = imageHelper.getMetadata(imageUrl);
 		if (metadata == null) {
-			log.warn("[NaverOcrService] 이미지 메타데이터 추출에 실패하였습니다.");
+			log.error("[NaverOcrService] 이미지 메타데이터 추출에 실패하였습니다: {}", imageUrl);
 			return "";
 		}
 
 		// 2. 이미지 최대 용량 검사
 		long size = metadata.getFileSize();
 		if (!isSupportedFileSize(size)) {
-			log.warn("[NaverOcrService] 최대 용량을 초과하였습니다.");
+			log.info("[NaverOcrService] 최대 용량을 초과하였습니다: {}", imageUrl);
 			return "";
 		}
 
@@ -62,14 +62,14 @@ public class NaverOcrService implements OcrService {
 		int width = metadata.getWidth();
 		int height = metadata.getHeight();
 		if (isTrashImage(width, height)) {
-			log.info("[NaverOcrService] 매우 작은 이미지입니다.");
+			log.info("[NaverOcrService] 매우 작은 이미지입니다: {}", imageUrl);
 			return "";
 		}
 
 		// 4. 이미지 확장자 검사
 		String extension = metadata.getExtension();
 		if (!isSupportedExtension(extension)) {
-			log.warn("[NaverOcrService] 미지원 확장자입니다.");
+			log.info("[NaverOcrService] 미지원 확장자입니다: {}", imageUrl);
 			return "";
 		}
 
