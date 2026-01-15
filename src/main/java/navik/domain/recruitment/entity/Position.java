@@ -21,6 +21,7 @@ import navik.domain.recruitment.enums.AreaType;
 import navik.domain.recruitment.enums.EducationType;
 import navik.domain.recruitment.enums.EmploymentType;
 import navik.domain.recruitment.enums.ExperienceType;
+import navik.domain.recruitment.enums.MajorType;
 import navik.global.entity.BaseEntity;
 
 @Entity
@@ -61,4 +62,11 @@ public class Position extends BaseEntity {
 	@Column(name = "area_type")
 	@Enumerated(EnumType.STRING)
 	private AreaType areaType;
+
+	@Column(name = "major_type")
+	@Enumerated(EnumType.STRING)
+	private MajorType majorType;
+
+	@Column(name = "detail_address")
+	private String detailAddress;
 }
