@@ -13,11 +13,9 @@ import navik.global.ai.dto.LLMResponseDTO;
 @RequiredArgsConstructor
 public class LLMService {
 
-	private final ChatClient.Builder chatClientBuilder;
+	private final ChatClient chatClient;
 
 	public LLMResponseDTO.Recruitment getRecruitment(String text) {
-
-		ChatClient chatClient = chatClientBuilder.build();
 
 		SystemMessage systemMessage = SystemMessage.builder()
 			.text("""
