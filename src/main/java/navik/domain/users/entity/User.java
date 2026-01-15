@@ -19,6 +19,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.job.entity.Job;
+import navik.domain.recruitment.enums.EducationType;
+import navik.domain.recruitment.enums.ExperienceType;
+import navik.domain.recruitment.enums.MajorType;
 import navik.domain.users.enums.Role;
 import navik.domain.users.enums.UserStatus;
 import navik.global.entity.BaseEntity;
@@ -58,6 +61,15 @@ public class User extends BaseEntity {
 
 	@Column(nullable = false)
 	private String socialType; // google, kakao, naver
+
+	@Enumerated(EnumType.STRING)
+	private EducationType educationType; // 학력
+
+	@Enumerated(EnumType.STRING)
+	private ExperienceType experienceType; // 경력
+
+	@Enumerated(EnumType.STRING)
+	private MajorType majorType; // 전공
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
