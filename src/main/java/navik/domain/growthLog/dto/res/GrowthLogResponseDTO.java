@@ -1,7 +1,6 @@
 package navik.domain.growthLog.dto.res;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import navik.domain.growthLog.enums.GrowthType;
 
@@ -24,18 +23,10 @@ public class GrowthLogResponseDTO {
 
 	public record ListItem(
 		Long growthLogId,
-		GrowthType type,
 		String title,
-		Integer score,
+		String content,
 		LocalDateTime createdAt
 	) {
 	}
 
-	public record Slice(
-		List<ListItem> items,
-		int page,
-		int size,
-		boolean hasNext
-	) {
-	}
 }

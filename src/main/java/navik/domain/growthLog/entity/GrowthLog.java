@@ -8,6 +8,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -18,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.growthLog.enums.GrowthType;
 import navik.domain.kpi.entity.KpiCard;
+import navik.domain.users.entity.User;
 import navik.global.entity.BaseEntity;
 
 @Entity
@@ -25,12 +27,28 @@ import navik.global.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@Table(name = "growth_logs")
+@Table(
+	name = "growth_logs",
+	indexes = {
+		@Index(
+			name = "idx_growthlog_user_createdat",
+			columnList = "user_id, created_at"
+		),
+		@Index(
+			name = "idx_growthlog_user_type_createdat",
+			columnList = "user_id, type, created_at"
+		)
+	}
+)
 public class GrowthLog extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "kpi_card_id")

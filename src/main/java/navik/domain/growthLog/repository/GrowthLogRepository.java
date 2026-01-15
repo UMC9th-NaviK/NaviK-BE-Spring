@@ -1,5 +1,9 @@
 package navik.domain.growthLog.repository;
 
+import java.time.LocalDateTime;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,6 +30,38 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 		@Param("kpiCardId") Long kpiCardId,
 		@Param("score") Integer score,
 		@Param("type") GrowthType type
+	);
+
+	@Query("""
+		    select gl
+		      from GrowthLog gl
+		     where gl.user.id = :userId
+		       and gl.createdAt >= :start
+		       and gl.createdAt < :end
+		     order by gl.createdAt desc
+		""")
+	Page<GrowthLog> findMonthly(
+		@Param("userId") Long userId,
+		@Param("start") LocalDateTime start,
+		@Param("end") LocalDateTime end,
+		Pageable pageable
+	);
+
+	@Query("""
+		    select gl
+		      from GrowthLog gl
+		     where gl.user.id = :userId
+		       and gl.type = :type
+		       and gl.createdAt >= :start
+		       and gl.createdAt < :end
+		     order by gl.createdAt desc
+		""")
+	Page<GrowthLog> findMonthlyByType(
+		@Param("userId") Long userId,
+		@Param("type") GrowthType type,
+		@Param("start") LocalDateTime start,
+		@Param("end") LocalDateTime end,
+		Pageable pageable
 	);
 
 }
