@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '4.0.1'
+    id 'org.springframework.boot' version '3.5.9'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -32,7 +32,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springframework.boot:spring-boot-starter-aspectj'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 
     // Database
     runtimeOnly 'org.postgresql:postgresql'
@@ -57,7 +57,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
     // Vector Search
-    implementation 'org.hibernate.orm:hibernate-vector:7.2.0.Final'
+    implementation 'org.hibernate.orm:hibernate-vector:6.6.39.Final'
 
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

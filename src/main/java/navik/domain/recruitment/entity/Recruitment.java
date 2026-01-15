@@ -68,6 +68,6 @@ public class Recruitment extends BaseEntity {
 	private LocalDateTime endDate;
 
 	@BatchSize(size = 100)
-	@OneToMany(mappedBy = "recruitment_id")
+	@OneToMany(mappedBy = "recruitment")
 	private List<Position> positions;
 }
