@@ -1,10 +1,5 @@
 package navik.domain.kpi.entity;
 
-import org.hibernate.annotations.Array;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import org.springframework.data.domain.Vector;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -52,9 +47,4 @@ public class KpiCard extends BaseEntity {
 
 	@Column(name = "weak_content", nullable = false, length = 2000)
 	private String weakContent;
-
-	@JdbcTypeCode(SqlTypes.VECTOR)
-	@Array(length = 1536)
-	@Column(name = "embedding", nullable = false)
-	private Vector embedding;
 }
