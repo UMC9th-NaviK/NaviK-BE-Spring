@@ -3,7 +3,6 @@ package navik.domain.recruitment.entity;
 import org.hibernate.annotations.Array;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import org.springframework.data.domain.Vector;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -33,7 +32,7 @@ public class PositionKpiEmbedding extends BaseEntity {
 	@JdbcTypeCode(SqlTypes.VECTOR)
 	@Array(length = 1536)
 	@Column(name = "embedding", nullable = false)
-	private Vector embedding;
+	private float[] embedding;
 
 	@OneToOne
 	@MapsId

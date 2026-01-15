@@ -1,10 +1,5 @@
 package navik.domain.ability.entity;
 
-import org.hibernate.annotations.Array;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import org.springframework.data.domain.Vector;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -37,11 +32,6 @@ public class Ability extends BaseEntity {
 
 	@Column(name = "name", nullable = false)
 	private String name;
-
-	@JdbcTypeCode(SqlTypes.VECTOR)
-	@Array(length = 1536)
-	@Column(name = "embedding", nullable = false)
-	private Vector embedding;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")

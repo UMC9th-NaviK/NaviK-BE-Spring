@@ -3,7 +3,6 @@ package navik.domain.kpi.entity;
 import org.hibernate.annotations.Array;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import org.springframework.data.domain.Vector;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,7 +23,7 @@ import navik.global.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@Table(name = "kpi_cards")
+@Table(name = "kpi_card_embeddings")
 public class KpiCardEmbedding extends BaseEntity {
 
 	@Id
@@ -33,7 +32,7 @@ public class KpiCardEmbedding extends BaseEntity {
 	@JdbcTypeCode(SqlTypes.VECTOR)
 	@Array(length = 1536)
 	@Column(name = "embedding", nullable = false)
-	private Vector embedding;
+	private float[] embedding;
 
 	@OneToOne
 	@MapsId
