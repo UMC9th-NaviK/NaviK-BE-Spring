@@ -24,6 +24,14 @@ spring:
       s3:
         enabled: false
 
+  jwt:
+    secret: ${JWT_SECRET:dummy-jwt-secret-for-ci-dummy-jwt-secret-for-ci-dummy-jwt-secret-for-ci-1234}
+    access-token-validity-in-seconds: ${JWT_ACCESS_TTL:180}
+    refresh-token-validity-in-seconds: ${JWT_REFRESH_TTL:1209600}
+
+  oauth2:
+    redirect-url: ${OAUTH2_REDIRECT_URL:http://localhost/ci}
+
   security:
     oauth2:
       client:
@@ -38,12 +46,3 @@ spring:
             client-id: ${NAVER_CLIENT_ID:dummy}
             client-secret: ${NAVER_CLIENT_SECRET:dummy}
         provider: { }
-
-jwt:
-  secret: ${JWT_SECRET:dummy-jwt-secret-for-ci-dummy-jwt-secret-for-ci-dummy-jwt-secret-for-ci-1234}
-  access-token-validity-in-seconds: ${JWT_ACCESS_TTL:180}
-  refresh-token-validity-in-seconds: ${JWT_REFRESH_TTL:1209600}
-
-
-oauth2:
-  redirect-url: ${OAUTH2_REDIRECT_URL:http://localhost/ci}
