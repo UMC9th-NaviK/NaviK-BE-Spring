@@ -25,7 +25,7 @@ spring:
         enabled: false
 
   jwt:
-    secret: ${JWT_SECRET:dummy-jwt-secret-for-ci-dummy-jwt-secret-for-ci-dummy-jwt-secret-for-ci-1234}
+    secret: ${JWT_SECRET:ZHVtbXlKd3RTZWNyZXREdW1teUp3dFNlY3JldEtleQ==}
     access-token-validity-in-seconds: ${JWT_ACCESS_TTL:180}
     refresh-token-validity-in-seconds: ${JWT_REFRESH_TTL:1209600}
 
