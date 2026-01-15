@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -47,4 +48,7 @@ public class KpiCard extends BaseEntity {
 
 	@Column(name = "weak_content", nullable = false, length = 2000)
 	private String weakContent;
+
+	@OneToOne(mappedBy = "kpiCard", fetch = FetchType.LAZY)
+	private KpiCardEmbedding kpiCardEmbedding;
 }

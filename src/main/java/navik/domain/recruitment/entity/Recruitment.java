@@ -1,6 +1,9 @@
 package navik.domain.recruitment.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import org.hibernate.annotations.BatchSize;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,6 +12,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -46,6 +50,9 @@ public class Recruitment extends BaseEntity {
 	@Column(name = "company_logo")
 	private String companyLogo;
 
+	@Column(name = "summation")
+	private String summation;
+
 	@Column(name = "company_size")
 	@Enumerated(EnumType.STRING)
 	private CompanySize companySize;
@@ -59,4 +66,8 @@ public class Recruitment extends BaseEntity {
 
 	@Column(name = "end_date")
 	private LocalDateTime endDate;
+
+	@BatchSize(size = 100)
+	@OneToMany(mappedBy = "recruitment_id")
+	private List<Position> positions;
 }
