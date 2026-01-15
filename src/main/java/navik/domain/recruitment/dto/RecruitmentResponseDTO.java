@@ -17,5 +17,6 @@ public class RecruitmentResponseDTO {
 		private String workPlace;
 		private String experience;
 		private String employment;
+		private String link;
 	}
 }
