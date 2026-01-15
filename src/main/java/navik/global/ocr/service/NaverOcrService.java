@@ -117,7 +117,7 @@ public class NaverOcrService implements OcrService {
 	}
 
 	private boolean isSupportedExtension(String extension) {
-		return NaverOcrConstant.SUPPORTED_EXTENSIONS.contains(extension.toLowerCase());
+		return !extension.isBlank() && NaverOcrConstant.SUPPORTED_EXTENSIONS.contains(extension.toLowerCase());
 	}
 
 	private boolean isSupportedFileSize(long size) {
