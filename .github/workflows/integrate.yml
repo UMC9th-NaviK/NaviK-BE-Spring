@@ -11,7 +11,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_DB: navik
           POSTGRES_USER: myuser
@@ -59,7 +59,7 @@ jobs:
       - name: Gradle 실행 권한 부여
         run: chmod +x gradlew
 
-      - name: psql 클라이언트 설치
+      - name: PostgreSQL client 설치
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql-client
@@ -68,11 +68,20 @@ jobs:
         env:
           PGPASSWORD: mypassword
         run: |
+          set -euo pipefail
+
           for i in {1..30}; do
-            pg_isready -h localhost -p 5432 -U myuser -d navik && break
+            if pg_isready -h localhost -p 5432 -U myuser -d navik; then
+              echo "Postgres is ready"
+              break
+            fi
+            echo "Waiting for Postgres... ($i/30)"
             sleep 2
           done
-          psql -h localhost -p 5432 -U myuser -d navik -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
+          pg_isready -h localhost -p 5432 -U myuser -d navik
+          psql -h localhost -p 5432 -U myuser -d navik \
+            -c "CREATE EXTENSION IF NOT EXISTS vector;"
 
       - name: PR 단독 테스트
         run: ./gradlew test
