@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -34,4 +35,7 @@ public class PositionKpi extends BaseEntity {
 
 	@Column(name = "content", nullable = false)
 	private String content;
+
+	@OneToOne(mappedBy = "position_kpi_id", fetch = FetchType.LAZY)
+	private PositionKpiEmbedding positionKpiEmbedding;
 }
