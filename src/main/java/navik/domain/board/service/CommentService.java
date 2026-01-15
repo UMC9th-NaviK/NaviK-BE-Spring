@@ -14,6 +14,7 @@ import navik.domain.board.repository.BoardRepository;
 import navik.domain.board.repository.CommentRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
+import navik.domain.users.service.UserQueryService;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ public class CommentService {
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final UserQueryService userQueryService;
 
     /**
      * 게시글의 댓글 목록 조회
@@ -57,8 +59,7 @@ public class CommentService {
     @Transactional
     public CommentCreateDTO.Response createComment(CommentCreateDTO.Parameter parameter) {
         // 작성자 조회
-        User user = userRepository.findById(parameter.getUserId())
-                .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+        User user = userQueryService.getUser(parameter.getUserId());
 
         // 게시글 조회
         Board board = boardRepository.findById(parameter.getBoardId())
@@ -76,8 +77,7 @@ public class CommentService {
     @Transactional
     public ReplyDTO.Response createReply(ReplyDTO.Parameter parameter) {
         // 작성자 조회
-        User user = userRepository.findById(parameter.getUserId())
-                .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+        User user = userQueryService.getUser(parameter.getUserId());
 
         // 게시글 조회
         Board board = boardRepository.findById(parameter.getBoardId())
@@ -103,8 +103,7 @@ public class CommentService {
     @Transactional
     public void deleteComment(CommentDeleteDTO.Parameter parameter) {
         // 작성자 조회
-        User user = userRepository.findById(parameter.getUserId())
-                .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+        User user = userQueryService.getUser(parameter.getUserId());
 
         // 댓글 조회
         Comment comment = commentRepository.findById(parameter.getCommentId())

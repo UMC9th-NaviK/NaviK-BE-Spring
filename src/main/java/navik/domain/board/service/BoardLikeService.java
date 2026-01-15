@@ -9,6 +9,7 @@ import navik.domain.board.repository.BoardLikeRepository;
 import navik.domain.board.repository.BoardRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
+import navik.domain.users.service.UserQueryService;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import org.springframework.stereotype.Service;
@@ -22,13 +23,13 @@ public class BoardLikeService {
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final BoardLikeRepository boardLikeRepository;
+    private final UserQueryService userQueryService;
 
 
     @Transactional
     public BoardLikeDTO.Response toggleBoardLike(BoardLikeDTO.Parameter parameter) {
         // 1. 작성자 조회
-        User user = userRepository.findById(parameter.getUserId())
-                .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+        User user = userQueryService.getUser(parameter.getUserId());
         // 2. 게시글 조회
         Board board = boardRepository.findById(parameter.getBoardId())
                 .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
