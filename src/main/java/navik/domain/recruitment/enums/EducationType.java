@@ -7,11 +7,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum EducationType {
 
-	HIGH_SCHOOL("고등학교 졸업"),
-	ASSOCIATE("전문대 졸업"),
-	BACHELOR("4년제 대학 졸업"),
-	MASTER("석사 졸업"),
-	DOCTOR("박사 졸업");
+	HIGH_SCHOOL("고등학교 졸업", 1),
+	ASSOCIATE("전문대 졸업", 2),
+	BACHELOR("4년제 대학 졸업", 3),
+	MASTER("석사 졸업", 4),
+	DOCTOR("박사 졸업", 5);
 
 	private final String label;
+	private final int order;
 }
