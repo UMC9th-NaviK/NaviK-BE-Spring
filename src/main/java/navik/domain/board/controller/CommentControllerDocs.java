@@ -23,7 +23,7 @@ public interface CommentControllerDocs {
             @Parameter(name = "userId", description = "현재 로그인한 유저 ID입니다.", hidden = true),
             @Parameter(name = "pageable", description = "페이징 파라미터입니다. (page, size, sort)")
     })
-    ApiResponse<PageResponseDto<CommentListDTO.Comment>> getComments(
+    ApiResponse<PageResponseDto<CommentListDTO.ResponseComment>> getComments(
             @PathVariable Long boardId,
             @AuthUser Long userId,
             Pageable pageable

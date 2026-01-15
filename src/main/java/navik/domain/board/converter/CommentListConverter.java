@@ -2,7 +2,6 @@ package navik.domain.board.converter;
 
 import navik.domain.board.dto.CommentListDTO;
 import navik.domain.board.entity.Comment;
-import navik.domain.users.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -22,30 +21,30 @@ public class CommentListConverter {
     }
 
     // 계층 구조가 적용된 Page 응답으로 변환
-    public static Page<CommentListDTO.Comment> toResponse(Page<Comment> comments, Pageable pageable, List<Boolean> isMyComments) {
+    public static Page<CommentListDTO.ResponseComment> toResponse(Page<Comment> comments, Pageable pageable, List<Boolean> isMyComments) {
 
-        List<CommentListDTO.Comment> commentDtoList = new ArrayList<>();
+        List<CommentListDTO.ResponseComment> responseCommentDtoList = new ArrayList<>();
         List<Comment> commentList = comments.getContent();
 
         for (int i = 0; i < commentList.size(); i++) {
             // 1. 개별 엔티티를 DTO로 변환
-            CommentListDTO.Comment commentDto = toComment(commentList.get(i), isMyComments.get(i));
+            CommentListDTO.ResponseComment responseCommentDto = toComment(commentList.get(i), isMyComments.get(i));
 
             // 2. 계층형 로직: 자식 댓글인 경우 바로 직전에 추가된 부모의 리스트에 삽입
-            if (commentDto.getParentCommentId() != null && !commentDtoList.isEmpty()) {
-                CommentListDTO.Comment parent = commentDtoList.get(commentDtoList.size() - 1);
-                parent.getChildComments().add(commentDto);
+            if (responseCommentDto.getParentCommentId() != null && !responseCommentDtoList.isEmpty()) {
+                CommentListDTO.ResponseComment parent = responseCommentDtoList.get(responseCommentDtoList.size() - 1);
+                parent.getChildResponseComments().add(responseCommentDto);
             } else {
                 // 부모 댓글인 경우 최상위 리스트에 추가
-                commentDtoList.add(commentDto);
+                responseCommentDtoList.add(responseCommentDto);
             }
         }
-        return new PageImpl<>(commentDtoList, pageable, comments.getTotalElements());
+        return new PageImpl<>(responseCommentDtoList, pageable, comments.getTotalElements());
     }
 
     // 단일 엔티티를 DTO로 매핑
-    public static CommentListDTO.Comment toComment(Comment comment, Boolean isMyComment) {
-        return CommentListDTO.Comment.builder()
+    public static CommentListDTO.ResponseComment toComment(Comment comment, Boolean isMyComment) {
+        return CommentListDTO.ResponseComment.builder()
                 .commentId(comment.getId())
                 .userId(comment.getUser().getId())
                 .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
@@ -53,7 +52,7 @@ public class CommentListConverter {
                 .nickname(comment.getUser().getNickname())
                 .isMyComment(isMyComment)
                 .createdAt(comment.getCreatedAt())
-                .childComments(new ArrayList<>()) // 빈 리스트로 초기화
+                .childResponseComments(new ArrayList<>()) // 빈 리스트로 초기화
                 .build();
     }
 }

@@ -1,9 +1,7 @@
 package navik.domain.board.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
@@ -21,7 +19,7 @@ public class CommentListDTO {
 
     @Getter
     @Builder
-    public static class Comment { // 응답으로 내려줄 댓글 데이터 형태
+    public static class ResponseComment { // 응답으로 내려줄 댓글 데이터 형태
         private Long commentId;
         private Long userId;
         private Long parentCommentId;
@@ -29,6 +27,6 @@ public class CommentListDTO {
         private String nickname;
         private Boolean isMyComment;
         private LocalDateTime createdAt;
-        private List<Comment> childComments;
+        private List<ResponseComment> childResponseComments;
     }
 }

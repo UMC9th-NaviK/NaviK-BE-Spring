@@ -34,14 +34,14 @@ public class CommentController implements CommentControllerDocs {
      */
 
     @GetMapping("/{boardId}/comments")
-    public ApiResponse<PageResponseDto<CommentListDTO.Comment>> getComments(
+    public ApiResponse<PageResponseDto<CommentListDTO.ResponseComment>> getComments(
             @PathVariable Long boardId,
             @AuthUser Long userId,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         CommentListDTO.Parameter parameter = CommentListConverter.toParameter(userId, boardId, pageable);
-        Page<CommentListDTO.Comment> commentPage = commentService.getCommentList(parameter);
-        PageResponseDto<CommentListDTO.Comment> response = PageResponseDto.of(commentPage);
+        Page<CommentListDTO.ResponseComment> commentPage = commentService.getCommentList(parameter);
+        PageResponseDto<CommentListDTO.ResponseComment> response = PageResponseDto.of(commentPage);
         return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
     }
 

@@ -36,7 +36,7 @@ public class CommentService {
      */
 
     @Transactional(readOnly = true)
-    public Page<CommentListDTO.Comment> getCommentList(CommentListDTO.Parameter parameter) {
+    public Page<CommentListDTO.ResponseComment> getCommentList(CommentListDTO.Parameter parameter) {
         // 1. 게시글 조회
         Page<Comment> comments = commentRepository.findByParentCommentId(parameter.getBoardId(), parameter.getPageable());
 
