@@ -1,5 +1,7 @@
 package navik.global.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import org.springframework.data.domain.Page;
@@ -12,6 +14,8 @@ import java.util.List;
  * @param <T> 데이터 리스트의 타입
  */
 @Getter
+@Builder
+@AllArgsConstructor
 public class PageResponseDto<T> {
 
     /**
@@ -44,6 +48,11 @@ public class PageResponseDto<T> {
      */
     private final boolean last;
 
+    /**
+     * 커서정보 필드 추가
+     */
+    private final String nextCursor;
+
     public PageResponseDto(Page<T> page) {
         this.content = page.getContent();
         this.pageNumber = page.getNumber(); // 0-based로 수정
@@ -51,6 +60,7 @@ public class PageResponseDto<T> {
         this.totalPages = page.getTotalPages();
         this.totalElements = page.getTotalElements();
         this.last = page.isLast();
+        this.nextCursor = null;
     }
 
     /**
@@ -59,5 +69,20 @@ public class PageResponseDto<T> {
 
     public static <T> PageResponseDto<T> of(Page<T> page) {
         return new PageResponseDto<>(page);
+    }
+
+    /**
+     * 커서 기반 페이징 결과를 일반화하여 PageResponseDto로 변환
+     */
+    public static <T> PageResponseDto<T> of(List<T> content, boolean hasNext, String nextCursor) {
+        return PageResponseDto.<T>builder()
+                .content(content)
+                .last(!hasNext)
+                .nextCursor(nextCursor)
+                .pageNumber(0)
+                .pageSize(content.size())
+                .totalElements(content.size())
+                .totalPages(0)
+                .build();
     }
 }
