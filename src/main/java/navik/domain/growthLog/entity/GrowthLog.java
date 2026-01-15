@@ -33,7 +33,7 @@ public class GrowthLog extends BaseEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "kpi_card_id", nullable = false)
+	@JoinColumn(name = "kpi_card_id")
 	private KpiCard kpiCard;
 
 	@Enumerated(EnumType.STRING)
