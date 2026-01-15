@@ -23,8 +23,6 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
-        volumes:
-          - ./.github/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
       redis:
         image: redis:7
@@ -61,6 +59,21 @@ jobs:
       - name: Gradle 실행 권한 부여
         run: chmod +x gradlew
 
+      - name: psql 클라이언트 설치
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: pgvector extension 생성
+        env:
+          PGPASSWORD: mypassword
+        run: |
+          for i in {1..30}; do
+            pg_isready -h localhost -p 5432 -U myuser -d navik && break
+            sleep 2
+          done
+          psql -h localhost -p 5432 -U myuser -d navik -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
       - name: PR 단독 테스트
         run: ./gradlew test
 
@@ -73,6 +86,5 @@ jobs:
             exit 1
           }
 
-      # build가 test를 포함하므로 중복 방지
       - name: 머지 결과 빌드 (테스트 중복 방지)
         run: ./gradlew clean build -x test
