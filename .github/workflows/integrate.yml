@@ -24,7 +24,7 @@ jobs:
           --health-timeout=5s
           --health-retries=10
         volumes:
-          - ./.github/postgres:/docker-entrypoint-initdb.d
+          - ./.github/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
       redis:
         image: redis:7
@@ -49,6 +49,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          clean: false
 
       - name: JDK 17 설치
         uses: actions/setup-java@v4
@@ -72,5 +73,6 @@ jobs:
             exit 1
           }
 
+      # build가 test를 포함하므로 중복 방지
       - name: 머지 결과 빌드 (테스트 중복 방지)
         run: ./gradlew clean build -x test
