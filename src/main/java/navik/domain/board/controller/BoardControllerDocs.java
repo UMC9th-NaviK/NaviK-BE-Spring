@@ -35,6 +35,9 @@ public interface BoardControllerDocs {
     ApiResponse<BoardDTO> getBoardDetail(Long boardId);
 
     @Operation(summary = "게시글 작성", description = "새로운 게시글을 작성합니다.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses(
+            value = {@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "CREATED")
+            })
     @Parameter(name = "userId", description = "작성자 ID (경로변수)", example = "1")
     ApiResponse<Long> createBoard(BoardCreateDTO request, Long userId);
 
@@ -46,6 +49,9 @@ public interface BoardControllerDocs {
     ApiResponse<Long> updateBoard(Long boardId, BoardUpdateDTO request, Long userId);
 
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제 합니다.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses(
+            value = {@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "DELETED")
+            })
     @Parameters({
             @Parameter(name = "boardId", description = "삭제할 게시글 ID", example = "1"),
             @Parameter(name = "userId", description = "작성자 ID (경로변수)", example = "1")

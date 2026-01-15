@@ -46,12 +46,12 @@ public class BoardService {
     /**
      * 직무별 게시글 조회
      * @param pageable
-     * @param jobType
+     * @param jobName
      * @return
      */
     @Transactional
-    public Page<BoardDTO> getBoardListByJob(Pageable pageable, String jobType) {
-        return boardRepository.findByUserJobType(jobType, pageable)
+    public Page<BoardDTO> getBoardListByJob(Pageable pageable, String jobName) {
+        return boardRepository.findByUserJobName(jobName, pageable)
                 .map(board -> BoardConverter.toResponse(
                         board,
                         boardLikeRepository.countLikeByBoard(board),
