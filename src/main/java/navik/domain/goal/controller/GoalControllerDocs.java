@@ -2,8 +2,6 @@ package navik.domain.goal.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.goal.dto.GoalRequestDTO;
 import navik.domain.goal.dto.GoalResponseDTO;

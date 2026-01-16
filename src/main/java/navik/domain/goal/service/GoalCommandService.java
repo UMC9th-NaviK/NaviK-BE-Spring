@@ -1,7 +1,6 @@
 package navik.domain.goal.service;
 
 import navik.domain.users.repository.UserRepository;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

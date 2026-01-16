@@ -3,7 +3,6 @@ package navik.domain.users.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.qos.logback.classic.spi.IThrowableProxy;
 import lombok.RequiredArgsConstructor;
 import navik.domain.job.entity.Job;
 import navik.domain.job.repository.JobRepository;
@@ -12,8 +11,6 @@ import navik.domain.users.dto.UserRequestDTO;
 import navik.domain.users.dto.UserResponseDTO;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Service
 @RequiredArgsConstructor
