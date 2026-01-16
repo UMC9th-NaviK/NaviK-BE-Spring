@@ -8,7 +8,8 @@ import navik.domain.growthLog.dto.req.GrowthLogRequestDTO;
 import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.enums.GrowthType;
 import navik.domain.growthLog.repository.GrowthLogRepository;
-import navik.domain.kpi.repository.KpiCardRepository;
+import navik.domain.users.entity.User;
+import navik.domain.users.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -16,10 +17,14 @@ import navik.domain.kpi.repository.KpiCardRepository;
 public class GrowthLogUserInputService {
 
 	private final GrowthLogRepository growthLogRepository;
-	private final KpiCardRepository kpiCardRepository;
+	private final UserRepository userRepository;
 
-	public Long create(GrowthLogRequestDTO.CreateUserInput req) {
+	public Long create(Long userId, GrowthLogRequestDTO.CreateUserInput req) {
+
+		User user = userRepository.getReferenceById(userId);
+
 		GrowthLog growthLog = GrowthLog.builder()
+			.user(user)
 			.kpiCard(null)
 			.type(GrowthType.USER_INPUT)
 			.title(req.title().trim())

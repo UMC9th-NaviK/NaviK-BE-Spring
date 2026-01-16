@@ -39,9 +39,10 @@ public class GrowthLogController {
 
 	@PostMapping
 	public ApiResponse<GrowthLogResponseDTO.Id> create(
+		@AuthUser Long userId,
 		@RequestBody @Valid GrowthLogRequestDTO.CreateUserInput request
 	) {
-		Long id = growthLogUserInputService.create(request);
+		Long id = growthLogUserInputService.create(userId, request);
 
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, new GrowthLogResponseDTO.Id(id));
 	}
