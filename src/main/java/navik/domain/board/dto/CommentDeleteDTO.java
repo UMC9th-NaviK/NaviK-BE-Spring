@@ -5,11 +5,11 @@ import lombok.Getter;
 
 public class CommentDeleteDTO {
 
-    @Builder
-    @Getter
-    public static class Parameter {
-        private Long userId;
-        private Long boardId;
-        private Long commentId;
-    }
+	@Builder
+	@Getter
+	public static class Parameter {
+		private Long userId;
+		private Long boardId;
+		private Long commentId;
+	}
 }

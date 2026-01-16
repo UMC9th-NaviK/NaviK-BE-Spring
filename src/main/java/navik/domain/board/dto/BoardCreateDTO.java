@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BoardCreateDTO {
-    private String articleTitle;
-    private String articleContent;
+	private String articleTitle;
+	private String articleContent;
 }

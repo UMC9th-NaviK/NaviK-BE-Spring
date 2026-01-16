@@ -1,91 +1,91 @@
 package navik.domain.board.repository;
 
-import com.querydsl.core.QueryFactory;
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
 import lombok.RequiredArgsConstructor;
 import navik.domain.board.entity.Board;
 import navik.domain.board.entity.QBoard;
 import navik.domain.job.entity.QJob;
 import navik.domain.users.entity.QUser;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
 public class BoardCustomRepositoryImpl implements BoardCustomRepository {
-    private final JPAQueryFactory queryFactory;
+	private final JPAQueryFactory queryFactory;
 
-    @Override
-    public List<Board> findAllByCursor(Long lastId, int pageSize) {
-        QBoard board = QBoard.board;
-        QUser user = QUser.user;
-        QJob job = QJob.job;
+	@Override
+	public List<Board> findAllByCursor(Long lastId, int pageSize) {
+		QBoard board = QBoard.board;
+		QUser user = QUser.user;
+		QJob job = QJob.job;
 
-        return queryFactory
-                .selectFrom(board)
-                .leftJoin(board.user, user).fetchJoin()
-                .leftJoin(user.job, job).fetchJoin()
-                .where(ltBoardId(lastId))
-                .orderBy(board.id.desc())
-                .limit(pageSize)
-                .fetch();
-    }
+		return queryFactory
+			.selectFrom(board)
+			.leftJoin(board.user, user).fetchJoin()
+			.leftJoin(user.job, job).fetchJoin()
+			.where(ltBoardId(lastId))
+			.orderBy(board.id.desc())
+			.limit(pageSize)
+			.fetch();
+	}
 
-    @Override
-    public List<Board> findByJobAndCursor(String jobName, Long lastId, int pageSize) {
-        QBoard board = QBoard.board;
-        QUser user = QUser.user;
-        QJob job = QJob.job;
+	@Override
+	public List<Board> findByJobAndCursor(String jobName, Long lastId, int pageSize) {
+		QBoard board = QBoard.board;
+		QUser user = QUser.user;
+		QJob job = QJob.job;
 
-        return queryFactory
-                .selectFrom(board)
-                .leftJoin(board.user, user).fetchJoin()
-                .leftJoin(user.job, job).fetchJoin()
-                .where(
-                        board.user.job.name.eq(jobName),
-                        ltBoardId(lastId)
-                )
-                .orderBy(board.id.desc())
-                .limit(pageSize)
-                .fetch();
-    }
+		return queryFactory
+			.selectFrom(board)
+			.leftJoin(board.user, user).fetchJoin()
+			.leftJoin(user.job, job).fetchJoin()
+			.where(
+				board.user.job.name.eq(jobName),
+				ltBoardId(lastId)
+			)
+			.orderBy(board.id.desc())
+			.limit(pageSize)
+			.fetch();
+	}
 
+	@Override
+	public List<Board> findHotBoardsByCursor(Integer lastScore, Long lastId, int pageSize) {
+		QBoard board = QBoard.board;
+		QUser user = QUser.user;
+		QJob job = QJob.job;
 
-    @Override
-    public List<Board> findHotBoardsByCursor(Integer lastScore, Long lastId, int pageSize) {
-        QBoard board = QBoard.board;
-        QUser user = QUser.user;
-        QJob job = QJob.job;
+		// 좋아요 + 조회수 합계 계산
+		NumberExpression<Integer> scoreSum = board.articleLikes.add(board.articleViews);
 
-        // 좋아요 + 조회수 합계 계산
-        NumberExpression<Integer> scoreSum = board.articleLikes.add(board.articleViews);
+		return queryFactory
+			.selectFrom(board)
+			.leftJoin(board.user, user).fetchJoin()
+			.leftJoin(user.job, job).fetchJoin()
+			.where(cursorCondition(lastScore, lastId, scoreSum))
+			.orderBy(scoreSum.desc(), board.id.desc()) // 점수 높은순 -> 최신순
+			.limit(pageSize)
+			.fetch();
+	}
 
-        return queryFactory
-                .selectFrom(board)
-                .leftJoin(board.user, user).fetchJoin()
-                .leftJoin(user.job, job).fetchJoin()
-                .where(cursorCondition(lastScore, lastId, scoreSum))
-                .orderBy(scoreSum.desc(), board.id.desc()) // 점수 높은순 -> 최신순
-                .limit(pageSize)
-                .fetch();
-    }
+	private BooleanExpression cursorCondition(Integer lastScore, Long lastId, NumberExpression<Integer> scoreSum) {
+		if (lastScore == null || lastId == null) {
+			return null;
+		}
 
-    private BooleanExpression cursorCondition(Integer lastScore, Long lastId, NumberExpression<Integer> scoreSum) {
-        if(lastScore == null || lastId == null) {
-            return null;
-        }
+		QBoard board = QBoard.board;
 
-        QBoard board = QBoard.board;
+		// 복합 커서 조건: (현재 점수 < 마지막 점수) OR (현재 점수 == 마지막 점수 AND ID < 마지막 ID)
+		return scoreSum.lt(lastScore)
+			.or(scoreSum.eq(lastScore).and(board.id.lt(lastId)));
+	}
 
-        // 복합 커서 조건: (현재 점수 < 마지막 점수) OR (현재 점수 == 마지막 점수 AND ID < 마지막 ID)
-        return scoreSum.lt(lastScore)
-                .or(scoreSum.eq(lastScore).and(board.id.lt(lastId)));
-    }
-
-    private BooleanExpression ltBoardId(Long lastId) {
-        return lastId == null ? null : QBoard.board.id.lt(lastId);
-    }
+	private BooleanExpression ltBoardId(Long lastId) {
+		return lastId == null ? null : QBoard.board.id.lt(lastId);
+	}
 }

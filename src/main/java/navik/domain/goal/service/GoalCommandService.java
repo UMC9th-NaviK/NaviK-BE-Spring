@@ -1,6 +1,5 @@
 package navik.domain.goal.service;
 
-import navik.domain.users.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +11,7 @@ import navik.domain.goal.entity.Goal;
 import navik.domain.goal.entity.GoalStatus;
 import navik.domain.goal.repository.GoalRepository;
 import navik.domain.users.entity.User;
+import navik.domain.users.repository.UserRepository;
 import navik.domain.users.service.UserQueryService;
 
 @Service
@@ -22,9 +22,9 @@ public class GoalCommandService {
 	private final GoalRepository goalRepository;
 	private final UserQueryService userQueryService;
 	private final GoalQueryService goalQueryService;
-    private final UserRepository userRepository;
+	private final UserRepository userRepository;
 
-	public GoalResponseDTO.InfoDTO createGoal(Long userId, GoalRequestDTO.CreateDTO req){
+	public GoalResponseDTO.InfoDTO createGoal(Long userId, GoalRequestDTO.CreateDTO req) {
 		User user = userQueryService.getUser(userId);
 
 		Goal newGoal = GoalConverter.toEntity(user, req);

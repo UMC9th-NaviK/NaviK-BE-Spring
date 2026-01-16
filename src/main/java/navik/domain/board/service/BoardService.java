@@ -1,5 +1,14 @@
 package navik.domain.board.service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import navik.domain.board.converter.BoardConverter;
 import navik.domain.board.dto.BoardCreateDTO;
@@ -15,199 +24,186 @@ import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import navik.global.dto.PageResponseDto;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
 public class BoardService {
-    private final UserRepository userRepository;
-    private final BoardRepository boardRepository;
-    private final BoardLikeRepository boardLikeRepository;
-    private final BoardCustomRepositoryImpl boardCustomRepository;
-    private final CommentRepository commentRepository;
+	private final UserRepository userRepository;
+	private final BoardRepository boardRepository;
+	private final BoardLikeRepository boardLikeRepository;
+	private final BoardCustomRepositoryImpl boardCustomRepository;
+	private final CommentRepository commentRepository;
 
-    /**
-     * 전체 게시글 조회
-     * @param lastId
-     * @param pageSize
-     * @return
-     */
-    @Transactional(readOnly = true)
-    public PageResponseDto<BoardResponseDTO.BoardDTO> getBoardList(Long lastId, int pageSize) {
-        List<Board> boards = boardCustomRepository.findAllByCursor(lastId, pageSize);
-        return processCursorPage(boards, pageSize);
-    }
+	/**
+	 * 전체 게시글 조회
+	 * @param lastId
+	 * @param pageSize
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public PageResponseDto<BoardResponseDTO.BoardDTO> getBoardList(Long lastId, int pageSize) {
+		List<Board> boards = boardCustomRepository.findAllByCursor(lastId, pageSize);
+		return processCursorPage(boards, pageSize);
+	}
 
+	@Transactional(readOnly = true)
+	public PageResponseDto<BoardResponseDTO.BoardDTO> getBoardListByJob(String jobName, Long lastId, int pageSize) {
+		List<Board> boards = boardCustomRepository.findByJobAndCursor(jobName, lastId, pageSize);
+		return processCursorPage(boards, pageSize);
+	}
 
+	private PageResponseDto<BoardResponseDTO.BoardDTO> processCursorPage(List<Board> boards, int pageSize) {
+		List<Long> boardIds = boards.stream().map(Board::getId).collect(Collectors.toList());
 
-    @Transactional(readOnly = true)
-    public PageResponseDto<BoardResponseDTO.BoardDTO> getBoardListByJob(String jobName, Long lastId, int pageSize) {
-        List<Board> boards = boardCustomRepository.findByJobAndCursor(jobName, lastId, pageSize);
-        return processCursorPage(boards, pageSize);
-    }
+		Map<Long, Integer> likeCountMap = getLikeCountMap(boardIds);
+		Map<Long, Integer> commentCountMap = getCommentCountMap(boardIds);
 
-    private PageResponseDto<BoardResponseDTO.BoardDTO> processCursorPage(List<Board> boards, int pageSize) {
-        List<Long> boardIds = boards.stream().map(Board::getId).collect(Collectors.toList());
+		List<BoardResponseDTO.BoardDTO> doList = boards.stream()
+			.map(board -> BoardConverter.toBoardDTO(
+				board,
+				likeCountMap.getOrDefault(board.getId(), 0),
+				commentCountMap.getOrDefault(board.getId(), 0)
+			))
+			.collect(Collectors.toList());
 
-        Map<Long, Integer> likeCountMap = getLikeCountMap(boardIds);
-        Map<Long, Integer> commentCountMap = getCommentCountMap(boardIds);
+		boolean hasNext = boards.size() >= pageSize;
+		String nextCursor = (hasNext && !boards.isEmpty()) ? boards.get(boards.size() - 1).getId().toString() : null;
 
-        List<BoardResponseDTO.BoardDTO> doList = boards.stream()
-                .map(board -> BoardConverter.toBoardDTO(
-                        board,
-                        likeCountMap.getOrDefault(board.getId(), 0),
-                        commentCountMap.getOrDefault(board.getId(), 0)
-                ))
-                .collect(Collectors.toList());
+		return PageResponseDto.of(doList, hasNext, nextCursor);
+	}
 
-        boolean hasNext = boards.size() >= pageSize;
-        String nextCursor = (hasNext && !boards.isEmpty()) ? boards.get(boards.size()-1).getId().toString() : null;
+	/**
+	 * HOT 게시판 게시글 조회
+	 * @param cursor
+	 * @param pageable
+	 * @return
+	 */
+	@Cacheable(value = "hotBoards", key = "#cursor + #pageable.pageSize", cacheManager = "cacheManager10Sec")
+	@Transactional(readOnly = true)
+	public BoardResponseDTO.HotBoardListDTO getHotBoardList(String cursor, Pageable pageable) {
+		Integer lastScore = null;
+		Long lastId = null;
 
-        return PageResponseDto.of(doList, hasNext, nextCursor);
-    }
+		if (cursor != null && !cursor.isEmpty()) {
+			String[] parts = cursor.split("_"); // score_id 형태이기 때문에
+			lastScore = Integer.parseInt(parts[0]);
+			lastId = Long.parseLong(parts[1]);
+		}
 
+		// 1. HOT 게시판 리스트 조회
+		List<Board> boards = boardCustomRepository.findHotBoardsByCursor(lastScore, lastId, pageable.getPageSize());
+		List<Long> boardIds = boards.stream().map(Board::getId).collect(Collectors.toList());
 
-    /**
-     * HOT 게시판 게시글 조회
-     * @param cursor
-     * @param pageable
-     * @return
-     */
-    @Cacheable(value = "hotBoards", key = "#cursor + #pageable.pageSize", cacheManager = "cacheManager10Sec")
-    @Transactional(readOnly = true)
-    public BoardResponseDTO.HotBoardListDTO getHotBoardList(String cursor, Pageable pageable) {
-        Integer lastScore = null;
-        Long lastId = null;
+		// 2. N+1 방지를 위해 Batch 조회 및 Map 변환시킨다
+		Map<Long, Integer> likeCountMap = getLikeCountMap(boardIds);
+		Map<Long, Integer> commentCountMap = getCommentCountMap(boardIds);
 
-        if(cursor != null && !cursor.isEmpty()) {
-            String[] parts = cursor.split("_"); // score_id 형태이기 때문에
-            lastScore = Integer.parseInt(parts[0]);
-            lastId = Long.parseLong(parts[1]);
-        }
+		// 3. 다음 페이지 정보 및 커서를 생성
+		boolean hasNext = boards.size() >= pageable.getPageSize();
+		String nextCursor = null;
 
-        // 1. HOT 게시판 리스트 조회
-        List<Board> boards = boardCustomRepository.findHotBoardsByCursor(lastScore, lastId, pageable.getPageSize());
-        List<Long> boardIds = boards.stream().map(Board::getId).collect(Collectors.toList());
+		if (!boards.isEmpty() && hasNext) {
+			Board lastBoard = boards.get(boards.size() - 1);
+			int score = lastBoard.getArticleLikes() + lastBoard.getArticleViews();
+			nextCursor = score + "_" + lastBoard.getId();
+		}
 
-        // 2. N+1 방지를 위해 Batch 조회 및 Map 변환시킨다
-        Map<Long, Integer> likeCountMap = getLikeCountMap(boardIds);
-        Map<Long, Integer> commentCountMap = getCommentCountMap(boardIds);
+		return BoardConverter.toHotBoardListDTO(boards, likeCountMap, commentCountMap, nextCursor, hasNext);
 
-        // 3. 다음 페이지 정보 및 커서를 생성
-        boolean hasNext = boards.size() >= pageable.getPageSize();
-        String nextCursor = null;
+	}
 
-        if(!boards.isEmpty() && hasNext) {
-            Board lastBoard = boards.get(boards.size() - 1);
-            int score = lastBoard.getArticleLikes() + lastBoard.getArticleViews();
-            nextCursor = score + "_" + lastBoard.getId();
-        }
+	private Map<Long, Integer> getLikeCountMap(List<Long> boardIds) {
+		return boardLikeRepository.countByBoardIdIn(boardIds).stream()
+			.collect(Collectors.toMap(
+				obj -> (Long)obj[0],
+				obj -> ((Long)obj[1]).intValue()
+			));
+	}
 
-        return BoardConverter.toHotBoardListDTO(boards, likeCountMap, commentCountMap, nextCursor, hasNext);
+	private Map<Long, Integer> getCommentCountMap(List<Long> boardIds) {
+		if (boardIds.isEmpty()) {
+			return Map.of();
+		}
+		return commentRepository.countByBoardIds(boardIds).stream()
+			.collect(Collectors.toMap(
+				obj -> (Long)obj[0],
+				obj -> ((Long)obj[1]).intValue()
+			));
+	}
 
-    }
+	/**
+	 * 상세 게시글 조회
+	 * @param boardId
+	 * @return
+	 */
+	@Transactional
+	public BoardResponseDTO.BoardDTO getBoardDetail(Long boardId) {
+		Board board = boardRepository.findById(boardId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
 
-    private Map<Long, Integer> getLikeCountMap(List<Long> boardIds) {
-        return boardLikeRepository.countByBoardIdIn(boardIds).stream()
-                .collect(Collectors.toMap(
-                        obj -> (Long) obj[0],
-                        obj -> ((Long) obj[1]).intValue()
-                ));
-    }
+		board.incrementArticleViews(); // 조회수 증가
+		boardRepository.save(board); // 변경된 조회수 저장
 
-    private Map<Long, Integer> getCommentCountMap(List<Long> boardIds) {
-        if(boardIds.isEmpty()) {
-            return Map.of();
-        }
-        return commentRepository.countByBoardIds(boardIds).stream()
-                .collect(Collectors.toMap(
-                        obj -> (Long) obj[0],
-                        obj -> ((Long) obj[1]).intValue()
-                ));
-    }
+		return BoardConverter.toBoardDTO(
+			board,
+			boardLikeRepository.countLikeByBoard(board),
+			commentRepository.countCommentByBoard(board)
+		);
+	}
 
-    /**
-     * 상세 게시글 조회
-     * @param boardId
-     * @return
-     */
-    @Transactional
-    public BoardResponseDTO.BoardDTO getBoardDetail(Long boardId) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
+	/**
+	 *
+	 * @param userId
+	 * @param request
+	 * @return
+	 */
+	@Transactional
+	public Long createBoard(Long userId, BoardCreateDTO request) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+		Board board = Board.builder()
+			.user(user)
+			.articleTitle(request.getArticleTitle())
+			.articleContent(request.getArticleContent())
+			.articleViews(0)
+			.build();
 
-        board.incrementArticleViews(); // 조회수 증가
-        boardRepository.save(board); // 변경된 조회수 저장
+		return boardRepository.save(board).getId();
+	}
 
-        return BoardConverter.toBoardDTO(
-                board,
-                boardLikeRepository.countLikeByBoard(board),
-                commentRepository.countCommentByBoard(board)
-        );
-    }
+	/**
+	 * 게시글 수정
+	 * @param boardId
+	 * @param userId
+	 * @param request
+	 * @return
+	 */
+	@Transactional
+	public Long updateBoard(Long boardId, Long userId, BoardUpdateDTO request) {
+		Board board = boardRepository.findById(boardId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
 
-    /**
-     *
-     * @param userId
-     * @param request
-     * @return
-     */
-    @Transactional
-    public Long createBoard(Long userId, BoardCreateDTO request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
-        Board board = Board.builder()
-                .user(user)
-                .articleTitle(request.getArticleTitle())
-                .articleContent(request.getArticleContent())
-                .articleViews(0)
-                .build();
+		if (!board.getUser().getId().equals(userId)) {
+			throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_BOARD_NOT_WRITER);
+		}
 
-        return boardRepository.save(board).getId();
-    }
+		board.updateBoard(request.getArticleTitle(), request.getArticleContent());
+		return boardRepository.save(board).getId();
+	}
 
-    /**
-     * 게시글 수정
-     * @param boardId
-     * @param userId
-     * @param request
-     * @return
-     */
-    @Transactional
-    public Long updateBoard(Long boardId, Long userId, BoardUpdateDTO request) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
+	/**
+	 * 게시글 삭제
+	 * @param boardId
+	 * @param userId
+	 */
+	@Transactional
+	public void deleteBoard(Long boardId, Long userId) {
+		Board board = boardRepository.findById(boardId) // 게시글 찾을 수 없음
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
 
-        if (!board.getUser().getId().equals(userId)) {
-            throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_BOARD_NOT_WRITER);
-        }
-
-        board.updateBoard(request.getArticleTitle(), request.getArticleContent());
-        return boardRepository.save(board).getId();
-    }
-
-    /**
-     * 게시글 삭제
-     * @param boardId
-     * @param userId
-     */
-    @Transactional
-    public void deleteBoard(Long boardId, Long userId) {
-        Board board = boardRepository.findById(boardId) // 게시글 찾을 수 없음
-                .orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
-
-        if (!board.getUser().getId().equals(userId)) { // 게시글 작성자가 아님
-            throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_BOARD_NOT_WRITER);
-        }
-        boardRepository.delete(board);
-    }
+		if (!board.getUser().getId().equals(userId)) { // 게시글 작성자가 아님
+			throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_BOARD_NOT_WRITER);
+		}
+		boardRepository.delete(board);
+	}
 }
