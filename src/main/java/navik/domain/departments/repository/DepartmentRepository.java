@@ -1,4 +1,4 @@
-package navik.domain.users.repository;
+package navik.domain.departments.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

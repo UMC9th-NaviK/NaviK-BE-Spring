@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import navik.domain.users.dto.UserResponseDTO;
 import navik.domain.users.entity.User;
-import navik.domain.users.entity.UserDepartment;
 import navik.domain.users.repository.UserDepartmentRepository;
 import navik.domain.users.repository.UserRepository;
 import navik.domain.users.service.deprtment.UserDepartmentQueryService;

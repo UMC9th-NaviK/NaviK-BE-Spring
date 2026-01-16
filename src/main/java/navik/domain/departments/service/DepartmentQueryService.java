@@ -1,4 +1,4 @@
-package navik.domain.users.service.deprtment;
+package navik.domain.departments.service;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.users.dto.DepartmentResponseDTO;
-import navik.domain.users.repository.DepartmentRepository;
+import navik.domain.departments.repository.DepartmentRepository;
 
 @Service
 @RequiredArgsConstructor
