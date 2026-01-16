@@ -50,8 +50,8 @@ public class Recruitment extends BaseEntity {
 	@Column(name = "company_logo")
 	private String companyLogo;
 
-	@Column(name = "summation")
-	private String summation;
+	@Column(name = "summary")
+	private String summary;
 
 	@Column(name = "company_size")
 	@Enumerated(EnumType.STRING)
