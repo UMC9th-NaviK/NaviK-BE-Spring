@@ -1,6 +1,5 @@
 package navik.domain.users.service;
 
-import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +15,6 @@ import navik.domain.users.entity.User;
 public class UserCommandService {
 	private final JobRepository jobRepository;
 	private final UserQueryService userQueryService;
-	private final ConversionService conversionService;
 
 	@Transactional
 	public UserResponseDTO.BasicInfoDto updateBasicInfo(Long userId, UserRequestDTO.BasicInfoDto req) {
@@ -24,6 +22,12 @@ public class UserCommandService {
 		Job job = jobRepository.getReferenceById(req.jobId());
 		user.updateBasicInfo(req.name(), req.nickname(), req.isEntryLevel(), job);
 
-		return conversionService.convert(user, UserResponseDTO.BasicInfoDto.class);
+		return new UserResponseDTO.BasicInfoDto(
+			user.getId(),
+			user.getName(),
+			user.getNickname(),
+			job.getId(),
+			user.getIsEntryLevel()
+		);
 	}
 }

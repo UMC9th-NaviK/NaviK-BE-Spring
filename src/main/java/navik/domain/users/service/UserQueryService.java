@@ -2,14 +2,12 @@ package navik.domain.users.service;
 
 import java.util.List;
 
-import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.users.dto.UserResponseDTO;
 import navik.domain.users.entity.User;
-import navik.domain.users.repository.UserDepartmentRepository;
 import navik.domain.users.repository.UserRepository;
 import navik.domain.users.service.deprtment.UserDepartmentQueryService;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
@@ -21,12 +19,11 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 public class UserQueryService {
 
 	private final UserRepository userRepository;
-	private final UserDepartmentRepository userDepartmentRepository;
-	private final ConversionService conversionService;
 	private final UserDepartmentQueryService userDepartmentQueryService;
 
 	public UserResponseDTO.UserInfoDTO getUserInfo(Long userId) {
-		return conversionService.convert(getUser(userId), UserResponseDTO.UserInfoDTO.class);
+		return userRepository.findUserInfoById(userId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
 	}
 
 	public UserResponseDTO.NicknameCheckDto isNicknameDuplicated(String nickname) {
@@ -39,12 +36,12 @@ public class UserQueryService {
 	}
 
 	public UserResponseDTO.ProfileDTO getProfile(Long userId) {
-		return conversionService.convert(getUser(userId), UserResponseDTO.ProfileDTO.class);
+		return userRepository.findProfileById(userId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
 	}
 
 	public UserResponseDTO.MyPageDTO getMyPage(Long userId) {
 		User user = getUser(userId);
-
 		List<String> departmentList = userDepartmentQueryService.getUserDepartments(userId);
 
 		return new UserResponseDTO.MyPageDTO(
