@@ -1,5 +1,9 @@
 package navik.domain.users.dto;
 
+import java.util.List;
+
+import navik.domain.recruitment.enums.EducationType;
+import navik.domain.users.enums.EducationLevel;
 import navik.domain.users.enums.Role;
 
 public class UserResponseDTO {
@@ -29,7 +33,7 @@ public class UserResponseDTO {
 		String profileImageUrl,
 		String nickname,
 		String job,
-		boolean isEntryLevel
+		Boolean isEntryLevel
 	) {}
 
 	public record MyPageDTO(
@@ -37,6 +41,8 @@ public class UserResponseDTO {
 		String name,
 		String nickname,
 		String job,
-		boolean isEntryLevel
+		Boolean isEntryLevel,
+		EducationLevel educationLevel,
+		List<String> departmentList
 	) {}
 }

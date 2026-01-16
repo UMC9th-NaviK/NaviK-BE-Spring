@@ -50,10 +50,8 @@ public class User extends BaseEntity {
 	private String email;
 
 	@Column(nullable = false)
-	private String photoUrl;
-
-	@Column(nullable = false)
-	private Integer level;
+	@Builder.Default
+	private Integer level = 0;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)

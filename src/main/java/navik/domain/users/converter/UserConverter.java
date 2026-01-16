@@ -49,17 +49,4 @@ public class UserConverter {
 		}
 	}
 
-	@Component
-	public static class UserToMyPageDTOConverter implements Converter<User, UserResponseDTO.MyPageDTO> {
-		@Override
-		public UserResponseDTO.MyPageDTO convert(User user) {
-			return new UserResponseDTO.MyPageDTO(
-				user.getProfileImageUrl(),
-				user.getName(),
-				user.getNickname(),
-				user.getJob().getName(),
-				user.getIsEntryLevel()
-			);
-		}
-	}
 }
