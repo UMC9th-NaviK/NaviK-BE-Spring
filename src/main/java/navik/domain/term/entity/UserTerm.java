@@ -1,4 +1,4 @@
-package navik.domain.users.entity;
+package navik.domain.term.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import navik.domain.users.entity.User;
 import navik.global.entity.BaseEntity;
 
 @Entity
