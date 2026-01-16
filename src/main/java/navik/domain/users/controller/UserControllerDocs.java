@@ -29,7 +29,7 @@ public interface UserControllerDocs {
 	@Operation(summary = "닉네임 중복 확인", description = "입력받은 닉네임이 DB에 이미 존재하는지 확인합니다. 사용 가능하면 false(중복 아님), 이미 존재하면 true(중복)를 반환합니다.")
 	ApiResponse<UserResponseDTO.NicknameCheckDto> checkNicknameDuplication(String nickname);
 
-	@Operation(summary = "내 정보", description = "로그인한 사용자의 정보를 가져옵니다")
+	@Operation(summary = "내 정보", description = "로그인한 사용자의 정보를 가져옵니다(마이 페이지)")
 	ApiResponse<UserResponseDTO.MyPageDTO> getMyInfo(@AuthUser Long userId);
 
 }

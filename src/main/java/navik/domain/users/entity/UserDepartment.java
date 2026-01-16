@@ -16,6 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.board.entity.Board;
+import navik.global.entity.BaseEntity;
 
 @Entity
 @Getter
@@ -24,7 +25,7 @@ import navik.domain.board.entity.Board;
 @Builder
 @Table(name = "user_departments",
 	uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "department_id"}))
-public class UserDepartment {
+public class UserDepartment extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
