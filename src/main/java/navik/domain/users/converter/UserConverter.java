@@ -1,46 +1,65 @@
 package navik.domain.users.converter;
 
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
+
 import navik.domain.users.dto.UserResponseDTO;
 import navik.domain.users.entity.User;
 
 public class UserConverter {
 
-	public static UserResponseDTO.UserInfoDTO toUserInfoDTO(User user) {
-		return UserResponseDTO.UserInfoDTO.builder()
-			.id(user.getId())
-			.name(user.getName())
-			.email(user.getEmail())
-			.role(user.getRole())
-			.socialType(user.getSocialType())
-			.build();
+	@Component
+	public static class UserToUserInfoDTOConverter implements Converter<User, UserResponseDTO.UserInfoDTO> {
+		@Override
+		public UserResponseDTO.UserInfoDTO convert(User user) {
+			return new UserResponseDTO.UserInfoDTO(
+				user.getId(),
+				user.getName(),
+				user.getEmail(),
+				user.getRole(),
+				user.getSocialType()
+			);
+		}
 	}
 
-	public static UserResponseDTO.BasicInfoDto toBasicInfoDto(User user) {
-		return UserResponseDTO.BasicInfoDto.builder()
-			.id(user.getId())
-			.name(user.getName())
-			.nickname(user.getNickname())
-			.jobId(user.getJob().getId())
-			.isEntryLevel(user.getIsEntryLevel())
-			.build();
+	@Component
+	public static class UserToBasicInfoDtoConverter implements Converter<User, UserResponseDTO.BasicInfoDto> {
+		@Override
+		public UserResponseDTO.BasicInfoDto convert(User user) {
+			return new UserResponseDTO.BasicInfoDto(
+				user.getId(),
+				user.getName(),
+				user.getNickname(),
+				user.getJob().getId(),
+				user.getIsEntryLevel()
+			);
+		}
 	}
 
-	public static UserResponseDTO.ProfileDTO toProfileDTO(User user) {
-		return UserResponseDTO.ProfileDTO.builder()
-			.profileImageUrl(user.getProfileImageUrl())
-			.nickname(user.getNickname())
-			.job(user.getJob().getName())
-			.isEntryLevel(user.getIsEntryLevel())
-			.build();
+	@Component
+	public static class UserToProfileDTOConverter implements Converter<User, UserResponseDTO.ProfileDTO> {
+		@Override
+		public UserResponseDTO.ProfileDTO convert(User user) {
+			return new UserResponseDTO.ProfileDTO(
+				user.getProfileImageUrl(),
+				user.getNickname(),
+				user.getJob().getName(),
+				user.getIsEntryLevel()
+			);
+		}
 	}
 
-	public static UserResponseDTO.MyPageDTO toMyPageDTO(User user) {
-		return UserResponseDTO.MyPageDTO.builder()
-			.profileImageUrl(user.getProfileImageUrl())
-			.name(user.getName())
-			.nickname(user.getNickname())
-			.job(user.getJob().getName())
-			.isEntryLevel(user.getIsEntryLevel())
-			.build();
+	@Component
+	public static class UserToMyPageDTOConverter implements Converter<User, UserResponseDTO.MyPageDTO> {
+		@Override
+		public UserResponseDTO.MyPageDTO convert(User user) {
+			return new UserResponseDTO.MyPageDTO(
+				user.getProfileImageUrl(),
+				user.getName(),
+				user.getNickname(),
+				user.getJob().getName(),
+				user.getIsEntryLevel()
+			);
+		}
 	}
 }

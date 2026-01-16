@@ -1,10 +1,10 @@
 package navik.domain.users.service;
 
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import navik.domain.users.converter.UserConverter;
 import navik.domain.users.dto.UserResponseDTO;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
@@ -17,20 +17,18 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 public class UserQueryService {
 
 	private final UserRepository userRepository;
+	private final ConversionService conversionService;
 
 	public UserResponseDTO.UserInfoDTO getUserInfo(Long userId) {
-		return UserConverter.toUserInfoDTO(getUser(userId));
+		return conversionService.convert(getUser(userId), UserResponseDTO.UserInfoDTO.class);
 	}
 
 	public UserResponseDTO.UserInfoDTO getMyInfo(Long userId) {
-		return UserConverter.toUserInfoDTO(getUser(userId));
+		return conversionService.convert(getUser(userId), UserResponseDTO.UserInfoDTO.class);
 	}
 
 	public UserResponseDTO.NicknameCheckDto isNicknameDuplicated(String nickname) {
-		return UserResponseDTO.NicknameCheckDto.builder()
-			.nickname(nickname)
-			.isDuplicated(userRepository.existsByNickname(nickname))
-			.build();
+		return new UserResponseDTO.NicknameCheckDto(nickname, userRepository.existsByNickname(nickname));
 	}
 
 	public User getUser(Long userId) {
@@ -39,10 +37,10 @@ public class UserQueryService {
 	}
 
 	public UserResponseDTO.ProfileDTO getProfile(Long userId) {
-		return UserConverter.toProfileDTO(getUser(userId));
+		return conversionService.convert(getUser(userId), UserResponseDTO.ProfileDTO.class);
 	}
 
 	public UserResponseDTO.MyPageDTO getMyPage(Long userId) {
-		return UserConverter.toMyPageDTO(getUser(userId));
+		return conversionService.convert(getUser(userId), UserResponseDTO.MyPageDTO.class);
 	}
 }
