@@ -21,8 +21,8 @@ public class RecruitmentController implements RecruitmentControllerDocs {
 	private final RecruitmentQueryService recruitmentQueryService;
 
 	@GetMapping("/recommend")
-	public ApiResponse<List<RecruitmentResponseDTO.RecommendPost>> getRecommendedPost(@AuthUser Long userId) {
-		List<RecruitmentResponseDTO.RecommendPost> result = recruitmentQueryService.getRecommendedPost(userId);
+	public ApiResponse<List<RecruitmentResponseDTO.RecommendPost>> getRecommendedPosts(@AuthUser Long userId) {
+		List<RecruitmentResponseDTO.RecommendPost> result = recruitmentQueryService.getRecommendedPosts(userId);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
 	}
 }
