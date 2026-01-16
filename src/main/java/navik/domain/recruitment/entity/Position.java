@@ -1,5 +1,8 @@
 package navik.domain.recruitment.entity;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -69,4 +73,13 @@ public class Position extends BaseEntity {
 
 	@Column(name = "work_place")
 	private String workPlace;
+
+	@OneToMany(mappedBy = "position", fetch = FetchType.LAZY)
+	private List<PositionKpi> positionKpis;
+
+	@Column(name = "start_date")
+	private LocalDateTime startDate;
+
+	@Column(name = "end_date")
+	private LocalDateTime endDate;
 }
