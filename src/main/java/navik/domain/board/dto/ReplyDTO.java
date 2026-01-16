@@ -1,7 +1,6 @@
 package navik.domain.board.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +16,6 @@ public class ReplyDTO {
 
 	@Builder
 	@Getter
-	@AllArgsConstructor
 	public static class Parameter {
 		private Long userId;
 		private Long boardId;
@@ -27,7 +25,6 @@ public class ReplyDTO {
 
 	@Builder
 	@Getter
-	@AllArgsConstructor
 	public static class Response {
 		private Long commentId;
 	}

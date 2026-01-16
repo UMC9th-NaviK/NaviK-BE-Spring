@@ -15,7 +15,6 @@ import navik.domain.board.dto.BoardCreateDTO;
 import navik.domain.board.dto.BoardResponseDTO;
 import navik.domain.board.dto.BoardUpdateDTO;
 import navik.domain.board.entity.Board;
-import navik.domain.board.repository.BoardCustomRepositoryImpl;
 import navik.domain.board.repository.BoardLikeRepository;
 import navik.domain.board.repository.BoardRepository;
 import navik.domain.board.repository.CommentRepository;
@@ -31,7 +30,6 @@ public class BoardService {
 	private final UserRepository userRepository;
 	private final BoardRepository boardRepository;
 	private final BoardLikeRepository boardLikeRepository;
-	private final BoardCustomRepositoryImpl boardCustomRepository;
 	private final CommentRepository commentRepository;
 
 	/**
@@ -42,13 +40,13 @@ public class BoardService {
 	 */
 	@Transactional(readOnly = true)
 	public PageResponseDto<BoardResponseDTO.BoardDTO> getBoardList(Long lastId, int pageSize) {
-		List<Board> boards = boardCustomRepository.findAllByCursor(lastId, pageSize);
+		List<Board> boards = boardRepository.findAllByCursor(lastId, pageSize);
 		return processCursorPage(boards, pageSize);
 	}
 
 	@Transactional(readOnly = true)
 	public PageResponseDto<BoardResponseDTO.BoardDTO> getBoardListByJob(String jobName, Long lastId, int pageSize) {
-		List<Board> boards = boardCustomRepository.findByJobAndCursor(jobName, lastId, pageSize);
+		List<Board> boards = boardRepository.findByJobAndCursor(jobName, lastId, pageSize);
 		return processCursorPage(boards, pageSize);
 	}
 
@@ -91,7 +89,7 @@ public class BoardService {
 		}
 
 		// 1. HOT 게시판 리스트 조회
-		List<Board> boards = boardCustomRepository.findHotBoardsByCursor(lastScore, lastId, pageable.getPageSize());
+		List<Board> boards = boardRepository.findHotBoardsByCursor(lastScore, lastId, pageable.getPageSize());
 		List<Long> boardIds = boards.stream().map(Board::getId).collect(Collectors.toList());
 
 		// 2. N+1 방지를 위해 Batch 조회 및 Map 변환시킨다

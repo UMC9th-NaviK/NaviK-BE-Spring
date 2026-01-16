@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import navik.domain.board.entity.Board;
 
 @Repository
-public interface BoardRepository extends JpaRepository<Board, Long> {
+public interface BoardRepository extends JpaRepository<Board, Long>, BoardCustomRepository {
 	// 전체 조회
 	Page<Board> findAll(Pageable pageable);
 

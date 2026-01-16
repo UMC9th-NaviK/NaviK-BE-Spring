@@ -3,16 +3,12 @@ package navik.domain.board.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 public class BoardResponseDTO {
 	@Getter
 	@Builder
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class BoardDTO {
 		// 프로필사진, 레벨
 		private Long boardId;
@@ -29,8 +25,6 @@ public class BoardResponseDTO {
 
 	@Getter
 	@Builder
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class HotBoardListDTO {
 		private List<BoardDTO> boardList;
 		private String nextCursor;
