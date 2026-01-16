@@ -1,6 +1,4 @@
-package navik.domain.goal.entity;
-
-import java.time.LocalDate;
+package navik.domain.notification.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,8 +16,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import navik.domain.notification.entity.Notifiable;
-import navik.domain.notification.entity.NotificationType;
 import navik.domain.users.entity.User;
 import navik.global.entity.BaseEntity;
 
@@ -28,44 +24,32 @@ import navik.global.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@Table(name = "goals")
-public class Goal extends BaseEntity implements Notifiable {
+@Table(name = "notifications")
+public class Notification extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "content", nullable = false)
-	private String content;
-
-	@Column(name = "end_date", nullable = false)
-	private LocalDate endDate;
-
-	@Column(name = "status", nullable = false)
-	@Builder.Default
-	@Enumerated(EnumType.STRING)
-	private GoalStatus status = GoalStatus.NONE;
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	public void updateStatus(GoalStatus status) {
-		this.status = status;
-	}
+	@Column(name = "type", nullable = false)
+	@Enumerated(EnumType.STRING)
+	private NotificationType type;
 
-	@Override
-	public NotificationType getNotificationType() {
-		return NotificationType.GOAL;
-	}
+	@Column(name = "relate_id")
+	private Long relateId;
 
-	@Override
-	public Long getNotifiableId() {
-		return this.id;
-	}
+	@Column(name = "content", nullable = false)
+	private String content;
 
-	@Override
-	public boolean isCompleted() {
-		return this.status == GoalStatus.COMPLETED;
+	@Column(name = "is_read", nullable = false)
+	@Builder.Default
+	private Boolean isRead = false;
+
+	public void setIsRead() {
+		this.isRead = true;
 	}
 }

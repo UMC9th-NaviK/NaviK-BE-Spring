@@ -16,7 +16,6 @@ import navik.domain.users.repository.UserRepository;
 @RequiredArgsConstructor
 public class UserCommandService {
 	private final JobRepository jobRepository;
-	private final UserRepository userRepository;
 	private final UserQueryService userQueryService;
 
 	@Transactional

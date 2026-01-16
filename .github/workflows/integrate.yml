@@ -1,0 +1,110 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  pr_build:
+    name: PR 머지 결과 검증
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: navik
+          POSTGRES_USER: myuser
+          POSTGRES_PASSWORD: mypassword
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U myuser -d navik"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      SPRING_ACTIVE_PROFILE: ci
+      DB_URL: jdbc:postgresql://localhost:5432/navik
+      DB_USER: myuser
+      DB_PASSWORD: mypassword
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: JDK 17 설치
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Gradle 실행 권한 부여
+        run: chmod +x gradlew
+
+      - name: PostgreSQL 클라이언트 설치
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Postgres 대기 및 pgvector 확장 생성
+        env:
+          PGPASSWORD: mypassword
+        run: |
+          set -e
+
+          for i in {1..30}; do
+            pg_isready -h localhost -p 5432 -U myuser -d navik && break
+            sleep 2
+          done
+
+          psql -h localhost -p 5432 -U myuser -d navik \
+            -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
+      - name: PR 코드 단독 테스트
+        run: |
+          echo "::notice::PR 코드 단독 테스트를 실행합니다."
+          ./gradlew test --stacktrace --info || {
+            echo "::error::❌ PR 코드 자체에서 테스트가 실패했습니다."
+            exit 1
+          }
+
+      - name: Git 사용자 정보 설정 (머지 시뮬레이션용)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: develop 기준 PR 머지 시뮬레이션
+        run: |
+          echo "::notice::develop 브랜치 기준으로 PR 머지를 시뮬레이션합니다."
+          git fetch origin develop
+          git checkout --detach origin/develop
+          git merge --no-commit --no-ff ${{ github.event.pull_request.head.sha }} || {
+            echo "::error::❌ develop 브랜치와 병합 중 conflict가 발생했습니다."
+            git status
+            exit 1
+          }
+
+      - name: 머지 결과 빌드 및 테스트
+        run: |
+          echo "::notice::머지된 결과 기준으로 빌드 및 테스트를 실행합니다."
+          ./gradlew clean build --stacktrace --info || {
+            echo "::error::❌ PR은 통과했지만 develop과 머지된 결과에서 실패했습니다."
+            exit 1
+          }

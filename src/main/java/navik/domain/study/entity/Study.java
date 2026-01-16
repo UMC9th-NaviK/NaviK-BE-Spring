@@ -15,8 +15,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import navik.domain.notification.entity.Notifiable;
+import navik.domain.notification.entity.NotificationType;
 import navik.domain.study.enums.RecruitmentStatus;
 import navik.global.entity.BaseEntity;
+
+import org.aspectj.weaver.ast.Not;
 
 @Entity
 @Getter
@@ -24,7 +28,7 @@ import navik.global.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Table(name = "studies")
-public class Study extends BaseEntity {
+public class Study extends BaseEntity implements Notifiable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,4 +55,19 @@ public class Study extends BaseEntity {
 
 	@Column(name = "social_id", nullable = false)
 	private String socialId;
+
+	@Override
+	public NotificationType getNotificationType() {
+		return NotificationType.STUDY;
+	}
+
+	@Override
+	public Long getNotifiableId() {
+		return this.id;
+	}
+
+	@Override
+	public boolean isCompleted() {
+		return LocalDateTime.now().isAfter(this.endDate);
+	}
 }

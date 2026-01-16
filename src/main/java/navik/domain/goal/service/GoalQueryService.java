@@ -1,5 +1,7 @@
 package navik.domain.goal.service;
 
+import navik.global.apiPayload.code.status.AuthErrorCode;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -10,7 +12,6 @@ import navik.domain.goal.converter.GoalConverter;
 import navik.domain.goal.dto.GoalResponseDTO;
 import navik.domain.goal.entity.Goal;
 import navik.domain.goal.repository.GoalRepository;
-import navik.global.apiPayload.code.status.AuthErrorCode;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import navik.global.dto.CursorResponseDto;

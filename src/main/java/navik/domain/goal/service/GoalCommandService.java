@@ -1,5 +1,6 @@
 package navik.domain.goal.service;
 
+import navik.domain.users.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,7 +12,6 @@ import navik.domain.goal.entity.Goal;
 import navik.domain.goal.entity.GoalStatus;
 import navik.domain.goal.repository.GoalRepository;
 import navik.domain.users.entity.User;
-import navik.domain.users.repository.UserRepository;
 import navik.domain.users.service.UserQueryService;
 
 @Service
