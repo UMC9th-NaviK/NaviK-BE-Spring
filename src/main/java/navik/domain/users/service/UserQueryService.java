@@ -29,10 +29,6 @@ public class UserQueryService {
 		return conversionService.convert(getUser(userId), UserResponseDTO.UserInfoDTO.class);
 	}
 
-	public UserResponseDTO.UserInfoDTO getMyInfo(Long userId) {
-		return conversionService.convert(getUser(userId), UserResponseDTO.UserInfoDTO.class);
-	}
-
 	public UserResponseDTO.NicknameCheckDto isNicknameDuplicated(String nickname) {
 		return new UserResponseDTO.NicknameCheckDto(nickname, userRepository.existsByNickname(nickname));
 	}
