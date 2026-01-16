@@ -19,6 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.job.entity.Job;
+import navik.domain.users.enums.EducationLevel;
 import navik.domain.users.enums.Role;
 import navik.domain.users.enums.UserStatus;
 import navik.global.entity.BaseEntity;
@@ -69,6 +70,9 @@ public class User extends BaseEntity {
 
 	@Column(name = "is_entry_level")
 	private Boolean isEntryLevel;
+
+	@Column(name = "education_level")
+	private EducationLevel educationLevel;
 
 	public String getRoleKey() {
 		return this.role.getKey();

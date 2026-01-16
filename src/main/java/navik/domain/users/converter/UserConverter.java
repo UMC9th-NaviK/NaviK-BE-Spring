@@ -34,7 +34,7 @@ public class UserConverter {
 			.build();
 	}
 
-	public static UserResponseDTO.MyPageDTO toMyPageDTO(User user){
+	public static UserResponseDTO.MyPageDTO toMyPageDTO(User user) {
 		return UserResponseDTO.MyPageDTO.builder()
 			.profileImageUrl(user.getProfileImageUrl())
 			.name(user.getName())

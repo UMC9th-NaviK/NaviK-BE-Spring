@@ -42,7 +42,7 @@ public class UserQueryService {
 		return UserConverter.toProfileDTO(getUser(userId));
 	}
 
-	public UserResponseDTO.MyPageDTO getMyPage(Long userId){
+	public UserResponseDTO.MyPageDTO getMyPage(Long userId) {
 		return UserConverter.toMyPageDTO(getUser(userId));
 	}
 }

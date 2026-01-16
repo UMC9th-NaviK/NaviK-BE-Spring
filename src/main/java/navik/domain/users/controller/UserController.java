@@ -53,7 +53,7 @@ public class UserController implements UserControllerDocs {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getProfile(userId));
 	}
 
-	@GetMapping("/me")
+	@GetMapping("/my-page")
 	public ApiResponse<UserResponseDTO.MyPageDTO> getMyInfo(@AuthUser Long userId) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getMyPage(userId));
 	}
