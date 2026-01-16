@@ -40,8 +40,27 @@ public class Board extends BaseEntity {
 	private String articleContent;
 
 	@Column(name = "article_views", nullable = false)
-	private Integer articleViews;
+	private Integer articleViews = 0;
 
-	@Column(name = "article_deleted", nullable = false)
-	private Boolean articleDeleted;
+	@Column(name = "article_likes", nullable = false)
+	private Integer articleLikes = 0;
+
+	public void incrementArticleViews() {
+		this.articleViews++;
+	}
+
+	public void incrementArticleLikes() {
+		this.articleLikes++;
+	}
+
+	public void decrementArticleLikes() {
+		if (this.articleLikes > 0) {
+			this.articleLikes--;
+		}
+	}
+
+	public void updateBoard(String articleTitle, String articleContent) {
+		this.articleTitle = articleTitle;
+		this.articleContent = articleContent;
+	}
 }

@@ -14,7 +14,7 @@ public class GoalRequestDTO {
 	@AllArgsConstructor
 	@NoArgsConstructor
 	@Getter
-	public static class CreateDTO{
+	public static class CreateDTO {
 		@NotNull
 		private String content;
 		@NotNull
