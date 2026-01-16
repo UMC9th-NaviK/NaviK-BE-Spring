@@ -13,7 +13,6 @@ public interface TermControllerDocs {
 	@Operation(summary = "약관 상세 조회", description = "특정 약관의 상세 내용을 조회합니다.")
 	ApiResponse<TermResponseDTO.TermInfo> getTerm(Long termId);
 
-	@SecurityRequirement(name = "bearerAuth")
 	@Operation(summary = "약관 동의", description = "선택한 약관들에 대해 일괄 동의합니다.")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses(value = {
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "CREATED")})

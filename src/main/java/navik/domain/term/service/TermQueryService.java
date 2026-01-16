@@ -18,13 +18,12 @@ public class TermQueryService {
 
 	private final TermRepository termRepository;
 
-	public Term getTerm(Long termId) {
-		return termRepository.findById(termId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.ENTITY_NOT_FOUND));
-	}
-
 	public TermResponseDTO.TermInfo getTermInfo(Long termId) {
 		TermInfoView termInfoView = termRepository.getTermInfo(termId);
+
+		if (termInfoView == null) {
+			throw new GeneralExceptionHandler(GeneralErrorCode.ENTITY_NOT_FOUND);
+		}
 		return new TermResponseDTO.TermInfo(termInfoView.getId(), termInfoView.getContent(),
 			termInfoView.getUpdatedAt());
 	}

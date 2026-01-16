@@ -13,7 +13,7 @@ public interface TermRepository extends JpaRepository<Term, Long> {
 	@Query("""
 		SELECT t.id as id, t.content as content, t.updatedAt as updatedAt
 		FROM Term t
-		WHERE t.id =:termId
+		WHERE t.id = :termId
 		""")
 	TermInfoView getTermInfo(@Param("termId") Long termId);
 }
