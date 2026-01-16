@@ -11,6 +11,7 @@ import navik.global.auth.annotation.AuthUser;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,5 +32,8 @@ public interface UserControllerDocs {
 
 	@Operation(summary = "내 정보", description = "로그인한 사용자의 정보를 가져옵니다(마이 페이지)")
 	ApiResponse<UserResponseDTO.MyPageDTO> getMyInfo(@AuthUser Long userId);
+
+	@Operation(summary = "프로필", description = "로그인한 사용자의 프로필(요약)을 가져옵니다")
+	ApiResponse<UserResponseDTO.ProfileDTO> getProfile(@AuthUser Long userId);
 
 }
