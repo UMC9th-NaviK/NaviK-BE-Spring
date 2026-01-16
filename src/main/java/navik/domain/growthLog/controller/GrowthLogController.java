@@ -1,6 +1,7 @@
 package navik.domain.growthLog.controller;
 
 import java.time.YearMonth;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,8 +18,10 @@ import navik.domain.growthLog.converter.GrowthLogConverter;
 import navik.domain.growthLog.dto.req.GrowthLogRequestDTO;
 import navik.domain.growthLog.dto.res.GrowthLogResponseDTO;
 import navik.domain.growthLog.entity.GrowthLog;
+import navik.domain.growthLog.enums.AggregateUnit;
 import navik.domain.growthLog.enums.GrowthType;
 import navik.domain.growthLog.service.command.GrowthLogUserInputService;
+import navik.domain.growthLog.service.query.GrowthLogAggregateService;
 import navik.domain.growthLog.service.query.GrowthLogQueryService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
@@ -32,6 +35,7 @@ public class GrowthLogController {
 
 	private final GrowthLogUserInputService growthLogUserInputService;
 	private final GrowthLogQueryService growthLogQueryService;
+	private final GrowthLogAggregateService growthLogAggregateService;
 
 	@PostMapping
 	public ApiResponse<GrowthLogResponseDTO.Id> create(
@@ -42,6 +46,7 @@ public class GrowthLogController {
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, new GrowthLogResponseDTO.Id(id));
 	}
 
+	// 요약 보기
 	@GetMapping("/monthly")
 	public ApiResponse<PageResponseDto<GrowthLogResponseDTO.ListItem>> getMonthlyGrowthLogs(
 		@AuthUser Long userId,
@@ -58,6 +63,20 @@ public class GrowthLogController {
 			);
 
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, GrowthLogConverter.toPageResponse(logs));
+	}
+
+	//TODO: 상세 보기
+
+	@GetMapping("/aggregate/scores")
+	public ApiResponse<List<GrowthLogResponseDTO.Point>> getGrowthScoreTimeline(
+		@AuthUser Long userId,
+		@RequestParam AggregateUnit unit,
+		@RequestParam(required = false) GrowthType type
+	) {
+		return ApiResponse.onSuccess(
+			GeneralSuccessCode._OK,
+			growthLogAggregateService.getScoreTimeline(userId, unit, type)
+		);
 	}
 
 }

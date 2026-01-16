@@ -29,4 +29,11 @@ public class GrowthLogResponseDTO {
 	) {
 	}
 
+	public record Point(
+		String period,
+		int sumScore,
+		int cumulativeScore
+	) {
+	}
+
 }
