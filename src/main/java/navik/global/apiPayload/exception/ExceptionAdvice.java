@@ -1,14 +1,10 @@
 package navik.global.apiPayload.exception;
 
-import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.BaseCode;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import lombok.extern.slf4j.Slf4j;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 
+import org.hibernate.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +14,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
+import navik.global.apiPayload.ApiResponse;
+import navik.global.apiPayload.code.status.BaseCode;
+import navik.global.apiPayload.code.status.GeneralErrorCode;
+import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 /**
  * @RestControllerAdvice 어노테이션을 사용하여 모든 @RestController 에서 발생하는 예외를 전역적으로 처리하는 클래스입니다.
@@ -123,4 +125,21 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 		return ApiResponse.onFailure(code, null);
 	}
 
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ApiResponse<Object> handleMethodArgumentTypeMismatch(
+		MethodArgumentTypeMismatchException e,
+		HttpServletRequest request
+	) {
+
+		log.warn("TypeMismatch param={} value={} requiredType={}", e.getName(), e.getValue(), e.getRequiredType());
+		return ApiResponse.onFailure(GeneralErrorCode.INVALID_TYPE_VALUE, null);
+	}
+
+	@ExceptionHandler(TypeMismatchException.class)
+	public ApiResponse<Object> handleTypeMismatch(
+		TypeMismatchException e,
+		HttpServletRequest request
+	) {
+		return ApiResponse.onFailure(GeneralErrorCode.INVALID_TYPE_VALUE, null);
+	}
 }
