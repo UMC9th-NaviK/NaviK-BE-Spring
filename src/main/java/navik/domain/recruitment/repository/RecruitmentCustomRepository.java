@@ -15,6 +15,6 @@ public interface RecruitmentCustomRepository {
 		Job job,
 		EducationLevel EducationLevel,
 		ExperienceType experienceType,
-		MajorType majorType
+		List<MajorType> majorTypes
 	);
 }

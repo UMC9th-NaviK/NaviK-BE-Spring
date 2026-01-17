@@ -9,8 +9,11 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.recruitment.converter.RecruitmentConverter;
 import navik.domain.recruitment.dto.RecruitmentResponseDTO;
 import navik.domain.recruitment.entity.Recruitment;
+import navik.domain.recruitment.enums.ExperienceType;
+import navik.domain.recruitment.enums.MajorType;
 import navik.domain.recruitment.repository.RecruitmentRepository;
 import navik.domain.users.entity.User;
+import navik.domain.users.repository.UserDepartmentRepository;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
@@ -22,6 +25,7 @@ public class RecruitmentQueryService {
 
 	private final RecruitmentRepository recruitmentRepository;
 	private final UserRepository userRepository;
+	private final UserDepartmentRepository userDepartmentRepository;
 
 	/**
 	 * @param userId
@@ -32,17 +36,23 @@ public class RecruitmentQueryService {
 		// 1. 유저 검색
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
-		
-		// 2. 모든 ability <-> 모든 PositionKPI => 종합 유사도 합산이 가장 높은 공고 반환
+
+		// 2. 전공 검색
+		List<String> departments = userDepartmentRepository.findDepartmentNamesByUserId(userId);
+		List<MajorType> majorTypes = departments.stream()
+			.map(MajorType::valueOf)
+			.toList();
+
+		// 3. 모든 ability <-> 모든 PositionKPI => 종합 유사도 합산이 가장 높은 공고 반환
 		List<Recruitment> searchResults = recruitmentRepository.findRecommendedPosts(
 			user,
 			user.getJob(),
 			user.getEducationLevel(),
-			null,
-			null
+			user.getIsEntryLevel() ? ExperienceType.ENTRY : ExperienceType.EXPERIENCED,
+			majorTypes
 		);
 
-		// 3. DTO 반환 (position batchSize)
+		// 4. DTO 반환 (position batchSize)
 		return searchResults.stream()
 			.map(RecruitmentConverter::toRecommendPost)
 			.toList();

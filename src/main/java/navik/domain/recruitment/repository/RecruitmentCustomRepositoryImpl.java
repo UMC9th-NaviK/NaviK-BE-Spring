@@ -45,7 +45,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 		Job job,
 		EducationLevel educationType,
 		ExperienceType experienceType,
-		MajorType majorType
+		List<MajorType> majorTypes
 	) {
 
 		// 1. 조건 설정
@@ -53,8 +53,8 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 				jobEqual(job),
 				educationTypeSatisfyAll(educationType),
 				experienceTypeSatisfyAll(experienceType),
-				majorTypeEqual(majorType),
-				endDateGreaterOrEqual(LocalDateTime.now())
+				majorTypeSatisfyAll(majorTypes),
+				endDateSatisfyAll(LocalDateTime.now())
 			)
 			.reduce(BooleanExpression::and)
 			.orElse(null);
@@ -73,7 +73,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			.join(recruitment.positions, position)                        // Recruitment -> Position
 			.join(position.positionKpis, positionKpi)                     // Position → KPI
 			.join(positionKpi.positionKpiEmbedding, positionKpiEmbedding) // KPI -> KPI Embedding
-			.join(ability).on(ability.user.id.eq(user.getId()))           // Ability
+			.join(ability).on(ability.user.eq(user))                      // Ability
 			.join(ability.abilityEmbedding, abilityEmbedding)             // Ability -> Embedding
 			.where(where)
 			.groupBy(recruitment.id)
@@ -83,23 +83,31 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 	}
 
 	/**
-	 * 특정 job만 포함하는 Expression 입니다.
+	 * 사용자의 직무만 포함하는 Expression 입니다.
 	 */
 	private BooleanExpression jobEqual(Job job) {
 		return job != null ? position.job.eq(job) : null;
 	}
 
 	/**
-	 * 특정 전공만 포함하는 Expression 입니다.
+	 * 사용자의 전공이 만족되는 직무만 포함하는 Expression 입니다.
 	 */
-	private BooleanExpression majorTypeEqual(MajorType majorType) {
-		return majorType != null ? position.majorType.eq(majorType) : null;
+	private BooleanExpression majorTypeSatisfyAll(List<MajorType> majorTypes) {
+		BooleanExpression expression = position.majorType.isNull();
+		if (!majorTypes.isEmpty()) {
+			majorTypes.forEach(majorType -> expression.or(position.majorType.eq(majorType)));
+		}
+		return expression;
 	}
-
+	
 	/**
-	 * 입력 시간 이후만 포함하는 Expression 입니다.
+	 * 입력 시간 이후 및 상시 모집을 포함하는 Expression 입니다.
 	 */
-	private BooleanExpression endDateGreaterOrEqual(LocalDateTime localDateTime) {
+	private BooleanExpression endDateSatisfyAll(LocalDateTime localDateTime) {
+		BooleanExpression expression = position.endDate.isNull();
+		if (localDateTime == null) {
+			expression.or(position.endDate.goe(localDateTime));
+		}
 		return localDateTime != null ? position.endDate.goe(localDateTime) : null;
 	}
 
