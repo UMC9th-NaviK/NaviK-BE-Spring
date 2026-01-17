@@ -1,4 +1,4 @@
-package navik.domain.users.service.deprtment;
+package navik.domain.users.service.departments;
 
 import java.util.List;
 

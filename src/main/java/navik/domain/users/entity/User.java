@@ -76,6 +76,7 @@ public class User extends BaseEntity {
 	private Boolean isEntryLevel;
 
 	@Column(name = "education_level")
+	@Enumerated(EnumType.STRING)
 	private EducationLevel educationLevel;
 
 	public String getRoleKey() {

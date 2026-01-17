@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.users.dto.UserResponseDTO;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.domain.users.service.deprtment.UserDepartmentQueryService;
+import navik.domain.users.service.departments.UserDepartmentQueryService;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
