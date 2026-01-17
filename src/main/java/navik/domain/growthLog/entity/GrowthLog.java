@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.enums.GrowthType;
 import navik.domain.users.entity.User;
 import navik.global.entity.BaseEntity;
@@ -66,6 +67,10 @@ public class GrowthLog extends BaseEntity {
 
 	@Column(nullable = false)
 	private Integer totalDelta;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private GrowthLogStatus status;
 
 	@OneToMany(mappedBy = "growthLog", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
