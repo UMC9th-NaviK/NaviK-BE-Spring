@@ -1,13 +1,15 @@
 package navik.domain.users.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import navik.domain.users.converter.UserConverter;
 import navik.domain.users.dto.UserResponseDTO;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
+import navik.domain.users.service.departments.UserDepartmentQueryService;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
@@ -17,24 +19,39 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 public class UserQueryService {
 
 	private final UserRepository userRepository;
+	private final UserDepartmentQueryService userDepartmentQueryService;
 
 	public UserResponseDTO.UserInfoDTO getUserInfo(Long userId) {
-		return UserConverter.toUserInfoDTO(getUser(userId));
-	}
-
-	public UserResponseDTO.UserInfoDTO getMyInfo(Long userId) {
-		return UserConverter.toUserInfoDTO(getUser(userId));
+		return userRepository.findUserInfoById(userId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
 	}
 
 	public UserResponseDTO.NicknameCheckDto isNicknameDuplicated(String nickname) {
-		return UserResponseDTO.NicknameCheckDto.builder()
-			.nickname(nickname)
-			.isDuplicated(userRepository.existsByNickname(nickname))
-			.build();
+		return new UserResponseDTO.NicknameCheckDto(nickname, userRepository.existsByNickname(nickname));
 	}
 
 	public User getUser(Long userId) {
 		return userRepository.findById(userId)
 			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+	}
+
+	public UserResponseDTO.ProfileDTO getProfile(Long userId) {
+		return userRepository.findProfileById(userId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+	}
+
+	public UserResponseDTO.MyPageDTO getMyPage(Long userId) {
+		User user = getUser(userId);
+		List<String> departmentList = userDepartmentQueryService.getUserDepartments(userId);
+
+		return new UserResponseDTO.MyPageDTO(
+			user.getProfileImageUrl(),
+			user.getName(),
+			user.getNickname(),
+			user.getJob().getName(),
+			user.getIsEntryLevel(),
+			user.getEducationLevel(),
+			departmentList
+		);
 	}
 }

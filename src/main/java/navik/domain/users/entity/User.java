@@ -19,9 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.job.entity.Job;
-import navik.domain.recruitment.enums.EducationType;
-import navik.domain.recruitment.enums.ExperienceType;
-import navik.domain.recruitment.enums.MajorType;
+import navik.domain.users.enums.EducationLevel;
 import navik.domain.users.enums.Role;
 import navik.domain.users.enums.UserStatus;
 import navik.global.entity.BaseEntity;
@@ -41,12 +39,19 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private String name;
 
+	@Column(name = "profile_image_url")
+	private String profileImageUrl;
+
 	@Column(nullable = false, unique = true)
 	@Builder.Default
 	private String nickname = "사용자" + UUID.randomUUID().toString().substring(0, 5);
 
 	@Column(nullable = false, unique = true)
 	private String email;
+
+	@Column(nullable = false)
+	@Builder.Default
+	private Integer level = 0;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -62,22 +67,17 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private String socialType; // google, kakao, naver
 
-	@Enumerated(EnumType.STRING)
-	private EducationType educationType; // 학력
-
-	@Enumerated(EnumType.STRING)
-	private ExperienceType experienceType; // 경력
-
-	@Enumerated(EnumType.STRING)
-	private MajorType majorType; // 전공
-
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	@Builder.Default
 	private UserStatus userStatus = UserStatus.PENDING;
 
-	@Column(name = "is_entry_level")
+	@Column(name = "is_entry_level") // true 신입, false 경력
 	private Boolean isEntryLevel;
+
+	@Column(name = "education_level")
+	@Enumerated(EnumType.STRING)
+	private EducationLevel educationLevel;
 
 	public String getRoleKey() {
 		return this.role.getKey();

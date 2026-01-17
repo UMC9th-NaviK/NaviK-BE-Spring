@@ -15,7 +15,7 @@ public class GoalResponseDTO {
 	@AllArgsConstructor
 	@NoArgsConstructor
 	@Getter
-	public static class PreviewDTO{
+	public static class PreviewDTO {
 		@NotNull
 		private Long goalId;
 		@NotNull

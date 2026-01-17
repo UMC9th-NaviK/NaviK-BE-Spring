@@ -1,6 +1,5 @@
 package navik.domain.users.controller;
 
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,11 +26,6 @@ public class UserController implements UserControllerDocs {
 	private final UserQueryService userQueryService;
 	private final UserCommandService userCommandService;
 
-	@GetMapping("/me")
-	public ApiResponse<UserResponseDTO.UserInfoDTO> getMyInfo(@AuthUser Long userId) {
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getMyInfo(userId));
-	}
-
 	@GetMapping("/{userId}")
 	public ApiResponse<UserResponseDTO.UserInfoDTO> getUser(@PathVariable Long userId) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getUserInfo(userId));
@@ -46,5 +40,15 @@ public class UserController implements UserControllerDocs {
 	@GetMapping("/check-nickname")
 	public ApiResponse<UserResponseDTO.NicknameCheckDto> checkNicknameDuplication(@RequestParam String nickname) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.isNicknameDuplicated(nickname));
+	}
+
+	@GetMapping("/profile")
+	public ApiResponse<UserResponseDTO.ProfileDTO> getProfile(@AuthUser Long userId) {
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getProfile(userId));
+	}
+
+	@GetMapping("/my-page")
+	public ApiResponse<UserResponseDTO.MyPageDTO> getMyInfo(@AuthUser Long userId) {
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getMyPage(userId));
 	}
 }

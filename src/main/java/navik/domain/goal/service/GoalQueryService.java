@@ -1,6 +1,7 @@
 package navik.domain.goal.service;
 
 import navik.global.apiPayload.code.status.AuthErrorCode;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -24,20 +25,21 @@ public class GoalQueryService {
 
 	public Goal getGoal(Long goalId) {
 		return goalRepository.findById(goalId).orElseThrow(
-			()->new GeneralExceptionHandler(GeneralErrorCode.ENTITY_NOT_FOUND));
+			() -> new GeneralExceptionHandler(GeneralErrorCode.ENTITY_NOT_FOUND));
 	}
 
-    public Goal getAuthorizedGoal(Long userId, Long goalId) {
-        Goal goal = getGoal(goalId);
+	public Goal getAuthorizedGoal(Long userId, Long goalId) {
+		Goal goal = getGoal(goalId);
 
-        if (!goal.getUser().getId().equals(userId)) {
-            throw new GeneralExceptionHandler(AuthErrorCode.AUTH_FORBIDDEN);
-        }
+		if (!goal.getUser().getId().equals(userId)) {
+			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_FORBIDDEN);
+		}
 
-        return goal;
-    }
+		return goal;
+	}
 
-	public CursorResponseDto<GoalResponseDTO.PreviewDTO> getGoals(Long userId, Long cursor, Integer size, String sortBy) {
+	public CursorResponseDto<GoalResponseDTO.PreviewDTO> getGoals(Long userId, Long cursor, Integer size,
+		String sortBy) {
 		PageRequest pageRequest = PageRequest.of(0, size);
 
 		Slice<Goal> goalSlice = switch (sortBy) {
@@ -54,7 +56,8 @@ public class GoalQueryService {
 
 		Slice<GoalResponseDTO.PreviewDTO> previewSlice = goalSlice.map(GoalConverter::toPreviewDto);
 
-		Long nextCursor = goalSlice.hasNext() ? goalSlice.getContent().get(goalSlice.getContent().size() - 1).getId() : null;
+		Long nextCursor =
+			goalSlice.hasNext() ? goalSlice.getContent().get(goalSlice.getContent().size() - 1).getId() : null;
 
 		return new CursorResponseDto<>(previewSlice, String.valueOf(nextCursor));
 	}

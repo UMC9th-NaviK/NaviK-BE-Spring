@@ -20,7 +20,7 @@ public class PageResponseDto<T> {
 	private final List<T> content;
 
 	/**
-	 * 현재 페이지 번호 (1부터 시작)
+	 * 현재 페이지 번호 (0부터 시작)
 	 */
 	private final int pageNumber;
 
@@ -46,13 +46,16 @@ public class PageResponseDto<T> {
 
 	public PageResponseDto(Page<T> page) {
 		this.content = page.getContent();
-		this.pageNumber = page.getNumber() + 1; // 0-based to 1-based
+		this.pageNumber = page.getNumber(); // 0-based로 수정
 		this.pageSize = page.getSize();
 		this.totalPages = page.getTotalPages();
 		this.totalElements = page.getTotalElements();
 		this.last = page.isLast();
 	}
 
+	/**
+	 * Page 객체를 PageResponseDto로 변환하는 정적 팩토리 매서드
+	 */
 	public static <T> PageResponseDto<T> of(Page<T> page) {
 		return new PageResponseDto<>(page);
 	}
