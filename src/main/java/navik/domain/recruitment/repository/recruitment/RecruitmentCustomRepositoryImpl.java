@@ -21,9 +21,10 @@ import navik.domain.recruitment.entity.QPosition;
 import navik.domain.recruitment.entity.QPositionKpi;
 import navik.domain.recruitment.entity.QPositionKpiEmbedding;
 import navik.domain.recruitment.entity.QRecruitment;
-import navik.domain.recruitment.entity.Recruitment;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.MajorType;
+import navik.domain.recruitment.repository.recruitment.projection.QRecommendPostProjection;
+import navik.domain.recruitment.repository.recruitment.projection.RecommendPostProjection;
 import navik.domain.users.entity.User;
 import navik.domain.users.enums.EducationLevel;
 
@@ -41,7 +42,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 	private final QAbilityEmbedding abilityEmbedding = QAbilityEmbedding.abilityEmbedding;
 
 	@Override
-	public List<Recruitment> findRecommendedPosts(
+	public List<RecommendPostProjection> findRecommendedPosts(
 		User user,
 		Job job,
 		EducationLevel educationType,
@@ -49,18 +50,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 		List<MajorType> majorTypes
 	) {
 
-		// 1. 조건 설정
-		BooleanExpression where = Stream.of(
-				jobEqual(job),
-				educationTypeSatisfyAll(educationType),
-				experienceTypeSatisfyAll(experienceType),
-				majorTypeSatisfyAll(majorTypes),
-				endDateSatisfyAll(LocalDateTime.now())
-			)
-			.reduce(BooleanExpression::and)
-			.orElse(null);
-
-		// 2. pgvector 코사인 쿼리
+		// 1. pgvector 코사인 쿼리
 		NumberTemplate<Double> similarityScore = Expressions.numberTemplate(
 			Double.class,
 			"1 - ({0} <=> {1})",
@@ -68,9 +58,22 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			abilityEmbedding.embedding
 		);
 
+		// 2. 조건 설정
+		BooleanExpression where = Stream.of(
+				jobEqual(job),
+				educationTypeSatisfyAll(educationType),
+				experienceTypeSatisfyAll(experienceType),
+				majorTypeSatisfyAll(majorTypes),
+				endDateSatisfyAll(LocalDateTime.now()),
+				similarityScore.gt(0.3)    // 0.3 이상만 합산
+			)
+			.reduce(BooleanExpression::and)
+			.orElse(null);
+
 		// 3. 조회
 		return jpaQueryFactory
-			.selectFrom(recruitment)
+			.select(new QRecommendPostProjection(recruitment, similarityScore.sum()))
+			.from(recruitment)
 			.join(recruitment.positions, position)                        // Recruitment -> Position
 			.join(position.positionKpis, positionKpi)                     // Position → KPI
 			.join(positionKpi.positionKpiEmbedding, positionKpiEmbedding) // KPI -> KPI Embedding
@@ -78,18 +81,16 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			.join(ability.abilityEmbedding, abilityEmbedding)             // Ability -> Embedding
 			.where(where)
 			.groupBy(recruitment.id)
+			.having(similarityScore.sum().gt(1.0))     // 1점을 넘으면 추천 멘트
 			.orderBy(similarityScore.sum().desc())  // 유사도 합 상위 5개
 			.limit(5)
 			.fetch();
 	}
 
 	@Override
-	public List<Recruitment> findRecommendedPostsByCard(KpiCard kpiCard, Job job) {
+	public List<RecommendPostProjection> findRecommendedPostsByCard(KpiCard kpiCard, Job job) {
 
-		// 1. 조건 설정
-		BooleanExpression where = jobEqual(job);
-
-		// 2. pgvector 코사인 쿼리
+		// 1. pgvector 코사인 쿼리
 		NumberTemplate<Double> similarityScore = Expressions.numberTemplate(
 			Double.class,
 			"1 - ({0} <=> cast({1} as vector))",
@@ -97,14 +98,24 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			Arrays.toString(kpiCard.getKpiCardEmbedding().getEmbedding())
 		);
 
+		// 2. 조건 설정
+		BooleanExpression where = Stream.of(
+				jobEqual(job),
+				similarityScore.gt(0.3)    // 0.3 이상만 합산
+			)
+			.reduce(BooleanExpression::and)
+			.orElse(null);
+
 		// 3. 조회
 		return jpaQueryFactory
-			.selectFrom(recruitment)
+			.select(new QRecommendPostProjection(recruitment, similarityScore.sum()))
+			.from(recruitment)
 			.join(recruitment.positions, position)                        // Recruitment -> Position
 			.join(position.positionKpis, positionKpi)                     // Position → KPI
 			.join(positionKpi.positionKpiEmbedding, positionKpiEmbedding) // KPI -> KPI Embedding
 			.where(where)
 			.groupBy(recruitment.id)
+			.having(similarityScore.sum().gt(1.0))     // 1점을 넘으면 추천 멘트
 			.orderBy(similarityScore.sum().desc())  // 유사도 합 상위 5개
 			.limit(5)
 			.fetch();

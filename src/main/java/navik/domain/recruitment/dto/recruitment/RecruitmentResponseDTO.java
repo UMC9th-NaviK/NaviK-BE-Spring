@@ -1,7 +1,5 @@
 package navik.domain.recruitment.dto.recruitment;
 
-import java.util.List;
-
 import lombok.Builder;
 import lombok.Getter;
 
@@ -19,8 +17,10 @@ public class RecruitmentResponseDTO {
 		private long deadline;
 		private boolean isSaved;
 		private String title;
-		private List<String> workPlaces;
-		private List<String> experiences;
-		private List<String> employments;
+		private String workPlace;
+		private String experience;
+		private String employment;
+		private boolean isRecommend;
+		private String aiSummary;
 	}
 }

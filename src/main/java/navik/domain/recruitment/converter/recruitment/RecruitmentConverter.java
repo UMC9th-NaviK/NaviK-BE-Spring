@@ -3,28 +3,25 @@ package navik.domain.recruitment.converter.recruitment;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 import navik.domain.recruitment.dto.recruitment.RecruitmentResponseDTO;
 import navik.domain.recruitment.entity.Position;
 import navik.domain.recruitment.entity.Recruitment;
+import navik.domain.recruitment.enums.EmploymentType;
+import navik.domain.recruitment.enums.ExperienceType;
+import navik.domain.recruitment.repository.recruitment.projection.RecommendPostProjection;
 
 public class RecruitmentConverter {
 
-	public static RecruitmentResponseDTO.RecommendPost toRecommendPost(Recruitment recruitment) {
+	public static RecruitmentResponseDTO.RecommendPost toRecommendPost(
+		RecommendPostProjection recommendPostProjection) {
 
-		long deadline = ChronoUnit.DAYS.between(LocalDateTime.now(), recruitment.getEndDate());
+		Recruitment recruitment = recommendPostProjection.getRecruitment();
+		Double matchScore = recommendPostProjection.getMatchScore();
 
-		List<String> workPlaces = recruitment.getPositions().stream()
-			.map(Position::getWorkPlace)
-			.toList();
-
-		List<String> experiences = recruitment.getPositions().stream()
-			.map(position -> position.getExperienceType() == null ? "경력무관" : position.getExperienceType().getLabel())
-			.toList();
-
-		List<String> employments = recruitment.getPositions().stream()
-			.map(position -> position.getEmploymentType() == null ? "기타" : position.getEmploymentType().getLabel())
-			.toList();
+		List<Position> positions = recruitment.getPositions();
+		Position position = positions.getFirst();
 
 		return RecruitmentResponseDTO.RecommendPost.builder()
 			.id(recruitment.getId())
@@ -33,11 +30,25 @@ public class RecruitmentConverter {
 			.companyLogo(recruitment.getCompanyLogo())
 			.companyName(recruitment.getCompanyName())
 			.companySize(recruitment.getCompanySize().getLabel())
-			.deadline(deadline)
+			.deadline(ChronoUnit.DAYS.between(LocalDateTime.now(), recruitment.getEndDate()))
 			.title(recruitment.getTitle())
-			.workPlaces(workPlaces)
-			.experiences(experiences)
-			.employments(employments)
+			.workPlace(
+				positions.size() > 1
+					? String.format("%s 외 %d", position.getWorkPlace(), positions.size() - 1)
+					: position.getWorkPlace()
+			)
+			.experience(
+				Optional.ofNullable(position.getExperienceType())
+					.map(ExperienceType::getLabel)
+					.orElse("경력무관")
+			)
+			.employment(
+				Optional.ofNullable(position.getEmploymentType())
+					.map(EmploymentType::getLabel)
+					.orElse("기타")
+			)
+			.isRecommend(matchScore >= 1.0)
+			.aiSummary(recruitment.getSummary())
 			.build();
 	}
 }
