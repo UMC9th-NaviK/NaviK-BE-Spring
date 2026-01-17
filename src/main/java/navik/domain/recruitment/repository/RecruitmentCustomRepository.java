@@ -3,6 +3,7 @@ package navik.domain.recruitment.repository;
 import java.util.List;
 
 import navik.domain.job.entity.Job;
+import navik.domain.kpi.entity.KpiCard;
 import navik.domain.recruitment.entity.Recruitment;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.MajorType;
@@ -16,5 +17,10 @@ public interface RecruitmentCustomRepository {
 		EducationLevel EducationLevel,
 		ExperienceType experienceType,
 		List<MajorType> majorTypes
+	);
+
+	List<Recruitment> findRecommendedPostsByCard(
+		KpiCard kpiCard,
+		Job job
 	);
 }

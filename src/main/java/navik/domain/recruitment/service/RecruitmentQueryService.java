@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import navik.domain.kpi.entity.KpiCard;
+import navik.domain.kpi.exception.code.KpiCardErrorCode;
+import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.recruitment.converter.RecruitmentConverter;
 import navik.domain.recruitment.dto.RecruitmentResponseDTO;
 import navik.domain.recruitment.entity.Recruitment;
@@ -26,6 +29,7 @@ public class RecruitmentQueryService {
 	private final RecruitmentRepository recruitmentRepository;
 	private final UserRepository userRepository;
 	private final UserDepartmentRepository userDepartmentRepository;
+	private final KpiCardRepository kpiCardRepository;
 
 	/**
 	 * @param userId
@@ -39,21 +43,40 @@ public class RecruitmentQueryService {
 
 		// 2. 전공 검색
 		List<String> departments = userDepartmentRepository.findDepartmentNamesByUserId(userId);
-		List<MajorType> majorTypes = departments.stream()
-			.map(MajorType::valueOf)
-			.toList();
 
 		// 3. 모든 ability <-> 모든 PositionKPI => 종합 유사도 합산이 가장 높은 공고 반환
-		List<Recruitment> searchResults = recruitmentRepository.findRecommendedPosts(
+		List<Recruitment> results = recruitmentRepository.findRecommendedPosts(
 			user,
 			user.getJob(),
 			user.getEducationLevel(),
 			user.getIsEntryLevel() ? ExperienceType.ENTRY : ExperienceType.EXPERIENCED,
-			majorTypes
+			departments.stream().map(MajorType::valueOf).toList()
 		);
 
 		// 4. DTO 반환 (position batchSize)
-		return searchResults.stream()
+		return results.stream()
+			.map(RecruitmentConverter::toRecommendPost)
+			.toList();
+	}
+
+	/**
+	 * @param kpiCardId
+	 * @return KPI 카드와 관련된 채용 공고 5건을 반환합니다.
+	 */
+	public List<RecruitmentResponseDTO.RecommendPost> getRecommendedPostsByCard(Long kpiCardId) {
+
+		// 1. 카드 검색
+		KpiCard kpiCard = kpiCardRepository.findByIdWithJobAndEmbedding(kpiCardId)
+			.orElseThrow(() -> new GeneralExceptionHandler(KpiCardErrorCode.KPI_CARD_NOT_FOUND));
+
+		// 2. 검색
+		List<Recruitment> results = recruitmentRepository.findRecommendedPostsByCard(
+			kpiCard,
+			kpiCard.getJob()
+		);
+
+		// 3. DTO 반환
+		return results.stream()
 			.map(RecruitmentConverter::toRecommendPost)
 			.toList();
 	}

@@ -22,6 +22,6 @@ public interface KpiCardRepository extends JpaRepository<KpiCard, Long> {
 		""")
 	List<KpiCardGridItemView> findGridByJobId(@Param("jobId") Long jobId);
 
-	Optional<KpiCard> findById(Long id);
-
+	@Query("select c from KpiCard c join fetch c.kpiCardEmbedding join fetch c.job where c.id = :kpiCardId")
+	Optional<KpiCard> findByIdWithJobAndEmbedding(@Param("kpiCardId") Long kpiCardId);
 }

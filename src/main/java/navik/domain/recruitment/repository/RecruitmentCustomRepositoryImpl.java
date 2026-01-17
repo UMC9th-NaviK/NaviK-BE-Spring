@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.ability.entity.QAbility;
 import navik.domain.ability.entity.QAbilityEmbedding;
 import navik.domain.job.entity.Job;
+import navik.domain.kpi.entity.KpiCard;
 import navik.domain.recruitment.entity.QPosition;
 import navik.domain.recruitment.entity.QPositionKpi;
 import navik.domain.recruitment.entity.QPositionKpiEmbedding;
@@ -82,6 +83,33 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			.fetch();
 	}
 
+	@Override
+	public List<Recruitment> findRecommendedPostsByCard(KpiCard kpiCard, Job job) {
+
+		// 1. 조건 설정
+		BooleanExpression where = jobEqual(job);
+
+		// 2. pgvector 코사인 쿼리
+		NumberTemplate<Double> similarityScore = Expressions.numberTemplate(
+			Double.class,
+			"1 - ({0} <=> cast({1} as vector))",
+			positionKpiEmbedding.embedding,
+			Arrays.toString(kpiCard.getKpiCardEmbedding().getEmbedding())
+		);
+
+		// 3. 조회
+		return jpaQueryFactory
+			.selectFrom(recruitment)
+			.join(recruitment.positions, position)                        // Recruitment -> Position
+			.join(position.positionKpis, positionKpi)                     // Position → KPI
+			.join(positionKpi.positionKpiEmbedding, positionKpiEmbedding) // KPI -> KPI Embedding
+			.where(where)
+			.groupBy(recruitment.id)
+			.orderBy(similarityScore.sum().desc())  // 유사도 합 상위 5개
+			.limit(5)
+			.fetch();
+	}
+
 	/**
 	 * 사용자의 직무만 포함하는 Expression 입니다.
 	 */
@@ -99,7 +127,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 		}
 		return expression;
 	}
-	
+
 	/**
 	 * 입력 시간 이후 및 상시 모집을 포함하는 Expression 입니다.
 	 */

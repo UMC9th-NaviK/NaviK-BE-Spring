@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -20,9 +21,16 @@ public class RecruitmentController implements RecruitmentControllerDocs {
 
 	private final RecruitmentQueryService recruitmentQueryService;
 
-	@GetMapping("/recommend")
+	@GetMapping
 	public ApiResponse<List<RecruitmentResponseDTO.RecommendPost>> getRecommendedPosts(@AuthUser Long userId) {
 		List<RecruitmentResponseDTO.RecommendPost> result = recruitmentQueryService.getRecommendedPosts(userId);
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
+	}
+
+	@GetMapping("/card")
+	public ApiResponse<List<RecruitmentResponseDTO.RecommendPost>> getRecommendedPostsByCard(
+		@RequestParam("cardId") Long cardId) {
+		List<RecruitmentResponseDTO.RecommendPost> result = recruitmentQueryService.getRecommendedPostsByCard(cardId);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
 	}
 }
