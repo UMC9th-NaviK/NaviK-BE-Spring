@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.GrowthLogEvaluationResult;
 import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.entity.GrowthLogKpiLink;
+import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.enums.GrowthType;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.kpi.entity.KpiCard;
@@ -48,6 +49,25 @@ public class GrowthLogPersistenceService {
 				.delta(kd.delta())
 				.build());
 		}
+
+		return growthLogRepository.save(growthLog).getId();
+	}
+
+	public Long persistFailed(
+		Long userId,
+		String title,
+		String content
+	) {
+		User user = userRepository.getReferenceById(userId);
+
+		GrowthLog growthLog = GrowthLog.builder()
+			.user(user)
+			.type(GrowthType.USER_INPUT)
+			.title(title)
+			.content(content)
+			.totalDelta(0)
+			.status(GrowthLogStatus.FAILED)
+			.build();
 
 		return growthLogRepository.save(growthLog).getId();
 	}

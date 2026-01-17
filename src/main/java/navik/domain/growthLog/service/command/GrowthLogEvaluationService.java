@@ -36,24 +36,41 @@ public class GrowthLogEvaluationService {
 
 	public Long create(Long userId, GrowthLogRequestDTO.CreateUserInput req) {
 
-		// 1) AI 컨텍스트 구성 (읽기 쿼리들)
 		GrowthLogEvaluationContext context = buildContext(userId, req);
 
-		// 2) AI 서버 평가 요청 (여기가 트랜잭션 밖)
-		GrowthLogEvaluationResult aiResult = growthLogAiClient.evaluateUserInput(userId, context);
+		try {
+			// 1) AI 평가
+			GrowthLogEvaluationResult aiResult =
+				growthLogAiClient.evaluateUserInput(userId, context);
 
-		// 3) 응답 정규화/검증
-		GrowthLogEvaluationResult normalized = normalize(aiResult);
+			// 2) 정규화
+			GrowthLogEvaluationResult normalized = normalize(aiResult);
 
-		// 4) KPI 중복 merge + 존재 검증
-		List<GrowthLogEvaluationResult.KpiDelta> kpis = mergeSameKpi(normalized.kpis());
-		validateKpisExist(kpis);
+			// 3) KPI merge + 검증
+			List<GrowthLogEvaluationResult.KpiDelta> kpis =
+				mergeSameKpi(normalized.kpis());
+			validateKpisExist(kpis);
 
-		// 5) totalDelta 계산(서버가 책임)
-		int totalDelta = kpis.stream().mapToInt(GrowthLogEvaluationResult.KpiDelta::delta).sum();
+			// 4) totalDelta
+			int totalDelta =
+				kpis.stream().mapToInt(GrowthLogEvaluationResult.KpiDelta::delta).sum();
 
-		// 6) 저장 DTO(혹은 저장용 파라미터) 준비
-		return growthLogPersistenceService.persist(userId, normalized, totalDelta, kpis);
+			// 5) 정상 저장
+			return growthLogPersistenceService.persist(
+				userId,
+				normalized,
+				totalDelta,
+				kpis
+			);
+
+		} catch (Exception e) {
+			// Soft Fail
+			return growthLogPersistenceService.persistFailed(
+				userId,
+				safe(req.title()),
+				safe(req.content())
+			);
+		}
 	}
 
 	private GrowthLogEvaluationContext buildContext(Long userId, GrowthLogRequestDTO.CreateUserInput req) {
@@ -140,5 +157,9 @@ public class GrowthLogEvaluationService {
 		if (count != ids.size()) {
 			throw new GeneralExceptionHandler(GrowthLogErrorCode.KPI_CARD_NOT_FOUND);
 		}
+	}
+
+	private String safe(String s) {
+		return (s == null || s.isBlank()) ? "(내용 없음)" : s.trim();
 	}
 }
