@@ -1,5 +1,9 @@
 package navik.domain.growthLog.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,7 +23,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.growthLog.enums.GrowthType;
-import navik.domain.kpi.entity.KpiCard;
 import navik.domain.users.entity.User;
 import navik.global.entity.BaseEntity;
 
@@ -50,10 +54,6 @@ public class GrowthLog extends BaseEntity {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "kpi_card_id")
-	private KpiCard kpiCard;
-
 	@Enumerated(EnumType.STRING)
 	@Column(name = "type", nullable = false)
 	private GrowthType type;
@@ -64,6 +64,16 @@ public class GrowthLog extends BaseEntity {
 	@Column(name = "content", nullable = false)
 	private String content;
 
-	@Column(name = "score", nullable = false)
-	private Integer score;
+	@Column(nullable = false)
+	private Integer totalDelta;
+
+	@OneToMany(mappedBy = "growthLog", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<GrowthLogKpiLink> kpiLinks = new ArrayList<>();
+
+	public void addKpiLink(GrowthLogKpiLink link) {
+		kpiLinks.add(link);
+		link.attachGrowthLog(this);
+	}
+
 }
