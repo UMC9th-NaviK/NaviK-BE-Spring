@@ -15,6 +15,7 @@ import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.kpi.entity.KpiCard;
 import navik.domain.kpi.repository.KpiCardRepository;
+import navik.domain.kpi.service.command.KpiScoreIncrementService;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
@@ -27,6 +28,7 @@ public class GrowthLogPersistenceService {
 	private final UserRepository userRepository;
 	private final GrowthLogRepository growthLogRepository;
 	private final KpiCardRepository kpiCardRepository;
+	private final KpiScoreIncrementService kpiScoreIncrementService;
 
 	public Long saveUserInputLog(
 		Long userId,
@@ -46,7 +48,11 @@ public class GrowthLogPersistenceService {
 
 		attachKpiLinks(growthLog, kpis);
 
-		return growthLogRepository.save(growthLog).getId();
+		Long id = growthLogRepository.save(growthLog).getId();
+
+		applyKpiScoreDeltas(userId, kpis);
+
+		return id;
 	}
 
 	public Long saveFailedUserInputLog(Long userId, String title, String content) {
@@ -75,10 +81,15 @@ public class GrowthLogPersistenceService {
 				GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND
 			));
 
+		if (growthLog.getStatus() != GrowthLogStatus.FAILED) {
+			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
+		}
+
 		growthLog.clearKpiLinks();
 		growthLog.applyEvaluation(normalized.title(), normalized.content(), totalDelta);
 
 		attachKpiLinks(growthLog, kpis);
+		applyKpiScoreDeltas(userId, kpis);
 	}
 
 	private GrowthLog newUserInputLog(
@@ -105,6 +116,19 @@ public class GrowthLogPersistenceService {
 				.kpiCard(ref)
 				.delta(kd.delta())
 				.build());
+		}
+	}
+
+	private void applyKpiScoreDeltas(
+		Long userId,
+		List<GrowthLogEvaluationResult.KpiDelta> kpis
+	) {
+		for (var kd : kpis) {
+			kpiScoreIncrementService.incrementInternal(
+				userId,
+				kd.kpiCardId(),
+				kd.delta()
+			);
 		}
 	}
 }
