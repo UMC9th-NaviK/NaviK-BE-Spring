@@ -66,11 +66,13 @@ public class GrowthLog extends BaseEntity {
 	private String content;
 
 	@Column(nullable = false)
-	private Integer totalDelta;
+	@Builder.Default
+	private Integer totalDelta = 0;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private GrowthLogStatus status;
+	@Builder.Default
+	private GrowthLogStatus status = GrowthLogStatus.COMPLETED;
 
 	@OneToMany(mappedBy = "growthLog", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
