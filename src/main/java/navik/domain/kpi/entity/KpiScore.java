@@ -41,4 +41,9 @@ public class KpiScore extends BaseEntity {
 
 	@Column(name = "score", nullable = false)
 	private Integer score;
+
+	public void updateScore(Integer score) {
+		this.score = score;
+	}
+
 }
