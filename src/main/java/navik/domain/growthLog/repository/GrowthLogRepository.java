@@ -35,12 +35,11 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 	);
 
 	@Query("""
-		    select gl
-		      from GrowthLog gl
-		     where gl.user.id = :userId
-		       and gl.createdAt >= :start
-		       and gl.createdAt < :end
-		     order by gl.createdAt desc
+		select gl
+		  from GrowthLog gl
+		 where gl.user.id = :userId
+		   and gl.createdAt >= :start
+		   and gl.createdAt < :end
 		""")
 	Page<GrowthLog> findMonthly(
 		@Param("userId") Long userId,
@@ -50,13 +49,12 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 	);
 
 	@Query("""
-		    select gl
-		      from GrowthLog gl
-		     where gl.user.id = :userId
-		       and gl.type = :type
-		       and gl.createdAt >= :start
-		       and gl.createdAt < :end
-		     order by gl.createdAt desc
+		select gl
+		  from GrowthLog gl
+		 where gl.user.id = :userId
+		   and gl.type = :type
+		   and gl.createdAt >= :start
+		   and gl.createdAt < :end
 		""")
 	Page<GrowthLog> findMonthlyByType(
 		@Param("userId") Long userId,

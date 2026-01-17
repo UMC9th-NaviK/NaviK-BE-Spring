@@ -25,11 +25,9 @@ public class GrowthLogUserInputService {
 
 		GrowthLog growthLog = GrowthLog.builder()
 			.user(user)
-			.kpiCard(null)
 			.type(GrowthType.USER_INPUT)
 			.title(req.title().trim())
 			.content(req.content().trim())
-			.score(0)
 			.build();
 
 		return growthLogRepository.save(growthLog).getId();
