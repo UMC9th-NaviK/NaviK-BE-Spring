@@ -2,7 +2,7 @@ package navik.domain.users.dto;
 
 import java.util.List;
 
-import navik.domain.recruitment.enums.EducationType;
+
 import navik.domain.users.enums.EducationLevel;
 import navik.domain.users.enums.Role;
 
