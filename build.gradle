@@ -9,7 +9,7 @@ version = '1.0.0' // 개발 버전에 맞춰 선택 (로컬 기준)
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17) // 최신 권장 방식 유지
+        languageVersion = JavaLanguageVersion.of(21) // 최신 권장 방식 유지
     }
 }
 
