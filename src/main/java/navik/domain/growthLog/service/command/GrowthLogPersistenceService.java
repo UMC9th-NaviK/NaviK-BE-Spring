@@ -11,11 +11,13 @@ import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.entity.GrowthLogKpiLink;
 import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.enums.GrowthType;
+import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.kpi.entity.KpiCard;
 import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
+import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Service
 @RequiredArgsConstructor
@@ -70,5 +72,39 @@ public class GrowthLogPersistenceService {
 			.build();
 
 		return growthLogRepository.save(growthLog).getId();
+	}
+
+	public void applyRetryResult(
+		Long userId,
+		Long growthLogId,
+		GrowthLogEvaluationResult normalized,
+		int totalDelta,
+		List<GrowthLogEvaluationResult.KpiDelta> kpis
+	) {
+		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
+			.orElseThrow(() -> new GeneralExceptionHandler(
+				GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND
+			));
+
+		// 기존 링크 제거
+		growthLog.clearKpiLinks();
+
+		// 평가 결과 반영 (status=COMPLETED)
+		growthLog.applyEvaluation(
+			normalized.title(),
+			normalized.content(),
+			totalDelta
+		);
+
+		// KPI 링크 재생성
+		for (var kd : kpis) {
+			KpiCard ref = kpiCardRepository.getReferenceById(kd.kpiCardId());
+			growthLog.addKpiLink(GrowthLogKpiLink.builder()
+				.kpiCard(ref)
+				.delta(kd.delta())
+				.build());
+		}
+
+		// save 호출 없어도 트랜잭션 + dirty checking으로 반영됨
 	}
 }

@@ -16,6 +16,18 @@ public enum GrowthLogErrorCode implements BaseCode {
 		"성장 로그가 존재하지 않거나 이미 KPI가 매핑되었습니다."
 	),
 
+	INVALID_GROWTH_LOG_TYPE(
+		HttpStatus.BAD_REQUEST,
+		"GROWTH_LOG_400_02",
+		"재시도할 수 없는 성장 로그 타입입니다."
+	),
+
+	INVALID_GROWTH_LOG_STATUS(
+		HttpStatus.BAD_REQUEST,
+		"GROWTH_LOG_400_03",
+		"재시도할 수 없는 성장 로그 상태입니다."
+	),
+	
 	KPI_CARD_NOT_FOUND(
 		HttpStatus.NOT_FOUND,
 		"GROWTH_LOG_404_01",
@@ -26,6 +38,17 @@ public enum GrowthLogErrorCode implements BaseCode {
 		HttpStatus.NOT_FOUND,
 		"GROWTH_LOG_404_02",
 		"존재하지 않는 성장 로그입니다."
+	),
+
+	GROWTH_LOG_STATUS_NOT_FOUND(
+		HttpStatus.NOT_FOUND,
+		"GROWTH_LOG_404_03",
+		"존재하지 않는 성장 로그 상태입니다."),
+
+	GROWTH_LOG_RETRY_LIMIT_EXCEEDED(
+		HttpStatus.TOO_MANY_REQUESTS,
+		"GROWTH_LOG_429",
+		"성장 로그 재시도 횟수를 초과했습니다. 잠시 후 다시 시도해주세요."
 	),
 
 	AI_EVALUATION_FAILED(

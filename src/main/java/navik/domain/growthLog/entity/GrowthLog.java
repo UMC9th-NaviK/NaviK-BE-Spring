@@ -83,4 +83,14 @@ public class GrowthLog extends BaseEntity {
 		link.attachGrowthLog(this);
 	}
 
+	public void clearKpiLinks() {
+		this.kpiLinks.clear(); // orphanRemoval=true 이라 DB에서도 삭제됨
+	}
+
+	public void applyEvaluation(String title, String content, int totalDelta) {
+		this.title = title;
+		this.content = content;
+		this.totalDelta = totalDelta;
+		this.status = GrowthLogStatus.COMPLETED;
+	}
 }

@@ -2,6 +2,7 @@ package navik.domain.growthLog.dto.res;
 
 import java.time.LocalDateTime;
 
+import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.enums.GrowthType;
 
 public class GrowthLogResponseDTO {
@@ -33,6 +34,12 @@ public class GrowthLogResponseDTO {
 		String period,
 		int sumScore,
 		int cumulativeScore
+	) {
+	}
+
+	public record RetryResult(
+		Long growthLogId,
+		GrowthLogStatus status
 	) {
 	}
 

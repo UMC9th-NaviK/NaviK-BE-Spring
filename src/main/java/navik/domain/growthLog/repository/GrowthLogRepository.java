@@ -127,4 +127,5 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 		@Param("end") LocalDateTime end
 	);
 
+	Optional<GrowthLog> findByIdAndUserId(Long id, Long userId);
 }
