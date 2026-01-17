@@ -35,7 +35,7 @@ public class RecruitmentQueryService {
 	 * @param userId
 	 * @return 사용자 맞춤형 채용 공고 5건을 반환합니다.
 	 */
-	public List<RecruitmentResponseDTO.RecommendPost> getRecommendedPosts(Long userId) {
+	public List<RecruitmentResponseDTO.RecommendedPost> getRecommendedPosts(Long userId) {
 
 		// 1. 유저 검색
 		User user = userRepository.findById(userId)
@@ -55,7 +55,7 @@ public class RecruitmentQueryService {
 
 		// 4. DTO 반환 (position batchSize)
 		return results.stream()
-			.map(RecruitmentConverter::toRecommendPost)
+			.map(RecruitmentConverter::toRecommendedPost)
 			.toList();
 	}
 
@@ -63,7 +63,7 @@ public class RecruitmentQueryService {
 	 * @param kpiCardId
 	 * @return KPI 카드와 관련된 채용 공고 5건을 반환합니다.
 	 */
-	public List<RecruitmentResponseDTO.RecommendPost> getRecommendedPostsByCard(Long kpiCardId) {
+	public List<RecruitmentResponseDTO.RecommendedPost> getRecommendedPostsByCard(Long kpiCardId) {
 
 		// 1. 카드 검색
 		KpiCard kpiCard = kpiCardRepository.findByIdWithJobAndEmbedding(kpiCardId)
@@ -77,7 +77,7 @@ public class RecruitmentQueryService {
 
 		// 3. DTO 반환
 		return results.stream()
-			.map(RecruitmentConverter::toRecommendPost)
+			.map(RecruitmentConverter::toRecommendedPost)
 			.toList();
 	}
 }

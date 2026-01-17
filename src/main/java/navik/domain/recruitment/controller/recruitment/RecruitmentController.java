@@ -22,15 +22,15 @@ public class RecruitmentController implements RecruitmentControllerDocs {
 	private final RecruitmentQueryService recruitmentQueryService;
 
 	@GetMapping
-	public ApiResponse<List<RecruitmentResponseDTO.RecommendPost>> getRecommendedPosts(@AuthUser Long userId) {
-		List<RecruitmentResponseDTO.RecommendPost> result = recruitmentQueryService.getRecommendedPosts(userId);
+	public ApiResponse<List<RecruitmentResponseDTO.RecommendedPost>> getRecommendedPosts(@AuthUser Long userId) {
+		List<RecruitmentResponseDTO.RecommendedPost> result = recruitmentQueryService.getRecommendedPosts(userId);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
 	}
 
 	@GetMapping("/card")
-	public ApiResponse<List<RecruitmentResponseDTO.RecommendPost>> getRecommendedPostsByCard(
+	public ApiResponse<List<RecruitmentResponseDTO.RecommendedPost>> getRecommendedPostsByCard(
 		@RequestParam("cardId") Long cardId) {
-		List<RecruitmentResponseDTO.RecommendPost> result = recruitmentQueryService.getRecommendedPostsByCard(cardId);
+		List<RecruitmentResponseDTO.RecommendedPost> result = recruitmentQueryService.getRecommendedPostsByCard(cardId);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
 	}
 }

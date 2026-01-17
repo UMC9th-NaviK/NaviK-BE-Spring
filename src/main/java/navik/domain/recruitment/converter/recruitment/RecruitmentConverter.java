@@ -14,7 +14,7 @@ import navik.domain.recruitment.repository.recruitment.projection.RecommendPostP
 
 public class RecruitmentConverter {
 
-	public static RecruitmentResponseDTO.RecommendPost toRecommendPost(
+	public static RecruitmentResponseDTO.RecommendedPost toRecommendedPost(
 		RecommendPostProjection recommendPostProjection) {
 
 		Recruitment recruitment = recommendPostProjection.getRecruitment();
@@ -23,7 +23,7 @@ public class RecruitmentConverter {
 		List<Position> positions = recruitment.getPositions();
 		Position position = positions.getFirst();
 
-		return RecruitmentResponseDTO.RecommendPost.builder()
+		return RecruitmentResponseDTO.RecommendedPost.builder()
 			.id(recruitment.getId())
 			.postId(recruitment.getPostId())
 			.link(recruitment.getLink())

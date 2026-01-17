@@ -1,13 +1,8 @@
-package navik.domain.recruitment.dto.recruitment;
+package navik.domain.recruitment.dto.position;
 
-import lombok.Builder;
-import lombok.Getter;
+public class PositionResponseDTO {
 
-public class RecruitmentResponseDTO {
-
-	@Getter
-	@Builder
-	public static class RecommendedPost {
+	public static class RecommendedPosition {
 		private Long id;
 		private String postId;
 		private String link;
@@ -19,7 +14,5 @@ public class RecruitmentResponseDTO {
 		private String workPlace;
 		private String experience;
 		private String employment;
-		private boolean isRecommend;
-		private String aiSummary;
 	}
 }
