@@ -1,4 +1,4 @@
-package navik.domain.recruitment.service;
+package navik.domain.recruitment.service.recruitment;
 
 import java.util.List;
 
@@ -9,12 +9,12 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.kpi.entity.KpiCard;
 import navik.domain.kpi.exception.code.KpiCardErrorCode;
 import navik.domain.kpi.repository.KpiCardRepository;
-import navik.domain.recruitment.converter.RecruitmentConverter;
-import navik.domain.recruitment.dto.RecruitmentResponseDTO;
+import navik.domain.recruitment.converter.recruitment.RecruitmentConverter;
+import navik.domain.recruitment.dto.recruitment.RecruitmentResponseDTO;
 import navik.domain.recruitment.entity.Recruitment;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.MajorType;
-import navik.domain.recruitment.repository.RecruitmentRepository;
+import navik.domain.recruitment.repository.recruitment.RecruitmentRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserDepartmentRepository;
 import navik.domain.users.repository.UserRepository;

@@ -1,10 +1,10 @@
-package navik.domain.recruitment.converter;
+package navik.domain.recruitment.converter.recruitment;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import navik.domain.recruitment.dto.RecruitmentResponseDTO;
+import navik.domain.recruitment.dto.recruitment.RecruitmentResponseDTO;
 import navik.domain.recruitment.entity.Position;
 import navik.domain.recruitment.entity.Recruitment;
 
@@ -13,7 +13,7 @@ public class RecruitmentConverter {
 	public static RecruitmentResponseDTO.RecommendPost toRecommendPost(Recruitment recruitment) {
 
 		long deadline = ChronoUnit.DAYS.between(LocalDateTime.now(), recruitment.getEndDate());
-		
+
 		List<String> workPlaces = recruitment.getPositions().stream()
 			.map(Position::getWorkPlace)
 			.toList();

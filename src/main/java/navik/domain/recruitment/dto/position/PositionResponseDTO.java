@@ -1,11 +1,11 @@
-package navik.domain.recruitment.dto;
+package navik.domain.recruitment.dto.position;
 
 import java.util.List;
 
 import lombok.Builder;
 import lombok.Getter;
 
-public class RecruitmentResponseDTO {
+public class PositionResponseDTO {
 
 	@Getter
 	@Builder

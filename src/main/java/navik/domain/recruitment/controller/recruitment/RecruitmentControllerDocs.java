@@ -1,11 +1,11 @@
-package navik.domain.recruitment.controller;
+package navik.domain.recruitment.controller.recruitment;
 
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import navik.domain.recruitment.dto.RecruitmentResponseDTO;
+import navik.domain.recruitment.dto.recruitment.RecruitmentResponseDTO;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
 

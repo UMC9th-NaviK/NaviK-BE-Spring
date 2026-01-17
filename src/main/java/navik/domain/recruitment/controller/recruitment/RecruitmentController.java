@@ -1,4 +1,4 @@
-package navik.domain.recruitment.controller;
+package navik.domain.recruitment.controller.recruitment;
 
 import java.util.List;
 
@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import navik.domain.recruitment.dto.RecruitmentResponseDTO;
-import navik.domain.recruitment.service.RecruitmentQueryService;
+import navik.domain.recruitment.dto.recruitment.RecruitmentResponseDTO;
+import navik.domain.recruitment.service.recruitment.RecruitmentQueryService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;

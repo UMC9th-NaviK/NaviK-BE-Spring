@@ -1,4 +1,4 @@
-package navik.domain.recruitment.repository;
+package navik.domain.recruitment.repository.recruitment;
 
 import java.util.List;
 
