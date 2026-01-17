@@ -28,7 +28,7 @@ public class GrowthLogPersistenceService {
 	private final GrowthLogRepository growthLogRepository;
 	private final KpiCardRepository kpiCardRepository;
 
-	public Long persist(
+	public Long saveUserInputLog(
 		Long userId,
 		GrowthLogEvaluationResult normalized,
 		int totalDelta,
@@ -36,45 +36,34 @@ public class GrowthLogPersistenceService {
 	) {
 		User user = userRepository.getReferenceById(userId);
 
-		GrowthLog growthLog = GrowthLog.builder()
-			.user(user)
-			.type(GrowthType.USER_INPUT)
-			.title(normalized.title())
-			.content(normalized.content())
-			.totalDelta(totalDelta)
-			.build();
+		GrowthLog growthLog = newUserInputLog(
+			user,
+			normalized.title(),
+			normalized.content(),
+			totalDelta,
+			GrowthLogStatus.COMPLETED
+		);
 
-		for (var kd : kpis) {
-			KpiCard ref = kpiCardRepository.getReferenceById(kd.kpiCardId());
-			growthLog.addKpiLink(GrowthLogKpiLink.builder()
-				.kpiCard(ref)
-				.delta(kd.delta())
-				.build());
-		}
+		attachKpiLinks(growthLog, kpis);
 
 		return growthLogRepository.save(growthLog).getId();
 	}
 
-	public Long persistFailed(
-		Long userId,
-		String title,
-		String content
-	) {
+	public Long saveFailedUserInputLog(Long userId, String title, String content) {
 		User user = userRepository.getReferenceById(userId);
 
-		GrowthLog growthLog = GrowthLog.builder()
-			.user(user)
-			.type(GrowthType.USER_INPUT)
-			.title(title)
-			.content(content)
-			.totalDelta(0)
-			.status(GrowthLogStatus.FAILED)
-			.build();
+		GrowthLog growthLog = newUserInputLog(
+			user,
+			title,
+			content,
+			0,
+			GrowthLogStatus.FAILED
+		);
 
 		return growthLogRepository.save(growthLog).getId();
 	}
 
-	public void applyRetryResult(
+	public void updateGrowthLogAfterRetry(
 		Long userId,
 		Long growthLogId,
 		GrowthLogEvaluationResult normalized,
@@ -86,17 +75,30 @@ public class GrowthLogPersistenceService {
 				GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND
 			));
 
-		// 기존 링크 제거
 		growthLog.clearKpiLinks();
+		growthLog.applyEvaluation(normalized.title(), normalized.content(), totalDelta);
 
-		// 평가 결과 반영 (status=COMPLETED)
-		growthLog.applyEvaluation(
-			normalized.title(),
-			normalized.content(),
-			totalDelta
-		);
+		attachKpiLinks(growthLog, kpis);
+	}
 
-		// KPI 링크 재생성
+	private GrowthLog newUserInputLog(
+		User user,
+		String title,
+		String content,
+		int totalDelta,
+		GrowthLogStatus status
+	) {
+		return GrowthLog.builder()
+			.user(user)
+			.type(GrowthType.USER_INPUT)
+			.title(title)
+			.content(content)
+			.totalDelta(totalDelta)
+			.status(status)
+			.build();
+	}
+
+	private void attachKpiLinks(GrowthLog growthLog, List<GrowthLogEvaluationResult.KpiDelta> kpis) {
 		for (var kd : kpis) {
 			KpiCard ref = kpiCardRepository.getReferenceById(kd.kpiCardId());
 			growthLog.addKpiLink(GrowthLogKpiLink.builder()
@@ -104,7 +106,5 @@ public class GrowthLogPersistenceService {
 				.delta(kd.delta())
 				.build());
 		}
-
-		// save 호출 없어도 트랜잭션 + dirty checking으로 반영됨
 	}
 }

@@ -40,40 +40,21 @@ public class GrowthLogEvaluationService {
 
 	public Long create(Long userId, GrowthLogRequestDTO.CreateUserInput req) {
 
-		GrowthLogEvaluationContext context = buildContext(userId, req);
+		String inputTitle = safe(req.title());
+		String inputContent = safe(req.content());
+
+		GrowthLogEvaluationContext context = buildContext(userId, inputTitle, inputContent);
 
 		try {
-			// 1) AI 평가
-			GrowthLogEvaluationResult aiResult =
-				growthLogAiClient.evaluateUserInput(userId, context);
-
-			// 2) 정규화
-			GrowthLogEvaluationResult normalized = normalize(aiResult);
-
-			// 3) KPI merge + 검증
-			List<GrowthLogEvaluationResult.KpiDelta> kpis =
-				mergeSameKpi(normalized.kpis());
-			validateKpisExist(kpis);
-
-			// 4) totalDelta
-			int totalDelta =
-				kpis.stream().mapToInt(GrowthLogEvaluationResult.KpiDelta::delta).sum();
-
-			// 5) 정상 저장
-			return growthLogPersistenceService.persist(
+			Evaluated evaluated = evaluateGrowthLog(userId, context);
+			return growthLogPersistenceService.saveUserInputLog(
 				userId,
-				normalized,
-				totalDelta,
-				kpis
+				evaluated.normalized(),
+				evaluated.totalDelta(),
+				evaluated.kpis()
 			);
-
 		} catch (Exception e) {
-			// Soft Fail
-			return growthLogPersistenceService.persistFailed(
-				userId,
-				safe(req.title()),
-				safe(req.content())
-			);
+			return growthLogPersistenceService.saveFailedUserInputLog(userId, inputTitle, inputContent);
 		}
 	}
 
@@ -84,70 +65,62 @@ public class GrowthLogEvaluationService {
 				GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND
 			));
 
-		// 재시도 가능 조건
 		if (growthLog.getType() != GrowthType.USER_INPUT) {
-			throw new GeneralExceptionHandler(
-				GrowthLogErrorCode.INVALID_GROWTH_LOG_TYPE
-			);
+			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_TYPE);
 		}
 
 		if (growthLog.getStatus() != GrowthLogStatus.FAILED) {
-			throw new GeneralExceptionHandler(
-				GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS
-			);
+			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 
 		String key = "growthLogRetry:" + userId + ":" + growthLogId;
 		if (!retryRateLimiter.tryAcquire(key, 3)) {
-			throw new GeneralExceptionHandler(
-				GrowthLogErrorCode.GROWTH_LOG_RETRY_LIMIT_EXCEEDED
-			);
+			throw new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_RETRY_LIMIT_EXCEEDED);
 		}
 
-		GrowthLogEvaluationContext context =
-			buildContextForRetry(userId, growthLog);
+		GrowthLogEvaluationContext context = buildContext(
+			userId,
+			safe(growthLog.getTitle()),
+			safe(growthLog.getContent())
+		);
 
 		try {
-			GrowthLogEvaluationResult aiResult =
-				growthLogAiClient.evaluateUserInput(userId, context);
+			Evaluated evaluated = evaluateGrowthLog(userId, context);
 
-			GrowthLogEvaluationResult normalized = normalize(aiResult);
-
-			List<GrowthLogEvaluationResult.KpiDelta> kpis =
-				mergeSameKpi(normalized.kpis());
-			validateKpisExist(kpis);
-
-			int totalDelta = kpis.stream()
-				.mapToInt(GrowthLogEvaluationResult.KpiDelta::delta)
-				.sum();
-
-			growthLogPersistenceService.applyRetryResult(
+			growthLogPersistenceService.updateGrowthLogAfterRetry(
 				userId,
 				growthLogId,
-				normalized,
-				totalDelta,
-				kpis
+				evaluated.normalized(),
+				evaluated.totalDelta(),
+				evaluated.kpis()
 			);
 
-			return new GrowthLogResponseDTO.RetryResult(
-				growthLogId,
-				GrowthLogStatus.COMPLETED
-			);
+			return new GrowthLogResponseDTO.RetryResult(growthLogId, GrowthLogStatus.COMPLETED);
 
 		} catch (Exception e) {
-			// 재시도 실패 → 상태 유지
-			return new GrowthLogResponseDTO.RetryResult(
-				growthLogId,
-				GrowthLogStatus.FAILED
-			);
+			return new GrowthLogResponseDTO.RetryResult(growthLogId, GrowthLogStatus.FAILED);
 		}
 	}
 
-	private GrowthLogEvaluationContext buildContext(Long userId, GrowthLogRequestDTO.CreateUserInput req) {
+	private Evaluated evaluateGrowthLog(Long userId, GrowthLogEvaluationContext context) {
+		GrowthLogEvaluationResult aiResult = growthLogAiClient.evaluateUserInput(userId, context);
+
+		GrowthLogEvaluationResult normalized = normalize(aiResult);
+
+		List<GrowthLogEvaluationResult.KpiDelta> kpis = mergeSameKpi(normalized.kpis());
+		validateKpisExist(kpis);
+
+		int totalDelta = kpis.stream()
+			.mapToInt(GrowthLogEvaluationResult.KpiDelta::delta)
+			.sum();
+
+		return new Evaluated(normalized, kpis, totalDelta);
+	}
+
+	private GrowthLogEvaluationContext buildContext(Long userId, String inputTitle, String inputContent) {
 		// TODO: resumeText는 실제 이력서/포트폴리오 텍스트로 교체
 		String resumeText = "";
 
-		// 최근 성장로그 N개
 		List<GrowthLog> recentLogs = growthLogRepository.findTop20ByUserIdOrderByCreatedAtDesc(userId);
 
 		List<PastGrowthLog> recentGrowthLogs = recentLogs.stream()
@@ -161,7 +134,6 @@ public class GrowthLogEvaluationService {
 			))
 			.toList();
 
-		// 최근 로그들의 KPI 변화 이력
 		List<Long> recentIds = recentLogs.stream().map(GrowthLog::getId).toList();
 		List<GrowthLogKpiLink> links = recentIds.isEmpty()
 			? List.of()
@@ -179,46 +151,8 @@ public class GrowthLogEvaluationService {
 			resumeText,
 			recentGrowthLogs,
 			recentKpiDeltas,
-			safe(req.title()),
-			safe(req.content())
-		);
-	}
-
-	private GrowthLogEvaluationContext buildContextForRetry(Long userId, GrowthLog failedLog) {
-		String resumeText = "";
-
-		List<GrowthLog> recentLogs = growthLogRepository.findTop20ByUserIdOrderByCreatedAtDesc(userId);
-
-		List<PastGrowthLog> recentGrowthLogs = recentLogs.stream()
-			.map(gl -> new PastGrowthLog(
-				gl.getId(),
-				gl.getType().name(),
-				gl.getTitle(),
-				gl.getContent(),
-				gl.getTotalDelta(),
-				gl.getCreatedAt()
-			))
-			.toList();
-
-		List<Long> recentIds = recentLogs.stream().map(GrowthLog::getId).toList();
-		List<GrowthLogKpiLink> links = recentIds.isEmpty()
-			? List.of()
-			: growthLogKpiLinkRepository.findByGrowthLogIdIn(recentIds); // fetch join 적용된 메서드
-
-		List<PastKpiDelta> recentKpiDeltas = links.stream()
-			.map(l -> new PastKpiDelta(
-				l.getGrowthLog().getId(),
-				l.getKpiCard().getId(),
-				l.getDelta()
-			))
-			.toList();
-
-		return new GrowthLogEvaluationContext(
-			resumeText,
-			recentGrowthLogs,
-			recentKpiDeltas,
-			safe(failedLog.getTitle()),
-			safe(failedLog.getContent())
+			inputTitle,
+			inputContent
 		);
 	}
 
@@ -255,7 +189,6 @@ public class GrowthLogEvaluationService {
 		if (kpis.isEmpty())
 			return;
 
-		// 혹시 모를 중복/방어를 위해 distinct
 		List<Long> ids = kpis.stream()
 			.map(GrowthLogEvaluationResult.KpiDelta::kpiCardId)
 			.distinct()
@@ -269,5 +202,12 @@ public class GrowthLogEvaluationService {
 
 	private String safe(String s) {
 		return (s == null || s.isBlank()) ? "(내용 없음)" : s.trim();
+	}
+
+	private record Evaluated(
+		GrowthLogEvaluationResult normalized,
+		List<GrowthLogEvaluationResult.KpiDelta> kpis,
+		int totalDelta
+	) {
 	}
 }
