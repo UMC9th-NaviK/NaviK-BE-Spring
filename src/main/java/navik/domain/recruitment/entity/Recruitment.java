@@ -67,7 +67,7 @@ public class Recruitment extends BaseEntity {
 	@Column(name = "end_date")
 	private LocalDateTime endDate;
 
-	@BatchSize(size = 100)
+	@BatchSize(size = 20)
 	@OneToMany(mappedBy = "recruitment")
 	private List<Position> positions;
 }

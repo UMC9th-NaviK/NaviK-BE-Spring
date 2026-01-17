@@ -13,8 +13,7 @@ public class RecruitmentConverter {
 	public static RecruitmentResponseDTO.RecommendPost toRecommendPost(Recruitment recruitment) {
 
 		long deadline = ChronoUnit.DAYS.between(LocalDateTime.now(), recruitment.getEndDate());
-
-		// position n+1 BatchSize
+		
 		List<String> workPlaces = recruitment.getPositions().stream()
 			.map(Position::getWorkPlace)
 			.toList();

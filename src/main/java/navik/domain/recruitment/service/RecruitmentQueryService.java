@@ -32,17 +32,17 @@ public class RecruitmentQueryService {
 		// 1. 유저 검색
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
-
+		
 		// 2. 모든 ability <-> 모든 PositionKPI => 종합 유사도 합산이 가장 높은 공고 반환
 		List<Recruitment> searchResults = recruitmentRepository.findRecommendedPosts(
 			user,
 			user.getJob(),
-			user.getEducationType(),
-			user.getExperienceType(),
-			user.getMajorType()
+			user.getEducationLevel(),
+			null,
+			null
 		);
 
-		// 3. DTO 반환
+		// 3. DTO 반환 (position batchSize)
 		return searchResults.stream()
 			.map(RecruitmentConverter::toRecommendPost)
 			.toList();

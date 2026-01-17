@@ -21,10 +21,10 @@ import navik.domain.recruitment.entity.QPositionKpi;
 import navik.domain.recruitment.entity.QPositionKpiEmbedding;
 import navik.domain.recruitment.entity.QRecruitment;
 import navik.domain.recruitment.entity.Recruitment;
-import navik.domain.recruitment.enums.EducationType;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.MajorType;
 import navik.domain.users.entity.User;
+import navik.domain.users.enums.EducationLevel;
 
 @Repository
 @RequiredArgsConstructor
@@ -43,7 +43,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 	public List<Recruitment> findRecommendedPosts(
 		User user,
 		Job job,
-		EducationType educationType,
+		EducationLevel educationType,
 		ExperienceType experienceType,
 		MajorType majorType
 	) {
@@ -113,13 +113,13 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 	 * 석사 : null or 고졸 or 2년제 or 4년제 or 석사
 	 * 박사 : null or 고졸 or 2년제 or 4년제 or 석사 or 박사
 	 */
-	private BooleanExpression educationTypeSatisfyAll(EducationType educationType) {
-		BooleanExpression expression = position.educationType.isNull();
-		if (educationType != null) {
-			List<EducationType> educationTypes = Arrays.stream(EducationType.values())
-				.filter(e -> e.getOrder() <= educationType.getOrder())
+	private BooleanExpression educationTypeSatisfyAll(EducationLevel educationLevel) {
+		BooleanExpression expression = position.educationLevel.isNull();
+		if (educationLevel != null) {
+			List<EducationLevel> educationTypes = Arrays.stream(EducationLevel.values())
+				.filter(e -> e.getOrder() <= educationLevel.getOrder())
 				.toList();
-			expression.or(position.educationType.in(educationTypes));
+			expression.or(position.educationLevel.in(educationTypes));
 		}
 		return expression;
 	}

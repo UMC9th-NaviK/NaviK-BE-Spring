@@ -22,10 +22,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.job.entity.Job;
 import navik.domain.recruitment.enums.AreaType;
-import navik.domain.recruitment.enums.EducationType;
 import navik.domain.recruitment.enums.EmploymentType;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.MajorType;
+import navik.domain.users.enums.EducationLevel;
 import navik.global.entity.BaseEntity;
 
 @Entity
@@ -59,9 +59,9 @@ public class Position extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private ExperienceType experienceType;
 
-	@Column(name = "education_type")
+	@Column(name = "education_level")
 	@Enumerated(EnumType.STRING)
-	private EducationType educationType;
+	private EducationLevel educationLevel;
 
 	@Column(name = "area_type")
 	@Enumerated(EnumType.STRING)
