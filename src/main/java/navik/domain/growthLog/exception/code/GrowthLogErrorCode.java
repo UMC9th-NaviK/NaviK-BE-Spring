@@ -26,7 +26,12 @@ public enum GrowthLogErrorCode implements BaseCode {
 		HttpStatus.NOT_FOUND,
 		"GROWTH_LOG_404_02",
 		"존재하지 않는 성장 로그입니다."
-	);
+	),
+
+	AI_EVALUATION_FAILED(
+		HttpStatus.INTERNAL_SERVER_ERROR,
+		"GROWTHLOG_500_AI_01",
+		"AI 평가에 실패했습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;

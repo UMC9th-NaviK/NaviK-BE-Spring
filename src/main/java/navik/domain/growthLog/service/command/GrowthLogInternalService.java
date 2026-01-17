@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.growthLog.entity.GrowthLog;
+import navik.domain.growthLog.entity.GrowthLogKpiLink;
 import navik.domain.growthLog.enums.GrowthType;
 import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.repository.GrowthLogRepository;
@@ -25,43 +26,44 @@ public class GrowthLogInternalService {
 	private static final String PORTFOLIO_CONTENT_FORMAT =
 		"포트폴리오 분석을 통해 KPI 점수가 초기 설정되었습니다. (점수: %d점)";
 
-	public Long createFeedback(Long kpiCardId, Integer score, String content) {
+	public Long createFeedback(Long kpiCardId, Integer delta, String content) {
 		KpiCard kpiCard = findKpiCard(kpiCardId);
 
 		GrowthLog growthLog = GrowthLog.builder()
-			.kpiCard(kpiCard)
 			.type(GrowthType.FEEDBACK)
 			.title(FEEDBACK_TITLE)
 			.content(content == null ? "" : content.trim())
-			.score(score)
+			.totalDelta(delta)
 			.build();
+
+		growthLog.addKpiLink(
+			GrowthLogKpiLink.builder()
+				.kpiCard(kpiCard)
+				.delta(delta)
+				.build()
+		);
 
 		return growthLogRepository.save(growthLog).getId();
 	}
 
-	public Long createPortfolio(Long kpiCardId, Integer score) {
+	public Long createPortfolio(Long kpiCardId, Integer delta) {
 		KpiCard kpiCard = findKpiCard(kpiCardId);
 
 		GrowthLog growthLog = GrowthLog.builder()
-			.kpiCard(kpiCard)
 			.type(GrowthType.PORTFOLIO)
-			.title(String.format(PORTFOLIO_TITLE_FORMAT, score))
-			.content(String.format(PORTFOLIO_CONTENT_FORMAT, score))
-			.score(score)
+			.title(String.format(PORTFOLIO_TITLE_FORMAT, delta))
+			.content(String.format(PORTFOLIO_CONTENT_FORMAT, delta))
+			.totalDelta(delta)
 			.build();
 
-		return growthLogRepository.save(growthLog).getId();
-	}
-
-	// USER_INPUT 로그에 대해 내부(AI/룰) 평가 점수를 반영
-	public void applyUserInputResult(Long growthLogId, Long kpiCardId, Integer score) {
-		int updated = growthLogRepository.applyUserInputResultOnce(
-			growthLogId, kpiCardId, score, GrowthType.USER_INPUT
+		growthLog.addKpiLink(
+			GrowthLogKpiLink.builder()
+				.kpiCard(kpiCard)
+				.delta(delta)
+				.build()
 		);
 
-		if (updated == 0) {
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND);
-		}
+		return growthLogRepository.save(growthLog).getId();
 	}
 
 	private KpiCard findKpiCard(Long kpiCardId) {

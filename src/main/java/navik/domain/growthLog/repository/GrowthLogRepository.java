@@ -17,6 +17,8 @@ import navik.domain.growthLog.enums.GrowthType;
 @Repository
 public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 
+	List<GrowthLog> findTop20ByUserIdOrderByCreatedAtDesc(Long userId);
+
 	@Query("""
 		select gl
 		  from GrowthLog gl

@@ -20,7 +20,7 @@ import navik.domain.growthLog.dto.res.GrowthLogResponseDTO;
 import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.enums.AggregateUnit;
 import navik.domain.growthLog.enums.GrowthType;
-import navik.domain.growthLog.service.command.GrowthLogUserInputService;
+import navik.domain.growthLog.service.command.GrowthLogEvaluationService;
 import navik.domain.growthLog.service.query.GrowthLogAggregateService;
 import navik.domain.growthLog.service.query.GrowthLogQueryService;
 import navik.global.apiPayload.ApiResponse;
@@ -33,7 +33,7 @@ import navik.global.dto.PageResponseDto;
 @RequestMapping("/v1/growth-logs")
 public class GrowthLogController {
 
-	private final GrowthLogUserInputService growthLogUserInputService;
+	private final GrowthLogEvaluationService growthLogEvaluationService;
 	private final GrowthLogQueryService growthLogQueryService;
 	private final GrowthLogAggregateService growthLogAggregateService;
 
@@ -42,7 +42,7 @@ public class GrowthLogController {
 		@AuthUser Long userId,
 		@RequestBody @Valid GrowthLogRequestDTO.CreateUserInput request
 	) {
-		Long id = growthLogUserInputService.create(userId, request);
+		Long id = growthLogEvaluationService.create(userId, request);
 
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, new GrowthLogResponseDTO.Id(id));
 	}
