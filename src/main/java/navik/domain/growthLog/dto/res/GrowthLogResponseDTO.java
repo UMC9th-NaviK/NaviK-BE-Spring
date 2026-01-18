@@ -26,6 +26,7 @@ public class GrowthLogResponseDTO {
 		Long growthLogId,
 		String title,
 		String content,
+		Integer totalDelta,
 		LocalDateTime createdAt
 	) {
 	}

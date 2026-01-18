@@ -17,6 +17,7 @@ public class GrowthLogConverter {
 				gl.getId(),
 				gl.getTitle(),
 				gl.getContent(),
+				gl.getTotalDelta(),
 				gl.getCreatedAt()
 			))
 		);
