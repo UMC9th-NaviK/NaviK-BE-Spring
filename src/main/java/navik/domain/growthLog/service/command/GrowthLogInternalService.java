@@ -1,9 +1,15 @@
 package navik.domain.growthLog.service.command;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import navik.domain.growthLog.dto.req.GrowthLogInternalRequestDTO;
 import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.entity.GrowthLogKpiLink;
 import navik.domain.growthLog.enums.GrowthType;
@@ -26,48 +32,114 @@ public class GrowthLogInternalService {
 	private static final String PORTFOLIO_CONTENT_FORMAT =
 		"포트폴리오 분석을 통해 KPI 점수가 초기 설정되었습니다. (점수: %d점)";
 
-	public Long createFeedback(Long kpiCardId, Integer delta, String content) {
-		KpiCard kpiCard = findKpiCard(kpiCardId);
+	public Long createFeedback(GrowthLogInternalRequestDTO.Create req) {
+		return createInternal(req, GrowthType.FEEDBACK, this::feedbackTitleContent);
+	}
 
-		GrowthLog growthLog = GrowthLog.builder()
-			.type(GrowthType.FEEDBACK)
-			.title(FEEDBACK_TITLE)
-			.content(content == null ? "" : content.trim())
-			.totalDelta(delta)
-			.build();
+	public Long createPortfolio(GrowthLogInternalRequestDTO.Create req) {
+		return createInternal(req, GrowthType.PORTFOLIO, this::portfolioTitleContent);
+	}
 
-		growthLog.addKpiLink(
-			GrowthLogKpiLink.builder()
-				.kpiCard(kpiCard)
-				.delta(delta)
-				.build()
-		);
+	private Long createInternal(
+		GrowthLogInternalRequestDTO.Create req,
+		GrowthType type,
+		TitleContentPolicy policy
+	) {
+		Map<Long, Integer> mergedDeltas = mergeKpiDeltas(req.kpis());
+
+		if (mergedDeltas.isEmpty()) {
+			// 모든 delta가 0으로 합산되어 반영할 변화가 없음
+			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_REQUEST);
+		}
+
+		int totalDelta = mergedDeltas.values().stream().mapToInt(Integer::intValue).sum();
+		List<Long> ids = new ArrayList<>(mergedDeltas.keySet());
+
+		Map<Long, KpiCard> kpiCardMap = findKpiCardsAsMap(ids);
+		TitleContent tc = policy.make(totalDelta, req.content());
+
+		GrowthLog growthLog = buildGrowthLog(type, totalDelta, tc);
+		attachKpiLinks(growthLog, mergedDeltas, kpiCardMap);
 
 		return growthLogRepository.save(growthLog).getId();
 	}
 
-	public Long createPortfolio(Long kpiCardId, Integer delta) {
-		KpiCard kpiCard = findKpiCard(kpiCardId);
-
-		GrowthLog growthLog = GrowthLog.builder()
-			.type(GrowthType.PORTFOLIO)
-			.title(String.format(PORTFOLIO_TITLE_FORMAT, delta))
-			.content(String.format(PORTFOLIO_CONTENT_FORMAT, delta))
-			.totalDelta(delta)
-			.build();
-
-		growthLog.addKpiLink(
-			GrowthLogKpiLink.builder()
-				.kpiCard(kpiCard)
-				.delta(delta)
-				.build()
-		);
-
-		return growthLogRepository.save(growthLog).getId();
+	@FunctionalInterface
+	private interface TitleContentPolicy {
+		TitleContent make(int totalDelta, String content);
 	}
 
-	private KpiCard findKpiCard(Long kpiCardId) {
-		return kpiCardRepository.findById(kpiCardId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.KPI_CARD_NOT_FOUND));
+	// 공통 로직 메서드
+
+	private Map<Long, Integer> mergeKpiDeltas(List<GrowthLogInternalRequestDTO.KpiDelta> kpis) {
+		Map<Long, Integer> merged = kpis.stream()
+			.collect(Collectors.groupingBy(
+				GrowthLogInternalRequestDTO.KpiDelta::kpiCardId,
+				Collectors.summingInt(GrowthLogInternalRequestDTO.KpiDelta::delta)
+			));
+
+		// delta == 0 제거
+		merged.entrySet().removeIf(e -> e.getValue() == 0);
+
+		return merged;
+	}
+
+	private GrowthLog buildGrowthLog(GrowthType type, int totalDelta, TitleContent tc) {
+		return GrowthLog.builder()
+			.type(type)
+			.title(tc.title())
+			.content(tc.content())
+			.totalDelta(totalDelta)
+			.build();
+	}
+
+	private void attachKpiLinks(
+		GrowthLog growthLog,
+		Map<Long, Integer> mergedDeltas,
+		Map<Long, KpiCard> kpiCardMap
+	) {
+		for (var entry : mergedDeltas.entrySet()) {
+			KpiCard kpiCard = kpiCardMap.get(entry.getKey());
+			if (kpiCard == null) {
+				throw new GeneralExceptionHandler(GrowthLogErrorCode.KPI_CARD_NOT_FOUND);
+			}
+
+			growthLog.addKpiLink(
+				GrowthLogKpiLink.builder()
+					.kpiCard(kpiCard)
+					.delta(entry.getValue())
+					.build()
+			);
+		}
+	}
+
+	private Map<Long, KpiCard> findKpiCardsAsMap(List<Long> ids) {
+		List<KpiCard> cards = kpiCardRepository.findAllById(ids);
+		if (cards.size() != ids.size()) {
+			throw new GeneralExceptionHandler(GrowthLogErrorCode.KPI_CARD_NOT_FOUND);
+		}
+		return cards.stream()
+			.collect(Collectors.toMap(KpiCard::getId, c -> c, (a, b) -> a));
+
+	}
+
+	// 타입별 문구 정책
+
+	private TitleContent feedbackTitleContent(int totalDelta, String content) {
+		return new TitleContent(FEEDBACK_TITLE, normalizeContent(content));
+	}
+
+	private TitleContent portfolioTitleContent(int totalDelta, String content) {
+		return new TitleContent(
+			String.format(PORTFOLIO_TITLE_FORMAT, totalDelta),
+			String.format(PORTFOLIO_CONTENT_FORMAT, totalDelta)
+		);
+	}
+
+	private String normalizeContent(String content) {
+		return content == null ? "" : content.trim();
+	}
+
+	private record TitleContent(String title, String content) {
 	}
 }
