@@ -10,6 +10,12 @@ public class GrowthLogResponseDTO {
 	public record Id(Long growthLogId) {
 	}
 
+	public record CreateResult(
+		Long id,
+		GrowthLogStatus status
+	) {
+	}
+
 	public record Detail(
 		Long growthLogId,
 		GrowthType type,

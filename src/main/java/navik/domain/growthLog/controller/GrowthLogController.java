@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import navik.domain.growthLog.controller.docs.GrowthLogControllerDocs;
 import navik.domain.growthLog.converter.GrowthLogConverter;
 import navik.domain.growthLog.dto.req.GrowthLogRequestDTO;
 import navik.domain.growthLog.dto.res.GrowthLogResponseDTO;
@@ -34,22 +35,23 @@ import navik.global.dto.PageResponseDto;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/growth-logs")
-public class GrowthLogController {
+public class GrowthLogController implements GrowthLogControllerDocs {
 
 	private final GrowthLogEvaluationService growthLogEvaluationService;
 	private final GrowthLogQueryService growthLogQueryService;
 	private final GrowthLogAggregateService growthLogAggregateService;
 
+	@Override
 	@PostMapping
-	public ApiResponse<GrowthLogResponseDTO.Id> create(
+	public ApiResponse<GrowthLogResponseDTO.CreateResult> create(
 		@AuthUser Long userId,
 		@RequestBody @Valid GrowthLogRequestDTO.CreateUserInput request
 	) {
-		Long id = growthLogEvaluationService.create(userId, request);
-
-		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, new GrowthLogResponseDTO.Id(id));
+		GrowthLogResponseDTO.CreateResult result = growthLogEvaluationService.create(userId, request);
+		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, result);
 	}
 
+	@Override
 	@PostMapping("/{growthLogId}/retry")
 	public ApiResponse<GrowthLogResponseDTO.RetryResult> retry(
 		@AuthUser Long userId,
@@ -62,6 +64,7 @@ public class GrowthLogController {
 	}
 
 	// 요약 보기
+	@Override
 	@GetMapping("/monthly")
 	public ApiResponse<PageResponseDto<GrowthLogResponseDTO.ListItem>> getMonthlyGrowthLogs(
 		@AuthUser Long userId,
@@ -77,6 +80,7 @@ public class GrowthLogController {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, GrowthLogConverter.toPageResponse(logs));
 	}
 
+	@Override
 	@GetMapping("/{growthLogId}")
 	public ApiResponse<GrowthLogResponseDTO.Detail> getGrowthLogDetail(
 		@AuthUser Long userId,
@@ -86,6 +90,7 @@ public class GrowthLogController {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, GrowthLogConverter.toDetail(gl));
 	}
 
+	@Override
 	@GetMapping("/aggregate/scores")
 	public ApiResponse<List<GrowthLogResponseDTO.Point>> getGrowthScoreTimeline(
 		@AuthUser Long userId,

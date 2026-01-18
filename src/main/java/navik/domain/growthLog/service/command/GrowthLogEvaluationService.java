@@ -38,22 +38,26 @@ public class GrowthLogEvaluationService {
 
 	private final RetryRateLimiter retryRateLimiter;
 
-	public Long create(Long userId, GrowthLogRequestDTO.CreateUserInput req) {
+	public GrowthLogResponseDTO.CreateResult create(Long userId, GrowthLogRequestDTO.CreateUserInput req) {
 
 		String inputContent = safe(req.content());
-
 		GrowthLogEvaluationContext context = buildContext(userId, inputContent);
 
 		try {
 			Evaluated evaluated = evaluateGrowthLog(userId, context);
-			return growthLogPersistenceService.saveUserInputLog(
+
+			Long id = growthLogPersistenceService.saveUserInputLog(
 				userId,
 				evaluated.normalized(),
 				evaluated.totalDelta(),
 				evaluated.kpis()
 			);
+
+			return new GrowthLogResponseDTO.CreateResult(id, GrowthLogStatus.COMPLETED);
+
 		} catch (Exception e) {
-			return growthLogPersistenceService.saveFailedUserInputLog(userId, inputContent);
+			Long id = growthLogPersistenceService.saveFailedUserInputLog(userId, inputContent);
+			return new GrowthLogResponseDTO.CreateResult(id, GrowthLogStatus.FAILED);
 		}
 	}
 
