@@ -12,13 +12,13 @@ public class GrowthLogResponseDTO {
 
 	public record Detail(
 		Long growthLogId,
-		Long kpiCardId,
 		GrowthType type,
 		String title,
 		String content,
-		Integer score,
-		LocalDateTime createdAt,
-		LocalDateTime updatedAt
+		Integer totalDelta,
+		GrowthLogStatus status,
+		java.time.LocalDateTime createdAt,
+		java.util.List<KpiLinkItem> kpiLinks
 	) {
 	}
 
@@ -41,6 +41,13 @@ public class GrowthLogResponseDTO {
 	public record RetryResult(
 		Long growthLogId,
 		GrowthLogStatus status
+	) {
+	}
+
+	public record KpiLinkItem(
+		Long kpiCardId,
+		String kpiCardName,
+		Integer delta
 	) {
 	}
 

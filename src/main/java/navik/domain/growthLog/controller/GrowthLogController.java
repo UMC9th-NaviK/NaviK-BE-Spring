@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -65,20 +67,24 @@ public class GrowthLogController {
 		@AuthUser Long userId,
 		@RequestParam YearMonth yearMonth,
 		@RequestParam(required = false) GrowthType type,
-		Pageable pageable
+		@PageableDefault(
+			size = 20,
+			sort = "createdAt",
+			direction = Sort.Direction.DESC
+		) Pageable pageable
 	) {
-		Page<GrowthLog> logs =
-			growthLogQueryService.getMonthlyLogs(
-				userId,
-				yearMonth,
-				type,
-				pageable
-			);
-
+		Page<GrowthLog> logs = growthLogQueryService.getMonthlyLogs(userId, yearMonth, type, pageable);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, GrowthLogConverter.toPageResponse(logs));
 	}
 
-	//TODO: 상세 보기
+	@GetMapping("/{growthLogId}")
+	public ApiResponse<GrowthLogResponseDTO.Detail> getGrowthLogDetail(
+		@AuthUser Long userId,
+		@PathVariable Long growthLogId
+	) {
+		GrowthLog gl = growthLogQueryService.getDetail(userId, growthLogId);
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, GrowthLogConverter.toDetail(gl));
+	}
 
 	@GetMapping("/aggregate/scores")
 	public ApiResponse<List<GrowthLogResponseDTO.Point>> getGrowthScoreTimeline(

@@ -22,4 +22,23 @@ public class GrowthLogConverter {
 			))
 		);
 	}
+
+	public static GrowthLogResponseDTO.Detail toDetail(GrowthLog gl) {
+		return new GrowthLogResponseDTO.Detail(
+			gl.getId(),
+			gl.getType(),
+			gl.getTitle(),
+			gl.getContent(),
+			gl.getTotalDelta(),
+			gl.getStatus(),
+			gl.getCreatedAt(),
+			gl.getKpiLinks().stream()
+				.map(l -> new GrowthLogResponseDTO.KpiLinkItem(
+					l.getKpiCard().getId(),
+					l.getKpiCard().getName(),
+					l.getDelta()
+				))
+				.toList()
+		);
+	}
 }

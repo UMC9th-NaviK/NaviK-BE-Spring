@@ -128,4 +128,17 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 	);
 
 	Optional<GrowthLog> findByIdAndUserId(Long id, Long userId);
+
+	@Query("""
+			select gl
+			  from GrowthLog gl
+			  left join fetch gl.kpiLinks l
+			  left join fetch l.kpiCard kc
+			 where gl.id = :growthLogId
+			   and gl.user.id = :userId
+		""")
+	Optional<GrowthLog> findDetailByIdAndUserId(
+		@Param("growthLogId") Long growthLogId,
+		@Param("userId") Long userId
+	);
 }
