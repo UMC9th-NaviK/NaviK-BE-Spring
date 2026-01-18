@@ -23,7 +23,7 @@ import navik.domain.recruitment.entity.QPositionKpiEmbedding;
 import navik.domain.recruitment.entity.QRecruitment;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.MajorType;
-import navik.domain.recruitment.repository.recruitment.projection.QRecommendPostProjection;
+import navik.domain.recruitment.repository.recruitment.projection.QRecommendedRecruitmentProjection;
 import navik.domain.recruitment.repository.recruitment.projection.RecommendedRecruitmentProjection;
 import navik.domain.users.entity.User;
 import navik.domain.users.enums.EducationLevel;
@@ -72,7 +72,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 
 		// 3. 조회
 		return jpaQueryFactory
-			.select(new QRecommendPostProjection(recruitment, similarityScore.sum()))
+			.select(new QRecommendedRecruitmentProjection(recruitment, similarityScore.sum()))
 			.from(recruitment)
 			.join(recruitment.positions, position)                        // Recruitment -> Position
 			.join(position.positionKpis, positionKpi)                     // Position → KPI
@@ -107,7 +107,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 
 		// 3. 조회
 		return jpaQueryFactory
-			.select(new QRecommendPostProjection(recruitment, similarityScore.sum()))
+			.select(new QRecommendedRecruitmentProjection(recruitment, similarityScore.sum()))
 			.from(recruitment)
 			.join(recruitment.positions, position)                        // Recruitment -> Position
 			.join(position.positionKpis, positionKpi)                     // Position → KPI
