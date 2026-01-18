@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import navik.domain.growthLog.dto.req.GrowthLogInternalRequestDTO;
+import navik.domain.growthLog.dto.internal.GrowthLogInternalCreateRequest;
 import navik.domain.growthLog.service.command.GrowthLogInternalService;
 import navik.domain.kpi.dto.internal.KpiScoreInitializeResult;
 import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
@@ -46,7 +46,6 @@ public class KpiScoreInitialService {
 		User userRef = userRepository.getReferenceById(userId);
 
 		Map<Long, KpiCard> cardMap = loadCardMapOrThrow(cardIds);
-
 		Map<Long, KpiScore> existingMap = loadExistingScoreMap(userId, cardIds);
 
 		KpiScoreInitializeResult result = upsertScores(userRef, items, cardMap, existingMap);
@@ -107,7 +106,7 @@ public class KpiScoreInitialService {
 
 		List<KpiScore> toCreate = new ArrayList<>();
 		List<KpiScoreResponseDTO.Item> resultItems = new ArrayList<>();
-		List<GrowthLogInternalRequestDTO.KpiDelta> kpiDeltasForLog = new ArrayList<>();
+		List<GrowthLogInternalCreateRequest.KpiDelta> kpiDeltasForLog = new ArrayList<>();
 
 		for (KpiScoreRequestDTO.Item item : items) {
 			Long kpiCardId = item.kpiCardId();
@@ -133,17 +132,17 @@ public class KpiScoreInitialService {
 
 			// delta = score, score==0은 기록 안 함
 			if (score != 0) {
-				kpiDeltasForLog.add(new GrowthLogInternalRequestDTO.KpiDelta(kpiCardId, score));
+				kpiDeltasForLog.add(new GrowthLogInternalCreateRequest.KpiDelta(kpiCardId, score));
 			}
 		}
 
 		return new KpiScoreInitializeResult(created, updated, toCreate, resultItems, kpiDeltasForLog);
 	}
 
-	private void createPortfolioGrowthLogIfNeeded(List<GrowthLogInternalRequestDTO.KpiDelta> deltas) {
+	private void createPortfolioGrowthLogIfNeeded(List<GrowthLogInternalCreateRequest.KpiDelta> deltas) {
 		if (deltas.isEmpty()) {
 			return;
 		}
-		growthLogInternalService.createPortfolio(new GrowthLogInternalRequestDTO.Create(deltas, null));
+		growthLogInternalService.createPortfolio(new GrowthLogInternalCreateRequest(deltas, null));
 	}
 }

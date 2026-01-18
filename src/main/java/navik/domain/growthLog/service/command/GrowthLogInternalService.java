@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import navik.domain.growthLog.dto.req.GrowthLogInternalRequestDTO;
+import navik.domain.growthLog.dto.internal.GrowthLogInternalCreateRequest;
 import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.entity.GrowthLogKpiLink;
 import navik.domain.growthLog.enums.GrowthType;
@@ -32,16 +32,16 @@ public class GrowthLogInternalService {
 	private static final String PORTFOLIO_CONTENT_FORMAT =
 		"포트폴리오 분석을 통해 KPI 점수가 초기 설정되었습니다. (점수: %d점)";
 
-	public Long createFeedback(GrowthLogInternalRequestDTO.Create req) {
+	public Long createFeedback(GrowthLogInternalCreateRequest req) {
 		return createInternal(req, GrowthType.FEEDBACK, this::feedbackTitleContent);
 	}
 
-	public Long createPortfolio(GrowthLogInternalRequestDTO.Create req) {
+	public Long createPortfolio(GrowthLogInternalCreateRequest req) {
 		return createInternal(req, GrowthType.PORTFOLIO, this::portfolioTitleContent);
 	}
 
 	private Long createInternal(
-		GrowthLogInternalRequestDTO.Create req,
+		GrowthLogInternalCreateRequest req,
 		GrowthType type,
 		TitleContentPolicy policy
 	) {
@@ -71,11 +71,11 @@ public class GrowthLogInternalService {
 
 	// 공통 로직 메서드
 
-	private Map<Long, Integer> mergeKpiDeltas(List<GrowthLogInternalRequestDTO.KpiDelta> kpis) {
+	private Map<Long, Integer> mergeKpiDeltas(List<GrowthLogInternalCreateRequest.KpiDelta> kpis) {
 		Map<Long, Integer> merged = kpis.stream()
 			.collect(Collectors.groupingBy(
-				GrowthLogInternalRequestDTO.KpiDelta::kpiCardId,
-				Collectors.summingInt(GrowthLogInternalRequestDTO.KpiDelta::delta)
+				GrowthLogInternalCreateRequest.KpiDelta::kpiCardId,
+				Collectors.summingInt(GrowthLogInternalCreateRequest.KpiDelta::delta)
 			));
 
 		// delta == 0 제거
@@ -120,7 +120,6 @@ public class GrowthLogInternalService {
 		}
 		return cards.stream()
 			.collect(Collectors.toMap(KpiCard::getId, c -> c, (a, b) -> a));
-
 	}
 
 	// 타입별 문구 정책
