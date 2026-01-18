@@ -24,7 +24,7 @@ import navik.domain.recruitment.entity.QRecruitment;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.MajorType;
 import navik.domain.recruitment.repository.recruitment.projection.QRecommendPostProjection;
-import navik.domain.recruitment.repository.recruitment.projection.RecommendPostProjection;
+import navik.domain.recruitment.repository.recruitment.projection.RecommendedRecruitmentProjection;
 import navik.domain.users.entity.User;
 import navik.domain.users.enums.EducationLevel;
 
@@ -42,10 +42,10 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 	private final QAbilityEmbedding abilityEmbedding = QAbilityEmbedding.abilityEmbedding;
 
 	@Override
-	public List<RecommendPostProjection> findRecommendedPosts(
+	public List<RecommendedRecruitmentProjection> findRecommendedPosts(
 		User user,
 		Job job,
-		EducationLevel educationType,
+		EducationLevel educationLevel,
 		ExperienceType experienceType,
 		List<MajorType> majorTypes
 	) {
@@ -61,11 +61,11 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 		// 2. 조건 설정
 		BooleanExpression where = Stream.of(
 				jobEqual(job),
-				educationTypeSatisfyAll(educationType),
+				educationLevelSatisfyAll(educationLevel),
 				experienceTypeSatisfyAll(experienceType),
 				majorTypeSatisfyAll(majorTypes),
 				endDateSatisfyAll(LocalDateTime.now()),
-				similarityScore.gt(0.3)    // 0.3 이상만 합산
+				similarityScore.goe(0.3)    // 유사도 0.3 이상만 집계
 			)
 			.reduce(BooleanExpression::and)
 			.orElse(null);
@@ -81,14 +81,13 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			.join(ability.abilityEmbedding, abilityEmbedding)             // Ability -> Embedding
 			.where(where)
 			.groupBy(recruitment.id)
-			.having(similarityScore.sum().gt(1.0))     // 1점을 넘으면 추천 멘트
 			.orderBy(similarityScore.sum().desc())  // 유사도 합 상위 5개
 			.limit(5)
 			.fetch();
 	}
 
 	@Override
-	public List<RecommendPostProjection> findRecommendedPostsByCard(KpiCard kpiCard, Job job) {
+	public List<RecommendedRecruitmentProjection> findRecommendedPostsByCard(KpiCard kpiCard, Job job) {
 
 		// 1. pgvector 코사인 쿼리
 		NumberTemplate<Double> similarityScore = Expressions.numberTemplate(
@@ -101,7 +100,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 		// 2. 조건 설정
 		BooleanExpression where = Stream.of(
 				jobEqual(job),
-				similarityScore.gt(0.3)    // 0.3 이상만 합산
+				similarityScore.goe(0.3)    // 유사도 0.3 이상만 집계
 			)
 			.reduce(BooleanExpression::and)
 			.orElse(null);
@@ -115,7 +114,6 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			.join(positionKpi.positionKpiEmbedding, positionKpiEmbedding) // KPI -> KPI Embedding
 			.where(where)
 			.groupBy(recruitment.id)
-			.having(similarityScore.sum().gt(1.0))     // 1점을 넘으면 추천 멘트
 			.orderBy(similarityScore.sum().desc())  // 유사도 합 상위 5개
 			.limit(5)
 			.fetch();
@@ -160,7 +158,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 	 * 석사 : null or 고졸 or 2년제 or 4년제 or 석사
 	 * 박사 : null or 고졸 or 2년제 or 4년제 or 석사 or 박사
 	 */
-	private BooleanExpression educationTypeSatisfyAll(EducationLevel educationLevel) {
+	private BooleanExpression educationLevelSatisfyAll(EducationLevel educationLevel) {
 		BooleanExpression expression = position.educationLevel.isNull();
 		if (educationLevel != null) {
 			List<EducationLevel> educationTypes = Arrays.stream(EducationLevel.values())

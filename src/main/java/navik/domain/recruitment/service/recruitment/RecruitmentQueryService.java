@@ -14,7 +14,7 @@ import navik.domain.recruitment.dto.recruitment.RecruitmentResponseDTO;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.MajorType;
 import navik.domain.recruitment.repository.recruitment.RecruitmentRepository;
-import navik.domain.recruitment.repository.recruitment.projection.RecommendPostProjection;
+import navik.domain.recruitment.repository.recruitment.projection.RecommendedRecruitmentProjection;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserDepartmentRepository;
 import navik.domain.users.repository.UserRepository;
@@ -45,7 +45,7 @@ public class RecruitmentQueryService {
 		List<String> departments = userDepartmentRepository.findDepartmentNamesByUserId(userId);
 
 		// 3. 모든 ability <-> 모든 PositionKPI => 종합 유사도 합산이 가장 높은 공고 반환
-		List<RecommendPostProjection> results = recruitmentRepository.findRecommendedPosts(
+		List<RecommendedRecruitmentProjection> results = recruitmentRepository.findRecommendedPosts(
 			user,
 			user.getJob(),
 			user.getEducationLevel(),
@@ -70,7 +70,7 @@ public class RecruitmentQueryService {
 			.orElseThrow(() -> new GeneralExceptionHandler(KpiCardErrorCode.KPI_CARD_NOT_FOUND));
 
 		// 2. 검색
-		List<RecommendPostProjection> results = recruitmentRepository.findRecommendedPostsByCard(
+		List<RecommendedRecruitmentProjection> results = recruitmentRepository.findRecommendedPostsByCard(
 			kpiCard,
 			kpiCard.getJob()
 		);
