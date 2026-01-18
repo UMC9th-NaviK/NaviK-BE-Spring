@@ -27,4 +27,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		) FROM User u WHERE u.id = :userId
 		""")
 	Optional<UserResponseDTO.ProfileDTO> findProfileById(@Param("userId") Long userId);
+
+	@Query("""
+		SELECT DISTINCT u FROM User u
+		LEFT JOIN FETCH u.userDepartments ud
+		JOIN FETCH ud.department
+		WHERE u.id = :userId
+		""")
+	Optional<User> findByIdWithUserDepartmentAndDepartment(Long userId);
 }

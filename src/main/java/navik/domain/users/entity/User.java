@@ -1,5 +1,6 @@
 package navik.domain.users.entity;
 
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -12,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -73,11 +75,15 @@ public class User extends BaseEntity {
 	private UserStatus userStatus = UserStatus.PENDING;
 
 	@Column(name = "is_entry_level") // true 신입, false 경력
-	private Boolean isEntryLevel;
+	@Builder.Default
+	private Boolean isEntryLevel = true;
 
 	@Column(name = "education_level")
 	@Enumerated(EnumType.STRING)
 	private EducationLevel educationLevel;
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	private List<UserDepartment> userDepartments;
 
 	public String getRoleKey() {
 		return this.role.getKey();
