@@ -71,7 +71,7 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 	@Query(value = """
 			select
 			  (date_trunc('day', created_at))::date as period_start,
-			  sum(score)::int as sum_score
+			  sum(total_delta)::int as sum_score
 			from growth_logs
 			where user_id = :userId
 			  and (:type is null or type = cast(:type as varchar))
@@ -91,7 +91,7 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 	@Query(value = """
 			select
 			  (date_trunc('week', created_at))::date as period_start,
-			  sum(score)::int as sum_score
+			  sum(total_delta)::int as sum_score
 			from growth_logs
 			where user_id = :userId
 			  and (:type is null or type = cast(:type as varchar))
@@ -111,7 +111,7 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 	@Query(value = """
 			select
 			  (date_trunc('month', created_at))::date as period_start,
-			  sum(score)::int as sum_score
+			  sum(total_delta)::int as sum_score
 			from growth_logs
 			where user_id = :userId
 			  and (:type is null or type = cast(:type as varchar))
