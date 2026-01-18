@@ -28,6 +28,7 @@ import navik.global.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
+@BatchSize(size = 100)
 @Table(name = "recruitments")
 public class Recruitment extends BaseEntity {
 
@@ -67,7 +68,7 @@ public class Recruitment extends BaseEntity {
 	@Column(name = "end_date")
 	private LocalDateTime endDate;
 
-	@BatchSize(size = 20)
+	@BatchSize(size = 100)
 	@OneToMany(mappedBy = "recruitment")
 	private List<Position> positions;
 }
