@@ -1,4 +1,4 @@
-package navik.domain.growthLog.ai;
+package navik.domain.growthLog.ai.client;
 
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO;

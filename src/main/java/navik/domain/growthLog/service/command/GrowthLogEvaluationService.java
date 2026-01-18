@@ -7,8 +7,8 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import navik.domain.growthLog.ai.GrowthLogAiClient;
-import navik.domain.growthLog.ai.RetryRateLimiter;
+import navik.domain.growthLog.ai.client.GrowthLogAiClient;
+import navik.domain.growthLog.ai.limiter.RetryRateLimiter;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO.GrowthLogEvaluationContext;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO.PastGrowthLog;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO.PastKpiDelta;

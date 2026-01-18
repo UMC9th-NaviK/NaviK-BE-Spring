@@ -1,4 +1,4 @@
-package navik.domain.growthLog.ai;
+package navik.domain.growthLog.ai.client;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;

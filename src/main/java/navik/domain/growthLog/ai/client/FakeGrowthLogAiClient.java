@@ -1,4 +1,4 @@
-package navik.domain.growthLog.ai;
+package navik.domain.growthLog.ai.client;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO;
 
 @Component
 @Profile({"local", "dev", "test"})
-public class DummyGrowthLogAiClient implements GrowthLogAiClient {
+public class FakeGrowthLogAiClient implements GrowthLogAiClient {
 
 	@Override
 	public GrowthLogAiResponseDTO.GrowthLogEvaluationResult evaluateUserInput(

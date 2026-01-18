@@ -1,4 +1,4 @@
-package navik.domain.growthLog.ai;
+package navik.domain.growthLog.ai.limiter;
 
 import java.util.Deque;
 import java.util.concurrent.ConcurrentHashMap;
