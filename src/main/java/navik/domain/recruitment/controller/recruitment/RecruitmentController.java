@@ -35,4 +35,12 @@ public class RecruitmentController implements RecruitmentControllerDocs {
 		List<RecruitmentResponseDTO.RecommendedPost> result = recruitmentQueryService.getRecommendedPostsByCard(cardId);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
 	}
+
+	// TODO: 캐싱 및 무효화
+	@Override
+	@GetMapping("/count")
+	public ApiResponse<Long> getCountPosts() {
+		Long result = recruitmentQueryService.getCountPosts();
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
+	}
 }

@@ -80,4 +80,11 @@ public class RecruitmentQueryService {
 			.map(RecruitmentConverter::toRecommendedPost)
 			.toList();
 	}
+
+	/**
+	 * @return 전체 채용 공고 개수를 반환합니다.
+	 */
+	public Long getCountPosts() {
+		return recruitmentRepository.count();
+	}
 }

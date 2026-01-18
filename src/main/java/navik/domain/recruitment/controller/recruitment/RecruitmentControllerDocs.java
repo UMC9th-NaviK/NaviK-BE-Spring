@@ -25,4 +25,9 @@ public interface RecruitmentControllerDocs {
 	ApiResponse<List<RecruitmentResponseDTO.RecommendedPost>> getRecommendedPostsByCard(
 		@Parameter(description = "KPI 카드 ID", example = "1", required = true) Long cardId
 	);
+
+	@io.swagger.v3.oas.annotations.responses.ApiResponses(
+		value = {@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "OK")})
+	@Operation(summary = "전체 채용 공고 개수 조회", description = "DB에 등록된 채용 공고의 전체 개수를 반환합니다.")
+	ApiResponse<Long> getCountPosts();
 }
