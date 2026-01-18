@@ -55,12 +55,12 @@ public class GrowthLogPersistenceService {
 		return id;
 	}
 
-	public Long saveFailedUserInputLog(Long userId, String title, String content) {
+	public Long saveFailedUserInputLog(Long userId, String content) {
 		User user = userRepository.getReferenceById(userId);
 
 		GrowthLog growthLog = newUserInputLog(
 			user,
-			title,
+			"제목이 아직 정해지지 않았습니다.",
 			content,
 			0,
 			GrowthLogStatus.FAILED

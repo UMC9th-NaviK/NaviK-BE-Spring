@@ -9,7 +9,6 @@ public class GrowthLogAiRequestDTO {
 		String resumeText,
 		List<PastGrowthLog> recentGrowthLogs,
 		List<PastKpiDelta> recentKpiDeltas,
-		String newTitle,
 		String newContent
 	) {
 	}

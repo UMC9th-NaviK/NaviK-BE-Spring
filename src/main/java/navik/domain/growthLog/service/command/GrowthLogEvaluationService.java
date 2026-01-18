@@ -40,10 +40,9 @@ public class GrowthLogEvaluationService {
 
 	public Long create(Long userId, GrowthLogRequestDTO.CreateUserInput req) {
 
-		String inputTitle = safe(req.title());
 		String inputContent = safe(req.content());
 
-		GrowthLogEvaluationContext context = buildContext(userId, inputTitle, inputContent);
+		GrowthLogEvaluationContext context = buildContext(userId, inputContent);
 
 		try {
 			Evaluated evaluated = evaluateGrowthLog(userId, context);
@@ -54,7 +53,7 @@ public class GrowthLogEvaluationService {
 				evaluated.kpis()
 			);
 		} catch (Exception e) {
-			return growthLogPersistenceService.saveFailedUserInputLog(userId, inputTitle, inputContent);
+			return growthLogPersistenceService.saveFailedUserInputLog(userId, inputContent);
 		}
 	}
 
@@ -80,7 +79,6 @@ public class GrowthLogEvaluationService {
 
 		GrowthLogEvaluationContext context = buildContext(
 			userId,
-			safe(growthLog.getTitle()),
 			safe(growthLog.getContent())
 		);
 
@@ -117,7 +115,7 @@ public class GrowthLogEvaluationService {
 		return new Evaluated(normalized, kpis, totalDelta);
 	}
 
-	private GrowthLogEvaluationContext buildContext(Long userId, String inputTitle, String inputContent) {
+	private GrowthLogEvaluationContext buildContext(Long userId, String inputContent) {
 		// TODO: resumeText는 실제 이력서/포트폴리오 텍스트로 교체
 		String resumeText = "";
 
@@ -151,7 +149,6 @@ public class GrowthLogEvaluationService {
 			resumeText,
 			recentGrowthLogs,
 			recentKpiDeltas,
-			inputTitle,
 			inputContent
 		);
 	}
