@@ -38,11 +38,13 @@ public class RecruitmentQueryService {
 	public List<RecruitmentResponseDTO.RecommendedPost> getRecommendedPosts(Long userId) {
 
 		// 1. 유저 검색
-		User user = userRepository.findById(userId)
+		User user = userRepository.findByIdWithUserDepartmentAndDepartment(userId)
 			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
 
 		// 2. 전공 검색
-		List<String> departments = userDepartmentRepository.findDepartmentNamesByUserId(userId);
+		List<String> departments = user.getUserDepartments().stream()
+			.map(userDepartment -> userDepartment.getDepartment().getName())
+			.toList();
 
 		// 3. 모든 ability <-> 모든 PositionKPI => 종합 유사도 합산이 가장 높은 공고 반환
 		List<RecommendedRecruitmentProjection> results = recruitmentRepository.findRecommendedPosts(
