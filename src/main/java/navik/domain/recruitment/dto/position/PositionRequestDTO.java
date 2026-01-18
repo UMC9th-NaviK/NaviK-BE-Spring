@@ -33,6 +33,6 @@ public class PositionRequestDTO {
 		@Schema(description = "관심 산업 목록")
 		private List<IndustryType> industryTypes;
 		@Schema(description = "끝난 공고도 함께 보기")
-		private boolean endedPost;
+		private boolean withEnded;
 	}
 }
