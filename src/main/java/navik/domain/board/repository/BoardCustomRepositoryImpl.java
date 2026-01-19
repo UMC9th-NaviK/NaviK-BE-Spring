@@ -31,7 +31,7 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 			.leftJoin(user.job, job).fetchJoin()
 			.where(ltBoardId(lastId))
 			.orderBy(board.id.desc())
-			.limit(pageSize)
+			.limit(pageSize + 1)
 			.fetch();
 	}
 
@@ -50,7 +50,7 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 				ltBoardId(lastId)
 			)
 			.orderBy(board.id.desc())
-			.limit(pageSize)
+			.limit(pageSize + 1)
 			.fetch();
 	}
 
@@ -69,8 +69,33 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 			.leftJoin(user.job, job).fetchJoin()
 			.where(cursorCondition(lastScore, lastId, scoreSum))
 			.orderBy(scoreSum.desc(), board.id.desc()) // 점수 높은순 -> 최신순
-			.limit(pageSize)
+			.limit(pageSize + 1)
 			.fetch();
+	}
+
+	@Override
+	public List<Board> searchByKeyword(String keyword, Long lastId, int pageSize) {
+		QBoard board = QBoard.board;
+		QUser user = QUser.user;
+		QJob job = QJob.job;
+		return queryFactory
+			.selectFrom(board)
+			.leftJoin(board.user, user).fetchJoin()
+			.leftJoin(user.job, job).fetchJoin()
+			.where(
+				keywordContains(keyword), // 검색어가 있는지 확인 (제목이나 내용에)
+				ltBoardId(lastId)
+			)
+			.orderBy(board.id.desc())
+			.limit(pageSize + 1)
+			.fetch();
+	}
+
+	private BooleanExpression keywordContains(String keyword) {
+		if (keyword == null || keyword.isEmpty())
+			return null;
+		return QBoard.board.articleTitle.contains(keyword)
+			.or(QBoard.board.articleContent.contains(keyword));
 	}
 
 	private BooleanExpression cursorCondition(Integer lastScore, Long lastId, NumberExpression<Integer> scoreSum) {

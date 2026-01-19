@@ -13,4 +13,6 @@ public interface BoardCustomRepository {
 	List<Board> findByJobAndCursor(String jobName, Long lastId, int pageSize);
 
 	List<Board> findHotBoardsByCursor(Integer lastScore, Long lastId, int pageSize);
+
+	List<Board> searchByKeyword(String keyword, Long lastId, int size);
 }

@@ -18,19 +18,21 @@ import navik.domain.board.dto.BoardCreateDTO;
 import navik.domain.board.dto.BoardLikeDTO;
 import navik.domain.board.dto.BoardResponseDTO;
 import navik.domain.board.dto.BoardUpdateDTO;
+import navik.domain.board.service.BoardCommandService;
 import navik.domain.board.service.BoardLikeService;
-import navik.domain.board.service.BoardService;
+import navik.domain.board.service.BoardQueryService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.PageResponseDto;
+import navik.global.dto.CursorResponseDto;
 
 @RestController
 @RequestMapping("/v1/boards")
 @RequiredArgsConstructor
 public class BoardController implements BoardControllerDocs {
-	private final BoardService boardService;
+	private final BoardQueryService boardQueryService;
 	private final BoardLikeService boardLikeService;
+	private final BoardCommandService boardCommandService;
 
 	/**
 	 * 게시글 전체 조회
@@ -40,11 +42,11 @@ public class BoardController implements BoardControllerDocs {
 	 */
 	@Override
 	@GetMapping // 전체
-	public ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getBoards(
+	public ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> getBoards(
 		@RequestParam(value = "cursor", required = false) Long lastId,
 		@RequestParam(value = "size", defaultValue = "10") int pageSize
 	) {
-		PageResponseDto<BoardResponseDTO.BoardDTO> response = boardService.getBoardList(lastId, pageSize);
+		CursorResponseDto<BoardResponseDTO.BoardDTO> response = boardQueryService.getBoardList(lastId, pageSize);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 
@@ -57,12 +59,13 @@ public class BoardController implements BoardControllerDocs {
 	 */
 	@Override
 	@GetMapping("/jobs") // 전체
-	public ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getBoardsByJob(
+	public ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> getBoardsByJob(
 		@RequestParam(name = "jobName") String jobName,
 		@RequestParam(value = "cursor", required = false) Long lastId,
 		@RequestParam(value = "size", defaultValue = "10") int pageSize
 	) {
-		PageResponseDto<BoardResponseDTO.BoardDTO> response = boardService.getBoardListByJob(jobName, lastId, pageSize);
+		CursorResponseDto<BoardResponseDTO.BoardDTO> response = boardQueryService.getBoardListByJob(jobName, lastId,
+			pageSize);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 
@@ -73,18 +76,36 @@ public class BoardController implements BoardControllerDocs {
 	 * @return
 	 */
 	@GetMapping("/hot")
-	public ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getHotBoards(
+	public ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> getHotBoards(
 		@RequestParam(value = "cursor", required = false) String cursor,
 		@PageableDefault(size = 10) Pageable pageable
 	) {
-		BoardResponseDTO.HotBoardListDTO response = boardService.getHotBoardList(cursor, pageable);
-		PageResponseDto<BoardResponseDTO.BoardDTO> result = PageResponseDto.of(
+		BoardResponseDTO.HotBoardListDTO response = boardQueryService.getHotBoardList(cursor, pageable);
+		CursorResponseDto<BoardResponseDTO.BoardDTO> result = CursorResponseDto.of(
 			response.getBoardList(),
 			response.getHasNext(),
 			response.getNextCursor()
 		);
 
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
+	}
+
+	/**
+	 * 게시글 검색
+	 * @param keyword
+	 * @param lastId
+	 * @param size
+	 * @return
+	 */
+	@Override
+	@GetMapping("/search")
+	public ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> searchBoards(
+		@RequestParam String keyword,
+		@RequestParam(value = "cursor", required = false) Long lastId,
+		@RequestParam(value = "size", defaultValue = "10") int size
+	) {
+		CursorResponseDto<BoardResponseDTO.BoardDTO> response = boardQueryService.searchBoard(keyword, lastId, size);
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 
 	/**
@@ -96,7 +117,7 @@ public class BoardController implements BoardControllerDocs {
 	public ApiResponse<BoardResponseDTO.BoardDTO> getBoardDetail(
 		@PathVariable Long boardId
 	) {
-		BoardResponseDTO.BoardDTO boardDetail = boardService.getBoardDetail(boardId);
+		BoardResponseDTO.BoardDTO boardDetail = boardQueryService.getBoardDetail(boardId);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, boardDetail);
 	}
 
@@ -112,7 +133,7 @@ public class BoardController implements BoardControllerDocs {
 		@RequestBody @Valid BoardCreateDTO request,
 		@AuthUser Long userId
 	) {
-		Long boardId = boardService.createBoard(userId, request);
+		Long boardId = boardCommandService.createBoard(userId, request);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, boardId);
 	}
 
@@ -129,7 +150,7 @@ public class BoardController implements BoardControllerDocs {
 		@RequestBody @Valid BoardUpdateDTO request,
 		@AuthUser Long userId
 	) {
-		Long updatedBoardId = boardService.updateBoard(boardId, userId, request);
+		Long updatedBoardId = boardCommandService.updateBoard(boardId, userId, request);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, updatedBoardId);
 	}
 
@@ -144,7 +165,7 @@ public class BoardController implements BoardControllerDocs {
 		@PathVariable Long boardId,
 		@AuthUser Long userId
 	) {
-		boardService.deleteBoard(boardId, userId);
+		boardCommandService.deleteBoard(boardId, userId);
 		return ApiResponse.onSuccess(GeneralSuccessCode._DELETED);
 	}
 
