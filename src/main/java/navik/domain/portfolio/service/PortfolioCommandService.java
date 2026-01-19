@@ -38,6 +38,6 @@ public class PortfolioCommandService {
 
 		portfolioRepository.save(portfolio);
 
-		return new PortfolioResponseDto.Created(userId, request.inputType());
+		return new PortfolioResponseDto.Created(portfolio.getId(), request.inputType());
 	}
 }

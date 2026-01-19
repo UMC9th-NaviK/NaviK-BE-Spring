@@ -1,5 +1,7 @@
 package navik.global.s3.service;
 
+import navik.global.apiPayload.code.status.GeneralErrorCode;
+import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import navik.global.s3.S3PathType;
 import navik.global.s3.dto.S3Dto;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +40,12 @@ public class S3Service {
 	 * @return Presigned URL과 파일 키를 포함하는 응답 객체
 	 */
 	public S3Dto.PreSignedUrlResponse getPreSignedUrl(S3PathType pathType, Long id, String extension) {
-		String key = pathType.generateKey(id, extension);
+
+        if(id == null || extension == null){
+            throw new GeneralExceptionHandler(GeneralErrorCode.INVALID_INPUT_VALUE);
+        }
+
+        String key = pathType.generateKey(id, extension);
 
 		PutObjectRequest objectRequest = PutObjectRequest.builder()
 			.bucket(bucket)
