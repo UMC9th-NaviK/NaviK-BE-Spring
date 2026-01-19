@@ -15,7 +15,7 @@ import navik.domain.board.dto.BoardResponseDTO;
 import navik.domain.board.dto.BoardUpdateDTO;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.PageResponseDto;
+import navik.global.dto.CursorResponseDto;
 
 @Tag(name = "Board", description = "게시판 관련 API")
 public interface BoardControllerDocs {
@@ -28,7 +28,7 @@ public interface BoardControllerDocs {
 		@Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 ID (첫 조회 시 비움)", example = "100"),
 		@Parameter(name = "size", description = "한 페이지에 가져올 게시글 개수 (기본 10개)", example = "10")
 	})
-	ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getBoards(
+	ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> getBoards(
 		@RequestParam(value = "cursor", required = false) Long lastId,
 		@RequestParam(value = "size", defaultValue = "10") int pageSize
 	);
@@ -42,7 +42,7 @@ public interface BoardControllerDocs {
 		@Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 ID (첫 조회 시 비움)", example = "90"),
 		@Parameter(name = "size", description = "한 페이지에 가져올 게시글 개수 (기본 10개)", example = "10")
 	})
-	ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getBoardsByJob(
+	ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> getBoardsByJob(
 		@RequestParam(name = "jobName") String jobName,
 		@RequestParam(value = "cursor", required = false) Long lastId,
 		@RequestParam(value = "size", defaultValue = "10") int pageSize
@@ -56,9 +56,21 @@ public interface BoardControllerDocs {
 		@Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 '점수_ID' (첫 조회 시에는 비워서 보냅니다)", example = "15_23"),
 		@Parameter(name = "size", description = "한 페이지에 가져올 게시글 개수 (기본 10개)", example = "10")
 	})
-	ApiResponse<PageResponseDto<BoardResponseDTO.BoardDTO>> getHotBoards(
+	ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> getHotBoards(
 		@RequestParam(value = "cursor", required = false) String cursor,
 		@PageableDefault(size = 10) Pageable pageable
+	);
+
+	@Operation(summary = "게시글 검색 API", description = "제목 또는 내용에 키워드가 포함된 글을 검색합니다.")
+	@Parameters({
+		@Parameter(name = "keyword", description = "검색어", example = "Spring"),
+		@Parameter(name = "cursor", description = "마지막 게시글 ID", example = "100"),
+		@Parameter(name = "size", description = "페이지 크기", example = "10")
+	})
+	ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> searchBoards(
+		@RequestParam String keyword,
+		@RequestParam(value = "cursor", required = false) Long lastId,
+		@RequestParam(value = "size", defaultValue = "10") int size
 	);
 
 	@Operation(summary = "게시글 상세 조회", description = "특정 게시글의 상세 정보를 조회합니다.")

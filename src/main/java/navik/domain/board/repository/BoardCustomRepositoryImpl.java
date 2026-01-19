@@ -73,6 +73,28 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 			.fetch();
 	}
 
+	@Override
+	public List<Board> searchByKeyword(String keyword, Long lastId, int pageSize) {
+		QBoard board = QBoard.board;
+		return queryFactory
+			.selectFrom(board)
+			.leftJoin(board.user).fetchJoin()
+			.where(
+				keywordContains(keyword), // 검색어가 있는지 확인 (제목이나 내용에)
+				ltBoardId(lastId)
+			)
+			.orderBy(board.id.desc())
+			.limit(pageSize)
+			.fetch();
+	}
+
+	private BooleanExpression keywordContains(String keyword) {
+		if (keyword == null || keyword.isEmpty())
+			return null;
+		return QBoard.board.articleTitle.contains(keyword)
+			.or(QBoard.board.articleContent.contains(keyword));
+	}
+
 	private BooleanExpression cursorCondition(Integer lastScore, Long lastId, NumberExpression<Integer> scoreSum) {
 		if (lastScore == null || lastId == null) {
 			return null;
