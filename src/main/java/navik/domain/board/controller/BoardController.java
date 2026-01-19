@@ -95,6 +95,7 @@ public class BoardController implements BoardControllerDocs {
 	 * @param size
 	 * @return
 	 */
+	@Override
 	@GetMapping("/search")
 	public ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> searchBoards(
 		@RequestParam String keyword,

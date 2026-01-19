@@ -76,9 +76,12 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 	@Override
 	public List<Board> searchByKeyword(String keyword, Long lastId, int pageSize) {
 		QBoard board = QBoard.board;
+		QUser user = QUser.user;
+		QJob job = QJob.job;
 		return queryFactory
 			.selectFrom(board)
-			.leftJoin(board.user).fetchJoin()
+			.leftJoin(board.user, user).fetchJoin()
+			.leftJoin(user.job, job).fetchJoin()
 			.where(
 				keywordContains(keyword), // 검색어가 있는지 확인 (제목이나 내용에)
 				ltBoardId(lastId)
