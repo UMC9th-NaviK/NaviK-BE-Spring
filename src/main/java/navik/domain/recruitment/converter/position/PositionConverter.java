@@ -41,7 +41,7 @@ public class PositionConverter {
 		// 3. 해시태그 생성 (근무지/경력/고용형태 3가지는 기본)
 		List<String> hashTags = new ArrayList<>();
 		hashTags.add(position.getWorkPlace() == null ? "지역미기재" : position.getWorkPlace());
-		hashTags.add(position.getExperienceType() == null ? "경력 무관" : position.getExperienceType().getLabel());
+		hashTags.add(position.getExperienceType() == null ? "경력무관" : position.getExperienceType().getLabel());
 		hashTags.add(position.getEmploymentType() == null ? "기타고용형태" : position.getEmploymentType().getLabel());
 		if (!searchCondition.getJobTypes().isEmpty())
 			hashTags.add(position.getJob().getName());
