@@ -74,6 +74,9 @@ public interface PositionControllerDocs {
 			- MEDIA_ADVERTISING("미디어·광고업")
 			- CULTURE_ART_DESIGN("문화·예술·디자인업")
 			- PUBLIC_ORGANIZATION("공공기관·협회")
+		- withEnded
+			- true: 이미 끝난 공고도 검색에 포함합니다.
+			- false: 이미 끝난 공고는 검색에 포함하지 않습니다.
 		
 		**커서 기반 페이징**
 		- 첫 요청: cursor 없이 호출 → 첫 페이지 반환
