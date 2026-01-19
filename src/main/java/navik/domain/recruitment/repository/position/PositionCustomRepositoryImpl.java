@@ -2,6 +2,7 @@ package navik.domain.recruitment.repository.position;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.ability.entity.QAbility;
 import navik.domain.ability.entity.QAbilityEmbedding;
 import navik.domain.job.entity.Job;
@@ -36,6 +38,7 @@ import navik.domain.recruitment.repository.position.projection.RecommendedPositi
 import navik.domain.users.entity.User;
 import navik.domain.users.enums.EducationLevel;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class PositionCustomRepositoryImpl implements PositionCustomRepository {
@@ -61,7 +64,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 		// 1. pgvector 코사인 쿼리
 		NumberTemplate<Double> similarityQuery = Expressions.numberTemplate(
 			Double.class,
-			"1 - ({0} <=> {1})",
+			"1.0 - cast(function('cosine_distance', {0}, {1}) as double)",
 			positionKpiEmbedding.embedding,
 			abilityEmbedding.embedding
 		);
@@ -85,9 +88,9 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 				educationLevelIn(searchCondition.getEducationLevels()),
 				areaTypeIn(searchCondition.getAreaTypes()),
 				industryTypeIn(searchCondition.getIndustryTypes()),
-				endDate(searchCondition.isWithEnded()),
-				cursorExpression(cursorRequest, similaritySum)
+				endDate(searchCondition.isWithEnded())
 			)
+			.filter(Objects::nonNull)
 			.reduce(BooleanExpression::and)
 			.orElse(null);
 
@@ -102,6 +105,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 			.join(ability.abilityEmbedding, abilityEmbedding)
 			.where(where)
 			.groupBy(position)
+			.having(cursorExpression(cursorRequest, similaritySum))
 			.orderBy(similaritySum.desc(), position.id.asc())
 			.limit(pageable.getPageSize() + 1)
 			.fetch();
@@ -188,7 +192,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	 * 	 2순위: 유사도가 같다면 pk Asc
 	 */
 	private BooleanExpression cursorExpression(CursorRequest cursorRequest, NumberExpression<Double> scoreSum) {
-		if (cursorRequest == null)
+		if (cursorRequest == null || cursorRequest.getLastId() == null || cursorRequest.getLastSimilarity() == null)
 			return null;
 		return scoreSum.lt(cursorRequest.getLastSimilarity())
 			.or(scoreSum.eq(cursorRequest.getLastSimilarity()).and(position.id.gt(cursorRequest.getLastId())));

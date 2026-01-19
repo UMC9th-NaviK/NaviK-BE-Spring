@@ -91,7 +91,7 @@ public interface PositionControllerDocs {
 	ApiResponse<CursorResponseDto<PositionResponseDTO.RecommendedPosition>> getPositions(
 		Long userId,
 		@RequestBody PositionRequestDTO.SearchCondition searchCondition,
-		@Parameter(description = "마지막으로 조회한 커서 (nextCursor)") String cursor,
+		@Parameter(description = "마지막으로 조회한 커서 Base64 인코딩 값 (nextCursor)") String cursor,
 		@Parameter(description = "한번에 가져올 데이터 수") Integer size
 	);
 }

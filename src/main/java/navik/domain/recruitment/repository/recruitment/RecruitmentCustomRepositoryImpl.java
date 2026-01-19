@@ -3,6 +3,7 @@ package navik.domain.recruitment.repository.recruitment;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Repository;
@@ -67,6 +68,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 				endDateSatisfy(),
 				similarityQuery.goe(0.3)    // 유저 fit한 검색이 목적이므로 유사도 0.3 이상만 집계 (position과 달리, 유저의 역량 정보가 부족하면 결과 없을 수)
 			)
+			.filter(Objects::nonNull)
 			.reduce(BooleanExpression::and)
 			.orElse(null);
 
@@ -103,6 +105,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 				similarityQuery.goe(0.3)    // 카드에 fit한 공고 노출을 위해 유사도 0.3 이상만 집계
 			)
 			.reduce(BooleanExpression::and)
+			.filter(Objects::nonNull)
 			.orElse(null);
 
 		// 3. 조회
