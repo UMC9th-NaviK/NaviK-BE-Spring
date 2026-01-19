@@ -16,7 +16,6 @@ import navik.domain.recruitment.enums.MajorType;
 import navik.domain.recruitment.repository.recruitment.RecruitmentRepository;
 import navik.domain.recruitment.repository.recruitment.projection.RecommendedRecruitmentProjection;
 import navik.domain.users.entity.User;
-import navik.domain.users.repository.UserDepartmentRepository;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
@@ -28,7 +27,6 @@ public class RecruitmentQueryService {
 
 	private final RecruitmentRepository recruitmentRepository;
 	private final UserRepository userRepository;
-	private final UserDepartmentRepository userDepartmentRepository;
 	private final KpiCardRepository kpiCardRepository;
 
 	/**
