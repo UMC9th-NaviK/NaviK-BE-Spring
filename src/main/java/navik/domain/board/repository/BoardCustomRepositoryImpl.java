@@ -31,7 +31,7 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 			.leftJoin(user.job, job).fetchJoin()
 			.where(ltBoardId(lastId))
 			.orderBy(board.id.desc())
-			.limit(pageSize)
+			.limit(pageSize + 1)
 			.fetch();
 	}
 
@@ -50,7 +50,7 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 				ltBoardId(lastId)
 			)
 			.orderBy(board.id.desc())
-			.limit(pageSize)
+			.limit(pageSize + 1)
 			.fetch();
 	}
 
@@ -69,7 +69,7 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 			.leftJoin(user.job, job).fetchJoin()
 			.where(cursorCondition(lastScore, lastId, scoreSum))
 			.orderBy(scoreSum.desc(), board.id.desc()) // 점수 높은순 -> 최신순
-			.limit(pageSize)
+			.limit(pageSize + 1)
 			.fetch();
 	}
 
@@ -87,7 +87,7 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 				ltBoardId(lastId)
 			)
 			.orderBy(board.id.desc())
-			.limit(pageSize)
+			.limit(pageSize + 1)
 			.fetch();
 	}
 
