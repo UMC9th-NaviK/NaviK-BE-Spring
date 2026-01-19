@@ -11,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,7 +42,11 @@ public class Portfolio extends BaseEntity {
 	private User user;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "portfolio_type", nullable = false)
-	private PortfolioType portfolioType;
+	@Column(name = "input_type", nullable = false)
+	private InputType inputType;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "status", nullable = false)
+	private PortfolioStatus status;
 
 }

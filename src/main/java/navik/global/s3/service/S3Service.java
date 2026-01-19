@@ -1,5 +1,6 @@
 package navik.global.s3.service;
 
+import navik.global.s3.S3PathType;
 import navik.global.s3.dto.S3Dto;
 import lombok.RequiredArgsConstructor;
 
@@ -13,7 +14,6 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.time.Duration;
-import java.util.UUID;
 
 /**
  * Amazon S3 관련 비즈니스 로직을 처리하는 서비스 클래스입니다.
@@ -30,14 +30,15 @@ public class S3Service {
 
 	/**
 	 * S3에 파일을 업로드하기 위한 Presigned URL을 생성합니다.
+	 * S3PathType에 정의된 경로 및 파일명 규칙에 따라 key를 생성합니다.
 	 *
-	 * @param prefix   S3 버킷 내에서 파일이 저장될 폴더 경로입니다.
-	 * @param fileName 업로드할 파일의 원래 이름입니다.
-	 * @return Presigned URL과 파일 키를 포함하는 {@link S3Dto.PreSignedUrlResponse} 객체를
-	 * 반환합니다.
+	 * @param pathType  S3 경로 타입 (PORTFOLIO_PDF, BOARD_IMAGE 등)
+	 * @param id        경로에 사용될 ID (userId, boardId 등)
+	 * @param extension 파일 확장자 (.pdf, .png 등)
+	 * @return Presigned URL과 파일 키를 포함하는 응답 객체
 	 */
-	public S3Dto.PreSignedUrlResponse getPreSignedUrl(String prefix, String fileName) {
-		String key = prefix + "/" + UUID.randomUUID() + "_" + fileName;
+	public S3Dto.PreSignedUrlResponse getPreSignedUrl(S3PathType pathType, Long id, String extension) {
+		String key = pathType.generateKey(id, extension);
 
 		PutObjectRequest objectRequest = PutObjectRequest.builder()
 			.bucket(bucket)
