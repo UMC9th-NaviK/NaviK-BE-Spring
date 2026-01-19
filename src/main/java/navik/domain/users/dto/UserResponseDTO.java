@@ -1,52 +1,48 @@
 package navik.domain.users.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.util.List;
+
+
+import navik.domain.users.enums.EducationLevel;
 import navik.domain.users.enums.Role;
 
 public class UserResponseDTO {
 
-	@Builder
-	@AllArgsConstructor
-	@NoArgsConstructor
-	@Getter
-	public static class UserInfoDTO {
-		private Long id;
-		private String name;
-		private String email;
-		private Role role;
-		private String socialType;
-	}
+	public record UserInfoDTO(
+		Long id,
+		String name,
+		String email,
+		Role role,
+		String socialType
+	) {}
 
-	@Builder
-	@AllArgsConstructor
-	@NoArgsConstructor
-	@Getter
-	public static class BasicInfoDto {
-		@NotNull
-		private Long id;
-		@NotBlank
-		private String name;
-		@NotBlank
-		private String nickname;
-		@NotNull
-		private Long jobId;
-		@NotNull
-		private Boolean isEntryLevel;
-	}
+	public record BasicInfoDto(
+		Long id,
+		String name,
+		String nickname,
+		Long jobId,
+		Boolean isEntryLevel
+	) {}
 
-	@Builder
-	@AllArgsConstructor
-	@NoArgsConstructor
-	@Getter
-	public static class NicknameCheckDto {
-		@NotNull
-		private String nickname;
-		@NotNull
-		private boolean isDuplicated;
-	}
+	public record NicknameCheckDto(
+		String nickname,
+		boolean isDuplicated
+	) {}
+
+	public record ProfileDTO(
+		String profileImageUrl,
+		String nickname,
+		String job,
+		Boolean isEntryLevel
+	) {}
+
+	public record MyPageDTO(
+		String profileImageUrl,
+		String name,
+		String nickname,
+		String job,
+		Boolean isEntryLevel,
+		EducationLevel educationLevel,
+		List<String> departmentList
+	) {}
 }

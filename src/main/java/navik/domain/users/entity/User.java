@@ -19,6 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.job.entity.Job;
+import navik.domain.users.enums.EducationLevel;
 import navik.domain.users.enums.Role;
 import navik.domain.users.enums.UserStatus;
 import navik.global.entity.BaseEntity;
@@ -38,6 +39,9 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private String name;
 
+	@Column(name = "profile_image_url")
+	private String profileImageUrl;
+
 	@Column(nullable = false, unique = true)
 	@Builder.Default
 	private String nickname = "사용자" + UUID.randomUUID().toString().substring(0, 5);
@@ -46,10 +50,8 @@ public class User extends BaseEntity {
 	private String email;
 
 	@Column(nullable = false)
-	private String photoUrl;
-
-	@Column(nullable = false)
-	private Integer level;
+	@Builder.Default
+	private Integer level = 0;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -72,6 +74,10 @@ public class User extends BaseEntity {
 
 	@Column(name = "is_entry_level") // true 신입, false 경력
 	private Boolean isEntryLevel;
+
+	@Column(name = "education_level")
+	@Enumerated(EnumType.STRING)
+	private EducationLevel educationLevel;
 
 	public String getRoleKey() {
 		return this.role.getKey();
