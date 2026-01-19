@@ -39,7 +39,7 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private String name;
 
-	@Column(name = "profile_Image_url")
+	@Column(name = "profile_image_url")
 	private String profileImageUrl;
 
 	@Column(nullable = false, unique = true)
