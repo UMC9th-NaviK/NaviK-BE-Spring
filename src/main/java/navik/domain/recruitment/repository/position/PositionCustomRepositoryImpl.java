@@ -10,7 +10,9 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -57,14 +59,24 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	) {
 
 		// 1. pgvector 코사인 쿼리
-		NumberTemplate<Double> similarityScore = Expressions.numberTemplate(
+		NumberTemplate<Double> similarityQuery = Expressions.numberTemplate(
 			Double.class,
 			"1 - ({0} <=> {1})",
 			positionKpiEmbedding.embedding,
 			abilityEmbedding.embedding
 		);
 
-		// 2. 조건 설정
+		/*
+		 * 2. 최대한 나에게 적합한 공고 추천을 위해 유사도가 0.3 이상만 summation
+		 * 	   but, 유사성 없어도 어쨌든 전체 검색을 위한 창이므로 recruitment를 남기기 위해 where 필터링은 X
+		 */
+		NumberExpression<Double> similaritySum = new CaseBuilder()
+			.when(similarityQuery.gt(0.3))
+			.then(similarityQuery)
+			.otherwise(0.0)
+			.sum();
+
+		// 3. 조건 설정
 		BooleanExpression where = Stream.of(
 				jobIn(jobs),
 				experienceTypeIn(searchCondition.getExperienceTypes()),
@@ -73,32 +85,33 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 				educationLevelIn(searchCondition.getEducationLevels()),
 				areaTypeIn(searchCondition.getAreaTypes()),
 				industryTypeIn(searchCondition.getIndustryTypes()),
-				endDate(searchCondition.isWithEnded())
+				endDate(searchCondition.isWithEnded()),
+				cursorExpression(cursorRequest, similaritySum)
 			)
 			.reduce(BooleanExpression::and)
 			.orElse(null);
 
-		// 3. 조회
+		// 4. 조회
 		List<RecommendedPositionProjection> result = jpaQueryFactory
-			.select(new QRecommendedPositionProjection(position, similarityScore.sum()))
+			.select(new QRecommendedPositionProjection(position, similaritySum))
 			.from(position)
-			.join(position.recruitment, recruitment)                      // Position -> Recruitment
-			.join(position.positionKpis, positionKpi)                     // Position → KPI
-			.join(positionKpi.positionKpiEmbedding, positionKpiEmbedding) // KPI -> KPI Embedding
-			.join(ability).on(ability.user.eq(user))                      // Ability
-			.join(ability.abilityEmbedding, abilityEmbedding)             // Ability -> Embedding
+			.join(position.recruitment, recruitment)
+			.join(position.positionKpis, positionKpi)
+			.join(positionKpi.positionKpiEmbedding, positionKpiEmbedding)
+			.join(ability).on(ability.user.eq(user))
+			.join(ability.abilityEmbedding, abilityEmbedding)
 			.where(where)
-			.groupBy(position.id)
-			.orderBy(similarityScore.sum().desc())
-			.limit(pageable.getPageSize() + 1)  // for hasNext
+			.groupBy(position)
+			.orderBy(similaritySum.desc(), position.id.asc())
+			.limit(pageable.getPageSize() + 1)
 			.fetch();
 
-		// 4. Slice 반환
+		// 5. Slice 반환
 		return toSlice(result, pageable);
 	}
 
 	/**
-	 * 찾으려는 직무 유형을 모두 포함합니다.
+	 * 해당 직무로 지원 가능한 포지션을 선택합니다.
 	 */
 	private BooleanExpression jobIn(List<Job> jobs) {
 		if (jobs == null || jobs.isEmpty())
@@ -107,7 +120,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	}
 
 	/**
-	 * 찾으려는 경력 유형을 모두 포함합니다.
+	 * 해당 경력으로 지원 가능한 포지션을 선택합니다.
 	 */
 	private BooleanExpression experienceTypeIn(List<ExperienceType> experienceTypes) {
 		if (experienceTypes == null || experienceTypes.isEmpty())
@@ -116,7 +129,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	}
 
 	/**
-	 * 찾으려는 고용 형태를 모두 포함합니다.
+	 * 해당 근무 형태에 해당하는 포지션을 선택합니다.
 	 */
 	private BooleanExpression employmentTypeIn(List<EmploymentType> employmentTypes) {
 		if (employmentTypes == null || employmentTypes.isEmpty())
@@ -125,7 +138,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	}
 
 	/**
-	 * 찾으려는 회사 유형을 모두 포함합니다.
+	 * 해당 회사 규모에 해당하는 공고를 선택합니다.
 	 */
 	private BooleanExpression companySizeIn(List<CompanySize> companySizes) {
 		if (companySizes == null || companySizes.isEmpty())
@@ -134,7 +147,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	}
 
 	/**
-	 * 찾으려는 학력 유형을 모두 포함합니다.
+	 * 해당 학력으로 지원 가능한 포지션을 선택합니다.
 	 */
 	private BooleanExpression educationLevelIn(List<EducationLevel> educationLevels) {
 		if (educationLevels == null || educationLevels.isEmpty())
@@ -143,7 +156,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	}
 
 	/**
-	 * 찾으려는 지역 유형을 모두 포함합니다.
+	 * 해당 지역에 해당하는 포지션을 선택합니다.
 	 */
 	private BooleanExpression areaTypeIn(List<AreaType> areaTypes) {
 		if (areaTypes == null || areaTypes.isEmpty())
@@ -152,7 +165,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	}
 
 	/**
-	 * 찾으려는 산업 업종을 모두 포함합니다.
+	 * 해당 산업 업종에 해당하는 공고를 선택합니다.
 	 */
 	private BooleanExpression industryTypeIn(List<IndustryType> industryTypes) {
 		if (industryTypes == null || industryTypes.isEmpty())
@@ -161,23 +174,31 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	}
 
 	/**
-	 * 이미 지원이 끝난 공고도 선택적으로 포함합니다.
-	 * 상시 채용은 항상 포함됩니다.
+	 * 아직 모집 중인 공고와 상시 모집 공고를 선택합니다.
 	 */
 	private BooleanExpression endDate(boolean showEnded) {
-		if (!showEnded) {
+		if (!showEnded)
 			return position.endDate.isNull().or(recruitment.endDate.goe(LocalDateTime.now()));
-		}
 		return null;
 	}
 
 	/**
-	 * 조회 결과를 Slice로 변환하는 convert 메서드입니다.
+	 * 커서에 대한 Where절을 생성합니다.
+	 * 	 1순위: 유사도 Desc
+	 * 	 2순위: 유사도가 같다면 pk Asc
 	 */
-	private Slice<RecommendedPositionProjection> toSlice(
-		List<RecommendedPositionProjection> result,
-		Pageable pageable
-	) {
+	private BooleanExpression cursorExpression(CursorRequest cursorRequest, NumberExpression<Double> scoreSum) {
+		if (cursorRequest == null)
+			return null;
+		return scoreSum.lt(cursorRequest.getLastSimilarity())
+			.or(scoreSum.eq(cursorRequest.getLastSimilarity()).and(position.id.gt(cursorRequest.getLastId())));
+	}
+
+	/**
+	 * 쿼리 결과를 Slice로 변환합니다.
+	 */
+	private Slice<RecommendedPositionProjection> toSlice(List<RecommendedPositionProjection> result,
+		Pageable pageable) {
 		boolean hasNext = false;
 		if (result.size() > pageable.getPageSize()) {
 			hasNext = true;
