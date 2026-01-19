@@ -51,28 +51,28 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 	) {
 
 		// 1. pgvector 코사인 쿼리
-		NumberTemplate<Double> similarityScore = Expressions.numberTemplate(
+		NumberTemplate<Double> similarityQuery = Expressions.numberTemplate(
 			Double.class,
-			"1 - ({0} <=> {1})",
+			"1.0 - cast(function('cosine_distance', {0}, {1}) as double)",
 			positionKpiEmbedding.embedding,
 			abilityEmbedding.embedding
 		);
 
 		// 2. 조건 설정
 		BooleanExpression where = Stream.of(
-				jobEqual(job),
-				educationLevelSatisfyAll(educationLevel),
-				experienceTypeSatisfyAll(experienceType),
-				majorTypeSatisfyAll(majorTypes),
-				endDateSatisfyAll(LocalDateTime.now()),
-				similarityScore.goe(0.3)    // 유사도 0.3 이상만 집계
+				jobSatisfy(job),
+				educationLevelSatisfy(educationLevel),
+				experienceTypeSatisfy(experienceType),
+				majorTypeSatisfy(majorTypes),
+				endDateSatisfy(),
+				similarityQuery.goe(0.3)    // 유저 fit한 검색이 목적이므로 유사도 0.3 이상만 집계 (position과 달리, 유저의 역량 정보가 부족하면 결과 없을 수)
 			)
 			.reduce(BooleanExpression::and)
 			.orElse(null);
 
 		// 3. 조회
 		return jpaQueryFactory
-			.select(new QRecommendedRecruitmentProjection(recruitment, similarityScore.sum()))
+			.select(new QRecommendedRecruitmentProjection(recruitment, similarityQuery.sum()))
 			.from(recruitment)
 			.join(recruitment.positions, position)                        // Recruitment -> Position
 			.join(position.positionKpis, positionKpi)                     // Position → KPI
@@ -80,8 +80,8 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			.join(ability).on(ability.user.eq(user))                      // Ability
 			.join(ability.abilityEmbedding, abilityEmbedding)             // Ability -> Embedding
 			.where(where)
-			.groupBy(recruitment.id)
-			.orderBy(similarityScore.sum().desc())  // 유사도 합 상위 5개
+			.groupBy(recruitment)
+			.orderBy(similarityQuery.sum().desc())  // 유사도 합 상위 5개
 			.limit(5)
 			.fetch();
 	}
@@ -90,66 +90,62 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 	public List<RecommendedRecruitmentProjection> findRecommendedPostsByCard(KpiCard kpiCard, Job job) {
 
 		// 1. pgvector 코사인 쿼리
-		NumberTemplate<Double> similarityScore = Expressions.numberTemplate(
+		NumberTemplate<Double> similarityQuery = Expressions.numberTemplate(
 			Double.class,
-			"1 - ({0} <=> cast({1} as vector))",
+			"1.0 - cast(function('cosine_distance', {0}, {1}) as double)",
 			positionKpiEmbedding.embedding,
-			Arrays.toString(kpiCard.getKpiCardEmbedding().getEmbedding())
+			kpiCard.getKpiCardEmbedding().getEmbedding()
 		);
 
 		// 2. 조건 설정
 		BooleanExpression where = Stream.of(
-				jobEqual(job),
-				similarityScore.goe(0.3)    // 유사도 0.3 이상만 집계
+				jobSatisfy(job),
+				similarityQuery.goe(0.3)    // 카드에 fit한 공고 노출을 위해 유사도 0.3 이상만 집계
 			)
 			.reduce(BooleanExpression::and)
 			.orElse(null);
 
 		// 3. 조회
 		return jpaQueryFactory
-			.select(new QRecommendedRecruitmentProjection(recruitment, similarityScore.sum()))
+			.select(new QRecommendedRecruitmentProjection(recruitment, similarityQuery.sum()))
 			.from(recruitment)
 			.join(recruitment.positions, position)                        // Recruitment -> Position
 			.join(position.positionKpis, positionKpi)                     // Position → KPI
 			.join(positionKpi.positionKpiEmbedding, positionKpiEmbedding) // KPI -> KPI Embedding
 			.where(where)
-			.groupBy(recruitment.id)
-			.orderBy(similarityScore.sum().desc())  // 유사도 합 상위 5개
+			.groupBy(recruitment)
+			.orderBy(similarityQuery.sum().desc())  // 유사도 합 상위 5개
 			.limit(5)
 			.fetch();
 	}
 
 	/**
-	 * 사용자의 직무만 포함하는 Expression 입니다.
+	 * 해당 직무로 지원 가능한 공고를 선택합니다.
 	 */
-	private BooleanExpression jobEqual(Job job) {
-		return job != null ? position.job.eq(job) : null;
+	private BooleanExpression jobSatisfy(Job job) {
+		if (job == null)
+			return position.job.isNull();
+		return position.job.isNull().or(position.job.eq(job));
 	}
 
 	/**
-	 * 사용자의 전공이 만족되는 직무만 포함하는 Expression 입니다.
+	 * 해당 전공으로 지원 가능한 공고를 선택합니다.
 	 */
-	private BooleanExpression majorTypeSatisfyAll(List<MajorType> majorTypes) {
-		BooleanExpression expression = position.majorType.isNull();
-		if (!majorTypes.isEmpty()) {
-			majorTypes.forEach(majorType -> expression.or(position.majorType.eq(majorType)));
-		}
-		return expression;
+	private BooleanExpression majorTypeSatisfy(List<MajorType> majorTypes) {
+		if (majorTypes == null || majorTypes.isEmpty())
+			return position.majorType.isNull();
+		return position.majorType.isNull().or(position.majorType.in(majorTypes));
 	}
 
 	/**
-	 * 입력 시간 이후 및 상시 모집을 포함하는 Expression 입니다.
+	 * 아직 모집 중인 공고와 상시 모집 공고를 선택합니다.
 	 */
-	private BooleanExpression endDateSatisfyAll(LocalDateTime localDateTime) {
-		BooleanExpression expression = position.endDate.isNull();
-		if (localDateTime == null) {
-			expression.or(position.endDate.goe(localDateTime));
-		}
-		return localDateTime != null ? position.endDate.goe(localDateTime) : null;
+	private BooleanExpression endDateSatisfy() {
+		return recruitment.endDate.isNull().or(recruitment.endDate.goe(LocalDateTime.now()));
 	}
 
 	/**
-	 * 사용자의 학력이 만족되는 직무만 선택하는 Expression 입니다.
+	 * 해당 학력으로 지원 가능한 공고를 선택합니다.
 	 *
 	 * 예시)
 	 * 고졸 : null or 고졸
@@ -158,32 +154,28 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 	 * 석사 : null or 고졸 or 2년제 or 4년제 or 석사
 	 * 박사 : null or 고졸 or 2년제 or 4년제 or 석사 or 박사
 	 */
-	private BooleanExpression educationLevelSatisfyAll(EducationLevel educationLevel) {
-		BooleanExpression expression = position.educationLevel.isNull();
-		if (educationLevel != null) {
-			List<EducationLevel> educationTypes = Arrays.stream(EducationLevel.values())
-				.filter(e -> e.getOrder() <= educationLevel.getOrder())
-				.toList();
-			expression.or(position.educationLevel.in(educationTypes));
-		}
-		return expression;
+	private BooleanExpression educationLevelSatisfy(EducationLevel educationLevel) {
+		if (educationLevel == null)
+			return position.educationLevel.isNull();
+		List<EducationLevel> educationTypes = Arrays.stream(EducationLevel.values())
+			.filter(e -> e.getOrder() <= educationLevel.getOrder())
+			.toList();
+		return position.educationLevel.isNull().or(position.educationLevel.in(educationTypes));
 	}
 
 	/**
-	 * 사용자의 경력이 만족되는 직무만 노출시키는 Expression 입니다.
+	 * 해당 경력으로 지원 가능한 공고를 선택합니다.
 	 *
 	 * 예시)
 	 * 신입 : null or 신업
 	 * 경력 : null or 신입 or 경력
 	 */
-	private BooleanExpression experienceTypeSatisfyAll(ExperienceType experienceType) {
-		BooleanExpression expression = position.experienceType.isNull();
-		if (experienceType != null) {
-			List<ExperienceType> experienceTypes = Arrays.stream(ExperienceType.values())
-				.filter(e -> e.getOrder() <= experienceType.getOrder())
-				.toList();
-			expression.or(position.experienceType.in(experienceTypes));
-		}
-		return expression;
+	private BooleanExpression experienceTypeSatisfy(ExperienceType experienceType) {
+		if (experienceType == null)
+			return position.experienceType.isNull();
+		List<ExperienceType> experienceTypes = Arrays.stream(ExperienceType.values())
+			.filter(e -> e.getOrder() <= experienceType.getOrder())
+			.toList();
+		return position.experienceType.isNull().or(position.experienceType.in(experienceTypes));
 	}
 }
