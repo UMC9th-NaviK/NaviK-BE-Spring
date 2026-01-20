@@ -164,8 +164,8 @@ jobs:
               --query "StandardErrorContent" \
               --output text 2>/dev/null \
               | tail -n 10 \
-              | sed 's/\\/\\\\/g; s/\"/\\\"/g; s/\r//g' || true)
-              | cut -c 1-900 || true          
+              | sed 's/\\/\\\\/g; s/\"/\\\"/g; s/\r//g' \
+              | cut -c 1-900 || true)     
           
             [ -z "$STDERR" ] && STDERR="(stderr 없음)"
             EXTRA_FIELD=", {\"name\":\"SSM STDERR (last 10 lines)\",\"value\":\"\`\`\`$STDERR\`\`\`\"}"
