@@ -1,23 +1,30 @@
 package navik.domain.study.controller;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import navik.domain.study.dto.StudyCreateDTO;
+import navik.domain.study.dto.StudyDTO;
+import navik.domain.study.enums.StudyRole;
 import navik.domain.study.service.StudyCommandService;
+import navik.domain.study.service.StudyQueryService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
+import navik.global.dto.CursorResponseDto;
 
 @RestController
 @RequestMapping("/v1/studies")
 @RequiredArgsConstructor
 public class StudyController implements StudyControllerDocs {
 	private final StudyCommandService studyCommandService;
+	private final StudyQueryService studyQueryService;
 
 	/**
 	 * 스터디 생성
@@ -32,5 +39,24 @@ public class StudyController implements StudyControllerDocs {
 	) {
 		Long studyId = studyCommandService.createStudy(request, userId);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, studyId);
+	}
+
+	/**
+	 * 나의 스터디 목록 조회
+	 * @param role
+	 * @param cursor
+	 * @param size
+	 * @param userId
+	 * @return
+	 */
+	@GetMapping("/my")
+	public ApiResponse<CursorResponseDto<StudyDTO.MyStudyDTO>> getMyStudies(
+		@RequestParam(required = false) StudyRole role, // 리더/멤버 탭 구분
+		@RequestParam(value = "cursor", required = false) Long cursor,
+		@RequestParam(value = "size", defaultValue = "10") int size,
+		@AuthUser Long userId
+	) {
+		CursorResponseDto<StudyDTO.MyStudyDTO> response = studyQueryService.getMyStudyList(userId, role, cursor, size);
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 }

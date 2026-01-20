@@ -1,7 +1,11 @@
 package navik.domain.study.converter;
 
+import java.time.LocalDateTime;
+
 import navik.domain.study.dto.StudyCreateDTO;
+import navik.domain.study.dto.StudyDTO;
 import navik.domain.study.entity.Study;
+import navik.domain.study.entity.StudyUser;
 import navik.domain.study.enums.RecruitmentStatus;
 
 public class StudyConverter {
@@ -17,6 +21,40 @@ public class StudyConverter {
 			.endDate(request.getEndDate())
 			.openChatUrl(request.getOpenChatUrl())
 			.recruitmentStatus(RecruitmentStatus.RECURRING) // 스터디 초기 상태 '모집중'
+			.build();
+	}
+
+	public static StudyDTO.MyStudyDTO toMyStudyDTO(StudyUser studyUser, Integer participantCount) {
+		Study study = studyUser.getStudy();
+		LocalDateTime now = LocalDateTime.now();
+
+		// 1. 종료일 경과 여부 확인
+		boolean isFinished = now.isAfter(study.getEndDate());
+
+		// 2. 진행 상태
+		String status;
+		if (now.isBefore(study.getStartDate())) {
+			status = "모집중";
+		} else if (isFinished) {
+			status = "종료";
+		} else {
+			status = "진행중";
+		}
+
+		return StudyDTO.MyStudyDTO.builder()
+			.studyUserId(studyUser.getId())
+			.studyId(study.getId())
+			.title(study.getTitle())
+			.description(study.getDescription())
+			.startDate(study.getStartDate())
+			.endDate(study.getEndDate())
+			.capacity(study.getCapacity())
+			.currentParticipants(participantCount) // 현재 참가인원
+			.participationMethod(study.getParticipationMethod()) // 온라인, 오프라인
+			.openChatUrl(study.getOpenChatUrl())
+			.recruitment_status(status) // 모집중, 진행중, 종료
+			.role(studyUser.getRole().name()) // 스터디장, 스터디원
+			.canEvaluate(isFinished) // 종료된 경우에만 버튼 활성화
 			.build();
 	}
 }
