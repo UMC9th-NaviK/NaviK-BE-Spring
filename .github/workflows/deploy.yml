@@ -133,7 +133,7 @@ jobs:
             exit 1
           fi
 
-      - name: Discord 알림 (배포 결과)
+      - name: Discord 알림
         if: always()
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
@@ -165,7 +165,8 @@ jobs:
               --output text 2>/dev/null \
               | tail -n 10 \
               | sed 's/\\/\\\\/g; s/\"/\\\"/g; s/\r//g' || true)
-
+              | cut -c 1-900 || true          
+          
             [ -z "$STDERR" ] && STDERR="(stderr 없음)"
             EXTRA_FIELD=", {\"name\":\"SSM STDERR (last 10 lines)\",\"value\":\"\`\`\`$STDERR\`\`\`\"}"
           fi
@@ -176,15 +177,16 @@ jobs:
                 \"title\": \"$TITLE\",
                 \"color\": $COLOR,
                 \"fields\": [
-                  {\"name\": \"Repository\", \"value\": \"${GITHUB_REPOSITORY}\", \"inline\": true},
-                  {\"name\": \"Branch\", \"value\": \"${BRANCH}\", \"inline\": true},
-                  {\"name\": \"Tag\", \"value\": \"${TAG}\", \"inline\": true},
-                  {\"name\": \"Actor\", \"value\": \"${GITHUB_ACTOR}\", \"inline\": true},
-                  {\"name\": \"Commit\", \"value\": \"${COMMIT_URL}\"},
-                  {\"name\": \"Actions Run\", \"value\": \"${RUN_URL}\"}
+                  {\"name\": \"Repository\", \"value\": \"${GITHUB_REPOSITORY}\", \"inline\": false},
+                  {\"name\": \"Branch\", \"value\": \"${BRANCH}\", \"inline\": false},
+                  {\"name\": \"Container Version\", \"value\": \"${TAG}\", \"inline\": false},
+                  {\"name\": \"Actor\", \"value\": \"${GITHUB_ACTOR}\", \"inline\": false},
+                  {\"name\": \"Commit\", \"value\": \"${COMMIT_URL}\", \"inline\": false},
+                  {\"name\": \"Actions Run\", \"value\": \"${RUN_URL}\", \"inline\": false}
                   $EXTRA_FIELD
                 ]
               }]
             }" \
             "$DISCORD_WEBHOOK_URL" || true
+
 
