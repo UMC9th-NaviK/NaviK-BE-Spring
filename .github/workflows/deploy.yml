@@ -1,8 +1,8 @@
-name: EC2 배포
+name: EC2 deploy
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -20,11 +20,11 @@ jobs:
       - name: Gradle 실행 권한 부여
         run: chmod +x gradlew
 
-      - name: JDK 17 설치
+      - name: JDK 21 설치
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Spring Boot JAR 빌드 (테스트 제외)
         run: ./gradlew clean bootJar -x test
@@ -44,7 +44,7 @@ jobs:
       - name: Amazon ECR 로그인
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: 🏷Docker 이미지 태그 생성
+      - name: 🏷 Docker 이미지 태그 생성
         id: meta
         run: echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
@@ -58,23 +58,73 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.meta.outputs.tag }}
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-      - name: EC2 접속 후 Docker Compose로 배포
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script_stop: true
-          script: |
-            set -e
-            cd /home/ubuntu/app
+      - name: SSM으로 EC2에 배포
+        id: ssm
+        run: |
+          set -euo pipefail
 
-            export ECR_IMAGE=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}
-            export IMAGE_TAG=${{ steps.meta.outputs.tag }}
+          REGION="${{ secrets.AWS_REGION }}"
+          INSTANCE_ID="${{ secrets.EC2_INSTANCE_ID }}"
+          TAG="${{ steps.meta.outputs.tag }}"
+          ECR_IMAGE="${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}"
 
-            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} \
-              | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+          COMMAND_ID=$(aws ssm send-command \
+            --region "$REGION" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy via GitHub Actions (docker compose)" \
+            --targets "Key=instanceids,Values=$INSTANCE_ID" \
+            --parameters commands="[
+              \"set -e\",
+              \"export ECR_IMAGE=$ECR_IMAGE\",
+              \"export IMAGE_TAG=$TAG\",
+              \"/home/ubuntu/app/deploy.sh\"
+            ]" \
+            --query "Command.CommandId" \
+            --output text)
 
-            docker compose pull
-            docker compose up -d
-            docker image prune -f
+          echo "command_id=$COMMAND_ID" >> $GITHUB_OUTPUT
+          echo "SSM CommandId: $COMMAND_ID"
+
+      - name: SSM 실행 결과 대기
+        run: |
+          set -euo pipefail
+          aws ssm wait command-executed \
+            --region "${{ secrets.AWS_REGION }}" \
+            --command-id "${{ steps.ssm.outputs.command_id }}" \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}"
+
+      - name: SSM 로그 출력 + 실패 처리
+        run: |
+          set -euo pipefail
+
+          REGION="${{ secrets.AWS_REGION }}"
+          CMD="${{ steps.ssm.outputs.command_id }}"
+          INSTANCE="${{ secrets.EC2_INSTANCE_ID }}"
+
+          STATUS=$(aws ssm get-command-invocation \
+            --region "$REGION" \
+            --command-id "$CMD" \
+            --instance-id "$INSTANCE" \
+            --query "Status" \
+            --output text)
+
+          echo "SSM Status: $STATUS"
+          echo "---- STDOUT ----"
+          aws ssm get-command-invocation \
+            --region "$REGION" \
+            --command-id "$CMD" \
+            --instance-id "$INSTANCE" \
+            --query "StandardOutputContent" \
+            --output text || true
+          echo "---- STDERR ----"
+          aws ssm get-command-invocation \
+            --region "$REGION" \
+            --command-id "$CMD" \
+            --instance-id "$INSTANCE" \
+            --query "StandardErrorContent" \
+            --output text || true
+
+          if [ "$STATUS" != "Success" ]; then
+            echo "SSM command failed."
+            exit 1
+          fi
