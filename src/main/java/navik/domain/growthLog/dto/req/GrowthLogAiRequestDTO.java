@@ -5,6 +5,12 @@ import java.util.List;
 
 public class GrowthLogAiRequestDTO {
 
+	public record EvaluateUserInputRequest(
+		Long userId,
+		GrowthLogEvaluationContext context
+	) {
+	}
+
 	public record GrowthLogEvaluationContext(
 		String resumeText,
 		List<PastGrowthLog> recentGrowthLogs,
