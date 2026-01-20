@@ -2,7 +2,9 @@ name: EC2 deploy
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - "main"
+      - "refactor/#52/ci-cd-ssm-https-jdk21"
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
