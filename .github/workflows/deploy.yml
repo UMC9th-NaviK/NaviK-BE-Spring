@@ -77,7 +77,7 @@ jobs:
             --targets "Key=instanceids,Values=$INSTANCE_ID" \
             --parameters commands="[
               \"set -e\",
-              \"export AWS_REGION=${{ secrets.AWS_REGION }}\",
+              \"export AWS_REGION=$REGION\",
               \"export ECR_IMAGE=$ECR_IMAGE\",
               \"export IMAGE_TAG=$TAG\",
               \"/home/ubuntu/app/deploy.sh\"
@@ -132,3 +132,59 @@ jobs:
             echo "SSM command failed."
             exit 1
           fi
+
+      - name: Discord 알림 (배포 결과)
+        if: always()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+        run: |
+          set -euo pipefail
+
+          SHA="${GITHUB_SHA::7}"
+          BRANCH="${GITHUB_REF_NAME}"
+          TAG="${GITHUB_SHA::7}"
+          RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          COMMIT_URL="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
+
+          TITLE="🚀 배포 성공"
+          COLOR=5763719
+          EXTRA_FIELD=""
+
+          if [ "${{ job.status }}" != "success" ]; then
+            TITLE="❌ 배포 실패"
+            COLOR=15548997
+
+            CMD="${{ steps.ssm.outputs.command_id }}"
+            STDERR=$(aws ssm get-command-invocation \
+              --region "$AWS_REGION" \
+              --command-id "$CMD" \
+              --instance-id "$INSTANCE_ID" \
+              --query "StandardErrorContent" \
+              --output text 2>/dev/null \
+              | tail -n 10 \
+              | sed 's/\\/\\\\/g; s/\"/\\\"/g; s/\r//g' || true)
+
+            [ -z "$STDERR" ] && STDERR="(stderr 없음)"
+            EXTRA_FIELD=", {\"name\":\"SSM STDERR (last 10 lines)\",\"value\":\"\`\`\`$STDERR\`\`\`\"}"
+          fi
+
+          curl -sS -H "Content-Type: application/json" -X POST \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"$TITLE\",
+                \"color\": $COLOR,
+                \"fields\": [
+                  {\"name\": \"Repository\", \"value\": \"${GITHUB_REPOSITORY}\", \"inline\": true},
+                  {\"name\": \"Branch\", \"value\": \"${BRANCH}\", \"inline\": true},
+                  {\"name\": \"Tag\", \"value\": \"${TAG}\", \"inline\": true},
+                  {\"name\": \"Actor\", \"value\": \"${GITHUB_ACTOR}\", \"inline\": true},
+                  {\"name\": \"Commit\", \"value\": \"${COMMIT_URL}\"},
+                  {\"name\": \"Actions Run\", \"value\": \"${RUN_URL}\"}
+                  $EXTRA_FIELD
+                ]
+              }]
+            }" \
+            "$DISCORD_WEBHOOK_URL" || true
+
