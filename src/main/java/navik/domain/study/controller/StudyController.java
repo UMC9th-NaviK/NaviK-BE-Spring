@@ -1,8 +1,8 @@
 package navik.domain.study.controller;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -27,10 +27,10 @@ public class StudyController implements StudyControllerDocs {
 	 */
 	@PostMapping
 	public ApiResponse<Long> createStudy(
-		@RequestParam @Valid StudyCreateDTO.CreateDTO request,
+		@RequestBody @Valid StudyCreateDTO.CreateDTO request,
 		@AuthUser Long userId
 	) {
-		Long studyId = studyCommandService.createStudy(request);
+		Long studyId = studyCommandService.createStudy(request, userId);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, studyId);
 	}
 }

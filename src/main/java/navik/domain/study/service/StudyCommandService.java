@@ -1,6 +1,7 @@
 package navik.domain.study.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.study.converter.StudyConverter;
@@ -14,7 +15,8 @@ public class StudyCommandService {
 
 	private final StudyRepository studyRepository;
 
-	public Long createStudy(StudyCreateDTO.CreateDTO request) {
+	@Transactional
+	public Long createStudy(StudyCreateDTO.CreateDTO request, Long userId) {
 		Study study = StudyConverter.toStudy(request);
 		return studyRepository.save(study).getId();
 	}

@@ -62,7 +62,7 @@ public class Study extends BaseEntity implements Notifiable {
 	@Enumerated(EnumType.STRING)
 	private RecruitmentStatus recruitmentStatus; // 모집상태
 
-	@Column(name = "open_chat_url", nullable = false)
+	@Column(name = "open_chat_url")
 	private String openChatUrl;
 
 	@Override
