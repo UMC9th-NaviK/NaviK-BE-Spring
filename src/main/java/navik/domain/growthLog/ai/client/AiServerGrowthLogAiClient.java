@@ -2,6 +2,7 @@ package navik.domain.growthLog.ai.client;
 
 import java.time.Duration;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -15,6 +16,7 @@ import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Component
+@Profile("prod")
 @RequiredArgsConstructor
 public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 
