@@ -44,7 +44,7 @@ public class StudyCommandService {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
 
-		// 2. 선탁한 KPI 카드 존재 여부 확인
+		// 2. 선택한 KPI 카드 존재 여부 확인
 		KpiCard kpiCard = kpiCardRepository.findById(request.getKpiId())
 			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.KPI_NOT_FOUND));
 

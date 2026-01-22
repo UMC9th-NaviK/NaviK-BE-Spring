@@ -59,7 +59,7 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 		return queryFactory
 			.selectFrom(kpiCard)
 			.where(
-				kpiCard.name.eq(jobName),
+				kpiCard.job.name.eq(jobName),
 				ltCursorId(cursor)
 			)
 			.orderBy(kpiCard.id.desc())
