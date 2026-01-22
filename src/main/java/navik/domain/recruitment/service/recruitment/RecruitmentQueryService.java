@@ -66,7 +66,7 @@ public class RecruitmentQueryService {
 	public List<RecruitmentResponseDTO.RecommendedPost> getRecommendedPostsByCard(Long kpiCardId) {
 
 		// 1. 카드 검색
-		KpiCard kpiCard = kpiCardRepository.findByIdWithJobAndEmbedding(kpiCardId)
+		KpiCard kpiCard = kpiCardRepository.findByIdWithJob(kpiCardId)
 			.orElseThrow(() -> new GeneralExceptionHandler(KpiCardErrorCode.KPI_CARD_NOT_FOUND));
 
 		// 2. 검색
