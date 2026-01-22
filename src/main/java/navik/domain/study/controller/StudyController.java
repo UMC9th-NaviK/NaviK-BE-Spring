@@ -38,7 +38,7 @@ public class StudyController implements StudyControllerDocs {
 		@AuthUser Long userId
 	) {
 		Long studyId = studyCommandService.createStudy(request, userId);
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK, studyId);
+		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, studyId);
 	}
 
 	/**
