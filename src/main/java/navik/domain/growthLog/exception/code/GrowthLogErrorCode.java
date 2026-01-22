@@ -53,17 +53,17 @@ public enum GrowthLogErrorCode implements BaseCode {
 
 	AI_EVALUATION_FAILED(
 		HttpStatus.INTERNAL_SERVER_ERROR,
-		"GROWTHLOG_500_01",
+		"GROWTH_LOG_500_01",
 		"AI 평가에 실패했습니다."),
 
 	INVALID_REQUEST(
 		HttpStatus.BAD_REQUEST,
-		"GROWTH_LOG_500_02",
+		"GROWTH_LOG_400_04",
 		"성장 로그 요청 값이 올바르지 않습니다."),
 
 	AI_SERVER_URL_NOT_CONFIGURED(
 		HttpStatus.BAD_REQUEST,
-		"GROWTHLOG_500_03",
+		"GROWTH_LOG_400_05",
 		"AI 서버 주소가 설정되지 않았습니다."
 	);
 
