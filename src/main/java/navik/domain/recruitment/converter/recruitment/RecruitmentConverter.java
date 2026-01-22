@@ -1,6 +1,6 @@
 package navik.domain.recruitment.converter.recruitment;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +31,14 @@ public class RecruitmentConverter {
 			.companyLogo(recruitment.getCompanyLogo())
 			.companyName(recruitment.getCompanyName())
 			.companySize(recruitment.getCompanySize().getLabel())
-			.dDay(ChronoUnit.DAYS.between(LocalDateTime.now(), recruitment.getEndDate()))
+			.dDay(
+				position.getRecruitment().getEndDate() != null ?
+					ChronoUnit.DAYS.between(
+						LocalDate.now(),
+						position.getRecruitment().getEndDate().toLocalDate()
+					)
+					: null
+			)
 			.title(recruitment.getTitle())
 			.workPlace(
 				positions.size() > 1

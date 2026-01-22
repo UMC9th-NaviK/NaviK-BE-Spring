@@ -18,7 +18,7 @@ public class PositionResponseDTO {
 		private String companyName;
 		private String companySize;
 		private LocalDateTime endDate;
-		private long dDay;
+		private Long dDay;
 		private String title;
 		private String positionName;
 		private List<String> kpis;

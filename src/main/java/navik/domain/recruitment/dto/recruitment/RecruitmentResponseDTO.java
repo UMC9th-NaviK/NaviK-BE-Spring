@@ -14,7 +14,7 @@ public class RecruitmentResponseDTO {
 		private String companyLogo;
 		private String companyName;
 		private String companySize;
-		private long dDay;
+		private Long dDay;
 		private String title;
 		private String workPlace;
 		private String experience;

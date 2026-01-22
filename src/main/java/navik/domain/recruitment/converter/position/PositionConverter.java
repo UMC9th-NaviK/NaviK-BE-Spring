@@ -1,6 +1,6 @@
 package navik.domain.recruitment.converter.position;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +75,14 @@ public class PositionConverter {
 			)
 			.companyName(position.getRecruitment().getCompanyName())
 			.endDate(position.getRecruitment().getEndDate())
-			.dDay(ChronoUnit.DAYS.between(LocalDateTime.now(), position.getRecruitment().getEndDate()))
+			.dDay(
+				position.getRecruitment().getEndDate() != null ?
+					ChronoUnit.DAYS.between(
+						LocalDate.now(),
+						position.getRecruitment().getEndDate().toLocalDate()
+					)
+					: null
+			)
 			.title(position.getRecruitment().getTitle())
 			.positionName(position.getName())
 			.kpis(position.getPositionKpis().stream().map(PositionKpi::getContent).toList())
