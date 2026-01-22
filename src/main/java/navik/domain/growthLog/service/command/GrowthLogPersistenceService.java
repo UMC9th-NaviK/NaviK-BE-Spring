@@ -77,11 +77,10 @@ public class GrowthLogPersistenceService {
 		List<GrowthLogEvaluationResult.KpiDelta> kpis
 	) {
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(
-				GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND
-			));
+			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
 
-		if (growthLog.getStatus() != GrowthLogStatus.FAILED) {
+		// 선점된 PENDING만 반영 가능
+		if (growthLog.getStatus() != GrowthLogStatus.PENDING) {
 			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 

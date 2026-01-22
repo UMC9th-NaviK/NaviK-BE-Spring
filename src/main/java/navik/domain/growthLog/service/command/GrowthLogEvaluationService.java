@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import navik.domain.growthLog.ai.client.GrowthLogAiClient;
 import navik.domain.growthLog.ai.limiter.RetryRateLimiter;
@@ -27,6 +28,7 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class GrowthLogEvaluationService {
 
 	private final GrowthLogRepository growthLogRepository;
@@ -64,16 +66,10 @@ public class GrowthLogEvaluationService {
 	public GrowthLogResponseDTO.RetryResult retry(Long userId, Long growthLogId) {
 
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(
-				GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND
-			));
+			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
 
 		if (growthLog.getType() != GrowthType.USER_INPUT) {
 			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_TYPE);
-		}
-
-		if (growthLog.getStatus() != GrowthLogStatus.FAILED) {
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 
 		String key = "growthLogRetry:" + userId + ":" + growthLogId;
@@ -81,10 +77,20 @@ public class GrowthLogEvaluationService {
 			throw new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_RETRY_LIMIT_EXCEEDED);
 		}
 
-		GrowthLogEvaluationContext context = buildContext(
+		// 동시 재시도 차단: FAILED -> PENDING 원자적 전환
+		int acquired = growthLogRepository.updateStatusIfMatch(
 			userId,
-			safe(growthLog.getContent())
+			growthLogId,
+			GrowthLogStatus.FAILED,
+			GrowthLogStatus.PENDING
 		);
+
+		if (acquired == 0) {
+			// 누군가가 이미 재시도를 시작했거나, 상태가 FAILED가 아님
+			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
+		}
+
+		GrowthLogEvaluationContext context = buildContext(userId, safe(growthLog.getContent()));
 
 		try {
 			Evaluated evaluated = evaluateGrowthLog(userId, context);
@@ -100,6 +106,13 @@ public class GrowthLogEvaluationService {
 			return new GrowthLogResponseDTO.RetryResult(growthLogId, GrowthLogStatus.COMPLETED);
 
 		} catch (Exception e) {
+			// 실패 시 상태를 FAILED로 복구
+			growthLogRepository.updateStatusIfMatch(
+				userId,
+				growthLogId,
+				GrowthLogStatus.PENDING,
+				GrowthLogStatus.FAILED
+			);
 			return new GrowthLogResponseDTO.RetryResult(growthLogId, GrowthLogStatus.FAILED);
 		}
 	}
