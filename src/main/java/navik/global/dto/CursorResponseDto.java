@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.data.domain.Slice;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 /**
@@ -12,6 +14,8 @@ import lombok.Getter;
  * @param <T> 데이터 리스트의 타입
  */
 @Getter
+@Builder
+@AllArgsConstructor
 public class CursorResponseDto<T> {
 
 	/**
@@ -39,6 +43,18 @@ public class CursorResponseDto<T> {
 		this.pageSize = slice.getNumberOfElements();
 		this.nextCursor = nextCursor;
 		this.hasNext = slice.hasNext();
+	}
+
+	/**
+	 * 커서 기반 페이징 결과를 일반화하여 CursorResponseDto로 변환
+	 */
+	public static <T> CursorResponseDto<T> of(List<T> content, boolean hasNext, String nextCursor) {
+		return CursorResponseDto.<T>builder()
+			.content(content)
+			.hasNext(hasNext)
+			.nextCursor(nextCursor)
+			.pageSize(content.size())
+			.build();
 	}
 
 	public static <T> CursorResponseDto<T> of(Slice<T> slice, String nextCursor) {
