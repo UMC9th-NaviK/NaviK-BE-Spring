@@ -23,6 +23,10 @@ public class StudyCreateDTO {
 		@NotBlank(message = "스터디 소개를 적어주세요")
 		private String description;
 		@NotNull
+		private Long jobId;
+		@NotNull
+		private Long kpiId;
+		@NotNull
 		private Integer gatheringPeriod;
 		@NotBlank(message = "참여 방법을 선택해주세요")
 		private String participationMethod;
