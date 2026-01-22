@@ -28,18 +28,8 @@ public class StudyConverter {
 		Study study = studyUser.getStudy();
 		LocalDateTime now = LocalDateTime.now();
 
-		// 1. 종료일 경과 여부 확인
-		boolean isFinished = now.isAfter(study.getEndDate());
-
-		// 2. 진행 상태
-		String status;
-		if (now.isBefore(study.getStartDate())) {
-			status = "모집중";
-		} else if (isFinished) {
-			status = "종료";
-		} else {
-			status = "진행중";
-		}
+		RecruitmentStatus status = study.getStatus(now);
+		boolean canEvaluate = study.canEvaluate(now);
 
 		return StudyDTO.MyStudyDTO.builder()
 			.studyUserId(studyUser.getId())
@@ -52,9 +42,9 @@ public class StudyConverter {
 			.currentParticipants(participantCount) // 현재 참가인원
 			.participationMethod(study.getParticipationMethod()) // 온라인, 오프라인
 			.openChatUrl(study.getOpenChatUrl())
-			.recruitment_status(status) // 모집중, 진행중, 종료
+			.recruitment_status(status.name()) // 모집중, 진행중, 종료
 			.role(studyUser.getRole().name()) // 스터디장, 스터디원
-			.canEvaluate(isFinished) // 종료된 경우에만 버튼 활성화
+			.canEvaluate(canEvaluate) // 종료된 경우에만 버튼 활성화
 			.build();
 	}
 }

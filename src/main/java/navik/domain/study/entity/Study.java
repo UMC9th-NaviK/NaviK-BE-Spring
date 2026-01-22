@@ -79,4 +79,18 @@ public class Study extends BaseEntity implements Notifiable {
 	public boolean isCompleted() {
 		return LocalDateTime.now().isAfter(this.endDate);
 	}
+
+	public RecruitmentStatus getStatus(LocalDateTime now) {
+		if (now.isBefore(this.startDate)) {
+			return RecruitmentStatus.RECURRING; // 모집중
+		} else if (now.isAfter(this.endDate)) {
+			return RecruitmentStatus.CLOSED;   // 종료
+		} else {
+			return RecruitmentStatus.IN_PROGRESS;    // 진행중
+		}
+	}
+
+	public boolean canEvaluate(LocalDateTime now) {
+		return now.isAfter(this.endDate);
+	}
 }
