@@ -24,7 +24,7 @@ public class StudyConverter {
 			.build();
 	}
 
-	public static StudyDTO.MyStudyDTO toMyStudyDTO(StudyUser studyUser, Integer participantCount) {
+	public static StudyDTO.MyStudyDTO toMyStudyDTO(StudyUser studyUser, int participantCount, String kpiName) {
 		Study study = studyUser.getStudy();
 		LocalDateTime now = LocalDateTime.now();
 
@@ -35,6 +35,7 @@ public class StudyConverter {
 			.studyUserId(studyUser.getId())
 			.studyId(study.getId())
 			.title(study.getTitle())
+			.kpiName(kpiName)
 			.description(study.getDescription())
 			.startDate(study.getStartDate())
 			.endDate(study.getEndDate())

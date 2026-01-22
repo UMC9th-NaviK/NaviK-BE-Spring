@@ -14,9 +14,11 @@ import navik.domain.study.converter.StudyConverter;
 import navik.domain.study.converter.StudyKpiCardConverter;
 import navik.domain.study.dto.StudyDTO;
 import navik.domain.study.dto.StudyKpiCardDTO;
+import navik.domain.study.entity.StudyKpi;
 import navik.domain.study.entity.StudyUser;
 import navik.domain.study.enums.StudyRole;
 import navik.domain.study.repository.StudyCustomRepository;
+import navik.domain.study.repository.StudyKpiRepository;
 import navik.domain.study.repository.StudyUserRepository;
 import navik.global.dto.CursorResponseDto;
 
@@ -26,6 +28,7 @@ public class StudyQueryService {
 
 	private final StudyUserRepository studyUserRepository;
 	private final StudyCustomRepository studyCustomRepository;
+	private final StudyKpiRepository studyKpiRepository;
 
 	/**
 	 * 나의 스터디 조회
@@ -58,10 +61,14 @@ public class StudyQueryService {
 			.toList();
 
 		Map<Long, Integer> participantCountMap = getParticipantCountMap(studyIds);
+		Map<Long, String> kpiNameMap = getKpiNameMap(studyIds);
 
 		// 4. DTO 변환
 		List<StudyDTO.MyStudyDTO> content = pagingList.stream()
-			.map(su -> StudyConverter.toMyStudyDTO(su, participantCountMap.getOrDefault(su.getStudy().getId(), 0)))
+			.map(su -> StudyConverter.toMyStudyDTO(
+				su, participantCountMap.getOrDefault(su.getStudy().getId(), 0),
+				kpiNameMap.getOrDefault(su.getStudy().getId(), null)
+			))
 			.toList();
 
 		// 5. 다음 커서값 생성 (실제 응답에 포함된 마지막 항목의 ID 기준)
@@ -103,6 +110,16 @@ public class StudyQueryService {
 			.collect(Collectors.toMap(
 				obj -> (Long)obj[0],
 				obj -> ((Long)obj[1]).intValue()
+			));
+	}
+
+	private Map<Long, String> getKpiNameMap(List<Long> studyIds) {
+		List<StudyKpi> studyKpis = studyKpiRepository.findByStudyIdIn(studyIds);
+
+		return studyKpis.stream()
+			.collect(Collectors.toMap(
+				(StudyKpi sk) -> sk.getStudy().getId(),
+				(StudyKpi sk) -> sk.getKpiCard().getName()
 			));
 	}
 

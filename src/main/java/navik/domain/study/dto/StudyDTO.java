@@ -16,6 +16,7 @@ public class StudyDTO {
 		private Long studyUserId; // 페이징용 커서 ID
 		private Long studyId;
 		private String title; // 스터디명
+		private String kpiName;
 		private String description; // 스터디 소개
 		private LocalDateTime startDate;
 		private LocalDateTime endDate;
