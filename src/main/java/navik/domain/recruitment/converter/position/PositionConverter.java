@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import navik.domain.recruitment.dto.position.PositionRequestDTO;
 import navik.domain.recruitment.dto.position.PositionResponseDTO;
@@ -27,7 +28,14 @@ public class PositionConverter {
 		ExperienceType userExperience = user.getIsEntryLevel() ? ExperienceType.ENTRY : ExperienceType.EXPERIENCED;
 		EducationLevel userEducationLevel = user.getEducationLevel();
 		List<MajorType> userMajors = user.getUserDepartments().stream()
-			.map(major -> MajorType.valueOf(major.getDepartment().getName()))
+			.map(major -> {
+				try {
+					return MajorType.valueOf(major.getDepartment().getName());
+				} catch (IllegalArgumentException e) {
+					return null;
+				}
+			})
+			.filter(Objects::nonNull)
 			.toList();
 
 		// 2. 포지션에 대한 지원 자격 확인
@@ -43,13 +51,13 @@ public class PositionConverter {
 		hashTags.add(position.getWorkPlace() == null ? "지역미기재" : position.getWorkPlace());
 		hashTags.add(position.getExperienceType() == null ? "경력무관" : position.getExperienceType().getLabel());
 		hashTags.add(position.getEmploymentType() == null ? "기타고용형태" : position.getEmploymentType().getLabel());
-		if (!searchCondition.getJobTypes().isEmpty())
+		if (searchCondition.getJobTypes() != null && !searchCondition.getJobTypes().isEmpty())
 			hashTags.add(position.getJob().getName());
-		if (!searchCondition.getCompanySizes().isEmpty())
+		if (searchCondition.getCompanySizes() != null && !searchCondition.getCompanySizes().isEmpty())
 			hashTags.add(position.getRecruitment().getCompanySize().getLabel());
-		if (!searchCondition.getEducationLevels().isEmpty())
-			hashTags.add(position.getEmploymentType().getLabel());
-		if (!searchCondition.getIndustryTypes().isEmpty())
+		if (searchCondition.getEducationLevels() != null && !searchCondition.getEducationLevels().isEmpty())
+			hashTags.add(position.getEducationLevel().getLabel());
+		if (searchCondition.getIndustryTypes() != null && !searchCondition.getIndustryTypes().isEmpty())
 			hashTags.add(position.getRecruitment().getIndustryType() == null ?
 				"기타산업"
 				: position.getRecruitment().getIndustryType().getLabel());
@@ -60,7 +68,11 @@ public class PositionConverter {
 			.postId(position.getRecruitment().getPostId())
 			.link(position.getRecruitment().getLink())
 			.companyLogo(position.getRecruitment().getCompanyLogo())
-			.companySize(position.getRecruitment().getCompanySize().getLabel())
+			.companySize(
+				position.getRecruitment().getCompanySize() == null ?
+					"미분류"
+					: position.getRecruitment().getCompanySize().getLabel()
+			)
 			.companyName(position.getRecruitment().getCompanyName())
 			.endDate(position.getRecruitment().getEndDate())
 			.dDay(ChronoUnit.DAYS.between(LocalDateTime.now(), position.getRecruitment().getEndDate()))
