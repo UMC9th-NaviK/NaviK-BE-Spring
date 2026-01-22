@@ -66,7 +66,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 				experienceTypeSatisfy(experienceType),
 				majorTypeSatisfy(majorTypes),
 				endDateSatisfy(),
-				similarityQuery.goe(0.3)    // 유저 fit한 검색이 목적이므로 유사도 0.3 이상만 집계 (position과 달리, 유저의 역량 정보가 부족하면 결과 없을 수)
+				similarityQuery.goe(0.3)    // 유저 fit한 검색이 목적이므로 유사도 0.3 이상만 집계 (position과 달리, 유저의 역량 정보가 부족하면 결과 없을 수 있음)
 			)
 			.filter(Objects::nonNull)
 			.reduce(BooleanExpression::and)
@@ -74,7 +74,11 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 
 		// 3. 조회
 		return jpaQueryFactory
-			.select(new QRecommendedRecruitmentProjection(recruitment, similarityQuery.sum()))
+			.select(new QRecommendedRecruitmentProjection(
+				recruitment,
+				similarityQuery.sum(),
+				positionKpi.count()
+			))
 			.from(recruitment)
 			.join(recruitment.positions, position)                        // Recruitment -> Position
 			.join(position.positionKpis, positionKpi)                     // Position → KPI
@@ -83,8 +87,13 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			.join(ability.abilityEmbedding, abilityEmbedding)             // Ability -> Embedding
 			.where(where)
 			.groupBy(recruitment)
-			.orderBy(similarityQuery.sum().desc())  // 유사도 합 상위 5개
-			.limit(5)
+			.having(positionKpi.count().goe(3))  // 매칭되는 KPI는 3개 이상
+			.orderBy(
+				similarityQuery.sum().desc(),   // 1순위: 유사도 합산
+				positionKpi.count().desc(),     // 2순위: 매칭 개수
+				recruitment.id.asc()            // 3순위: PK
+			)
+			.limit(5)  // 유사도 합 상위 5개
 			.fetch();
 	}
 
@@ -110,15 +119,24 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 
 		// 3. 조회
 		return jpaQueryFactory
-			.select(new QRecommendedRecruitmentProjection(recruitment, similarityQuery.sum()))
+			.select(new QRecommendedRecruitmentProjection(
+				recruitment,
+				similarityQuery.sum(),
+				positionKpi.count()
+			))
 			.from(recruitment)
 			.join(recruitment.positions, position)                        // Recruitment -> Position
 			.join(position.positionKpis, positionKpi)                     // Position → KPI
 			.join(positionKpi.positionKpiEmbedding, positionKpiEmbedding) // KPI -> KPI Embedding
 			.where(where)
 			.groupBy(recruitment)
-			.orderBy(similarityQuery.sum().desc())  // 유사도 합 상위 5개
-			.limit(5)
+			.having(positionKpi.count().goe(3))  // 매칭되는 KPI는 최소 3개 이상
+			.orderBy(
+				similarityQuery.sum().desc(),   // 1순위: 유사도 합산
+				positionKpi.count().desc(),     // 2순위: 매칭 개수
+				recruitment.id.asc()            // 3순위: PK
+			)
+			.limit(5)  // 유사도 합 상위 5개
 			.fetch();
 	}
 

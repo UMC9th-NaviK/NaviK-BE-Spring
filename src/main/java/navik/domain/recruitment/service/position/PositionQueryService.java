@@ -31,7 +31,7 @@ import navik.global.dto.CursorResponseDto;
 @Transactional(readOnly = true)
 public class PositionQueryService {
 
-	private static final Pattern CURSOR_PATTERN = Pattern.compile("^([\\d\\.]+)_(\\d+)$");
+	private static final Pattern CURSOR_PATTERN = Pattern.compile("^([\\d\\.]+)_(\\d+)_(\\d+)$");
 
 	private final PositionRepository positionRepository;
 	private final UserRepository userRepository;
@@ -69,6 +69,7 @@ public class PositionQueryService {
 		String nextCursor = result.hasNext() ?
 			encodeCursor(
 				result.getContent().getLast().getMatchScore(),
+				result.getContent().getLast().getMatchCount(),
 				result.getContent().getLast().getPosition().getId()
 			)
 			: null;
@@ -80,8 +81,8 @@ public class PositionQueryService {
 		);
 	}
 
-	private String encodeCursor(Double similarity, Long id) {
-		String original = String.format("%f_%d", similarity, id);
+	private String encodeCursor(Double similarity, Long matchCount, Long id) {
+		String original = String.format("%f_%d_%d", similarity, matchCount, id);
 		return Base64.getEncoder().encodeToString(original.getBytes());
 	}
 
@@ -92,9 +93,11 @@ public class PositionQueryService {
 		Matcher matcher = CURSOR_PATTERN.matcher(decoded);
 		if (matcher.find()) {
 			Double similarity = Double.parseDouble(matcher.group(1));
-			Long id = Long.parseLong(matcher.group(2));
+			Long matchCount = Long.parseLong(matcher.group(2));
+			Long id = Long.parseLong(matcher.group(3));
 			return CursorRequest.builder()
 				.lastSimilarity(similarity)
+				.lastMatchCount(matchCount)
 				.lastId(id)
 				.build();
 		}

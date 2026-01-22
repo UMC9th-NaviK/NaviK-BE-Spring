@@ -9,10 +9,12 @@ import navik.domain.recruitment.entity.Position;
 public class RecommendedPositionProjection {
 	private final Position position;
 	private final Double matchScore;
+	private final Long matchCount;
 
 	@QueryProjection
-	public RecommendedPositionProjection(Position position, Double matchScore) {
+	public RecommendedPositionProjection(Position position, Double matchScore, Long matchCount) {
 		this.position = position;
 		this.matchScore = matchScore;
+		this.matchCount = matchCount;
 	}
 }

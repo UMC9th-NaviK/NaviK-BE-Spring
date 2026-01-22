@@ -7,5 +7,6 @@ import lombok.Getter;
 @Builder
 public class CursorRequest {
 	private Double lastSimilarity;
+	private Long lastMatchCount;
 	private Long lastId;
 }

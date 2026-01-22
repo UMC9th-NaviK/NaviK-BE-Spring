@@ -96,7 +96,11 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 
 		// 4. 조회
 		List<RecommendedPositionProjection> result = jpaQueryFactory
-			.select(new QRecommendedPositionProjection(position, similaritySum))
+			.select(new QRecommendedPositionProjection(
+				position,
+				similaritySum,
+				positionKpi.count()
+			))
 			.from(position)
 			.join(position.recruitment, recruitment)
 			.join(position.positionKpis, positionKpi)
@@ -105,8 +109,12 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 			.join(ability.abilityEmbedding, abilityEmbedding)
 			.where(where)
 			.groupBy(position)
-			.having(cursorExpression(cursorRequest, similaritySum))
-			.orderBy(similaritySum.desc(), position.id.asc())
+			.having(cursorExpression(cursorRequest, similaritySum, positionKpi.count()))
+			.orderBy(
+				similaritySum.desc(),
+				positionKpi.count().desc(),
+				position.id.asc()
+			)
 			.limit(pageable.getPageSize() + 1)
 			.fetch();
 
@@ -188,14 +196,32 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 
 	/**
 	 * 커서에 대한 Where절을 생성합니다.
-	 * 	 1순위: 유사도 Desc
-	 * 	 2순위: 유사도가 같다면 pk Asc
+	 * 	 1순위: 유사도 합산 Desc
+	 * 	 2순위: 매칭 개수 Desc
+	 * 	 3순위: PK Asc
 	 */
-	private BooleanExpression cursorExpression(CursorRequest cursorRequest, NumberExpression<Double> scoreSum) {
-		if (cursorRequest == null || cursorRequest.getLastId() == null || cursorRequest.getLastSimilarity() == null)
+	private BooleanExpression cursorExpression(CursorRequest cursorRequest, NumberExpression<Double> scoreSum,
+		NumberExpression<Long> matchCount) {
+		if (cursorRequest == null || cursorRequest.getLastId() == null
+			|| cursorRequest.getLastSimilarity() == null || cursorRequest.getLastMatchCount() == null)
 			return null;
-		return scoreSum.lt(cursorRequest.getLastSimilarity())
-			.or(scoreSum.eq(cursorRequest.getLastSimilarity()).and(position.id.gt(cursorRequest.getLastId())));
+
+		Double lastScore = cursorRequest.getLastSimilarity();
+		Long lastCount = cursorRequest.getLastMatchCount();
+		Long lastId = cursorRequest.getLastId();
+
+		// Case 1 : 유사도 합산이 다름
+		BooleanExpression scoreCondition = scoreSum.lt(lastScore);
+
+		// Case 2 : 유사도 합산이 같은데, 매칭 개수가 다름
+		BooleanExpression countCondition = scoreSum.eq(lastScore).and(matchCount.lt(lastCount));
+
+		// Case 3 : 유사도 합산도 같고, 매칭 개수도 같음
+		BooleanExpression idCondition = scoreSum.eq(lastScore)
+			.and(matchCount.eq(lastCount))
+			.and(position.id.gt(lastId));
+
+		return scoreCondition.or(countCondition).or(idCondition);
 	}
 
 	/**
