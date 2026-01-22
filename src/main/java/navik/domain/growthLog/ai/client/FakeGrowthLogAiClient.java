@@ -9,7 +9,7 @@ import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO;
 
 @Component
-@Profile({"local", "dev", "test"})
+@Profile("!prod")
 public class FakeGrowthLogAiClient implements GrowthLogAiClient {
 
 	@Override
