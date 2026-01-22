@@ -3,6 +3,7 @@ package navik.domain.kpi.service.command;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -83,15 +84,17 @@ public class KpiScoreInitialService {
 		}
 
 		return cards.stream()
-			.collect(java.util.stream.Collectors.toMap(KpiCard::getId, c -> c, (a, b) -> a));
+			.collect(Collectors.toMap(
+				KpiCard::getId,
+				c -> c
+			));
 	}
 
 	private Map<Long, KpiScore> loadExistingScoreMap(Long userId, List<Long> cardIds) {
 		return kpiScoreRepository.findAllByUserIdAndKpiCard_IdIn(userId, cardIds).stream()
-			.collect(java.util.stream.Collectors.toMap(
+			.collect(Collectors.toMap(
 				s -> s.getKpiCard().getId(),
-				s -> s,
-				(a, b) -> a
+				s -> s
 			));
 	}
 
