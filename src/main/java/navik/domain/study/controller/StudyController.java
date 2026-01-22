@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import navik.domain.study.dto.StudyCreateDTO;
 import navik.domain.study.dto.StudyDTO;
+import navik.domain.study.dto.StudyKpiCardDTO;
 import navik.domain.study.enums.StudyRole;
 import navik.domain.study.service.StudyCommandService;
 import navik.domain.study.service.StudyQueryService;
@@ -57,6 +58,25 @@ public class StudyController implements StudyControllerDocs {
 		@AuthUser Long userId
 	) {
 		CursorResponseDto<StudyDTO.MyStudyDTO> response = studyQueryService.getMyStudyList(userId, role, cursor, size);
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
+	}
+
+	/**
+	 * 직무에 따른 KPI 카드 목록 조회
+	 * @param jobName
+	 * @param cursor
+	 * @param size
+	 * @return
+	 */
+	@GetMapping("/kpi-cards")
+	public ApiResponse<CursorResponseDto<StudyKpiCardDTO.StudyKpiCardNameDTO>> getKpiCards(
+		@RequestParam String jobName,
+		@RequestParam(value = "cursor", required = false) Long cursor,
+		@RequestParam(value = "size", defaultValue = "10") int size
+	) {
+		CursorResponseDto<StudyKpiCardDTO.StudyKpiCardNameDTO> response =
+			studyQueryService.getKpiCardListByJob(jobName, cursor, size);
+
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 }

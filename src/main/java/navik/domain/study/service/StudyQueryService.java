@@ -9,8 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import navik.domain.kpi.entity.KpiCard;
 import navik.domain.study.converter.StudyConverter;
+import navik.domain.study.converter.StudyKpiCardConverter;
 import navik.domain.study.dto.StudyDTO;
+import navik.domain.study.dto.StudyKpiCardDTO;
 import navik.domain.study.entity.StudyUser;
 import navik.domain.study.enums.StudyRole;
 import navik.domain.study.repository.StudyCustomRepository;
@@ -24,6 +27,14 @@ public class StudyQueryService {
 	private final StudyUserRepository studyUserRepository;
 	private final StudyCustomRepository studyCustomRepository;
 
+	/**
+	 * 나의 스터디 조회
+	 * @param userId
+	 * @param role
+	 * @param cursor
+	 * @param pageSize
+	 * @return
+	 */
 	@Transactional(readOnly = true)
 
 	public CursorResponseDto<StudyDTO.MyStudyDTO> getMyStudyList(Long userId, StudyRole role, Long cursor,
@@ -59,6 +70,34 @@ public class StudyQueryService {
 		return CursorResponseDto.of(content, hasNext, nextCursor);
 	}
 
+	/**
+	 * 직무별 KPI 카드 목록 조회
+	 * @param JobName
+	 * @param cursor
+	 * @param pageSize
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public CursorResponseDto<StudyKpiCardDTO.StudyKpiCardNameDTO> getKpiCardListByJob(String JobName, Long cursor,
+		int pageSize) {
+		// 1. 커서 기반 목록 조회
+		List<KpiCard> kpiCards = studyCustomRepository.findByJobNameWithCursor(JobName, cursor, pageSize);
+
+		if (kpiCards.isEmpty()) {
+			return CursorResponseDto.of(Collections.emptyList(), false, null);
+		}
+
+		// 2. 다음 페이지 존재 여부 확인 및 리스트 정제
+		boolean hasNext = kpiCards.size() > pageSize;
+		List<KpiCard> pagingList = hasNext ? kpiCards.subList(0, pageSize) : kpiCards;
+
+		// 3. 다음 커서값 생성
+		String nextCursor = hasNext ? pagingList.get(pagingList.size() - 1).getId().toString() : null;
+
+		// 4. Converter를 사용하여 DTO 변환 및 결과 반환
+		return StudyKpiCardConverter.toKpiCardNameListDTO(pagingList, hasNext, nextCursor);
+	}
+
 	private Map<Long, Integer> getParticipantCountMap(List<Long> studyIds) {
 		return studyUserRepository.countParticipantsByStudyIds(studyIds).stream()
 			.collect(Collectors.toMap(
@@ -66,4 +105,5 @@ public class StudyQueryService {
 				obj -> ((Long)obj[1]).intValue()
 			));
 	}
+
 }

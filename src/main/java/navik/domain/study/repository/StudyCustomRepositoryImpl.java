@@ -8,6 +8,8 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
+import navik.domain.kpi.entity.KpiCard;
+import navik.domain.kpi.entity.QKpiCard;
 import navik.domain.study.entity.QStudy;
 import navik.domain.study.entity.QStudyUser;
 import navik.domain.study.entity.StudyUser;
@@ -17,7 +19,16 @@ import navik.domain.study.enums.StudyRole;
 @RequiredArgsConstructor
 public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 	private final JPAQueryFactory queryFactory;
+	private final QKpiCard kpiCard = QKpiCard.kpiCard;
 
+	/**
+	 * 나의 스터디 조회
+	 * @param userId
+	 * @param role
+	 * @param cursor
+	 * @param pageSize
+	 * @return
+	 */
 	@Override
 	public List<StudyUser> findMyStudyByCursor(Long userId, StudyRole role, Long cursor, int pageSize) {
 		QStudyUser studyUser = QStudyUser.studyUser;
@@ -36,11 +47,35 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 			.fetch();
 	}
 
+	/**
+	 * 직무에 따른 KPI 카드 조회
+	 * @param jobName
+	 * @param cursor
+	 * @param pageSize
+	 * @return
+	 */
+	@Override
+	public List<KpiCard> findByJobNameWithCursor(String jobName, Long cursor, int pageSize) {
+		return queryFactory
+			.selectFrom(kpiCard)
+			.where(
+				kpiCard.name.eq(jobName),
+				ltCursorId(cursor)
+			)
+			.orderBy(kpiCard.id.desc())
+			.limit(pageSize + 1)
+			.fetch();
+	}
+
 	private BooleanExpression roleEq(StudyRole role) {
 		return role != null ? QStudyUser.studyUser.role.eq(role) : null;
 	}
 
 	private BooleanExpression ltStudyUserId(Long lastId) {
 		return lastId != null ? QStudyUser.studyUser.id.lt(lastId) : null;
+	}
+
+	private BooleanExpression ltCursorId(Long cursor) {
+		return cursor != null ? kpiCard.id.lt(cursor) : null;
 	}
 }
