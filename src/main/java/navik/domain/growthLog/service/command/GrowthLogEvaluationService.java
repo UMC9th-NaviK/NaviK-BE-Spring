@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import navik.domain.growthLog.ai.client.GrowthLogAiClient;
 import navik.domain.growthLog.ai.limiter.RetryRateLimiter;
@@ -28,7 +27,6 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class GrowthLogEvaluationService {
 
 	private final GrowthLogRepository growthLogRepository;
