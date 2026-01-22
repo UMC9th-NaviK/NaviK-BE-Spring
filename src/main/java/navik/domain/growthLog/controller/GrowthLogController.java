@@ -60,7 +60,7 @@ public class GrowthLogController implements GrowthLogControllerDocs {
 		GrowthLogResponseDTO.RetryResult result =
 			growthLogEvaluationService.retry(userId, growthLogId);
 
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
+		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, result);
 	}
 
 	// 요약 보기
