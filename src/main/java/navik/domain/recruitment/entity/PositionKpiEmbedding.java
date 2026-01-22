@@ -1,13 +1,14 @@
 package navik.domain.recruitment.entity;
 
+import org.hibernate.annotations.Array;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -22,20 +23,19 @@ import navik.global.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@Table(name = "position_kpis")
-public class PositionKpi extends BaseEntity {
+@Table(name = "position_kpi_embeddings")
+public class PositionKpiEmbedding extends BaseEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "position_id")
-	private Position position;
+	@JdbcTypeCode(SqlTypes.VECTOR)
+	@Array(length = 1536)
+	@Column(name = "embedding", nullable = false)
+	private float[] embedding;
 
-	@Column(name = "content", nullable = false)
-	private String content;
-
-	@OneToOne(mappedBy = "positionKpi", fetch = FetchType.LAZY)
-	private PositionKpiEmbedding positionKpiEmbedding;
+	@OneToOne
+	@MapsId
+	@JoinColumn(name = "position_kpi_id")
+	private PositionKpi positionKpi;
 }

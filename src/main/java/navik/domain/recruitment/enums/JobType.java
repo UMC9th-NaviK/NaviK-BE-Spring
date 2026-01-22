@@ -5,11 +5,12 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ExperienceType {
+public enum JobType {
 
-	ENTRY("신입", 1),
-	EXPERIENCED("경력", 2);
+	PM("프로덕트 매니저"),
+	DESIGNER("프로덕트 디자이너"),
+	FRONTEND("프론트엔드 개발자"),
+	BACKEND("백엔드 개발자");
 
 	private final String label;
-	private final int order;
 }

@@ -1,6 +1,5 @@
 package navik.domain.users.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -15,7 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import navik.domain.board.entity.Board;
 import navik.global.entity.BaseEntity;
 
 @Entity

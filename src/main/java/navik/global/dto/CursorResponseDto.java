@@ -56,4 +56,8 @@ public class CursorResponseDto<T> {
 			.pageSize(content.size())
 			.build();
 	}
+
+	public static <T> CursorResponseDto<T> of(Slice<T> slice, String nextCursor) {
+		return new CursorResponseDto<>(slice, nextCursor);
+	}
 }
