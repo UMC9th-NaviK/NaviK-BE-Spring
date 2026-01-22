@@ -29,7 +29,7 @@ public class RecruitmentController implements RecruitmentControllerDocs {
 	}
 
 	@Override
-	@GetMapping("/card")
+	@GetMapping("/cards")
 	public ApiResponse<List<RecruitmentResponseDTO.RecommendedPost>> getRecommendedPostsByCard(
 		@RequestParam("cardId") Long cardId) {
 		List<RecruitmentResponseDTO.RecommendedPost> result = recruitmentQueryService.getRecommendedPostsByCard(cardId);
