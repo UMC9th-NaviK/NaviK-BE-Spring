@@ -31,11 +31,6 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 		Long userId,
 		GrowthLogEvaluationContext context
 	) {
-		if (props.baseUrl() == null || props.baseUrl().isBlank()) {
-			throw new GeneralExceptionHandler(
-				GrowthLogErrorCode.AI_SERVER_URL_NOT_CONFIGURED
-			);
-		}
 
 		try {
 			return aiWebClient.post()
