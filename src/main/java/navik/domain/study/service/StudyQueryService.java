@@ -28,28 +28,33 @@ public class StudyQueryService {
 
 	public CursorResponseDto<StudyDTO.MyStudyDTO> getMyStudyList(Long userId, StudyRole role, Long cursor,
 		int pageSize) {
-		// 1. 커서 기반 목록 조회
+		// 1. 커서 기반 목록 조회 (리포지토리에서 pageSize + 1개를 조회함)
 		List<StudyUser> myStudyUsers = studyCustomRepository.findMyStudyByCursor(userId, role, cursor, pageSize);
 
 		if (myStudyUsers.isEmpty()) {
 			return CursorResponseDto.of(Collections.emptyList(), false, null);
 		}
 
-		List<Long> studyIds = myStudyUsers.stream()
+		// 2. 다음 페이지 존재 여부 확인 및 리스트 정제
+		boolean hasNext = myStudyUsers.size() > pageSize;
+
+		// 다음 페이지 확인용으로 가져온 마지막(pageSize + 1번째) 항목은 실제 데이터에서 제외
+		List<StudyUser> pagingList = hasNext ? myStudyUsers.subList(0, pageSize) : myStudyUsers;
+
+		// 3. 정제된 리스트(pagingList)를 바탕으로 ID 추출 및 N+1 방지 조회
+		List<Long> studyIds = pagingList.stream()
 			.map(su -> su.getStudy().getId())
 			.toList();
 
-		// 2. 참여 인원 일괄 조회
 		Map<Long, Integer> participantCountMap = getParticipantCountMap(studyIds);
 
-		// 3. DTO 변환
-		List<StudyDTO.MyStudyDTO> content = myStudyUsers.stream()
+		// 4. DTO 변환
+		List<StudyDTO.MyStudyDTO> content = pagingList.stream()
 			.map(su -> StudyConverter.toMyStudyDTO(su, participantCountMap.getOrDefault(su.getStudy().getId(), 0)))
 			.toList();
 
-		// 4. 다음 페이지 정보 생성
-		boolean hasNext = myStudyUsers.size() >= pageSize;
-		String nextCursor = hasNext ? myStudyUsers.get(myStudyUsers.size() - 1).getId().toString() : null;
+		// 5. 다음 커서값 생성 (실제 응답에 포함된 마지막 항목의 ID 기준)
+		String nextCursor = hasNext ? pagingList.get(pagingList.size() - 1).getId().toString() : null;
 
 		return CursorResponseDto.of(content, hasNext, nextCursor);
 	}
