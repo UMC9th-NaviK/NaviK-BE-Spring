@@ -6,10 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import navik.domain.job.entity.Job;
 import navik.domain.recruitment.dto.position.PositionRequestDTO;
 import navik.domain.recruitment.dto.position.PositionResponseDTO;
+import navik.domain.recruitment.dto.recruitment.RecruitmentRequestDTO;
 import navik.domain.recruitment.entity.Position;
 import navik.domain.recruitment.entity.PositionKpi;
+import navik.domain.recruitment.entity.Recruitment;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.MajorType;
 import navik.domain.recruitment.repository.position.projection.RecommendedPositionProjection;
@@ -90,6 +93,26 @@ public class PositionConverter {
 			.satisfyExperience(satisfyExperience)
 			.satisfyEducation(satisfyEducation)
 			.satisfyMajor(satisfyMajor)
+			.build();
+	}
+
+	public static Position toEntity(
+		RecruitmentRequestDTO.Recruitment.Position position,
+		Recruitment recruitment,
+		Job job
+	) {
+		return Position.builder()
+			.job(job)
+			.recruitment(recruitment)
+			.name(position.getName())
+			.employmentType(position.getEmploymentType())
+			.experienceType(position.getExperienceType())
+			.educationLevel(position.getEducationLevel())
+			.areaType(position.getAreaType())
+			.majorType(position.getMajorType())
+			.workPlace(position.getDetailAddress())
+			.startDate(recruitment.getStartDate())
+			.endDate(recruitment.getEndDate())
 			.build();
 	}
 }
