@@ -1,4 +1,4 @@
-package navik.domain.recruitment.repository.position;
+package navik.domain.recruitment.repository.position.position;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -40,7 +40,7 @@ import navik.domain.recruitment.enums.EmploymentType;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.IndustryType;
 import navik.domain.recruitment.repository.position.projection.QRecommendedPositionProjection;
-import navik.domain.recruitment.repository.position.projection.RecommendedPositionProjection;
+import navik.domain.recruitment.repository.position.position.projection.RecommendedPositionProjection;
 import navik.domain.users.entity.User;
 import navik.domain.users.enums.EducationLevel;
 
