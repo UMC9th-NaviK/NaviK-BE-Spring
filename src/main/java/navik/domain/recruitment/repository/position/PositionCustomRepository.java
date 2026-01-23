@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
 import navik.domain.job.entity.Job;
-import navik.domain.recruitment.dto.position.CursorRequest;
 import navik.domain.recruitment.dto.position.PositionRequestDTO;
 import navik.domain.recruitment.repository.position.projection.RecommendedPositionProjection;
 import navik.domain.users.entity.User;
@@ -16,7 +15,7 @@ public interface PositionCustomRepository {
 		User user,
 		List<Job> jobs,
 		PositionRequestDTO.SearchCondition searchCondition,
-		CursorRequest cursorRequest,
+		PositionRequestDTO.CursorRequest cursorRequest,
 		Pageable pageable
 	);
 }

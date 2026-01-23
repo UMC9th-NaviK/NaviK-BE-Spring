@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import navik.domain.ability.entity.QAbility;
 import navik.domain.ability.entity.QAbilityEmbedding;
 import navik.domain.job.entity.Job;
-import navik.domain.recruitment.dto.position.CursorRequest;
 import navik.domain.recruitment.dto.position.PositionRequestDTO;
 import navik.domain.recruitment.entity.QPosition;
 import navik.domain.recruitment.entity.QPositionKpi;
@@ -57,7 +56,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 		User user,
 		List<Job> jobs,
 		PositionRequestDTO.SearchCondition searchCondition,
-		CursorRequest cursorRequest,
+		PositionRequestDTO.CursorRequest cursorRequest,
 		Pageable pageable
 	) {
 
@@ -200,7 +199,8 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	 * 	 2순위: 매칭 개수 Desc
 	 * 	 3순위: PK Asc
 	 */
-	private BooleanExpression cursorExpression(CursorRequest cursorRequest, NumberExpression<Double> scoreSum,
+	private BooleanExpression cursorExpression(PositionRequestDTO.CursorRequest cursorRequest,
+		NumberExpression<Double> scoreSum,
 		NumberExpression<Long> matchCount) {
 		if (cursorRequest == null || cursorRequest.getLastId() == null
 			|| cursorRequest.getLastSimilarity() == null || cursorRequest.getLastMatchCount() == null)
