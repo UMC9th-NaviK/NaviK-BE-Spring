@@ -1,5 +1,8 @@
 package navik.domain.recruitment.repository.position;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -8,7 +11,10 @@ import java.util.stream.Stream;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -23,6 +29,7 @@ import navik.domain.ability.entity.QAbility;
 import navik.domain.ability.entity.QAbilityEmbedding;
 import navik.domain.job.entity.Job;
 import navik.domain.recruitment.dto.position.PositionRequestDTO;
+import navik.domain.recruitment.entity.Position;
 import navik.domain.recruitment.entity.QPosition;
 import navik.domain.recruitment.entity.QPositionKpi;
 import navik.domain.recruitment.entity.QPositionKpiEmbedding;
@@ -43,6 +50,7 @@ import navik.domain.users.enums.EducationLevel;
 public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 
 	private final JPAQueryFactory jpaQueryFactory;
+	private final JdbcTemplate jdbcTemplate;
 
 	private final QRecruitment recruitment = QRecruitment.recruitment;
 	private final QPosition position = QPosition.position;
@@ -119,6 +127,59 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 
 		// 5. Slice 반환
 		return toSlice(result, pageable);
+	}
+
+	/**
+	 * Position에 대한 Batch Insert를 수행합니다.
+	 */
+	@Override
+	@Transactional
+	public void batchSaveAll(List<Position> positions) {
+		String sql = """
+			INSERT INTO positions (
+			    job_id,
+			    recruitment_id,
+			    name,
+			    employment_type,
+			    experience_type,
+			    education_level,
+			    area_type,
+			    major_type,
+			    work_place,
+			    start_date,
+			    end_date,
+			    created_at,
+			    updated_at
+			)
+			VALUES (
+			    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+			)
+			""";
+
+		jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+			@Override
+			public void setValues(PreparedStatement ps, int i) throws SQLException {
+				Position position = positions.get(i);
+				ps.setLong(1, position.getJob().getId());
+				ps.setLong(2, position.getRecruitment().getId());
+				ps.setString(3, position.getName());
+				ps.setString(4, position.getEmploymentType().name());
+				ps.setString(5, position.getExperienceType().name());
+				ps.setString(6, position.getEducationLevel().name());
+				ps.setString(7, position.getAreaType().name());
+				ps.setString(8, position.getMajorType().name());
+				ps.setString(9, position.getWorkPlace());
+				ps.setTimestamp(10, Timestamp.valueOf(position.getStartDate()));
+				ps.setTimestamp(11, Timestamp.valueOf(position.getEndDate()));
+				ps.setTimestamp(12, Timestamp.valueOf(LocalDateTime.now()));
+				ps.setTimestamp(13, Timestamp.valueOf(LocalDateTime.now()));
+			}
+
+			@Override
+			public int getBatchSize() {
+				return positions.size();
+			}
+		});
 	}
 
 	/**
