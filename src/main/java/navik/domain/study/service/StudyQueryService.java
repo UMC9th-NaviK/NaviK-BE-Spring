@@ -133,8 +133,9 @@ public class StudyQueryService {
 		}
 
 		// 2. 이미 참여 중이거나 신청한 스터디는 제외한다
-		List<Long> excludeStudyIds = studyUserRepository.findById(userId).stream()
+		List<Long> excludeStudyIds = studyUserRepository.findByUserId(userId).stream()
 			.map(su -> su.getStudy().getId()).toList();
+
 		if (excludeStudyIds.isEmpty()) {
 			excludeStudyIds = List.of(-1L);
 		}
