@@ -39,7 +39,7 @@ spring:
       stream:
         recruitment:
           key: ${STREAM_RECRUITMENT_KEY:recruitment}
-          consumer-group: ${STREAM_RECRUITMENT_CONSUMER_GROUP:group}
+          consumer-group-name: ${STREAM_RECRUITMENT_CONSUMER_GROUP_NAME:group}
 
   security:
     oauth2:
