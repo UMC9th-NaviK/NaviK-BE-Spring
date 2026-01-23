@@ -16,6 +16,7 @@ import navik.domain.study.entity.QStudyKpi;
 import navik.domain.study.entity.QStudyUser;
 import navik.domain.study.entity.Study;
 import navik.domain.study.entity.StudyUser;
+import navik.domain.study.enums.AttendStatus;
 import navik.domain.study.enums.RecruitmentStatus;
 import navik.domain.study.enums.StudyRole;
 
@@ -96,7 +97,10 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 
 				JPAExpressions.select(studyUser.count()) // 현재 참여 인원 < 최대 수용인원
 					.from(studyUser)
-					.where(studyUser.study.eq(study))
+					.where(
+						studyUser.study.eq(study),
+						studyUser.attend.eq(AttendStatus.ACCEPTANCE)
+					)
 					.lt(study.capacity.longValue()),
 
 				ltStudyUserId(cursor)
