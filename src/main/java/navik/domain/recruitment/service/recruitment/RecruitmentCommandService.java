@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.job.entity.Job;
 import navik.domain.job.repository.JobRepository;
 import navik.domain.recruitment.converter.position.PositionConverter;
@@ -26,6 +27,7 @@ import navik.domain.recruitment.repository.position.positionKpi.PositionKpiRepos
 import navik.domain.recruitment.repository.position.positionKpiEmbedding.PositionKpiEmbeddingRepository;
 import navik.domain.recruitment.repository.recruitment.RecruitmentRepository;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -38,6 +40,11 @@ public class RecruitmentCommandService {
 	private final JobRepository jobRepository;
 
 	public void saveRecruitment(RecruitmentRequestDTO.Recruitment recruitmentDTO) {
+
+		if (recruitmentRepository.existsByPostId(recruitmentDTO.getPostId())) {
+			log.info("[RecruitmentCommandService] 이미 등록된 채용 공고입니다.");
+			return;
+		}
 
 		// 1. 공고 저장
 		Recruitment recruitment = RecruitmentConverter.toEntity(recruitmentDTO);
