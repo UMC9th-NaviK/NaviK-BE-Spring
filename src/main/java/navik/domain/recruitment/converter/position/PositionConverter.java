@@ -15,7 +15,7 @@ import navik.domain.recruitment.entity.PositionKpi;
 import navik.domain.recruitment.entity.Recruitment;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.MajorType;
-import navik.domain.recruitment.repository.position.projection.RecommendedPositionProjection;
+import navik.domain.recruitment.repository.position.position.projection.RecommendedPositionProjection;
 import navik.domain.users.entity.User;
 import navik.domain.users.enums.EducationLevel;
 
