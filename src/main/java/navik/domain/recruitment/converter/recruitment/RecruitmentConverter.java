@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
+import navik.domain.recruitment.dto.recruitment.RecruitmentRequestDTO;
 import navik.domain.recruitment.dto.recruitment.RecruitmentResponseDTO;
 import navik.domain.recruitment.entity.Position;
 import navik.domain.recruitment.entity.Recruitment;
@@ -57,6 +58,21 @@ public class RecruitmentConverter {
 			)
 			.isRecommend((matchScore / matchCount) >= 0.45)    // 평균 매칭 강도가 0.45면 'Navik이 추천해요' (합산 = 매칭 개수 * 평균 강도)
 			.aiSummary(recruitment.getSummary())
+			.build();
+	}
+
+	public static Recruitment toEntity(RecruitmentRequestDTO.Recruitment dto) {
+		return Recruitment.builder()
+			.link(dto.getLink())
+			.title(dto.getTitle())
+			.postId(dto.getPostId())
+			.companyName(dto.getCompanyName())
+			.companyLogo(dto.getCompanyLogo())
+			.companySize(dto.getCompanySize())
+			.industryType(dto.getIndustryType())
+			.startDate(dto.getStartDate())
+			.endDate(dto.getEndDate())
+			.summary(dto.getSummary())
 			.build();
 	}
 }
