@@ -36,6 +36,10 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+      stream:
+        recruitment:
+          key: ${STREAM_RECRUITMENT_KEY:recruitment}
+          consumer-group: ${STREAM_RECRUITMENT_CONSUMER_GROUP:group}
 
   security:
     oauth2:

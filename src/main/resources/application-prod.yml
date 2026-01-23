@@ -36,6 +36,10 @@ spring:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
+      stream:
+        recruitment:
+          key: ${STREAM_RECRUITMENT_KEY}
+          consumer-group: ${STREAM_RECRUITMENT_CONSUMER_GROUP}
 
   security:
     oauth2:
