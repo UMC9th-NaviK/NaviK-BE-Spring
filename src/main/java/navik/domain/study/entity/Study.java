@@ -18,9 +18,8 @@ import lombok.NoArgsConstructor;
 import navik.domain.notification.entity.Notifiable;
 import navik.domain.notification.entity.NotificationType;
 import navik.domain.study.enums.RecruitmentStatus;
+import navik.domain.study.enums.StudySynergy;
 import navik.global.entity.BaseEntity;
-
-import org.aspectj.weaver.ast.Not;
 
 @Entity
 @Getter
@@ -35,26 +34,36 @@ public class Study extends BaseEntity implements Notifiable {
 	private Long id;
 
 	@Column(name = "title", nullable = false)
-	private String title;
+	private String title; // 스터디 이름
 
 	@Column(name = "capacity", nullable = false)
-	private Integer capacity;
+	private Integer capacity; // 모이는 사람 수
 
 	@Column(name = "description", nullable = false)
-	private String description;
+	private String description; // 스터디 소개
+
+	@Column(name = "gathering_period", nullable = false)
+	private Integer gatheringPeriod; // 모이는 기간
+
+	@Column(name = "participation_method", nullable = false)
+	private String participationMethod; // 참여 방법
+
+	@Column(name = "synergy_type", nullable = false)
+	@Enumerated(EnumType.STRING)
+	private StudySynergy synergyType;
 
 	@Column(name = "start_date", nullable = false)
-	private LocalDateTime startDate;
+	private LocalDateTime startDate; // 스터디 시작일
 
 	@Column(name = "end_date", nullable = false)
-	private LocalDateTime endDate;
+	private LocalDateTime endDate; // 스터디 종료일
 
 	@Column(name = "recruitment_status", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private RecruitmentStatus recruitmentStatus;
+	private RecruitmentStatus recruitmentStatus; // 모집상태
 
-	@Column(name = "social_id", nullable = false)
-	private String socialId;
+	@Column(name = "open_chat_url")
+	private String openChatUrl;
 
 	@Override
 	public NotificationType getNotificationType() {
@@ -69,5 +78,19 @@ public class Study extends BaseEntity implements Notifiable {
 	@Override
 	public boolean isCompleted() {
 		return LocalDateTime.now().isAfter(this.endDate);
+	}
+
+	public RecruitmentStatus getStatus(LocalDateTime now) {
+		if (now.isBefore(this.startDate)) {
+			return RecruitmentStatus.RECURRING; // 모집중
+		} else if (now.isAfter(this.endDate)) {
+			return RecruitmentStatus.CLOSED;   // 종료
+		} else {
+			return RecruitmentStatus.IN_PROGRESS;    // 진행중
+		}
+	}
+
+	public boolean canEvaluate(LocalDateTime now) {
+		return now.isAfter(this.endDate);
 	}
 }
