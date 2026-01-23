@@ -5,14 +5,18 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.kpi.entity.KpiCard;
 import navik.domain.kpi.entity.QKpiCard;
 import navik.domain.study.entity.QStudy;
+import navik.domain.study.entity.QStudyKpi;
 import navik.domain.study.entity.QStudyUser;
+import navik.domain.study.entity.Study;
 import navik.domain.study.entity.StudyUser;
+import navik.domain.study.enums.RecruitmentStatus;
 import navik.domain.study.enums.StudyRole;
 
 @Repository
@@ -67,6 +71,42 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 			.fetch();
 	}
 
+	/**
+	 * 약점 KPI와 스터디 KPI 매핑하여 스터디 추천
+	 * @param weaknessKpiIds
+	 * @param excludeStudyIds
+	 * @param cursor
+	 * @param pageSize
+	 * @return
+	 */
+	@Override
+	public List<Study> findRecommendedStudyByKpi(List<Long> weaknessKpiIds, List<Long> excludeStudyIds, Long cursor,
+		int pageSize) {
+		QStudy study = QStudy.study;
+		QStudyKpi studyKpi = QStudyKpi.studyKpi;
+		QStudyUser studyUser = QStudyUser.studyUser;
+
+		return queryFactory
+			.selectFrom(study)
+			.join(studyKpi).on(studyKpi.study.eq(study))
+			.where(
+				studyKpi.kpiCard.id.in(weaknessKpiIds), // 약점 KPI 중 하나라도 포함되어야 함
+				study.id.notIn(excludeStudyIds), // 이미 참여중인 스터디 제외되어야 함
+				study.recruitmentStatus.eq(RecruitmentStatus.RECURRING), // 모집중인 스터디이어야 함
+
+				JPAExpressions.select(studyUser.count()) // 현재 참여 인원 < 최대 수용인원
+					.from(studyUser)
+					.where(studyUser.study.eq(study))
+					.lt(study.capacity.longValue()),
+
+				ltStudyUserId(cursor)
+			)
+			.distinct()
+			.orderBy(study.id.desc())
+			.limit(pageSize + 1)
+			.fetch();
+	}
+
 	private BooleanExpression roleEq(StudyRole role) {
 		return role != null ? QStudyUser.studyUser.role.eq(role) : null;
 	}
@@ -77,5 +117,9 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 
 	private BooleanExpression ltCursorId(Long cursor) {
 		return cursor != null ? kpiCard.id.lt(cursor) : null;
+	}
+
+	private BooleanExpression ltStudyId(Long cursor) {
+		return cursor != null ? QStudy.study.id.lt(cursor) : null;
 	}
 }
