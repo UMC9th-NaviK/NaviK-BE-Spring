@@ -158,19 +158,30 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				Position position = positions.get(i);
+				Timestamp now = Timestamp.valueOf(LocalDateTime.now());
+
 				ps.setLong(1, position.getJob().getId());
 				ps.setLong(2, position.getRecruitment().getId());
 				ps.setString(3, position.getName());
-				ps.setString(4, position.getEmploymentType().name());
-				ps.setString(5, position.getExperienceType().name());
-				ps.setString(6, position.getEducationLevel().name());
-				ps.setString(7, position.getAreaType().name());
-				ps.setString(8, position.getMajorType().name());
+				ps.setObject(4, position.getEmploymentType() != null ? position.getEmploymentType().name() : null);
+				ps.setObject(5, position.getExperienceType() != null ? position.getExperienceType().name() : null);
+				ps.setObject(6, position.getEducationLevel() != null ? position.getEducationLevel().name() : null);
+				ps.setObject(7, position.getAreaType() != null ? position.getAreaType().name() : null);
+				ps.setObject(8, position.getMajorType() != null ? position.getMajorType().name() : null);
 				ps.setString(9, position.getWorkPlace());
-				ps.setTimestamp(10, Timestamp.valueOf(position.getStartDate()));
-				ps.setTimestamp(11, Timestamp.valueOf(position.getEndDate()));
-				ps.setTimestamp(12, Timestamp.valueOf(LocalDateTime.now()));
-				ps.setTimestamp(13, Timestamp.valueOf(LocalDateTime.now()));
+				ps.setTimestamp(10,
+					position.getStartDate() != null ? Timestamp.valueOf(position.getStartDate()) : null);
+				ps.setTimestamp(11, position.getEndDate() != null ? Timestamp.valueOf(position.getEndDate()) : null);
+				ps.setTimestamp(12, now);
+				ps.setTimestamp(13, now);
+			}
+
+			private void setEnumOrNull(PreparedStatement ps, int index, Enum<?> enumValue) throws SQLException {
+				if (enumValue != null) {
+					ps.setString(index, enumValue.name());
+				} else {
+					ps.setNull(index, java.sql.Types.VARCHAR); // DB 컬럼 타입에 맞춰 VARCHAR 설정
+				}
 			}
 
 			@Override
