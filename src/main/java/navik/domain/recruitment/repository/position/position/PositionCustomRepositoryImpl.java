@@ -38,8 +38,8 @@ import navik.domain.recruitment.enums.CompanySize;
 import navik.domain.recruitment.enums.EmploymentType;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.IndustryType;
+import navik.domain.recruitment.repository.position.position.projection.QRecommendedPositionProjection;
 import navik.domain.recruitment.repository.position.position.projection.RecommendedPositionProjection;
-import navik.domain.recruitment.repository.position.projection.QRecommendedPositionProjection;
 import navik.domain.users.entity.User;
 import navik.domain.users.enums.EducationLevel;
 
