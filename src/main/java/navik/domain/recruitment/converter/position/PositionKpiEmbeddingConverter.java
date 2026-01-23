@@ -6,7 +6,8 @@ import navik.domain.recruitment.entity.PositionKpiEmbedding;
 
 public class PositionKpiEmbeddingConverter {
 
-	public static PositionKpiEmbedding toEntity(PositionKpi positionKpi, RecruitmentRequestDTO.Recruitment.KPI kpi) {
+	public static PositionKpiEmbedding toEntity(PositionKpi positionKpi,
+		RecruitmentRequestDTO.Recruitment.Position.KPI kpi) {
 		return PositionKpiEmbedding.builder()
 			.positionKpi(positionKpi)
 			.embedding(kpi.getEmbedding())

@@ -6,7 +6,7 @@ import navik.domain.recruitment.entity.PositionKpi;
 
 public class PositionKpiConverter {
 
-	public static PositionKpi toEntity(Position position, RecruitmentRequestDTO.Recruitment.KPI kpi) {
+	public static PositionKpi toEntity(Position position, RecruitmentRequestDTO.Recruitment.Position.KPI kpi) {
 		return PositionKpi.builder()
 			.position(position)
 			.content(kpi.getKpi())
