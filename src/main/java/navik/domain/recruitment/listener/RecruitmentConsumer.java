@@ -2,7 +2,6 @@ package navik.domain.recruitment.listener;
 
 import java.net.InetAddress;
 import java.util.Iterator;
-import java.util.UUID;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -20,12 +19,6 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
-import io.lettuce.core.codec.StringCodec;
-import io.lettuce.core.output.StatusOutput;
-import io.lettuce.core.protocol.CommandArgs;
-import io.lettuce.core.protocol.CommandKeyword;
-import io.lettuce.core.protocol.CommandType;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +37,7 @@ public class RecruitmentConsumer implements StreamListener<String, ObjectRecord<
 
 	@Value("${spring.data.redis.stream.recruitment.key}")
 	private String streamKey;
-	@Value("${spring.data.redis.stream.recruitment.group-name}")
+	@Value("${spring.data.redis.stream.recruitment.consumer-group-name}")
 	private String consumerGroupName;
 	private String consumerName;
 	private Subscription subscription;
@@ -59,8 +52,7 @@ public class RecruitmentConsumer implements StreamListener<String, ObjectRecord<
 		createStreamConsumerGroup(streamKey, consumerGroupName);
 
 		// Consumer Name 설정
-		this.consumerName =
-			InetAddress.getLocalHost().getHostName() + ":" + UUID.randomUUID().toString().substring(0, 8);
+		this.consumerName = InetAddress.getLocalHost().getHostName();
 
 		// StreamMessageListenerContainer 설정
 		this.listenerContainer = StreamMessageListenerContainer.create(
@@ -73,7 +65,7 @@ public class RecruitmentConsumer implements StreamListener<String, ObjectRecord<
 		// Subscription 설정
 		this.subscription = this.listenerContainer.receive(
 			Consumer.from(this.consumerGroupName, consumerName),
-			StreamOffset.create(streamKey, ReadOffset.lastConsumed()),
+			StreamOffset.create(streamKey, ReadOffset.lastConsumed()), // ">" : 다른 컨슈머가 소비하지 않은 것
 			this
 		);
 
@@ -90,11 +82,13 @@ public class RecruitmentConsumer implements StreamListener<String, ObjectRecord<
 		String recordId = message.getId().getValue();
 
 		try {
+			log.info("[RecruitmentConsumer] 채용 공고 적재 시도");
 			if (StringUtils.isNotEmpty(receivedStreamKey) && StringUtils.isNotEmpty(recordId)) {
 				RecruitmentRequestDTO.Recruitment recruitmentDTO = objectMapper.readValue(message.getValue(),
 					RecruitmentRequestDTO.Recruitment.class);
 				recruitmentCommandService.saveRecruitment(recruitmentDTO);
 				redisTemplate.opsForStream().acknowledge(receivedStreamKey, consumerGroupName, recordId);
+				log.info("[RecruitmentConsumer] 채용 공고 적재 완료하였습니다.");
 			} else {
 				log.error("[RecruitmentConsumer] streamKey 또는 recordId가 비어있습니다.");
 			}
@@ -117,26 +111,15 @@ public class RecruitmentConsumer implements StreamListener<String, ObjectRecord<
 	}
 
 	/**
-	 * Consume을 위해 Stream과 ConsumerGroup 존재 여부를 확인하고, 생성합니다.
+	 * Consume을 위해 Stream과 ConsumerGroup 존재 여부를 확인하고 생성합니다.
 	 */
 	private void createStreamConsumerGroup(String streamKey, String consumerGroupName) {
 		if (!redisTemplate.hasKey(streamKey)) {
-			RedisClusterAsyncCommands commands = (RedisClusterAsyncCommands)this.redisTemplate
-				.getConnectionFactory()
-				.getClusterConnection()
-				.getNativeConnection();
-
-			CommandArgs<String, String> args = new CommandArgs<>(StringCodec.UTF8)
-				.add(CommandKeyword.CREATE)
-				.add(streamKey)
-				.add(consumerGroupName)
-				.add("0")
-				.add("MKSTREAM");
-
-			commands.dispatch(CommandType.XGROUP, new StatusOutput(StringCodec.UTF8), args);
+			redisTemplate.opsForStream().createGroup(streamKey, consumerGroupName);    // 비 클러스터
 		} else {
 			if (!isStreamConsumerGroupExist(streamKey, consumerGroupName)) {
-				this.redisTemplate.opsForStream().createGroup(streamKey, ReadOffset.from("0"), consumerGroupName);
+				this.redisTemplate.opsForStream()
+					.createGroup(streamKey, ReadOffset.from("0"), consumerGroupName); // 그룹 생성 전 데이터를 포함하는 스트림
 			}
 		}
 	}
