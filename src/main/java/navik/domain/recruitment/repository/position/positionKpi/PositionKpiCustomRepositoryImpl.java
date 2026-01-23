@@ -36,11 +36,13 @@ public class PositionKpiCustomRepositoryImpl implements PositionKpiCustomReposit
 		jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
+				Timestamp now = Timestamp.valueOf(LocalDateTime.now());
+
 				PositionKpi positionKpi = positionKpis.get(i);
 				ps.setLong(1, positionKpi.getPosition().getId());
 				ps.setString(2, positionKpi.getContent());
-				ps.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
-				ps.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
+				ps.setTimestamp(3, now);
+				ps.setTimestamp(4, now);
 			}
 
 			@Override
