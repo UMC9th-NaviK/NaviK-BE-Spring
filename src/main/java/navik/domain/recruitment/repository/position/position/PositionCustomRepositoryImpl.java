@@ -14,7 +14,6 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -39,8 +38,8 @@ import navik.domain.recruitment.enums.CompanySize;
 import navik.domain.recruitment.enums.EmploymentType;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.IndustryType;
-import navik.domain.recruitment.repository.position.projection.QRecommendedPositionProjection;
 import navik.domain.recruitment.repository.position.position.projection.RecommendedPositionProjection;
+import navik.domain.recruitment.repository.position.projection.QRecommendedPositionProjection;
 import navik.domain.users.entity.User;
 import navik.domain.users.enums.EducationLevel;
 
@@ -133,7 +132,6 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	 * Position에 대한 Batch Insert를 수행합니다.
 	 */
 	@Override
-	@Transactional
 	public void batchSaveAll(List<Position> positions) {
 		String sql = """
 			INSERT INTO positions (
