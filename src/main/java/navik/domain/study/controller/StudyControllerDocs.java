@@ -46,7 +46,7 @@ public interface StudyControllerDocs {
 	@Operation(summary = "맞춤형 스터디 추천 목록 조회 API", description = "유저의 하위 3개 KPI 카드 중 하나라도 포함하고, 잔여석이 있는 스터디를 추천합니다.")
 	@Parameters({
 		@Parameter(name = "cursor", description = "마지막으로 조회된 스터디 ID", example = "100"),
-		@Parameter(name = "size", description = "한 번에 조회할 카드 개수", example = "10")
+		@Parameter(name = "size", description = "한 번에 조회할 스터디 개수", example = "10")
 	})
 	ApiResponse<CursorResponseDto<StudyRecommendDTO>> getRecommendedStudies(Long cursor, int size, Long userId);
 }
