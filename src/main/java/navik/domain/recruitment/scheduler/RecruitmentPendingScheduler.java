@@ -3,7 +3,6 @@ package navik.domain.recruitment.scheduler;
 import java.net.InetAddress;
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +25,7 @@ import navik.domain.recruitment.listener.RecruitmentConsumer;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+
 public class RecruitmentPendingScheduler implements InitializingBean {
 
 	private static final int MAX_DELIVERY_COUNT = 2;
@@ -51,7 +51,7 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 	/**
 	 * 지정된 주기로 Pending 메시지를 재처리 시도합니다.
 	 */
-	@Scheduled(fixedRate = 300000)
+	@Scheduled(fixedRate = 10000)
 	public void retryPendingMessage() {
 
 		// 1. 그룹 내 pending 메시지 요약본 조회
@@ -97,10 +97,11 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 					continue;
 				}
 
-				// objectMapper 변환
-				Map<Object, Object> valueMap = records.getFirst().getValue();
-				RecruitmentRequestDTO.Recruitment recruitmentDTO = objectMapper.convertValue(
-					valueMap,
+				// 역직렬화
+				MapRecord<String, Object, Object> record = records.getFirst();
+				String json = (String)record.getValue().get("payload");
+				RecruitmentRequestDTO.Recruitment recruitmentDTO = objectMapper.readValue(
+					json,
 					RecruitmentRequestDTO.Recruitment.class
 				);
 
@@ -109,6 +110,7 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 				log.info("[RecruitmentPendingScheduler] 재시도 처리에 성공하였습니다.");
 
 			} catch (Exception e) {
+				log.error("[RecruitmentPendingScheduler] 재시도 처리 중 에러 발생: {}", e.getMessage(), e);
 				redisTemplate.opsForValue().increment(RETRY_COUNT_KEY + recordId);
 				log.info("[RecruitmentPendingScheduler] 재시도 처리 중 에러 발생 ErrorCount++");
 			}
@@ -119,8 +121,9 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 	 * Pending 메시지의 재처리 가능 여부를 판단하는 메서드입니다.
 	 */
 	private boolean canProcess(PendingMessage pendingMessage, String recordId) {
-		Integer errorCount = (Integer)redisTemplate.opsForValue().get(RETRY_COUNT_KEY + recordId);
-		if (errorCount != null && errorCount >= MAX_RETRY_COUNT) {
+		String value = (String)redisTemplate.opsForValue().get(RETRY_COUNT_KEY + recordId);
+		int errorCount = value == null ? 0 : Integer.parseInt(value);
+		if (errorCount >= MAX_RETRY_COUNT) {
 			log.info("[RecruitmentPendingScheduler] 재처리 최대 시도 횟수가 초과되었습니다.");
 			return false;
 		}
