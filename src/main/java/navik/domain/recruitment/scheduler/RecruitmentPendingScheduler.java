@@ -66,16 +66,15 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 			return;
 		}
 		log.info("[RecruitmentPendingScheduler] 미처리된 메시지가 총 {}건 존재합니다.", pendingSummary.getTotalPendingMessages());
+		log.info("[RecruitmentPendingScheduler] 미처리된 메시지를 재시도합니다.");
 
 		// 3. 재시도
-		log.info("[RecruitmentPendingScheduler] 미처리된 메시지를 재시도합니다.");
 		PendingMessages pendingMessages = redisTemplate.opsForStream().pending(
 			streamKey,
 			consumerGroupName,
 			Range.unbounded(),    // - + 전체 구간
 			10L                   // 최대 10건
 		);
-
 		for (PendingMessage pendingMessage : pendingMessages) {
 			String recordId = pendingMessage.getId().getValue();
 
@@ -108,13 +107,12 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 				// 저장
 				recruitmentConsumer.saveRecruitment(recruitmentDTO);
 				log.info("[RecruitmentPendingScheduler] 재시도 처리에 성공하였습니다.");
-				
+
 			} catch (Exception e) {
 				redisTemplate.opsForValue().increment(RETRY_COUNT_KEY + recordId);
 				log.info("[RecruitmentPendingScheduler] 재시도 처리 중 에러 발생 ErrorCount++");
 			}
 		}
-
 	}
 
 	/**
