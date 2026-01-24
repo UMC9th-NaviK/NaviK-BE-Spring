@@ -6,6 +6,7 @@ import java.util.Iterator;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.ObjectRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -28,6 +29,7 @@ import navik.domain.recruitment.service.recruitment.RecruitmentCommandService;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Profile("prod")
 public class RecruitmentConsumer implements StreamListener<String, ObjectRecord<String, String>>, InitializingBean,
 	DisposableBean {
 
@@ -51,7 +53,7 @@ public class RecruitmentConsumer implements StreamListener<String, ObjectRecord<
 		// Consumer Group 설정
 		createStreamConsumerGroup(streamKey, consumerGroupName);
 
-		// Consumer Name 설정
+		// Consumer Name 설정 (docker container id)
 		this.consumerName = InetAddress.getLocalHost().getHostName();
 
 		// StreamMessageListenerContainer 설정
@@ -86,7 +88,7 @@ public class RecruitmentConsumer implements StreamListener<String, ObjectRecord<
 			if (StringUtils.isNotEmpty(receivedStreamKey) && StringUtils.isNotEmpty(recordId)) {
 				RecruitmentRequestDTO.Recruitment recruitmentDTO = objectMapper.readValue(message.getValue(),
 					RecruitmentRequestDTO.Recruitment.class);
-				recruitmentCommandService.saveRecruitment(recruitmentDTO);
+				saveRecruitment(recruitmentDTO);
 				redisTemplate.opsForStream().acknowledge(receivedStreamKey, consumerGroupName, recordId);
 				log.info("[RecruitmentConsumer] 채용 공고 적재 완료하였습니다.");
 			} else {
@@ -95,6 +97,13 @@ public class RecruitmentConsumer implements StreamListener<String, ObjectRecord<
 		} catch (Exception e) {
 			log.error("[RecruitmentConsumer] 채용 공고 처리 중 오류 발생", e);
 		}
+	}
+
+	/**
+	 * 채용 공고 DTO를 받아 저장합니다.
+	 */
+	public void saveRecruitment(RecruitmentRequestDTO.Recruitment recruitmentDTO) {
+		recruitmentCommandService.saveRecruitment(recruitmentDTO);
 	}
 
 	/**
