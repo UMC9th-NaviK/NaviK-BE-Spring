@@ -86,7 +86,14 @@ public interface PositionControllerDocs {
 		""")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses(
 		{
-			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "OK")
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON_200", description = "성공입니다."),
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECRUITMENT_404_01", description = "존재하지 않는 지역 유형입니다."),
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECRUITMENT_404_02", description = "존재하지 않는 회사 규모입니다."),
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECRUITMENT_404_03", description = "존재하지 않는 고용 형태입니다."),
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECRUITMENT_404_04", description = "존재하지 않는 경력 유형입니다."),
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECRUITMENT_404_05", description = "존재하지 않는 업종 유형입니다."),
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECRUITMENT_404_06", description = "존재하지 않는 직무 유형입니다."),
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECRUITMENT_404_07", description = "존재하지 않는 전공 유형입니다.")
 		})
 	ApiResponse<CursorResponseDto<PositionResponseDTO.RecommendedPosition>> getPositions(
 		Long userId,
