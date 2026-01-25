@@ -26,6 +26,7 @@ import navik.domain.recruitment.repository.position.position.PositionRepository;
 import navik.domain.recruitment.repository.position.positionKpi.PositionKpiRepository;
 import navik.domain.recruitment.repository.position.positionKpiEmbedding.PositionKpiEmbeddingRepository;
 import navik.domain.recruitment.repository.recruitment.RecruitmentRepository;
+import navik.global.ai.EmbeddingClient;
 
 @Slf4j
 @Service
@@ -38,6 +39,7 @@ public class RecruitmentCommandService {
 	private final PositionKpiRepository positionKpiRepository;
 	private final PositionKpiEmbeddingRepository positionKpiEmbeddingRepository;
 	private final JobRepository jobRepository;
+	private final EmbeddingClient embeddingClient;
 
 	public void saveRecruitment(RecruitmentRequestDTO.Recruitment recruitmentDTO) {
 
@@ -74,10 +76,11 @@ public class RecruitmentCommandService {
 				Position position = PositionConverter.toEntity(positionDTO, recruitment, job);
 				positions.add(position);
 				positionDTO.getKpis().forEach(
-					kpiDTO -> {
-						PositionKpi positionKpi = PositionKpiConverter.toEntity(position, kpiDTO);
+					content -> {
+						PositionKpi positionKpi = PositionKpiConverter.toEntity(position, content);
+						float[] embedding = embeddingClient.embed(content);    // 문장 의미 임베딩
 						PositionKpiEmbedding positionKpiEmbedding = PositionKpiEmbeddingConverter.toEntity(positionKpi,
-							kpiDTO);
+							embedding);
 						positionKpis.add(positionKpi);
 						positionKpiEmbeddings.add(positionKpiEmbedding);
 					}
