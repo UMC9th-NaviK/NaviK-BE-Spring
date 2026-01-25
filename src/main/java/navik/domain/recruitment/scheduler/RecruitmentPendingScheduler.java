@@ -62,30 +62,26 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 
 		// 2. 로그 출력
 		if (pendingSummary == null || pendingSummary.getTotalPendingMessages() == 0) {
-			log.info("[RecruitmentPendingScheduler] 미처리된 메시지는 없습니다.");
+			log.info("[RecruitmentPendingScheduler] 미처리된 채용 공고는 없습니다.");
 			return;
 		}
-		log.info("[RecruitmentPendingScheduler] 미처리된 메시지가 총 {}건 존재합니다.", pendingSummary.getTotalPendingMessages());
-		log.info("[RecruitmentPendingScheduler] 미처리된 메시지를 재시도합니다.");
+		log.info("[RecruitmentPendingScheduler] 미처리된 채용 공고가 총 {}건 존재합니다.", pendingSummary.getTotalPendingMessages());
+		log.info("[RecruitmentPendingScheduler] 미처리된 채용 공고 적재를 재시도합니다.");
 
 		// 3. 재시도
 		PendingMessages pendingMessages = redisTemplate.opsForStream().pending(
 			streamKey,
-			consumerGroupName,
+			consumerGroupName,      // 현재 그룹 내 Pending
 			Range.unbounded(),    // - + 전체 구간
 			10L                   // 최대 10건
 		);
 		for (PendingMessage pendingMessage : pendingMessages) {
 			String recordId = pendingMessage.getId().getValue();
 
-			// 현재 컨슈머가 소유 및 처리
-			List<MapRecord<String, Object, Object>> records = redisTemplate.opsForStream().claim(
-				streamKey,
-				consumerGroupName,
-				consumerName,
-				Duration.ofMillis(0),
-				pendingMessage.getId()
-			);
+			// Consumer와 동시 처리 문제 방지
+			if (pendingMessage.getElapsedTimeSinceLastDelivery().toMinutes() < 1) {
+				continue;
+			}
 
 			// 처리 시도
 			try {
@@ -94,6 +90,19 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 					redisTemplate.opsForStream().acknowledge(streamKey, consumerGroupName, recordId);
 					redisTemplate.delete(RETRY_COUNT_KEY + recordId);
 					log.info("[RecruitmentPendingScheduler] 재처리 불가능하여 강제 ACK 처리되었습니다.");
+					continue;
+				}
+
+				// 현재 컨슈머가 소유 및 처리
+				List<MapRecord<String, Object, Object>> records = redisTemplate.opsForStream().claim(
+					streamKey,
+					consumerGroupName,
+					consumerName,
+					Duration.ofMinutes(1),  // 전달된지 1분 이상 지난 메시지 처리 (Consumer와 동시 처리 문제 방지)
+					pendingMessage.getId()
+				);
+
+				if (records.isEmpty()) {
 					continue;
 				}
 
