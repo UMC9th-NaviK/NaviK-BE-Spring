@@ -1,6 +1,6 @@
 package navik.global.apiPayload;
 
-import navik.global.apiPayload.code.status.BaseCode;
+import navik.global.apiPayload.exception.code.BaseCode;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -23,8 +23,8 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
-import navik.global.apiPayload.code.status.AuthErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.AuthErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralExceptionHandler;
 import navik.global.auth.JwtUserDetails;
 import navik.global.auth.dto.TokenDTO;
 

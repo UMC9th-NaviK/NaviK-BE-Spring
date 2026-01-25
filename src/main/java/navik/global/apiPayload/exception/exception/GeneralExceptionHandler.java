@@ -1,6 +1,6 @@
-package navik.global.apiPayload.exception.handler;
+package navik.global.apiPayload.exception.exception;
 
-import navik.global.apiPayload.code.status.BaseCode;
+import navik.global.apiPayload.exception.code.BaseCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

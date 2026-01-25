@@ -21,7 +21,7 @@ import navik.domain.board.dto.CommentListDTO;
 import navik.domain.board.dto.ReplyDTO;
 import navik.domain.board.service.CommentService;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.PageResponseDTO;
 

@@ -18,8 +18,8 @@ import navik.domain.board.repository.BoardLikeRepository;
 import navik.domain.board.repository.BoardRepository;
 import navik.domain.board.repository.CommentRepository;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralExceptionHandler;
 import navik.global.dto.CursorResponseDTO;
 
 @Service

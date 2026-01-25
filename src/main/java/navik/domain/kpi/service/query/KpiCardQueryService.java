@@ -14,7 +14,7 @@ import navik.domain.kpi.enums.KpiCardType;
 import navik.domain.kpi.exception.code.KpiCardErrorCode;
 import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.users.exception.code.JobErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralExceptionHandler;
 
 @Service
 @RequiredArgsConstructor

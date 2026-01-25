@@ -11,7 +11,7 @@ import navik.domain.kpi.dto.res.KpiCardResponseDTO;
 import navik.domain.kpi.dto.res.KpiScoreResponseDTO;
 import navik.domain.kpi.exception.code.KpiScoreErrorCode;
 import navik.domain.kpi.repository.KpiScoreRepository;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralExceptionHandler;
 
 @Transactional(readOnly = true)
 @Service

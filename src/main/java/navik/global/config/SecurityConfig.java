@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.AuthErrorCode;
+import navik.global.apiPayload.exception.code.AuthErrorCode;
 import navik.global.auth.handler.OAuth2SuccessHandler;
 import navik.global.auth.jwt.JwtAuthenticationFilter;
 import navik.global.auth.jwt.JwtTokenProvider;
@@ -53,7 +53,7 @@ public class SecurityConfig {
 
 				// 4. S3 관련
 				.requestMatchers("/v1/s3/**").permitAll()
-				
+
 				// 그 외 모든 요청은 인증 필요
 				.anyRequest().authenticated())
 

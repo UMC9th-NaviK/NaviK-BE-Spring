@@ -19,7 +19,7 @@ import navik.domain.kpi.service.command.KpiScoreIncrementService;
 import navik.domain.kpi.service.command.KpiScoreInitialService;
 import navik.domain.kpi.service.query.KpiScoreQueryService;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
 
 @RestController

@@ -14,7 +14,7 @@ import navik.domain.term.dto.TermResponseDTO;
 import navik.domain.term.service.TermQueryService;
 import navik.domain.term.service.UserTermCommandService;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
 
 @RestController

@@ -1,4 +1,4 @@
-package navik.global.apiPayload.exception;
+package navik.global.apiPayload.exception.handler;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -20,9 +20,9 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.BaseCode;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.BaseCode;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralExceptionHandler;
 
 /**
  * @RestControllerAdvice 어노테이션을 사용하여 모든 @RestController 에서 발생하는 예외를 전역적으로 처리하는 클래스입니다.

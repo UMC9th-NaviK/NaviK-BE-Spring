@@ -20,7 +20,7 @@ import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.kpi.repository.KpiScoreRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralExceptionHandler;
 
 @Service
 @RequiredArgsConstructor

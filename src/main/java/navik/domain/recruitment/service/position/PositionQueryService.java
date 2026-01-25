@@ -22,8 +22,8 @@ import navik.domain.recruitment.repository.position.PositionRepository;
 import navik.domain.recruitment.repository.position.projection.RecommendedPositionProjection;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralExceptionHandler;
 import navik.global.dto.CursorResponseDTO;
 
 @Service

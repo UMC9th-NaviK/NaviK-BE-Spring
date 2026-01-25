@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.departments.service.DepartmentQueryService;
 import navik.domain.users.dto.DepartmentResponseDTO;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 
 @Tag(name = "Department", description = "학과 관련 API")
 @RestController
@@ -22,6 +22,6 @@ public class DepartmentController {
 	@GetMapping
 	@Operation(summary = "학과 목록", description = "전체 학과번호, 학과명을 조회합니다")
 	ApiResponse<DepartmentResponseDTO.DepartmentList> getAllDepartments() {
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK,departmentQueryService.getAllDepartments());
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, departmentQueryService.getAllDepartments());
 	}
 }
