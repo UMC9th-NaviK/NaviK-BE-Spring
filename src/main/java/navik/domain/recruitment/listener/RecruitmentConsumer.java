@@ -8,6 +8,7 @@ import java.util.Iterator;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.ObjectRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -30,7 +31,7 @@ import navik.domain.recruitment.service.recruitment.RecruitmentCommandService;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-
+@Profile("prod")
 public class RecruitmentConsumer implements StreamListener<String, ObjectRecord<String, String>>, InitializingBean,
 	DisposableBean {
 

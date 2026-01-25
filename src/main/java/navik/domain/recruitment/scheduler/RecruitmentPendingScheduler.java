@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.PendingMessage;
@@ -25,7 +26,7 @@ import navik.domain.recruitment.listener.RecruitmentConsumer;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-
+@Profile("prod")
 public class RecruitmentPendingScheduler implements InitializingBean {
 
 	public static final int MAX_DELIVERY_COUNT = 3;
