@@ -52,7 +52,7 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 	/**
 	 * 지정된 주기로 Pending 메시지를 재처리 시도합니다.
 	 */
-	@Scheduled(fixedRate = 10000)
+	@Scheduled(fixedRate = 300000)
 	public void retryPendingMessage() {
 
 		// 1. 그룹 내 pending 메시지 요약본 조회
