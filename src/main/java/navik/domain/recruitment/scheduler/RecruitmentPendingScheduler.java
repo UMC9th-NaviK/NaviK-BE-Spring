@@ -28,9 +28,9 @@ import navik.domain.recruitment.listener.RecruitmentConsumer;
 
 public class RecruitmentPendingScheduler implements InitializingBean {
 
-	private static final int MAX_DELIVERY_COUNT = 2;
-	private static final int MAX_RETRY_COUNT = 2;
-	private static final String RETRY_COUNT_KEY = "recruitment:try:";
+	public static final int MAX_DELIVERY_COUNT = 3;
+	public static final int MAX_RETRY_COUNT = 3;
+	public static final String RETRY_COUNT_KEY = "recruitment:try:";
 
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final ObjectMapper objectMapper;
@@ -104,9 +104,11 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 					json,
 					RecruitmentRequestDTO.Recruitment.class
 				);
+				log.info("ddd : {}", recruitmentDTO);
 
 				// 저장
 				recruitmentConsumer.saveRecruitment(recruitmentDTO);
+				redisTemplate.opsForStream().acknowledge(streamKey, consumerGroupName, recordId);
 				log.info("[RecruitmentPendingScheduler] 재시도 처리에 성공하였습니다.");
 
 			} catch (Exception e) {
