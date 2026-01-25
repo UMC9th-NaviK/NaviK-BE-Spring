@@ -11,7 +11,9 @@ import navik.global.apiPayload.code.status.BaseCode;
 public enum RecruitmentErrorCode implements BaseCode {
 
 	AREA_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, "RECRUITMENT_404_01", "존재하지 않는 지역 유형입니다."),
-	COMPANY_SIZE_NOT_FOUND(HttpStatus.NOT_FOUND, "RECRUITMENT_404_02", "존재하지 않는 회사 규모입니다.");
+	COMPANY_SIZE_NOT_FOUND(HttpStatus.NOT_FOUND, "RECRUITMENT_404_02", "존재하지 않는 회사 규모입니다."),
+	EMPLOYMENT_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, "RECRUITMENT_404_03", "존재하지 않는 고용 형태입니다."),
+
 
 	private final HttpStatus httpStatus;
 	private final String code;
