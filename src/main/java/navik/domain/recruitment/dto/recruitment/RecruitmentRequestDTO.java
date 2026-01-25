@@ -19,7 +19,6 @@ public class RecruitmentRequestDTO {
 	@Getter
 	@Builder
 	public static class Recruitment {
-
 		private String link;
 		private String title;
 		private String postId;
