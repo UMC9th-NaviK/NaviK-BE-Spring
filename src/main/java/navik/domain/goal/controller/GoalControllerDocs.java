@@ -7,7 +7,7 @@ import navik.domain.goal.dto.GoalRequestDTO;
 import navik.domain.goal.dto.GoalResponseDTO;
 import navik.domain.goal.entity.GoalStatus;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 
 @Tag(name = "Goal", description = "목표 관련 API")
 public interface GoalControllerDocs {
@@ -24,7 +24,7 @@ public interface GoalControllerDocs {
 		- size 기본값: 10
 		- `hasNext`가 false면 마지막 페이지입니다
 		""")
-	ApiResponse<CursorResponseDto<GoalResponseDTO.PreviewDTO>> getGoals(Long userId,
+	ApiResponse<CursorResponseDTO<GoalResponseDTO.PreviewDTO>> getGoals(Long userId,
 		@Parameter(description = "마지막으로 조회한 목표 ID (nextCursor)") Long cursor,
 		@Parameter(description = "한번에 가져올 데이터 수", example = "10") Integer size,
 		@Parameter(description = "정렬 기준", example = "RECENT") String sortBy);
