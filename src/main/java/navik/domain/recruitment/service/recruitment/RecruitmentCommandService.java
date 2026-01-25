@@ -43,6 +43,10 @@ public class RecruitmentCommandService {
 
 	public void saveRecruitment(RecruitmentRequestDTO.Recruitment recruitmentDTO) {
 
+		if (recruitmentDTO.getPositions().isEmpty()) {
+			log.info("[RecruitmentCommandService] PM, 디자이너, 프론트, 백엔드 관련 포지션이 없습니다.");
+			return;
+		}
 		if (recruitmentRepository.existsByPostId(recruitmentDTO.getPostId())) {
 			log.info("[RecruitmentCommandService] 이미 등록된 채용 공고입니다.");
 			return;

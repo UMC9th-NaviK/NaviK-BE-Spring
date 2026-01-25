@@ -66,7 +66,6 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 			return;
 		}
 		log.info("[RecruitmentPendingScheduler] 미처리된 채용 공고가 총 {}건 존재합니다.", pendingSummary.getTotalPendingMessages());
-		log.info("[RecruitmentPendingScheduler] 미처리된 채용 공고 적재를 재시도합니다.");
 
 		// 3. 재시도
 		PendingMessages pendingMessages = redisTemplate.opsForStream().pending(
@@ -106,6 +105,8 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 					continue;
 				}
 
+				log.info("[RecruitmentPendingScheduler] 미처리된 채용 공고 적재를 재시도합니다.");
+
 				// 역직렬화
 				MapRecord<String, Object, Object> record = records.getFirst();
 				String json = (String)record.getValue().get("payload");
@@ -113,7 +114,6 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 					json,
 					RecruitmentRequestDTO.Recruitment.class
 				);
-				log.info("ddd : {}", recruitmentDTO);
 
 				// 저장
 				recruitmentConsumer.saveRecruitment(recruitmentDTO);
