@@ -1,12 +1,13 @@
 package navik.domain.recruitment.listener;
 
+import static navik.domain.recruitment.scheduler.RecruitmentPendingScheduler.*;
+
 import java.net.InetAddress;
 import java.util.Iterator;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.ObjectRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -29,7 +30,7 @@ import navik.domain.recruitment.service.recruitment.RecruitmentCommandService;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Profile("prod")
+
 public class RecruitmentConsumer implements StreamListener<String, ObjectRecord<String, String>>, InitializingBean,
 	DisposableBean {
 
@@ -89,13 +90,15 @@ public class RecruitmentConsumer implements StreamListener<String, ObjectRecord<
 				RecruitmentRequestDTO.Recruitment recruitmentDTO = objectMapper.readValue(message.getValue(),
 					RecruitmentRequestDTO.Recruitment.class);
 				saveRecruitment(recruitmentDTO);
-				redisTemplate.opsForStream().acknowledge(receivedStreamKey, consumerGroupName, recordId);
+				redisTemplate.opsForStream().acknowledge(receivedStreamKey, consumerGroupName, recordId);  // ACK
 				log.info("[RecruitmentConsumer] 채용 공고 적재 완료하였습니다.");
 			} else {
 				log.error("[RecruitmentConsumer] streamKey 또는 recordId가 비어있습니다.");
 			}
 		} catch (Exception e) {
-			log.error("[RecruitmentConsumer] 채용 공고 처리 중 오류 발생", e);
+			// 처리 오류 발생 시 자체 ErrorCount++
+			redisTemplate.opsForValue().increment(RETRY_COUNT_KEY + recordId);
+			log.error("[RecruitmentConsumer] 채용 공고 처리 중 오류 발생 ErrorCount++ : {}", e.getMessage(), e);
 		}
 	}
 
