@@ -34,6 +34,7 @@ public class BoardCommandService {
 			.articleTitle(request.getArticleTitle())
 			.articleContent(request.getArticleContent())
 			.articleViews(0)
+			.articleLikes(0)
 			.build();
 
 		return boardRepository.save(board).getId();
