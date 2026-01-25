@@ -23,6 +23,10 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    set('springAiVersion', "1.1.2")
+}
+
 dependencies {
     // Spring Boot Starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -72,6 +76,15 @@ dependencies {
 
     //.env
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+    // Spring AI
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+    }
 }
 
 tasks.named('test') {
