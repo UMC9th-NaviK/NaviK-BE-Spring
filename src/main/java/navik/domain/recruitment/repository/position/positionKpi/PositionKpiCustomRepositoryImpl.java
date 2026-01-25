@@ -1,12 +1,12 @@
 package navik.domain.recruitment.repository.position.positionKpi;
 
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -19,6 +19,9 @@ public class PositionKpiCustomRepositoryImpl implements PositionKpiCustomReposit
 
 	private final JdbcTemplate jdbcTemplate;
 
+	/**
+	 * PositionKpi에 대한 Batch Insert를 수행합니다.
+	 */
 	@Override
 	public void batchSaveAll(List<PositionKpi> positionKpis) {
 		String sql = """
@@ -33,21 +36,33 @@ public class PositionKpiCustomRepositoryImpl implements PositionKpiCustomReposit
 			)
 			""";
 
-		jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
-			@Override
-			public void setValues(PreparedStatement ps, int i) throws SQLException {
+		jdbcTemplate.execute((ConnectionCallback<Void>)con -> {
+			try (PreparedStatement ps = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 				Timestamp now = Timestamp.valueOf(LocalDateTime.now());
 
-				PositionKpi positionKpi = positionKpis.get(i);
-				ps.setLong(1, positionKpi.getPosition().getId());
-				ps.setString(2, positionKpi.getContent());
-				ps.setTimestamp(3, now);
-				ps.setTimestamp(4, now);
-			}
+				for (PositionKpi positionKpi : positionKpis) {
+					ps.setLong(1, positionKpi.getPosition().getId());
+					ps.setString(2, positionKpi.getContent());
+					ps.setTimestamp(3, now);
+					ps.setTimestamp(4, now);
+					ps.addBatch();
+				}
 
-			@Override
-			public int getBatchSize() {
-				return positionKpis.size();
+				ps.executeBatch();
+
+				// PK 설정
+				try (ResultSet rs = ps.getGeneratedKeys()) {
+					int index = 0;
+					while (rs.next()) {
+						long generatedId = rs.getLong("id");
+						positionKpis.get(index).assignId(generatedId);
+						index++;
+					}
+					if (index != positionKpis.size()) {
+						throw new IllegalStateException("KPI 개수와 PK 개수가 일치하지 않습니다.");
+					}
+				}
+				return null;
 			}
 		});
 	}

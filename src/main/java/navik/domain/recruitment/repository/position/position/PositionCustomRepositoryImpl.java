@@ -1,7 +1,8 @@
 package navik.domain.recruitment.repository.position.position;
 
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.stream.Stream;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -130,6 +131,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 
 	/**
 	 * Position에 대한 Batch Insert를 수행합니다.
+	 * PK에 대한 set도 처리합니다.
 	 */
 	@Override
 	public void batchSaveAll(List<Position> positions) {
@@ -154,39 +156,45 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 			)
 			""";
 
-		jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
-			@Override
-			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				Position position = positions.get(i);
+		jdbcTemplate.execute((ConnectionCallback<Void>)con -> {
+			try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 				Timestamp now = Timestamp.valueOf(LocalDateTime.now());
 
-				ps.setLong(1, position.getJob().getId());
-				ps.setLong(2, position.getRecruitment().getId());
-				ps.setString(3, position.getName());
-				ps.setObject(4, position.getEmploymentType() != null ? position.getEmploymentType().name() : null);
-				ps.setObject(5, position.getExperienceType() != null ? position.getExperienceType().name() : null);
-				ps.setObject(6, position.getEducationLevel() != null ? position.getEducationLevel().name() : null);
-				ps.setObject(7, position.getAreaType() != null ? position.getAreaType().name() : null);
-				ps.setObject(8, position.getMajorType() != null ? position.getMajorType().name() : null);
-				ps.setString(9, position.getWorkPlace());
-				ps.setTimestamp(10,
-					position.getStartDate() != null ? Timestamp.valueOf(position.getStartDate()) : null);
-				ps.setTimestamp(11, position.getEndDate() != null ? Timestamp.valueOf(position.getEndDate()) : null);
-				ps.setTimestamp(12, now);
-				ps.setTimestamp(13, now);
-			}
-
-			private void setEnumOrNull(PreparedStatement ps, int index, Enum<?> enumValue) throws SQLException {
-				if (enumValue != null) {
-					ps.setString(index, enumValue.name());
-				} else {
-					ps.setNull(index, java.sql.Types.VARCHAR); // DB 컬럼 타입에 맞춰 VARCHAR 설정
+				for (Position position : positions) {
+					ps.setLong(1, position.getJob().getId());
+					ps.setLong(2, position.getRecruitment().getId());
+					ps.setString(3, position.getName());
+					ps.setObject(4, position.getEmploymentType() != null ? position.getEmploymentType().name() : null);
+					ps.setObject(5, position.getExperienceType() != null ? position.getExperienceType().name() : null);
+					ps.setObject(6, position.getEducationLevel() != null ? position.getEducationLevel().name() : null);
+					ps.setObject(7, position.getAreaType() != null ? position.getAreaType().name() : null);
+					ps.setObject(8, position.getMajorType() != null ? position.getMajorType().name() : null);
+					ps.setString(9, position.getWorkPlace());
+					ps.setTimestamp(10,
+						position.getStartDate() != null ? Timestamp.valueOf(position.getStartDate()) : null);
+					ps.setTimestamp(11,
+						position.getEndDate() != null ? Timestamp.valueOf(position.getEndDate()) : null);
+					ps.setTimestamp(12, now);
+					ps.setTimestamp(13, now);
+					ps.addBatch();
 				}
-			}
 
-			@Override
-			public int getBatchSize() {
-				return positions.size();
+				// 쿼리 실행
+				ps.executeBatch();
+
+				// PK 설정
+				try (ResultSet rs = ps.getGeneratedKeys()) {
+					int index = 0;
+					while (rs.next()) {
+						long generatedId = rs.getLong("id");
+						positions.get(index).assignId(generatedId);
+						index++;
+					}
+					if (index != positions.size()) {
+						throw new IllegalStateException("Position 개수와 PK 개수가 일치하지 않습니다.");
+					}
+				}
+				return null;
 			}
 		});
 	}

@@ -49,7 +49,7 @@ public class PositionKpiEmbeddingCustomRepositoryImpl implements PositionKpiEmbe
 				pgObject.setType("vector");
 				pgObject.setValue(joiner.toString());
 
-				ps.setLong(1, positionKpiEmbedding.getId());
+				ps.setLong(1, positionKpiEmbedding.getPositionKpi().getId());
 				ps.setObject(2, pgObject);
 				ps.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
 				ps.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
