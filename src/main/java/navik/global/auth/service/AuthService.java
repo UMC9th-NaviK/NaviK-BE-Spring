@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.global.apiPayload.code.status.AuthErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
-import navik.global.auth.dto.TokenDto;
+import navik.global.auth.dto.TokenDTO;
 import navik.global.auth.jwt.JwtTokenProvider;
 import navik.global.auth.redis.RefreshToken;
 import navik.global.auth.repository.RefreshTokenRepository;
@@ -31,7 +31,7 @@ public class AuthService {
 	private long refreshTokenValidityInSeconds;
 
 	@Transactional
-	public TokenDto reissue(String refreshToken) {
+	public TokenDTO reissue(String refreshToken) {
 		// 1. Refresh Token 검증
 		if (!jwtTokenProvider.validateToken(refreshToken)) {
 			throw new GeneralExceptionHandler(AuthErrorCode.INVALID_REFRESH_TOKEN);
@@ -53,7 +53,7 @@ public class AuthService {
 		UserDetails userDetails = customUserDetailsService.loadUserByUsername(userIdStr);
 		Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
 			userDetails.getAuthorities());
-		TokenDto tokenDto = jwtTokenProvider.generateTokenDto(authentication);
+		TokenDTO tokenDto = jwtTokenProvider.generateTokenDto(authentication);
 
 		// 6. 리프레시 토큰 갱신 (RTR 방식)
 		redisRefreshToken.updateToken(tokenDto.getRefreshToken());

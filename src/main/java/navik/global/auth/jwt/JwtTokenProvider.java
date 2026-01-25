@@ -15,14 +15,18 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import navik.global.apiPayload.code.status.AuthErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import navik.global.auth.JwtUserDetails;
-import navik.global.auth.dto.TokenDto;
+import navik.global.auth.dto.TokenDTO;
 
 @Slf4j
 @Component
@@ -78,14 +82,14 @@ public class JwtTokenProvider {
 			.compact();
 	}
 
-	public TokenDto generateTokenDto(Authentication authentication) {
+	public TokenDTO generateTokenDto(Authentication authentication) {
 		String accessToken = generateAccessToken(authentication);
 		String refreshToken = generateRefreshToken(authentication);
 
 		long now = (new Date()).getTime();
 		Date accessTokenExpiresIn = new Date(now + accessTokenValidityInMilliseconds);
 
-		return TokenDto.builder()
+		return TokenDTO.builder()
 			.grantType(BEARER_TYPE)
 			.accessToken(accessToken)
 			.accessTokenExpiresIn(accessTokenExpiresIn.getTime())
