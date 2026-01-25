@@ -12,7 +12,7 @@ import lombok.Getter;
  * @param <T> 데이터 리스트의 타입
  */
 @Getter
-public class PageResponseDto<T> {
+public class PageResponseDTO<T> {
 
 	/**
 	 * 데이터 리스트
@@ -44,7 +44,7 @@ public class PageResponseDto<T> {
 	 */
 	private final boolean last;
 
-	public PageResponseDto(Page<T> page) {
+	public PageResponseDTO(Page<T> page) {
 		this.content = page.getContent();
 		this.pageNumber = page.getNumber(); // 0-based로 수정
 		this.pageSize = page.getSize();
@@ -56,7 +56,7 @@ public class PageResponseDto<T> {
 	/**
 	 * Page 객체를 PageResponseDto로 변환하는 정적 팩토리 매서드
 	 */
-	public static <T> PageResponseDto<T> of(Page<T> page) {
-		return new PageResponseDto<>(page);
+	public static <T> PageResponseDTO<T> of(Page<T> page) {
+		return new PageResponseDTO<>(page);
 	}
 }

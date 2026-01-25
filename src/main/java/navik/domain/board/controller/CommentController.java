@@ -23,7 +23,7 @@ import navik.domain.board.service.CommentService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.PageResponseDto;
+import navik.global.dto.PageResponseDTO;
 
 @RestController
 @RequestMapping("/v1/boards")
@@ -41,14 +41,14 @@ public class CommentController implements CommentControllerDocs {
 	 */
 
 	@GetMapping("/{boardId}/comment")
-	public ApiResponse<PageResponseDto<CommentListDTO.ResponseComment>> getComments(
+	public ApiResponse<PageResponseDTO<CommentListDTO.ResponseComment>> getComments(
 		@PathVariable Long boardId,
 		@AuthUser Long userId,
 		@PageableDefault(size = 10) Pageable pageable
 	) {
 		CommentListDTO.Parameter parameter = CommentListConverter.toParameter(userId, boardId, pageable);
 		Page<CommentListDTO.ResponseComment> commentPage = commentService.getCommentList(parameter);
-		PageResponseDto<CommentListDTO.ResponseComment> response = PageResponseDto.of(commentPage);
+		PageResponseDTO<CommentListDTO.ResponseComment> response = PageResponseDTO.of(commentPage);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 
