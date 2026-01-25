@@ -112,7 +112,7 @@ public class CommentService {
 			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.COMMENT_NOT_FOUND));
 
 		// 댓글 작성자가 맞는지 확인
-		if (comment.getUser().equals(user)) {
+		if (!comment.getUser().equals(user)) {
 			throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_COMMENT_NOT_WRITER);
 		}
 
