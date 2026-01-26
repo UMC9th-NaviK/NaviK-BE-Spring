@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import navik.domain.growthLog.ai.client.GrowthLogAiClient;
 import navik.domain.growthLog.ai.limiter.RetryRateLimiter;
+import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO;
 import navik.domain.growthLog.dto.req.GrowthLogRequestDTO;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO;
 import navik.domain.growthLog.dto.res.GrowthLogResponseDTO;
@@ -155,4 +156,104 @@ class GrowthLogEvaluationServiceTest {
 		verify(growthLogKpiLinkRepository, never()).findByGrowthLogIdIn(anyList());
 	}
 
+	@Test
+	void create_시_최근_성장로그_여러개가_context로_전달되고_recentIds로_link조회한다() {
+		// given
+		Long userId = 1L;
+
+		Portfolio p = Portfolio.builder()
+			.title("포트폴리오 제목")
+			.content("포트폴리오 내용")
+			.build();
+		given(portfolioRepository.findTopByUserIdOrderByCreatedAtDesc(userId))
+			.willReturn(Optional.of(p));
+
+		GrowthLog log1 = mock(GrowthLog.class);
+		given(log1.getId()).willReturn(10L);
+		given(log1.getType()).willReturn(GrowthType.PORTFOLIO);
+		given(log1.getTitle()).willReturn("로그1");
+		given(log1.getContent()).willReturn("내용1");
+		given(log1.getTotalDelta()).willReturn(1);
+		given(log1.getCreatedAt()).willReturn(LocalDateTime.of(2026, 1, 1, 0, 0));
+
+		GrowthLog log2 = mock(GrowthLog.class);
+		given(log2.getId()).willReturn(11L);
+		given(log2.getType()).willReturn(GrowthType.USER_INPUT);
+		given(log2.getTitle()).willReturn("로그2");
+		given(log2.getContent()).willReturn("내용2");
+		given(log2.getTotalDelta()).willReturn(2);
+		given(log2.getCreatedAt()).willReturn(LocalDateTime.of(2026, 1, 2, 0, 0));
+
+		GrowthLog log3 = mock(GrowthLog.class);
+		given(log3.getId()).willReturn(12L);
+		given(log3.getType()).willReturn(GrowthType.PORTFOLIO);
+		given(log3.getTitle()).willReturn("로그3");
+		given(log3.getContent()).willReturn("내용3");
+		given(log3.getTotalDelta()).willReturn(3);
+		given(log3.getCreatedAt()).willReturn(LocalDateTime.of(2026, 1, 3, 0, 0));
+
+		given(growthLogRepository.findTop20ByUserIdOrderByCreatedAtDesc(userId))
+			.willReturn(List.of(log1, log2, log3));
+
+		KpiCard kpi100 = mock(KpiCard.class);
+		given(kpi100.getId()).willReturn(100L);
+		KpiCard kpi101 = mock(KpiCard.class);
+		given(kpi101.getId()).willReturn(101L);
+
+		GrowthLogKpiLink link1 = mock(GrowthLogKpiLink.class);
+		given(link1.getGrowthLog()).willReturn(log1);
+		given(link1.getKpiCard()).willReturn(kpi100);
+		given(link1.getDelta()).willReturn(1);
+
+		GrowthLogKpiLink link2 = mock(GrowthLogKpiLink.class);
+		given(link2.getGrowthLog()).willReturn(log2);
+		given(link2.getKpiCard()).willReturn(kpi101);
+		given(link2.getDelta()).willReturn(2);
+
+		given(growthLogKpiLinkRepository.findByGrowthLogIdIn(List.of(10L, 11L, 12L)))
+			.willReturn(List.of(link1, link2));
+
+		given(growthLogAiClient.evaluateUserInput(
+			eq(userId),
+			argThat(ctx -> {
+				if (ctx.recentGrowthLogs().size() != 3)
+					return false;
+
+				List<Long> ids = ctx.recentGrowthLogs().stream()
+					.map(GrowthLogAiRequestDTO.PastGrowthLog::id)
+					.toList();
+
+				// 서비스는 findTop20 결과 순서를 그대로 매핑하므로 순서까지 검증(요구사항이면 유지)
+				if (!ids.equals(List.of(10L, 11L, 12L)))
+					return false;
+
+				boolean hasLog2 = ctx.recentGrowthLogs().stream()
+					.anyMatch(gl -> gl.id().equals(11L) && gl.title().equals("로그2") && gl.type().equals("USER_INPUT"));
+
+				return hasLog2 && ctx.newContent().equals("입력");
+			})
+		)).willReturn(new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
+			"제목", "내용",
+			List.of(
+				new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(100L, 1),
+				new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(101L, 2)
+			)
+		));
+
+		given(kpiCardRepository.countByIdIn(List.of(100L, 101L))).willReturn(2L);
+		given(growthLogPersistenceService.saveUserInputLog(eq(userId), any(), eq(3), any()))
+			.willReturn(999L);
+
+		// when
+		GrowthLogResponseDTO.CreateResult result =
+			service.create(userId, new GrowthLogRequestDTO.CreateUserInput("입력"));
+
+		// then
+		assertThat(result.status()).isEqualTo(GrowthLogStatus.COMPLETED);
+		assertThat(result.id()).isEqualTo(999L);
+
+		verify(growthLogKpiLinkRepository).findByGrowthLogIdIn(List.of(10L, 11L, 12L));
+		verify(kpiCardRepository).countByIdIn(List.of(100L, 101L));
+		verify(growthLogPersistenceService, never()).saveFailedUserInputLog(anyLong(), anyString());
+	}
 }
