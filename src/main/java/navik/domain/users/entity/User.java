@@ -51,7 +51,7 @@ public class User extends BaseEntity {
 	@Column(nullable = false, unique = true)
 	private String email;
 
-	@Column(name = "\"level\"", nullable = false)
+	@Column(name = "level_value", nullable = false)
 	@Builder.Default
 	private Integer level = 0;
 
