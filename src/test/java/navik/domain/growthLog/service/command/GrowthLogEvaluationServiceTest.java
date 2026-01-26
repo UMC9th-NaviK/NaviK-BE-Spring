@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -54,61 +55,27 @@ class GrowthLogEvaluationServiceTest {
 	GrowthLogEvaluationService service;
 
 	@Test
-	void create_시_포트폴리오와_최근로그가_context로_전달되고_성공이면_completed로_저장된다() {
+	void create_성공_시_context_구성되고_completed로_저장된다() {
 		// given
 		Long userId = 1L;
 
-		Portfolio p = Portfolio.builder()
-			.title("포트폴리오 제목")
-			.content("포트폴리오 내용")
-			.build();
-		given(portfolioRepository.findTopByUserIdOrderByCreatedAtDesc(userId))
-			.willReturn(Optional.of(p));
+		givenLatestPortfolio(userId, "포트폴리오 제목", "포트폴리오 내용");
 
-		// 최근 로그 1개: 서비스는 builder 필드 접근이 아니라 getter를 사용하므로 mock으로 세팅
-		GrowthLog recent = mock(GrowthLog.class);
-		given(recent.getId()).willReturn(10L);
-		given(recent.getType()).willReturn(GrowthType.PORTFOLIO);
-		given(recent.getTitle()).willReturn("지난 로그");
-		given(recent.getContent()).willReturn("지난 내용");
-		given(recent.getTotalDelta()).willReturn(2);
-		given(recent.getCreatedAt()).willReturn(LocalDateTime.of(2026, 1, 1, 0, 0));
+		GrowthLog recent = mockLog(10L, GrowthType.PORTFOLIO, "지난 로그", "지난 내용",
+			LocalDateTime.of(2026, 1, 1, 0, 0));
+		givenRecentLogs(userId, List.of(recent));
 
-		given(growthLogRepository.findTop20ByUserIdOrderByCreatedAtDesc(userId))
-			.willReturn(List.of(recent));
+		givenLinksFor(List.of(10L), List.of(mockLink(recent, 100L, 2)));
 
-		// KPI 링크: GrowthLogKpiLink는 getter를 쓰므로 내부 객체들도 mock/getter 스텁이 안전
-		KpiCard kpiCard = mock(KpiCard.class);
-		given(kpiCard.getId()).willReturn(100L);
-
-		GrowthLogKpiLink link = mock(GrowthLogKpiLink.class);
-		given(link.getGrowthLog()).willReturn(recent);
-		given(link.getKpiCard()).willReturn(kpiCard);
-		given(link.getDelta()).willReturn(2);
-
-		given(growthLogKpiLinkRepository.findByGrowthLogIdIn(List.of(10L)))
-			.willReturn(List.of(link));
-
-		// AI 응답 mock + context 검증
-		given(growthLogAiClient.evaluateUserInput(
-			eq(userId),
-			argThat(ctx ->
-				ctx.resumeText().contains("포트폴리오 제목")
-					&& ctx.resumeText().contains("포트폴리오 내용")
-					&& ctx.newContent().equals("입력")
-					&& ctx.recentGrowthLogs().size() == 1
-					&& ctx.recentGrowthLogs().get(0).id().equals(10L)
-					&& ctx.recentKpiDeltas().size() == 1
-					&& ctx.recentKpiDeltas().get(0).growthLogId().equals(10L)
-					&& ctx.recentKpiDeltas().get(0).kpiCardId().equals(100L)
+		givenAiReturns(
+			new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
+				"제목",
+				"내용",
+				List.of(new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(100L, 3))
 			)
-		)).willReturn(new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
-			"제목", "내용",
-			List.of(new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(100L, 3))
-		));
+		);
 
 		given(kpiCardRepository.countByIdIn(List.of(100L))).willReturn(1L);
-
 		given(growthLogPersistenceService.saveUserInputLog(eq(userId), any(), eq(3), any()))
 			.willReturn(999L);
 
@@ -116,10 +83,21 @@ class GrowthLogEvaluationServiceTest {
 		GrowthLogResponseDTO.CreateResult result =
 			service.create(userId, new GrowthLogRequestDTO.CreateUserInput("입력"));
 
-		// then
+		// then - 결과
 		assertThat(result.id()).isEqualTo(999L);
 		assertThat(result.status()).isEqualTo(GrowthLogStatus.COMPLETED);
 
+		// then - AI로 전달된 context 검증 (핵심만)
+		GrowthLogAiRequestDTO.GrowthLogEvaluationContext ctx = captureContext(userId);
+		assertThat(ctx.resumeText()).contains("포트폴리오 제목");
+		assertThat(ctx.resumeText()).contains("포트폴리오 내용");
+		assertThat(ctx.newContent()).isEqualTo("입력");
+		assertThat(ctx.recentGrowthLogs().size()).isEqualTo(1);
+		assertThat(ctx.recentGrowthLogs().get(0).id()).isEqualTo(10L);
+		assertThat(ctx.recentKpiDeltas().size()).isEqualTo(1);
+		assertThat(ctx.recentKpiDeltas().get(0).kpiCardId()).isEqualTo(100L);
+
+		// then - 동작 검증
 		verify(growthLogPersistenceService, never()).saveFailedUserInputLog(anyLong(), anyString());
 		verify(growthLogKpiLinkRepository).findByGrowthLogIdIn(List.of(10L));
 		verify(kpiCardRepository).countByIdIn(List.of(100L));
@@ -130,10 +108,8 @@ class GrowthLogEvaluationServiceTest {
 		// given
 		Long userId = 1L;
 
-		given(portfolioRepository.findTopByUserIdOrderByCreatedAtDesc(userId))
-			.willReturn(Optional.empty());
-		given(growthLogRepository.findTop20ByUserIdOrderByCreatedAtDesc(userId))
-			.willReturn(List.of());
+		givenNoPortfolio(userId);
+		givenRecentLogs(userId, List.of());
 
 		given(growthLogAiClient.evaluateUserInput(anyLong(), any()))
 			.willThrow(new RuntimeException("AI down"));
@@ -152,7 +128,7 @@ class GrowthLogEvaluationServiceTest {
 		verify(growthLogPersistenceService, never())
 			.saveUserInputLog(anyLong(), any(), anyInt(), any());
 
-		// 최근 로그가 비어있으면 KPI 링크 조회도 호출되지 않는 게 구현상 맞음
+		// 구현상 recentLogs 비어있으면 link 조회도 안 함
 		verify(growthLogKpiLinkRepository, never()).findByGrowthLogIdIn(anyList());
 	}
 
@@ -161,84 +137,35 @@ class GrowthLogEvaluationServiceTest {
 		// given
 		Long userId = 1L;
 
-		Portfolio p = Portfolio.builder()
-			.title("포트폴리오 제목")
-			.content("포트폴리오 내용")
-			.build();
-		given(portfolioRepository.findTopByUserIdOrderByCreatedAtDesc(userId))
-			.willReturn(Optional.of(p));
+		givenLatestPortfolio(userId, "포트폴리오 제목", "포트폴리오 내용");
 
-		GrowthLog log1 = mock(GrowthLog.class);
-		given(log1.getId()).willReturn(10L);
-		given(log1.getType()).willReturn(GrowthType.PORTFOLIO);
-		given(log1.getTitle()).willReturn("로그1");
-		given(log1.getContent()).willReturn("내용1");
-		given(log1.getTotalDelta()).willReturn(1);
-		given(log1.getCreatedAt()).willReturn(LocalDateTime.of(2026, 1, 1, 0, 0));
+		GrowthLog log1 = mockLog(10L, GrowthType.PORTFOLIO, "로그1", "내용1",
+			LocalDateTime.of(2026, 1, 1, 0, 0));
+		GrowthLog log2 = mockLog(11L, GrowthType.USER_INPUT, "로그2", "내용2",
+			LocalDateTime.of(2026, 1, 2, 0, 0));
+		GrowthLog log3 = mockLog(12L, GrowthType.PORTFOLIO, "로그3", "내용3",
+			LocalDateTime.of(2026, 1, 3, 0, 0));
 
-		GrowthLog log2 = mock(GrowthLog.class);
-		given(log2.getId()).willReturn(11L);
-		given(log2.getType()).willReturn(GrowthType.USER_INPUT);
-		given(log2.getTitle()).willReturn("로그2");
-		given(log2.getContent()).willReturn("내용2");
-		given(log2.getTotalDelta()).willReturn(2);
-		given(log2.getCreatedAt()).willReturn(LocalDateTime.of(2026, 1, 2, 0, 0));
+		givenRecentLogs(userId, List.of(log1, log2, log3));
 
-		GrowthLog log3 = mock(GrowthLog.class);
-		given(log3.getId()).willReturn(12L);
-		given(log3.getType()).willReturn(GrowthType.PORTFOLIO);
-		given(log3.getTitle()).willReturn("로그3");
-		given(log3.getContent()).willReturn("내용3");
-		given(log3.getTotalDelta()).willReturn(3);
-		given(log3.getCreatedAt()).willReturn(LocalDateTime.of(2026, 1, 3, 0, 0));
-
-		given(growthLogRepository.findTop20ByUserIdOrderByCreatedAtDesc(userId))
-			.willReturn(List.of(log1, log2, log3));
-
-		KpiCard kpi100 = mock(KpiCard.class);
-		given(kpi100.getId()).willReturn(100L);
-		KpiCard kpi101 = mock(KpiCard.class);
-		given(kpi101.getId()).willReturn(101L);
-
-		GrowthLogKpiLink link1 = mock(GrowthLogKpiLink.class);
-		given(link1.getGrowthLog()).willReturn(log1);
-		given(link1.getKpiCard()).willReturn(kpi100);
-		given(link1.getDelta()).willReturn(1);
-
-		GrowthLogKpiLink link2 = mock(GrowthLogKpiLink.class);
-		given(link2.getGrowthLog()).willReturn(log2);
-		given(link2.getKpiCard()).willReturn(kpi101);
-		given(link2.getDelta()).willReturn(2);
-
-		given(growthLogKpiLinkRepository.findByGrowthLogIdIn(List.of(10L, 11L, 12L)))
-			.willReturn(List.of(link1, link2));
-
-		given(growthLogAiClient.evaluateUserInput(
-			eq(userId),
-			argThat(ctx -> {
-				if (ctx.recentGrowthLogs().size() != 3)
-					return false;
-
-				List<Long> ids = ctx.recentGrowthLogs().stream()
-					.map(GrowthLogAiRequestDTO.PastGrowthLog::id)
-					.toList();
-
-				// 서비스는 findTop20 결과 순서를 그대로 매핑하므로 순서까지 검증(요구사항이면 유지)
-				if (!ids.equals(List.of(10L, 11L, 12L)))
-					return false;
-
-				boolean hasLog2 = ctx.recentGrowthLogs().stream()
-					.anyMatch(gl -> gl.id().equals(11L) && gl.title().equals("로그2") && gl.type().equals("USER_INPUT"));
-
-				return hasLog2 && ctx.newContent().equals("입력");
-			})
-		)).willReturn(new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
-			"제목", "내용",
+		givenLinksFor(
+			List.of(10L, 11L, 12L),
 			List.of(
-				new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(100L, 1),
-				new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(101L, 2)
+				mockLink(log1, 100L, 1),
+				mockLink(log2, 101L, 2)
 			)
-		));
+		);
+
+		givenAiReturns(
+			new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
+				"제목",
+				"내용",
+				List.of(
+					new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(100L, 1),
+					new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(101L, 2)
+				)
+			)
+		);
 
 		given(kpiCardRepository.countByIdIn(List.of(100L, 101L))).willReturn(2L);
 		given(growthLogPersistenceService.saveUserInputLog(eq(userId), any(), eq(3), any()))
@@ -248,12 +175,82 @@ class GrowthLogEvaluationServiceTest {
 		GrowthLogResponseDTO.CreateResult result =
 			service.create(userId, new GrowthLogRequestDTO.CreateUserInput("입력"));
 
-		// then
+		// then - 결과
 		assertThat(result.status()).isEqualTo(GrowthLogStatus.COMPLETED);
 		assertThat(result.id()).isEqualTo(999L);
 
+		// then - AI로 전달된 context (여러 개)
+		GrowthLogAiRequestDTO.GrowthLogEvaluationContext ctx = captureContext(userId);
+		assertThat(ctx.recentGrowthLogs().size()).isEqualTo(3);
+
+		List<Long> ids = ctx.recentGrowthLogs().stream()
+			.map(GrowthLogAiRequestDTO.PastGrowthLog::id)
+			.toList();
+		assertThat(ids).isEqualTo(List.of(10L, 11L, 12L)); // findTop20 결과 순서 그대로 매핑됨
+
+		// then - link 조회가 recentIds로 갔는지
 		verify(growthLogKpiLinkRepository).findByGrowthLogIdIn(List.of(10L, 11L, 12L));
 		verify(kpiCardRepository).countByIdIn(List.of(100L, 101L));
 		verify(growthLogPersistenceService, never()).saveFailedUserInputLog(anyLong(), anyString());
+	}
+
+	// -------------------------
+	// Helpers
+	// -------------------------
+
+	private void givenLatestPortfolio(Long userId, String title, String content) {
+		Portfolio p = Portfolio.builder().title(title).content(content).build();
+		given(portfolioRepository.findTopByUserIdOrderByCreatedAtDesc(userId))
+			.willReturn(Optional.of(p));
+	}
+
+	private void givenNoPortfolio(Long userId) {
+		given(portfolioRepository.findTopByUserIdOrderByCreatedAtDesc(userId))
+			.willReturn(Optional.empty());
+	}
+
+	private GrowthLog mockLog(Long id, GrowthType type, String title, String content, LocalDateTime createdAt) {
+		GrowthLog gl = mock(GrowthLog.class);
+		given(gl.getId()).willReturn(id);
+		given(gl.getType()).willReturn(type);
+		given(gl.getTitle()).willReturn(title);
+		given(gl.getContent()).willReturn(content);
+		given(gl.getTotalDelta()).willReturn(0);
+		given(gl.getCreatedAt()).willReturn(createdAt);
+		return gl;
+	}
+
+	private void givenRecentLogs(Long userId, List<GrowthLog> logs) {
+		given(growthLogRepository.findTop20ByUserIdOrderByCreatedAtDesc(userId))
+			.willReturn(logs);
+	}
+
+	private GrowthLogKpiLink mockLink(GrowthLog growthLog, Long kpiId, int delta) {
+		KpiCard kpiCard = mock(KpiCard.class);
+		given(kpiCard.getId()).willReturn(kpiId);
+
+		GrowthLogKpiLink link = mock(GrowthLogKpiLink.class);
+		given(link.getGrowthLog()).willReturn(growthLog);
+		given(link.getKpiCard()).willReturn(kpiCard);
+		given(link.getDelta()).willReturn(delta);
+		return link;
+	}
+
+	private void givenLinksFor(List<Long> growthLogIds, List<GrowthLogKpiLink> links) {
+		given(growthLogKpiLinkRepository.findByGrowthLogIdIn(growthLogIds))
+			.willReturn(links);
+	}
+
+	private void givenAiReturns(GrowthLogAiResponseDTO.GrowthLogEvaluationResult aiResult) {
+		given(growthLogAiClient.evaluateUserInput(anyLong(), any()))
+			.willReturn(aiResult);
+	}
+
+	private GrowthLogAiRequestDTO.GrowthLogEvaluationContext captureContext(Long userId) {
+		ArgumentCaptor<GrowthLogAiRequestDTO.GrowthLogEvaluationContext> captor =
+			ArgumentCaptor.forClass(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
+
+		verify(growthLogAiClient).evaluateUserInput(eq(userId), captor.capture());
+		return captor.getValue();
 	}
 }
