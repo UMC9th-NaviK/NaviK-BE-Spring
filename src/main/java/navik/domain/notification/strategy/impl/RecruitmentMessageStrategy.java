@@ -19,6 +19,6 @@ public class RecruitmentMessageStrategy implements NotificationMessageStrategy {
 	@Override
 	public String createDeadlineMessage(User user, Notifiable target, long daysLeft) {
 		Recruitment recruitment = (Recruitment)target;
-		return String.format("%s님, 추천 공고 [%s] 공고 마감 D-%d일 전입니다.", daysLeft);
+		return String.format("%s님, 추천 공고 [%s] 공고 마감 D-%d일 전입니다.", user.getName(), recruitment.getTitle(), daysLeft);
 	}
 }
