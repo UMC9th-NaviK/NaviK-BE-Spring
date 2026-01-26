@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import navik.domain.board.dto.CommentListDTO;
 import navik.domain.board.entity.Comment;
+import navik.global.dto.CursorResponseDto;
 
 public class CommentListConverter {
 
@@ -22,7 +22,7 @@ public class CommentListConverter {
 	}
 
 	// 계층 구조가 적용된 Page 응답으로 변환
-	public static Page<CommentListDTO.ResponseComment> toResponse(Page<Comment> comments, Pageable pageable,
+	public static CursorResponseDto<CommentListDTO.ResponseComment> toResponse(Page<Comment> comments,
 		List<Boolean> isMyComments) {
 
 		List<CommentListDTO.ResponseComment> responseCommentDtoList = new ArrayList<>();
@@ -41,16 +41,32 @@ public class CommentListConverter {
 				responseCommentDtoList.add(responseCommentDto);
 			}
 		}
-		return new PageImpl<>(responseCommentDtoList, pageable, comments.getTotalElements());
+
+		String nextCursor =
+			commentList.isEmpty() ? null : String.valueOf(commentList.get(commentList.size() - 1).getId());
+
+		return CursorResponseDto.<CommentListDTO.ResponseComment>builder()
+			.content(responseCommentDtoList)
+			.nextCursor(nextCursor)
+			.pageSize(responseCommentDtoList.size())
+			.totalElements(comments.getTotalElements())
+			.hasNext(comments.hasNext())
+			.build();
 	}
 
 	// 단일 엔티티를 DTO로 매핑
 	public static CommentListDTO.ResponseComment toComment(Comment comment, Boolean isMyComment) {
+
+		String displayContent = comment.isDeleted() ? "삭제되었습니다" : comment.getContent();
+
 		return CommentListDTO.ResponseComment.builder()
+			.boardId(comment.getBoard().getId())
 			.commentId(comment.getId())
 			.userId(comment.getUser().getId())
 			.parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
-			.content(comment.getContent())
+			.content(displayContent)
+			.isEntryLevel(comment.getUser().getIsEntryLevel())
+			.jobName(comment.getUser().getJob().getName())
 			.nickname(comment.getUser().getNickname())
 			.isMyComment(isMyComment)
 			.createdAt(comment.getCreatedAt())
