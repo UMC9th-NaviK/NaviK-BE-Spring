@@ -124,4 +124,35 @@ class GrowthLogEvaluationServiceTest {
 		verify(kpiCardRepository).countByIdIn(List.of(100L));
 	}
 
+	@Test
+	void create_시_AI예외면_failed로_저장하고_completed저장은_호출되지_않는다() {
+		// given
+		Long userId = 1L;
+
+		given(portfolioRepository.findTopByUserIdOrderByCreatedAtDesc(userId))
+			.willReturn(Optional.empty());
+		given(growthLogRepository.findTop20ByUserIdOrderByCreatedAtDesc(userId))
+			.willReturn(List.of());
+
+		given(growthLogAiClient.evaluateUserInput(anyLong(), any()))
+			.willThrow(new RuntimeException("AI down"));
+
+		given(growthLogPersistenceService.saveFailedUserInputLog(eq(userId), anyString()))
+			.willReturn(123L);
+
+		// when
+		GrowthLogResponseDTO.CreateResult result =
+			service.create(userId, new GrowthLogRequestDTO.CreateUserInput("입력"));
+
+		// then
+		assertThat(result.status()).isEqualTo(GrowthLogStatus.FAILED);
+		assertThat(result.id()).isEqualTo(123L);
+
+		verify(growthLogPersistenceService, never())
+			.saveUserInputLog(anyLong(), any(), anyInt(), any());
+
+		// 최근 로그가 비어있으면 KPI 링크 조회도 호출되지 않는 게 구현상 맞음
+		verify(growthLogKpiLinkRepository, never()).findByGrowthLogIdIn(anyList());
+	}
+
 }
