@@ -23,6 +23,7 @@ import navik.domain.users.repository.UserRepository;
 import navik.domain.users.service.UserQueryService;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.dto.CursorResponseDto;
 
 @Service
 @RequiredArgsConstructor
@@ -37,11 +38,10 @@ public class CommentService {
 	 * @param parameter
 	 * @return
 	 */
-
 	@Transactional(readOnly = true)
-	public Page<CommentListDTO.ResponseComment> getCommentList(CommentListDTO.Parameter parameter) {
+	public CursorResponseDto<CommentListDTO.ResponseComment> getCommentList(CommentListDTO.Parameter parameter) {
 		// 1. 게시글 조회
-		Page<Comment> comments = commentRepository.findByParentCommentId(parameter.getBoardId(),
+		Page<Comment> comments = commentRepository.findByBoardId(parameter.getBoardId(),
 			parameter.getPageable());
 
 		// 2. 내가 쓴 댓글이 맞는지 확인
@@ -50,7 +50,7 @@ public class CommentService {
 			.toList();
 
 		// 3. DTO 변환
-		return CommentListConverter.toResponse(comments, parameter.getPageable(), isMyComments);
+		return CommentListConverter.toResponse(comments, isMyComments);
 	}
 
 	/**
@@ -112,11 +112,11 @@ public class CommentService {
 			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.COMMENT_NOT_FOUND));
 
 		// 댓글 작성자가 맞는지 확인
-		if (comment.getUser().equals(user)) {
+		if (!comment.getUser().equals(user)) {
 			throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_COMMENT_NOT_WRITER);
 		}
 
-		// 댓글 삭제
-		commentRepository.delete(comment);
+		// 댓글 상태값 변경
+		comment.changeToDeletedStatus();
 	}
 }
