@@ -23,6 +23,8 @@ import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.repository.GrowthLogKpiLinkRepository;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.kpi.repository.KpiCardRepository;
+import navik.domain.portfolio.entity.Portfolio;
+import navik.domain.portfolio.repository.PortfolioRepository;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Service
@@ -32,6 +34,7 @@ public class GrowthLogEvaluationService {
 	private final GrowthLogRepository growthLogRepository;
 	private final GrowthLogKpiLinkRepository growthLogKpiLinkRepository;
 	private final KpiCardRepository kpiCardRepository;
+	private final PortfolioRepository portfolioRepository;
 
 	private final GrowthLogAiClient growthLogAiClient;
 	private final GrowthLogPersistenceService growthLogPersistenceService;
@@ -131,8 +134,10 @@ public class GrowthLogEvaluationService {
 	}
 
 	private GrowthLogEvaluationContext buildContext(Long userId, String inputContent) {
-		// TODO: resumeText는 실제 이력서/포트폴리오 텍스트로 교체
-		String resumeText = "";
+		String resumeText = portfolioRepository
+			.findTopByUserIdOrderByCreatedAtDesc(userId)
+			.map(p -> buildResumeText(p))
+			.orElse("포트폴리오 정보 없음");
 
 		List<GrowthLog> recentLogs = growthLogRepository.findTop20ByUserIdOrderByCreatedAtDesc(userId);
 
@@ -222,4 +227,18 @@ public class GrowthLogEvaluationService {
 		int totalDelta
 	) {
 	}
+
+	private String buildResumeText(Portfolio p) {
+		return """
+			[포트폴리오 제목]
+			%s
+			
+			[포트폴리오 내용]
+			%s
+			""".formatted(
+			safe(p.getTitle()),
+			safe(p.getContent())
+		);
+	}
+
 }
