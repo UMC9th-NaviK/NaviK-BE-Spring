@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Repository;
@@ -138,6 +139,61 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			)
 			.limit(5)  // 유사도 합 상위 5개
 			.fetch();
+	}
+
+	@Override
+	public Optional<RecommendedRecruitmentProjection> findRecommendedPost(
+		User user,
+		Job job,
+		EducationLevel educationLevel,
+		ExperienceType experienceType,
+		List<MajorType> majorTypes
+	) {
+
+		// 1. pgvector 코사인 쿼리
+		NumberTemplate<Double> similarityQuery = Expressions.numberTemplate(
+			Double.class,
+			"1.0 - cast(function('cosine_distance', {0}, {1}) as double)",
+			positionKpiEmbedding.embedding,
+			abilityEmbedding.embedding
+		);
+
+		// 2. 조건 설정
+		BooleanExpression where = Stream.of(
+				jobSatisfy(job),
+				educationLevelSatisfy(educationLevel),
+				experienceTypeSatisfy(experienceType),
+				majorTypeSatisfy(majorTypes),
+				similarityQuery.goe(0.3)    // 유저 fit한 검색이 목적이므로 유사도 0.3 이상만 집계 (position과 달리, 유저의 역량 정보가 부족하면 결과 없을 수 있음)
+			)
+			.filter(Objects::nonNull)
+			.reduce(BooleanExpression::and)
+			.orElse(null);
+
+		// 3. 조회
+		return Optional.ofNullable(
+			jpaQueryFactory
+				.select(new QRecommendedRecruitmentProjection(
+					recruitment,
+					similarityQuery.sum(),
+					positionKpi.count()
+				))
+				.from(recruitment)
+				.join(recruitment.positions, position)                        // Recruitment -> Position
+				.join(position.positionKpis, positionKpi)                     // Position → KPI
+				.join(positionKpi.positionKpiEmbedding, positionKpiEmbedding) // KPI -> KPI Embedding
+				.join(ability).on(ability.user.eq(user))                      // Ability
+				.join(ability.abilityEmbedding, abilityEmbedding)             // Ability -> Embedding
+				.where(where)
+				.groupBy(recruitment)
+				.having(positionKpi.count().goe(3))  // 매칭되는 KPI는 3개 이상
+				.orderBy(
+					similarityQuery.sum().desc(),   // 1순위: 유사도 합산
+					positionKpi.count().desc(),     // 2순위: 매칭 개수
+					recruitment.id.asc()            // 3순위: PK
+				)
+				.fetchFirst()    // 상위 1개
+		);
 	}
 
 	/**
