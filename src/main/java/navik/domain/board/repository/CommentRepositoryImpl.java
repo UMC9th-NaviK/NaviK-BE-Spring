@@ -27,6 +27,7 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
 			selectFrom(comment)
 			.leftJoin(comment.parentComment).fetchJoin()
 			.leftJoin(comment.user).fetchJoin() // comment와 parentComment 조인
+			.leftJoin(comment.user.job).fetchJoin()
 			.where(
 				comment.board.id.eq(boardId) // 게시글 ID로 전체 조회함
 			)
