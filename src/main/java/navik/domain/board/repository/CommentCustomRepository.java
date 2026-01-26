@@ -8,5 +8,5 @@ import navik.domain.board.entity.Comment;
 
 @Repository
 public interface CommentCustomRepository {
-	Page<Comment> findByParentCommentId(Long parentCommentId, Pageable pageable);
+	Page<Comment> findByBoardId(Long boardId, Pageable pageable);
 }
