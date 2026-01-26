@@ -128,10 +128,6 @@ public class StudyQueryService {
 			.map(KpiCardResponseDTO.GridItem::kpiCardId)
 			.toList();
 
-		if (weaknessKpiIds.isEmpty()) { // 약점 KPI 카드 없는 경우 빈 리스트 반환
-			return CursorResponseDto.of(Collections.emptyList(), false, null);
-		}
-
 		// 2. 이미 참여 중이거나 신청한 스터디는 제외한다
 		List<Long> excludeStudyIds = studyUserRepository.findByUserId(userId).stream()
 			.map(su -> su.getStudy().getId()).toList();
