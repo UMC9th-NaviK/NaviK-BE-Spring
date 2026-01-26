@@ -50,6 +50,5 @@ public class Comment extends BaseEntity {
 
 	public void changeToDeletedStatus() {
 		this.isDeleted = true;
-		this.content = "삭제되었습니다";
 	}
 }
