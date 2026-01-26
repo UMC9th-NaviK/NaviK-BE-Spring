@@ -53,7 +53,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 		Pageable pageable
 	) {
 
-		// 1. pgvector 코사인 쿼리 (동일)
+		// 1. pgvector 코사인 쿼리
 		NumberTemplate<Double> similarityQuery = Expressions.numberTemplate(
 			Double.class,
 			"1.0 - cast(function('cosine_distance', {0}, {1}) as double)",
@@ -61,13 +61,13 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			abilityEmbedding.embedding
 		);
 
-		// 2. 조건 설정 (동일)
+		// 2. 조건 설정
 		BooleanExpression where = Stream.of(
 				jobSatisfy(job),
 				educationLevelSatisfy(educationLevel),
 				experienceTypeSatisfy(experienceType),
 				majorTypeSatisfy(majorTypes),
-				// endDateSatisfy(), // 필요 시 주석 해제하여 사용
+				endDateSatisfy(),
 				similarityQuery.goe(0.3)
 			)
 			.filter(Objects::nonNull)
@@ -82,18 +82,18 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 				positionKpi.count()
 			))
 			.from(recruitment)
-			.join(recruitment.positions, position)
-			.join(position.positionKpis, positionKpi)
-			.join(positionKpi.positionKpiEmbedding, positionKpiEmbedding)
-			.join(ability).on(ability.user.eq(user))
-			.join(ability.abilityEmbedding, abilityEmbedding)
+			.join(recruitment.positions, position)                         // Recruitment -> Position
+			.join(position.positionKpis, positionKpi)                      // Position → KPI
+			.join(positionKpi.positionKpiEmbedding, positionKpiEmbedding)  // KPI -> KPI Embedding
+			.join(ability).on(ability.user.eq(user))                       // Ability
+			.join(ability.abilityEmbedding, abilityEmbedding)              // Ability -> Embedding
 			.where(where)
 			.groupBy(recruitment)
-			.having(positionKpi.count().goe(3))
+			.having(positionKpi.count().goe(3))  // 매칭되는 KPI는 최소 3개 이상
 			.orderBy(
-				similarityQuery.sum().desc(),
-				positionKpi.count().desc(),
-				recruitment.id.asc()
+				similarityQuery.sum().desc(),  // 1순위: 유사도 합산
+				positionKpi.count().desc(),    // 2순위: 매칭 개수
+				recruitment.id.asc()           // 3순위: PK
 			)
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
