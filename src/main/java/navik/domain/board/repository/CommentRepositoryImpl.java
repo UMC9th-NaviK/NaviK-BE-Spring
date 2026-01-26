@@ -52,7 +52,8 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
 			.select(comment.count())
 			.from(comment)
 			.where(
-				comment.board.id.eq(boardId)
+				comment.board.id.eq(boardId),
+				comment.isDeleted.isFalse()
 			);
 		return PageableExecutionUtils.getPage(result, pageable, countQuery::fetchOne);
 		// PageableExecutionUtils : 페이징 처리를 위한 최적화 유틸리티, 불필요한 전체 개수 조회 쿼리 생략
