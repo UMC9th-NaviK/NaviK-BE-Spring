@@ -43,7 +43,8 @@ public class CommentListConverter {
 		}
 
 		String nextCursor =
-			commentList.isEmpty() ? null : String.valueOf(commentList.get(commentList.size() - 1).getId());
+			responseCommentDtoList.isEmpty() ? null :
+				String.valueOf(responseCommentDtoList.get(commentList.size() - 1).getCommentId());
 
 		return CursorResponseDto.<CommentListDTO.ResponseComment>builder()
 			.content(responseCommentDtoList)
