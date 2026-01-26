@@ -2,6 +2,7 @@ package navik.domain.recruitment.service.recruitment;
 
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +51,8 @@ public class RecruitmentQueryService {
 			user.getJob(),
 			user.getEducationLevel(),
 			user.getIsEntryLevel() ? ExperienceType.ENTRY : ExperienceType.EXPERIENCED,
-			departments.stream().map(MajorType::valueOf).toList()
+			departments.stream().map(MajorType::valueOf).toList(),
+			PageRequest.of(0, 5)    // 5건
 		);
 
 		// 4. DTO 반환 (position batchSize)

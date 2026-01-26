@@ -1,7 +1,8 @@
 package navik.domain.recruitment.repository.recruitment;
 
 import java.util.List;
-import java.util.Optional;
+
+import org.springframework.data.domain.Pageable;
 
 import navik.domain.job.entity.Job;
 import navik.domain.kpi.entity.KpiCard;
@@ -15,21 +16,14 @@ public interface RecruitmentCustomRepository {
 	List<RecommendedRecruitmentProjection> findRecommendedPosts(
 		User user,
 		Job job,
-		EducationLevel EducationLevel,
+		EducationLevel educationLevel,
 		ExperienceType experienceType,
-		List<MajorType> majorTypes
+		List<MajorType> majorTypes,
+		Pageable pageable
 	);
 
 	List<RecommendedRecruitmentProjection> findRecommendedPostsByCard(
 		KpiCard kpiCard,
 		Job job
-	);
-
-	Optional<RecommendedRecruitmentProjection> findRecommendedPost(
-		User user,
-		Job job,
-		EducationLevel EducationLevel,
-		ExperienceType experienceType,
-		List<MajorType> majorTypes
 	);
 }

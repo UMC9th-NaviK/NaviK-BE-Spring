@@ -14,7 +14,7 @@ import navik.domain.goal.repository.GoalRepository;
 import navik.domain.notification.config.NotificationConfig;
 import navik.domain.notification.entity.NotificationType;
 import navik.domain.notification.service.NotificationCommandService;
-import navik.domain.notification.service.NotificationFacade;
+import navik.domain.notification.service.NotificationFacadeService;
 import navik.domain.users.repository.UserRepository;
 
 @Slf4j
@@ -25,7 +25,7 @@ public class NotificationScheduler {
 	private final GoalRepository goalRepository;
 	private final NotificationCommandService notificationCommandService;
 	private final NotificationConfig notificationConfig;
-	private final NotificationFacade notificationFacadeService;
+	private final NotificationFacadeService notificationFacadeService;
 	private final UserRepository userRepository;
 
 	/**

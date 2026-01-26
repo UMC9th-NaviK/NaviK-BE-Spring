@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +23,7 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Component
 @RequiredArgsConstructor
-public class NotificationFacade {
+public class NotificationFacadeService {
 
 	private final UserRepository userRepository;
 	private final RecruitmentRepository recruitmentRepository;
@@ -48,12 +49,13 @@ public class NotificationFacade {
 			.toList();
 
 		// 3. 조회
-		Optional<RecommendedRecruitmentProjection> recommendedPost = recruitmentRepository.findRecommendedPost(
+		List<RecommendedRecruitmentProjection> recommendedPost = recruitmentRepository.findRecommendedPosts(
 			user,
 			user.getJob(),
 			user.getEducationLevel(),
 			user.getIsEntryLevel() ? ExperienceType.ENTRY : ExperienceType.EXPERIENCED,
-			departments.stream().map(MajorType::valueOf).toList()
+			departments.stream().map(MajorType::valueOf).toList(),
+			PageRequest.of(0, 1)
 		);
 
 		// 4. 없으면 return
@@ -61,7 +63,7 @@ public class NotificationFacade {
 			return;
 
 		// 5. targetEndDate에 일치해야 알림 전송
-		Recruitment recruitment = recommendedPost.get().getRecruitment();
+		Recruitment recruitment = recommendedPost.getFirst().getRecruitment();
 		Optional<LocalDate> localDate = targetEndDates.stream()
 			.filter(endDate -> endDate.isEqual(recruitment.getEndDate().toLocalDate()))
 			.findFirst();
