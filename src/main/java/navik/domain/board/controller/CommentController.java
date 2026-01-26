@@ -1,6 +1,5 @@
 package navik.domain.board.controller;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,7 +22,7 @@ import navik.domain.board.service.CommentService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.PageResponseDto;
+import navik.global.dto.CursorResponseDto;
 
 @RestController
 @RequestMapping("/v1/boards")
@@ -33,22 +32,20 @@ public class CommentController implements CommentControllerDocs {
 	private final CommentService commentService;
 
 	/**
-	 * 게시글 댓글 목록 조회
+	 * 댓글 목록 조회
 	 * @param boardId
 	 * @param userId
 	 * @param pageable
 	 * @return
 	 */
-
 	@GetMapping("/{boardId}/comment")
-	public ApiResponse<PageResponseDto<CommentListDTO.ResponseComment>> getComments(
+	public ApiResponse<CursorResponseDto<CommentListDTO.ResponseComment>> getComments(
 		@PathVariable Long boardId,
 		@AuthUser Long userId,
 		@PageableDefault(size = 10) Pageable pageable
 	) {
 		CommentListDTO.Parameter parameter = CommentListConverter.toParameter(userId, boardId, pageable);
-		Page<CommentListDTO.ResponseComment> commentPage = commentService.getCommentList(parameter);
-		PageResponseDto<CommentListDTO.ResponseComment> response = PageResponseDto.of(commentPage);
+		CursorResponseDto<CommentListDTO.ResponseComment> response = commentService.getCommentList(parameter);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 
@@ -79,7 +76,7 @@ public class CommentController implements CommentControllerDocs {
 	 * @param userId
 	 * @return
 	 */
-	@PostMapping("/{boardId}/comments/{commentId}/reply")
+	@PostMapping("/{boardId}/comment/{commentId}/reply")
 	public ApiResponse<ReplyDTO.Response> addReply(
 		@PathVariable Long boardId,
 		@PathVariable Long commentId,
