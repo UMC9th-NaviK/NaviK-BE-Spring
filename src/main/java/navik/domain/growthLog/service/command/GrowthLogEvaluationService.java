@@ -91,9 +91,10 @@ public class GrowthLogEvaluationService {
 			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 
-		GrowthLogEvaluationContext context = buildContext(userId, safe(growthLog.getContent()));
-
 		try {
+
+			GrowthLogEvaluationContext context = buildContext(userId, safe(growthLog.getContent()));
+
 			Evaluated evaluated = evaluateGrowthLog(userId, context);
 
 			growthLogPersistenceService.updateGrowthLogAfterRetry(
