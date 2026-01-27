@@ -98,15 +98,14 @@ public class NotificationFacadeService {
 			.map(days -> LocalDate.now().plusDays(days))
 			.toList();
 
-		// 3. 추천 공고 제거
-		recommendedRecruitmentRepository.deleteById(recommendedRecruitmentNotificationId);
-
-		// 4. 상시 모집 처리
+		// 3. 상시 모집 처리
 		LocalDateTime recruitmentEndDate = recommendedRecruitment.getRecruitment().getEndDate();
-		if (recruitmentEndDate == null)
+		if (recruitmentEndDate == null) {
+			recommendedRecruitmentRepository.deleteById(recommendedRecruitmentNotificationId);
 			return;
+		}
 
-		// 5. 설정된 D-DAY에 일치해야 알림 전송
+		// 4. 설정된 D-DAY에 일치해야 알림 전송
 		Optional<LocalDate> localDate = targetEndDates.stream()
 			.filter(endDate -> endDate.isEqual(recruitmentEndDate.toLocalDate()))
 			.findFirst();
@@ -115,5 +114,6 @@ public class NotificationFacadeService {
 			recommendedRecruitment.getRecruitment(),
 			date)
 		);
+		recommendedRecruitmentRepository.deleteById(recommendedRecruitmentNotificationId);
 	}
 }

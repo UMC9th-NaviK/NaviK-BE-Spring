@@ -11,7 +11,7 @@ import navik.global.apiPayload.code.status.BaseCode;
 public enum RecommendedRecruitmentErrorCode implements BaseCode {
 
 	RECOMMENDED_RECRUITMENT_NOT_FOUND(
-		HttpStatus.BAD_REQUEST,
+		HttpStatus.NOT_FOUND,
 		"RECOMMENDED_RECRUITMENT_404_01",
 		"해당되는 추천 채용 공고가 존재하지 않습니다."
 	);
