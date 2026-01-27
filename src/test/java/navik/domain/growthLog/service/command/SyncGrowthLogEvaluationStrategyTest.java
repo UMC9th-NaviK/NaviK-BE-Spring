@@ -27,6 +27,7 @@ import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.enums.GrowthType;
 import navik.domain.growthLog.repository.GrowthLogKpiLinkRepository;
 import navik.domain.growthLog.repository.GrowthLogRepository;
+import navik.domain.growthLog.service.command.strategy.SyncGrowthLogEvaluationStrategy;
 import navik.domain.kpi.entity.KpiCard;
 import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.portfolio.entity.Portfolio;

@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import navik.domain.growthLog.dto.req.GrowthLogRequestDTO;
 import navik.domain.growthLog.dto.res.GrowthLogResponseDTO;
 import navik.domain.growthLog.enums.GrowthLogStatus;
+import navik.domain.growthLog.service.command.strategy.GrowthLogEvaluationStrategy;
 
 @ExtendWith(MockitoExtension.class)
 class GrowthLogEvaluationServiceTest {

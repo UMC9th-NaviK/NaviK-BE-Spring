@@ -1,4 +1,4 @@
-package navik.domain.growthLog.service.command;
+package navik.domain.growthLog.service.command.strategy;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,6 +23,7 @@ import navik.domain.growthLog.enums.GrowthType;
 import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.repository.GrowthLogKpiLinkRepository;
 import navik.domain.growthLog.repository.GrowthLogRepository;
+import navik.domain.growthLog.service.command.GrowthLogPersistenceService;
 import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.repository.PortfolioRepository;

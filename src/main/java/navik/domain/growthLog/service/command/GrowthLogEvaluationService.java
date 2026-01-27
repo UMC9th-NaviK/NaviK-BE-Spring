@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import navik.domain.growthLog.dto.req.GrowthLogRequestDTO;
 import navik.domain.growthLog.dto.res.GrowthLogResponseDTO;
+import navik.domain.growthLog.service.command.strategy.GrowthLogEvaluationStrategy;
 
 @Service
 @RequiredArgsConstructor

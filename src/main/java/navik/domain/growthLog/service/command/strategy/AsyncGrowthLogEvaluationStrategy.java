@@ -1,4 +1,4 @@
-package navik.domain.growthLog.service.command;
+package navik.domain.growthLog.service.command.strategy;
 
 import java.util.UUID;
 
@@ -16,6 +16,7 @@ import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.message.GrowthLogEvaluationMessage;
 import navik.domain.growthLog.message.GrowthLogEvaluationPublisher;
 import navik.domain.growthLog.repository.GrowthLogRepository;
+import navik.domain.growthLog.service.command.GrowthLogPersistenceService;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Service

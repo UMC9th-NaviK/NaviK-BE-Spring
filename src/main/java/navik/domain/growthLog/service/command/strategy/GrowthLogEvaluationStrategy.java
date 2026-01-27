@@ -1,4 +1,4 @@
-package navik.domain.growthLog.service.command;
+package navik.domain.growthLog.service.command.strategy;
 
 import navik.domain.growthLog.dto.req.GrowthLogRequestDTO;
 import navik.domain.growthLog.dto.res.GrowthLogResponseDTO;
