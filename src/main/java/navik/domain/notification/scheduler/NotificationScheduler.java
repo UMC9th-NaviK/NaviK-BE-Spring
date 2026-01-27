@@ -13,7 +13,7 @@ import navik.domain.goal.entity.Goal;
 import navik.domain.goal.repository.GoalRepository;
 import navik.domain.notification.config.NotificationConfig;
 import navik.domain.notification.entity.NotificationType;
-import navik.domain.notification.repository.RecommendedRecruitmentNotificationRepository;
+import navik.domain.notification.repository.RecommendedRecruitmentRepository;
 import navik.domain.notification.service.NotificationCommandService;
 import navik.domain.notification.service.NotificationFacadeService;
 import navik.domain.users.repository.UserRepository;
@@ -28,7 +28,7 @@ public class NotificationScheduler {
 	private final NotificationConfig notificationConfig;
 	private final NotificationFacadeService notificationFacadeService;
 	private final UserRepository userRepository;
-	private final RecommendedRecruitmentNotificationRepository recommendedRecruitmentNotificationRepository;
+	private final RecommendedRecruitmentRepository recommendedRecruitmentRepository;
 
 	/**
 	 * 매일 오전 9시에 알림 대상 목표의 마감일을 체크하여 D-day 알림 생성
@@ -99,7 +99,7 @@ public class NotificationScheduler {
 
 		// 메모리 고려 id만 가져오고, 개별 트랜잭션을 타도록 facade
 		// todo: 청크 단위 Batch 처리
-		recommendedRecruitmentNotificationRepository.findAllIds().forEach(
+		recommendedRecruitmentRepository.findAllIds().forEach(
 			recommendedRecruitmentId -> {
 				try {
 					notificationFacadeService.sendRecommendedRecruitmentNotification(recommendedRecruitmentId);

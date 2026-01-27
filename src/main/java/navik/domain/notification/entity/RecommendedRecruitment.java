@@ -23,7 +23,7 @@ import navik.global.entity.BaseEntity;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Table(name = "recommended_recruitment_notifications")
-public class RecommendedRecruitmentNotification extends BaseEntity {
+public class RecommendedRecruitment extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

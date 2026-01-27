@@ -14,9 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.domain.notification.config.NotificationConfig;
 import navik.domain.notification.entity.NotificationType;
-import navik.domain.notification.entity.RecommendedRecruitmentNotification;
-import navik.domain.notification.exception.code.RecommendedRecruitmentNotificationErrorCode;
-import navik.domain.notification.repository.RecommendedRecruitmentNotificationRepository;
+import navik.domain.notification.entity.RecommendedRecruitment;
+import navik.domain.notification.exception.code.RecommendedRecruitmentErrorCode;
+import navik.domain.notification.repository.RecommendedRecruitmentRepository;
 import navik.domain.recruitment.entity.Recruitment;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.MajorType;
@@ -37,7 +37,7 @@ public class NotificationFacadeService {
 	private final RecruitmentRepository recruitmentRepository;
 	private final NotificationConfig notificationConfig;
 	private final NotificationCommandService notificationCommandService;
-	private final RecommendedRecruitmentNotificationRepository recommendedRecruitmentNotificationRepository;
+	private final RecommendedRecruitmentRepository recommendedRecruitmentRepository;
 
 	public void createRecommendedRecruitmentNotification(Long userId) {
 
@@ -77,20 +77,20 @@ public class NotificationFacadeService {
 
 		// 4. 추천 공고 저장
 		Recruitment recruitment = recommendedPost.getFirst().getRecruitment();
-		RecommendedRecruitmentNotification recommendedRecruitmentNotification = RecommendedRecruitmentNotification.builder()
+		RecommendedRecruitment recommendedRecruitment = RecommendedRecruitment.builder()
 			.recruitment(recruitment)
 			.user(user)
 			.build();
-		recommendedRecruitmentNotificationRepository.save(recommendedRecruitmentNotification);
+		recommendedRecruitmentRepository.save(recommendedRecruitment);
 	}
 
 	public void sendRecommendedRecruitmentNotification(Long recommendedRecruitmentNotificationId) {
 
 		// 1. 추천 공고 엔티티 검색
-		RecommendedRecruitmentNotification recommendedRecruitmentNotification = recommendedRecruitmentNotificationRepository.findByIdWithUserAndRecruitment(
+		RecommendedRecruitment recommendedRecruitment = recommendedRecruitmentRepository.findByIdWithUserAndRecruitment(
 				recommendedRecruitmentNotificationId)
 			.orElseThrow(() -> new GeneralExceptionHandler(
-				RecommendedRecruitmentNotificationErrorCode.RECOMMENDED_RECRUITMENT_NOTIFICATION_NOT_FOUND));
+				RecommendedRecruitmentErrorCode.RECOMMENDED_RECRUITMENT_NOT_FOUND));
 
 		// 2. D-DAY 날짜
 		List<Integer> notificationDays = notificationConfig.getNotificationDays(NotificationType.RECRUITMENT);
@@ -99,10 +99,10 @@ public class NotificationFacadeService {
 			.toList();
 
 		// 3. 추천 공고 제거
-		recommendedRecruitmentNotificationRepository.deleteById(recommendedRecruitmentNotificationId);
+		recommendedRecruitmentRepository.deleteById(recommendedRecruitmentNotificationId);
 
 		// 4. 상시 모집 처리
-		LocalDateTime recruitmentEndDate = recommendedRecruitmentNotification.getRecruitment().getEndDate();
+		LocalDateTime recruitmentEndDate = recommendedRecruitment.getRecruitment().getEndDate();
 		if (recruitmentEndDate == null)
 			return;
 
@@ -111,8 +111,8 @@ public class NotificationFacadeService {
 			.filter(endDate -> endDate.isEqual(recruitmentEndDate.toLocalDate()))
 			.findFirst();
 		localDate.ifPresent(date -> notificationCommandService.createDeadlineNotification(
-			recommendedRecruitmentNotification.getUser().getId(),    // 트랜잭션 참여
-			recommendedRecruitmentNotification.getRecruitment(),
+			recommendedRecruitment.getUser().getId(),    // 트랜잭션 참여
+			recommendedRecruitment.getRecruitment(),
 			date)
 		);
 	}
