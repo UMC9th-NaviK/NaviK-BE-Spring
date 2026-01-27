@@ -1,5 +1,6 @@
 package navik.domain.notification.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,4 +19,7 @@ public interface RecommendedRecruitmentNotificationRepository
 		WHERE rrn.id = :id
 		""")
 	Optional<RecommendedRecruitmentNotification> findByIdWithUserAndRecruitment(@Param("id") Long id);
+
+	@Query("SELECT rrn.id FROM RecommendedRecruitmentNotification rrn")
+	List<Long> findAllIds();
 }

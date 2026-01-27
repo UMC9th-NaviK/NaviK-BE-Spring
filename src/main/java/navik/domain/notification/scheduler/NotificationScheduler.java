@@ -13,6 +13,7 @@ import navik.domain.goal.entity.Goal;
 import navik.domain.goal.repository.GoalRepository;
 import navik.domain.notification.config.NotificationConfig;
 import navik.domain.notification.entity.NotificationType;
+import navik.domain.notification.repository.RecommendedRecruitmentNotificationRepository;
 import navik.domain.notification.service.NotificationCommandService;
 import navik.domain.notification.service.NotificationFacadeService;
 import navik.domain.users.repository.UserRepository;
@@ -27,6 +28,7 @@ public class NotificationScheduler {
 	private final NotificationConfig notificationConfig;
 	private final NotificationFacadeService notificationFacadeService;
 	private final UserRepository userRepository;
+	private final RecommendedRecruitmentNotificationRepository recommendedRecruitmentNotificationRepository;
 
 	/**
 	 * 매일 오전 9시에 알림 대상 목표의 마감일을 체크하여 D-day 알림 생성
@@ -67,19 +69,42 @@ public class NotificationScheduler {
 	}
 
 	/**
-	 * 매일 오전 10시 모든 유저에 대해 추천 공고 1건을 조회하고
-	 * D-1 or D-5 남은 경우 개별 알림을 생성합니다.
+	 * 매일 새벽 4시 모든 유저에 대해 추천 공고를 한 건씩 생성합니다.
 	 */
-	@Scheduled(cron = "0 0 10 * * *")
-	public void checkRecommenedRecruitment() {
+	@Scheduled(cron = "0 0 4 * * *")
+	public void createRecommendedRecruitment() {
 
-		// 메모리 고려 id만 가져오고, 유저 개별 트랜잭션을 타도록 facade
+		log.info("[NotificationScheduler] 추천 공고 생성 작업 실행");
+
+		// todo: 청크 단위 Batch 처리
 		userRepository.findAllIds().forEach(
 			userId -> {
 				try {
-					notificationFacadeService.checkRecommendedRecruitment(userId);
+					notificationFacadeService.createRecommendedRecruitmentNotification(userId);
 				} catch (Exception e) {
-					log.error("추천 공고 알림 생성 실패 - User ID: {}", userId, e);
+					log.error("추천 공고 생성 실패 - User ID: {}", userId, e);
+				}
+			}
+		);
+	}
+
+	/**
+	 * 매일 오전 10시 모든 유저에 대해 추천 공고를 알림으로 생성합니다.
+	 * D-1 or D-5 남은 경우 생성합니다.
+	 */
+	@Scheduled(cron = "0 0 10 * * *")
+	public void sendRecommendedRecruitment() {
+
+		log.info("[NotificationScheduler] 추천 공고 알림 작업 실행");
+
+		// 메모리 고려 id만 가져오고, 개별 트랜잭션을 타도록 facade
+		// todo: 청크 단위 Batch 처리
+		recommendedRecruitmentNotificationRepository.findAllIds().forEach(
+			recommendedRecruitmentId -> {
+				try {
+					notificationFacadeService.sendRecommendedRecruitmentNotification(recommendedRecruitmentId);
+				} catch (Exception e) {
+					log.error("추천 공고 알림 전송 실패 - RecommendedRecruitment ID: {}", recommendedRecruitmentId, e);
 				}
 			}
 		);
