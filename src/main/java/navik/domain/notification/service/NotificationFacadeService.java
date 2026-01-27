@@ -114,6 +114,8 @@ public class NotificationFacadeService {
 			recommendedRecruitment.getRecruitment(),
 			date)
 		);
+
+		// 5. 추천 공고 삭제
 		recommendedRecruitmentRepository.deleteById(recommendedRecruitmentNotificationId);
 	}
 }
