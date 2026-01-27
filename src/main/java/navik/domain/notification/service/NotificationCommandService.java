@@ -48,7 +48,7 @@ public class NotificationCommandService {
 	public void createCompletionNotification(Long userId, Notifiable target) {
 		User user = userQueryService.getUser(userId);
 		NotificationMessageStrategy strategy = strategyFactory.getStrategy(target.getNotificationType());
-		String content = strategy.createDeadlineMessage(user, target, 0);
-		createNotification(userId, target, content);
+		// String content = strategy.createDeadlineMessage(user, target, 0);
+		createNotification(userId, target, "");
 	}
 }
