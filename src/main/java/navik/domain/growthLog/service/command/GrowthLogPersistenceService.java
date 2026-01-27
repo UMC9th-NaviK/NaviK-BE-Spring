@@ -55,6 +55,24 @@ public class GrowthLogPersistenceService {
 		return id;
 	}
 
+	public Long savePendingUserInputLog(Long userId, String content) {
+		User user = userRepository.getReferenceById(userId);
+
+		GrowthLog growthLog = newUserInputLog(
+			user,
+			"평가 중입니다.",          // placeholder title
+			safe(content),            // 원본 입력 저장 (null/blank 방어)
+			0,                        // totalDelta는 평가 전이므로 0
+			GrowthLogStatus.PENDING   // 비동기 평가 대기
+		);
+
+		return growthLogRepository.save(growthLog).getId();
+	}
+
+	private String safe(String s) {
+		return (s == null || s.isBlank()) ? "(내용 없음)" : s.trim();
+	}
+
 	public Long saveFailedUserInputLog(Long userId, String content) {
 		User user = userRepository.getReferenceById(userId);
 
