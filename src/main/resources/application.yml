@@ -21,6 +21,8 @@ spring:
 navik:
   growth-log:
     evaluation-mode: ${GROWTH_LOG_EVALUATION_MODE:sync}
+    worker:
+      poll-ms: 1000
 
 ai:
   server:
