@@ -6,12 +6,13 @@ import java.util.List;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.stream.MapRecord;
+import org.springframework.data.redis.connection.stream.ObjectRecord;
 import org.springframework.data.redis.connection.stream.PendingMessage;
 import org.springframework.data.redis.connection.stream.PendingMessages;
 import org.springframework.data.redis.connection.stream.PendingMessagesSummary;
+import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,13 +21,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import navik.domain.recruitment.dto.recruitment.RecruitmentRequestDTO;
 import navik.domain.recruitment.listener.RecruitmentConsumer;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Profile("prod")
+
 public class RecruitmentPendingScheduler implements InitializingBean {
 
 	public static final int MAX_DELIVERY_COUNT = 3;
@@ -52,7 +52,7 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 	/**
 	 * 지정된 주기로 Pending 메시지를 재처리 시도합니다.
 	 */
-	@Scheduled(fixedRate = 300000)
+	@Scheduled(fixedRate = 60000)
 	public void retryPendingMessage() {
 
 		// 1. 그룹 내 pending 메시지 요약본 조회
@@ -71,10 +71,11 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 		// 3. 재시도
 		PendingMessages pendingMessages = redisTemplate.opsForStream().pending(
 			streamKey,
-			consumerGroupName,      // 현재 그룹 내 Pending
+			consumerGroupName,    // 현재 그룹 내 Pending
 			Range.unbounded(),    // - + 전체 구간
 			10L                   // 최대 10건
 		);
+
 		for (PendingMessage pendingMessage : pendingMessages) {
 			String recordId = pendingMessage.getId().getValue();
 
@@ -108,16 +109,8 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 
 				log.info("[RecruitmentPendingScheduler] 미처리된 채용 공고 적재를 재시도합니다.");
 
-				// 역직렬화
-				MapRecord<String, Object, Object> record = records.getFirst();
-				String json = (String)record.getValue().get("payload");
-				RecruitmentRequestDTO.Recruitment recruitmentDTO = objectMapper.readValue(
-					json,
-					RecruitmentRequestDTO.Recruitment.class
-				);
-
-				// 저장
-				recruitmentConsumer.saveRecruitment(recruitmentDTO);
+				// onMessage 시도
+				recruitmentConsumer.onMessage(convertRecord(records.getFirst()));
 				redisTemplate.opsForStream().acknowledge(streamKey, consumerGroupName, recordId);
 				log.info("[RecruitmentPendingScheduler] 재시도 처리에 성공하였습니다.");
 
@@ -144,5 +137,17 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 			return false;
 		}
 		return true;
+	}
+
+	private ObjectRecord<String, String> convertRecord(MapRecord<String, Object, Object> record) {
+		try {
+			String json = objectMapper.writeValueAsString(record.getValue());
+			return StreamRecords.newRecord()
+				.ofObject(json)
+				.withStreamKey(streamKey)
+				.withId(record.getId());
+		} catch (Exception e) {
+			throw new IllegalStateException("Redis Stream record JSON 변환 실패", e);
+		}
 	}
 }

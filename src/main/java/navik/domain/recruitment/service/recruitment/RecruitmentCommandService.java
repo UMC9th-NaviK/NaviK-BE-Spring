@@ -43,7 +43,7 @@ public class RecruitmentCommandService {
 
 	public void saveRecruitment(RecruitmentRequestDTO.Recruitment recruitmentDTO) {
 
-		if (recruitmentDTO.getPositions().isEmpty()) {
+		if (recruitmentDTO.getPositions() == null || recruitmentDTO.getPositions().isEmpty()) {
 			log.info("[RecruitmentCommandService] PM, 디자이너, 프론트, 백엔드 관련 포지션이 없습니다.");
 			return;
 		}

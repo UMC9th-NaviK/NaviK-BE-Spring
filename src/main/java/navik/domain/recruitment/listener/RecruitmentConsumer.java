@@ -3,12 +3,12 @@ package navik.domain.recruitment.listener;
 import static navik.domain.recruitment.scheduler.RecruitmentPendingScheduler.*;
 
 import java.net.InetAddress;
+import java.time.Duration;
 import java.util.Iterator;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.ObjectRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -19,6 +19,7 @@ import org.springframework.data.redis.stream.StreamListener;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 import org.springframework.data.redis.stream.Subscription;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -31,8 +32,9 @@ import navik.domain.recruitment.service.recruitment.RecruitmentCommandService;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Profile("prod")
-public class RecruitmentConsumer implements StreamListener<String, ObjectRecord<String, String>>, InitializingBean,
+
+public class RecruitmentConsumer
+	implements StreamListener<String, ObjectRecord<String, String>>, InitializingBean,
 	DisposableBean {
 
 	private final RedisTemplate<String, Object> redisTemplate;
@@ -62,6 +64,14 @@ public class RecruitmentConsumer implements StreamListener<String, ObjectRecord<
 		this.listenerContainer = StreamMessageListenerContainer.create(
 			redisTemplate.getConnectionFactory(),
 			StreamMessageListenerContainer.StreamMessageListenerContainerOptions.builder()
+				.errorHandler(t -> {
+					if (t.getMessage() != null && t.getMessage()
+						.contains("UNBLOCKED")) {
+						return;
+					}
+					log.error("Unexpected error in Stream polling", t);
+				})
+				.pollTimeout(Duration.ofSeconds(10))
 				.targetType(String.class)
 				.build()
 		);
@@ -81,15 +91,19 @@ public class RecruitmentConsumer implements StreamListener<String, ObjectRecord<
 	 * 채용 공고 처리 작업
 	 */
 	@Override
+	@Transactional
 	public void onMessage(ObjectRecord<String, String> message) {
+		log.info("[RecruitmentConsumer] 메시지를 수신하였습니다.");
 		String receivedStreamKey = message.getStream();
 		String recordId = message.getId().getValue();
 
 		try {
 			log.info("[RecruitmentConsumer] 채용 공고 적재 시도");
 			if (StringUtils.isNotEmpty(receivedStreamKey) && StringUtils.isNotEmpty(recordId)) {
-				RecruitmentRequestDTO.Recruitment recruitmentDTO = objectMapper.readValue(message.getValue(),
-					RecruitmentRequestDTO.Recruitment.class);
+				RecruitmentRequestDTO.Recruitment recruitmentDTO = objectMapper.readValue(
+					message.getValue(),
+					RecruitmentRequestDTO.Recruitment.class
+				);
 				saveRecruitment(recruitmentDTO);
 				redisTemplate.opsForStream().acknowledge(receivedStreamKey, consumerGroupName, recordId);  // ACK
 				log.info("[RecruitmentConsumer] 채용 공고 적재 완료하였습니다.");

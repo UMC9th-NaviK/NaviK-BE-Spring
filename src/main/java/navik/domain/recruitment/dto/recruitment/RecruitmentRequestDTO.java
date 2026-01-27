@@ -3,8 +3,8 @@ package navik.domain.recruitment.dto.recruitment;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import navik.domain.recruitment.enums.AreaType;
 import navik.domain.recruitment.enums.CompanySize;
 import navik.domain.recruitment.enums.EmploymentType;
@@ -17,7 +17,7 @@ import navik.domain.users.enums.EducationLevel;
 public class RecruitmentRequestDTO {
 
 	@Getter
-	@Builder
+	@NoArgsConstructor
 	public static class Recruitment {
 		private String link;
 		private String title;
@@ -32,7 +32,7 @@ public class RecruitmentRequestDTO {
 		private String summary;
 
 		@Getter
-		@Builder
+		@NoArgsConstructor
 		public static class Position {
 			private String name;
 			private JobType jobType;
