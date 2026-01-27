@@ -2,6 +2,8 @@ package navik.domain.growthLog.service.command.strategy;
 
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,7 @@ import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.enums.GrowthType;
 import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
+import navik.domain.growthLog.exception.code.GrowthLogRedisErrorCode;
 import navik.domain.growthLog.message.GrowthLogEvaluationMessage;
 import navik.domain.growthLog.message.GrowthLogEvaluationPublisher;
 import navik.domain.growthLog.repository.GrowthLogRepository;
@@ -23,6 +26,8 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "navik.growth-log.evaluation-mode", havingValue = "async")
 public class AsyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStrategy {
+
+	private static final Logger log = LoggerFactory.getLogger(AsyncGrowthLogEvaluationStrategy.class);
 
 	private final GrowthLogRepository growthLogRepository;
 	private final GrowthLogPersistenceService growthLogPersistenceService;
@@ -37,8 +42,13 @@ public class AsyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStra
 		// 1) PENDING 저장
 		Long id = growthLogPersistenceService.savePendingUserInputLog(userId, inputContent);
 
-		// 2) enqueue
-		publisher.publish(new GrowthLogEvaluationMessage(userId, id, UUID.randomUUID().toString()));
+		// 2) enqueue (실패 시 FAILED 보상 + 에러코드 통일)
+		publishWithCompensation(
+			userId,
+			id,
+			GrowthLogStatus.PENDING,
+			GrowthLogStatus.FAILED
+		);
 
 		// 3) 즉시 응답
 		return new GrowthLogResponseDTO.CreateResult(id, GrowthLogStatus.PENDING);
@@ -59,7 +69,7 @@ public class AsyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStra
 			throw new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_RETRY_LIMIT_EXCEEDED);
 		}
 
-		// FAILED -> PENDING 원자 전환 (이미 너가 잘 구현한 패턴)
+		// FAILED -> PENDING 원자 전환
 		int acquired = growthLogRepository.updateStatusIfMatch(
 			userId,
 			growthLogId,
@@ -68,13 +78,59 @@ public class AsyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStra
 		);
 
 		if (acquired == 0) {
+			// 이미 PENDING/COMPLETED 등으로 바뀌었거나, 동시성으로 선점됨
 			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 
-		// enqueue
-		publisher.publish(new GrowthLogEvaluationMessage(userId, growthLogId, UUID.randomUUID().toString()));
+		// enqueue (실패 시 FAILED 보상 + 에러코드 통일)
+		publishWithCompensation(
+			userId,
+			growthLogId,
+			GrowthLogStatus.PENDING,
+			GrowthLogStatus.FAILED
+		);
 
 		return new GrowthLogResponseDTO.RetryResult(growthLogId, GrowthLogStatus.PENDING);
+	}
+
+	/**
+	 * Redis Stream publish 시도.
+	 * 실패하면 상태를 (from -> to)로 보상 업데이트하고, API 레벨은 통일된 ErrorCode로 던진다.
+	 */
+	private void publishWithCompensation(
+		Long userId,
+		Long growthLogId,
+		GrowthLogStatus from,
+		GrowthLogStatus to
+	) {
+		String traceId = UUID.randomUUID().toString();
+
+		try {
+			publisher.publish(new GrowthLogEvaluationMessage(userId, growthLogId, traceId));
+		} catch (Exception e) {
+
+			int rolledBack = growthLogRepository.updateStatusIfMatch(userId, growthLogId, from, to);
+
+			// 보상 실패는 "장애 관찰"을 위해 반드시 남김 (상태가 이미 바뀌었거나 DB 이슈일 수 있음)
+			if (rolledBack == 0) {
+				log.warn(
+					"Redis Stream 발행 실패: 성장 로그 상태 보상 실패. " +
+						"이미 상태가 변경되었거나 DB 이슈 가능. " +
+						"userId={}, growthLogId={}, from={}, to={}, traceId={}",
+					userId, growthLogId, from, to, traceId, e
+				);
+
+			} else {
+				log.error(
+					"Redis Stream 발행 실패: 성장 로그 평가 메시지 enqueue 중 오류 발생 (상태 보상 완료). " +
+						"userId={}, growthLogId={}, from={}, to={}, traceId={}",
+					userId, growthLogId, from, to, traceId, e
+				);
+			}
+
+			// 외부 응답은 일관된 에러코드로
+			throw new GeneralExceptionHandler(GrowthLogRedisErrorCode.STREAM_PUBLISH_FAILED);
+		}
 	}
 
 	private String safe(String s) {
