@@ -89,6 +89,7 @@ public class RecruitmentConsumer
 
 	/**
 	 * 채용 공고 처리 작업
+	 * TODO: 멱등성 보장 로직 + 죽은 메시지를 저장하여 나중에 관리 창에서 확인할 수 있도록 로직 추가
 	 */
 	@Override
 	@Transactional
