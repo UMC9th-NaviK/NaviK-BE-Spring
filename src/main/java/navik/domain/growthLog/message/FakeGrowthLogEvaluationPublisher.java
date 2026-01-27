@@ -4,7 +4,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(name = "navik.growth-log.evaluation-mode", havingValue = "async")
+@ConditionalOnProperty(name = "navik.growth-log.evaluation-mode", havingValue = "sync", matchIfMissing = true)
 public class FakeGrowthLogEvaluationPublisher implements GrowthLogEvaluationPublisher {
 
 	@Override
