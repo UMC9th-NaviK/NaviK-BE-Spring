@@ -105,7 +105,7 @@ public class RecruitmentConsumer
 					message.getValue(),
 					RecruitmentRequestDTO.Recruitment.class
 				);
-				saveRecruitment(recruitmentDTO);
+				recruitmentCommandService.saveRecruitment(recruitmentDTO); // save
 				redisTemplate.opsForStream().acknowledge(receivedStreamKey, consumerGroupName, recordId);  // ACK
 				log.info("[RecruitmentConsumer] 채용 공고 적재 완료하였습니다.");
 			} else {
@@ -116,13 +116,6 @@ public class RecruitmentConsumer
 			redisTemplate.opsForValue().increment(RETRY_COUNT_KEY + recordId);
 			log.error("[RecruitmentConsumer] 채용 공고 처리 중 오류 발생 ErrorCount++ : {}", e.getMessage(), e);
 		}
-	}
-
-	/**
-	 * 채용 공고 DTO를 받아 저장합니다.
-	 */
-	public void saveRecruitment(RecruitmentRequestDTO.Recruitment recruitmentDTO) {
-		recruitmentCommandService.saveRecruitment(recruitmentDTO);
 	}
 
 	/**
