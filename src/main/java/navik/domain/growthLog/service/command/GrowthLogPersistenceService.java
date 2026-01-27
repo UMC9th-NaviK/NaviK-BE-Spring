@@ -78,8 +78,8 @@ public class GrowthLogPersistenceService {
 
 		GrowthLog growthLog = newUserInputLog(
 			user,
-			"제목이 아직 정해지지 않았습니다.",
-			content,
+			"평가에 실패했습니다.",
+			safe(content),
 			0,
 			GrowthLogStatus.FAILED
 		);
@@ -102,11 +102,27 @@ public class GrowthLogPersistenceService {
 			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 
-		growthLog.clearKpiLinks();
-		growthLog.applyEvaluation(normalized.title(), normalized.content(), totalDelta);
+		applyEvaluationResult(growthLog, userId, normalized, totalDelta, kpis);
 
-		attachKpiLinks(growthLog, kpis);
-		applyKpiScoreDeltas(userId, kpis);
+	}
+
+	public void completeGrowthLogAfterProcessing(
+		Long userId,
+		Long growthLogId,
+		GrowthLogEvaluationResult normalized,
+		int totalDelta,
+		List<GrowthLogEvaluationResult.KpiDelta> kpis
+	) {
+		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
+
+		// 선점된 PROCESSING만 반영 가능 (중복 처리 방지)
+		if (growthLog.getStatus() != GrowthLogStatus.PROCESSING) {
+			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
+		}
+
+		applyEvaluationResult(growthLog, userId, normalized, totalDelta, kpis);
+
 	}
 
 	private GrowthLog newUserInputLog(
@@ -147,5 +163,18 @@ public class GrowthLogPersistenceService {
 				kd.delta()
 			);
 		}
+	}
+
+	private void applyEvaluationResult(
+		GrowthLog growthLog,
+		Long userId,
+		GrowthLogEvaluationResult normalized,
+		int totalDelta,
+		List<GrowthLogEvaluationResult.KpiDelta> kpis
+	) {
+		growthLog.clearKpiLinks();
+		growthLog.applyEvaluation(normalized.title(), normalized.content(), totalDelta);
+		attachKpiLinks(growthLog, kpis);
+		applyKpiScoreDeltas(userId, kpis);
 	}
 }
