@@ -14,7 +14,7 @@ public enum RecommendedRecruitmentErrorCode implements BaseCode {
 		HttpStatus.BAD_REQUEST,
 		"RECOMMENDED_RECRUITMENT_404_01",
 		"해당되는 추천 채용 공고가 존재하지 않습니다."
-	);.
+	);
 
 	private final HttpStatus httpStatus;
 	private final String code;
