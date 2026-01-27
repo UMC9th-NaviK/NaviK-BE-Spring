@@ -17,3 +17,11 @@ spring:
         static: ${AWS_REGION}
       s3:
         bucket: ${AWS_S3_BUCKET}
+
+navik:
+  growth-log:
+    evaluation-mode: ${GROWTH_LOG_EVALUATION_MODE:sync}
+
+ai:
+  server:
+    base-url: ${AI_SERVER_BASE_URL:http://localhost:8081}
