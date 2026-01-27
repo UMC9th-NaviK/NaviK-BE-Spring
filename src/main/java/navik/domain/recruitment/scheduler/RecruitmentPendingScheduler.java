@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.ObjectRecord;
@@ -26,7 +27,7 @@ import navik.domain.recruitment.listener.RecruitmentConsumer;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-
+@Profile("prod")
 public class RecruitmentPendingScheduler implements InitializingBean {
 
 	public static final int MAX_DELIVERY_COUNT = 3;
@@ -109,11 +110,9 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 
 				log.info("[RecruitmentPendingScheduler] 미처리된 채용 공고 적재를 재시도합니다.");
 
-				// onMessage 시도
+				// onMessage + ACK 시도
 				recruitmentConsumer.onMessage(convertRecord(records.getFirst()));
-				redisTemplate.opsForStream().acknowledge(streamKey, consumerGroupName, recordId);
 				log.info("[RecruitmentPendingScheduler] 재시도 처리에 성공하였습니다.");
-
 			} catch (Exception e) {
 				log.error("[RecruitmentPendingScheduler] 재시도 처리 중 에러 발생: {}", e.getMessage(), e);
 				redisTemplate.opsForValue().increment(RETRY_COUNT_KEY + recordId);

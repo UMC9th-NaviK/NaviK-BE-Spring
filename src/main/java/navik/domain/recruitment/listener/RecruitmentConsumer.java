@@ -9,6 +9,7 @@ import java.util.Iterator;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.ObjectRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -19,7 +20,6 @@ import org.springframework.data.redis.stream.StreamListener;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 import org.springframework.data.redis.stream.Subscription;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -32,7 +32,7 @@ import navik.domain.recruitment.service.recruitment.RecruitmentCommandService;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-
+@Profile("prod")
 public class RecruitmentConsumer
 	implements StreamListener<String, ObjectRecord<String, String>>, InitializingBean,
 	DisposableBean {
@@ -92,7 +92,6 @@ public class RecruitmentConsumer
 	 * TODO: 멱등성 보장 로직 + 죽은 메시지를 저장하여 나중에 관리 창에서 확인할 수 있도록 로직 추가
 	 */
 	@Override
-	@Transactional
 	public void onMessage(ObjectRecord<String, String> message) {
 		log.info("[RecruitmentConsumer] 메시지를 수신하였습니다.");
 		String receivedStreamKey = message.getStream();
