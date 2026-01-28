@@ -76,7 +76,7 @@ public class JwtTokenProvider {
 		String refreshToken = generateRefreshToken(authentication, refreshTokenValidityInSeconds);
 
 		long now = (new Date()).getTime();
-		Date accessTokenExpiresIn = new Date(now + accessTokenValidityInSeconds);
+		Date accessTokenExpiresIn = new Date(now + accessTokenValidityInSeconds * 1000);
 
 		return TokenDto.builder()
 			.grantType(BEARER_TYPE)
@@ -108,20 +108,19 @@ public class JwtTokenProvider {
 		return new UsernamePasswordAuthenticationToken(principal, "", authorities);
 	}
 
-	public boolean validateToken(String token) {
+	public void validateToken(String token, boolean isAccessToken) {
 		try {
 			// [변경 5] parserBuilder() -> parser(), verifyWith(key), parseSignedClaims()
 			Jwts.parser()
 				.verifyWith(key)
 				.build()
 				.parseSignedClaims(token);
-			return true;
 		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
 			log.error("잘못된 JWT 서명입니다.", e);
 			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_TOKEN_INVALID);
 		} catch (ExpiredJwtException e) {
-			log.error("만료된 JWT 토큰입니다.", e);
-			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_TOKEN_EXPIRED);
+			log.warn("만료된 JWT 토큰입니다.", e);
+			throw new GeneralExceptionHandler(isAccessToken ? AuthErrorCode.AUTH_TOKEN_EXPIRED : AuthErrorCode.REFRESH_TOKEN_EXPIRED);
 		} catch (UnsupportedJwtException e) {
 			log.error("지원되지 않는 JWT 토큰입니다.", e);
 			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_TOKEN_INVALID);

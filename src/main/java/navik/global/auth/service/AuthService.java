@@ -35,9 +35,7 @@ public class AuthService {
 	@Transactional
 	public TokenDto reissue(String refreshToken) {
 		// 1. Refresh Token 검증
-		if (!jwtTokenProvider.validateToken(refreshToken)) {
-			throw new GeneralExceptionHandler(AuthErrorCode.INVALID_REFRESH_TOKEN);
-		}
+		jwtTokenProvider.validateToken(refreshToken,false);
 
 		// 2. Refresh Token 에서 사용자 ID 가져오기
 		String userIdStr = jwtTokenProvider.getSubject(refreshToken);
@@ -72,9 +70,7 @@ public class AuthService {
 		}
 
 		// 1. Access Token 검증
-		if (!jwtTokenProvider.validateToken(accessToken)) {
-			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_TOKEN_INVALID);
-		}
+		jwtTokenProvider.validateToken(accessToken,true);
 
 		// 2. Access Token 에서 User ID 가져오기
 		Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
