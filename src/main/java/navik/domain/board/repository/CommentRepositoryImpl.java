@@ -2,13 +2,13 @@ package navik.domain.board.repository;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -20,16 +20,41 @@ import navik.domain.board.entity.QComment;
 public class CommentRepositoryImpl implements CommentCustomRepository {
 	private final JPAQueryFactory queryFactory;
 	QComment comment = QComment.comment;
+	QComment subComment = new QComment("subComment");
 
 	@Override
-	public Page<Comment> findByBoardId(Long boardId, Pageable pageable) {
-		List<Comment> result = queryFactory.
-			selectFrom(comment)
-			.leftJoin(comment.parentComment).fetchJoin()
-			.leftJoin(comment.user).fetchJoin() // comment와 parentComment 조인
-			.leftJoin(comment.user.job).fetchJoin()
+	public Long countActiveComments(Long boardId) {
+		return queryFactory
+			.select(comment.count())
+			.from(comment)
 			.where(
-				comment.board.id.eq(boardId) // 게시글 ID로 전체 조회함
+				comment.board.id.eq(boardId),
+				comment.isDeleted.isFalse()
+			)
+			.fetchOne();
+	}
+
+	@Override
+	public Slice<Comment> findByBoardId(Long boardId, Pageable pageable) {
+		List<Comment> result = queryFactory
+			.selectFrom(comment)
+			.leftJoin(comment.parentComment).fetchJoin()
+			.leftJoin(comment.user).fetchJoin()
+			.where(
+				comment.board.id.eq(boardId),
+				// 조회하는 조건은 삭제되지 않았거나, 삭제되었지만 대댓글이 존재하는 경우 (대댓글 존재하지 않으면 조회x)
+				comment.isDeleted.isFalse() // 삭제되지 않으면 모두 조회
+					.or(
+						comment.isDeleted.isTrue()// 삭제된 댓글 중
+							.and(comment.parentComment.isNull()) // 부모 댓글인 경우만
+							.and(
+								JPAExpressions.selectOne()
+									.from(subComment)
+									.where(subComment.parentComment.id.eq(comment.id),
+										subComment.isDeleted.isFalse())
+									.exists()
+							)
+					)
 			)
 			.orderBy(
 				// 1. 그룹화(부모 댓글과 그 자식 댓글들이 같은 번호로 묶임)
@@ -41,24 +66,19 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
 					"CASE WHEN {0} is NULL THEN 0 ELSE 1 END",
 					comment.parentComment.id).asc(),
 
-				// 3. 순서보장을 위해 자식 중에서 오래된 순으로 정렬
+				// 순서보장을 위해 자식 중에서 오래된 순으로 정렬
 				comment.createdAt.asc()
 			)
 			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize())
+			.limit(pageable.getPageSize() + 1)
 			.fetch();
 
-		// 전체 댓글 개수 나타내는 카운트 쿼리
-		JPAQuery<Long> countQuery = queryFactory
-			.select(comment.count())
-			.from(comment)
-			.where(
-				comment.board.id.eq(boardId),
-				comment.isDeleted.isFalse()
-			);
-		return PageableExecutionUtils.getPage(result, pageable, countQuery::fetchOne);
-		// PageableExecutionUtils : 페이징 처리를 위한 최적화 유틸리티, 불필요한 전체 개수 조회 쿼리 생략
-		// result : 실제 DB에서 가져온 현재 페이지에 해당하는 데이터 리스트
-		// ::fetchone : 필요할 때만 이 커리 실행
+		boolean hasNext = false;
+		if (result.size() > pageable.getPageSize()) {
+			result.remove(pageable.getPageSize());
+			hasNext = true;
+		}
+
+		return new SliceImpl<>(result, pageable, hasNext);
 	}
 }
