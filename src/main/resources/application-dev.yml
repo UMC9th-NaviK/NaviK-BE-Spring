@@ -22,7 +22,7 @@ spring:
   cloud:
     aws:
       s3:
-        enabled: false
+        enabled: true
 
   jwt:
     secret: ${JWT_SECRET:secretKeysecretKeysecretKeysecretKeysecretKeysecretKey}

@@ -2,6 +2,7 @@ package navik.global.s3.controller;
 
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.s3.S3PathType;
 import navik.global.s3.dto.S3Dto;
 import navik.global.s3.service.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,18 +25,13 @@ public class S3Controller {
 
 	private final S3Service s3Service;
 
-	/**
-	 * S3 업로드를 위한 Presigned URL을 생성합니다.
-	 *
-	 * @param prefix   저장할 폴더 경로 (예: user/profile)
-	 * @param fileName 업로드할 파일의 이름 (확장자 포함)
-	 * @return Presigned URL 응답
-	 */
 	@GetMapping("/presigned-url")
-	@Operation(summary = "Presigned URL 생성", description = "S3 업로드를 위한 Presigned URL을 생성합니다.")
+	@Operation(summary = "Presigned URL 생성", description = "S3 업로드를 위한 Presigned URL을 생성합니다.(key = ImageUrl)")
 	public ApiResponse<S3Dto.PreSignedUrlResponse> getPresignedUrl(
-		@Parameter(description = "저장할 폴더 경로 (예: user/profile)", example = "test-folder") @RequestParam String prefix,
-		@Parameter(description = "업로드할 파일의 이름 (확장자 포함)", example = "image.png") @RequestParam String fileName) {
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK, s3Service.getPreSignedUrl(prefix, fileName));
+		@Parameter(description = "S3 경로 타입", example = "PORTFOLIO_PDF") @RequestParam S3PathType pathType,
+		@Parameter(description = "경로에 사용될 ID (userId, boardId 등)", example = "1") @RequestParam Long id,
+		@Parameter(description = "파일 확장자", example = ".pdf") @RequestParam String extension) {
+
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, s3Service.getPreSignedUrl(pathType, id, extension));
 	}
 }
