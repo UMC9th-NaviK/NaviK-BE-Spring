@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.board.converter.CommentConverter;
 import navik.domain.board.converter.CommentListConverter;
 import navik.domain.board.converter.ReplyConverter;
+import navik.domain.board.dto.CommentCountDTO;
 import navik.domain.board.dto.CommentCreateDTO;
 import navik.domain.board.dto.CommentListDTO;
 import navik.domain.board.dto.ReplyDTO;
@@ -31,14 +32,7 @@ import navik.global.dto.CursorResponseDto;
 public class CommentController implements CommentControllerDocs {
 	private final CommentService commentService;
 
-	/**
-	 * 댓글 목록 조회
-	 * @param boardId
-	 * @param userId
-	 * @param pageable
-	 * @return
-	 */
-	@GetMapping("/{boardId}/comment")
+	@GetMapping("/{boardId}/comments")
 	public ApiResponse<CursorResponseDto<CommentListDTO.ResponseComment>> getComments(
 		@PathVariable Long boardId,
 		@AuthUser Long userId,
@@ -48,14 +42,6 @@ public class CommentController implements CommentControllerDocs {
 		CursorResponseDto<CommentListDTO.ResponseComment> response = commentService.getCommentList(parameter);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
-
-	/**
-	 * 댓글 작성
-	 * @param boardId
-	 * @param request
-	 * @param userId
-	 * @return
-	 */
 
 	@PostMapping("/{boardId}/comment")
 	public ApiResponse<CommentCreateDTO.Response> addComment(
@@ -68,15 +54,7 @@ public class CommentController implements CommentControllerDocs {
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, response);
 	}
 
-	/**
-	 * 대댓글 작성
-	 * @param boardId
-	 * @param commentId
-	 * @param request
-	 * @param userId
-	 * @return
-	 */
-	@PostMapping("/{boardId}/comment/{commentId}/reply")
+	@PostMapping("/{boardId}/comments/{commentId}/reply")
 	public ApiResponse<ReplyDTO.Response> addReply(
 		@PathVariable Long boardId,
 		@PathVariable Long commentId,
@@ -90,13 +68,6 @@ public class CommentController implements CommentControllerDocs {
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, response);
 	}
 
-	/**
-	 * 댓글 삭제
-	 * @param boardId
-	 * @param commentId
-	 * @param userId
-	 * @return
-	 */
 	@DeleteMapping("/{boardId}/comment/{commentId}")
 	public ApiResponse<Object> deleteComment(
 		@PathVariable Long boardId,
@@ -105,5 +76,10 @@ public class CommentController implements CommentControllerDocs {
 	) {
 		commentService.deleteComment(CommentConverter.toDeleteParameter(userId, boardId, commentId));
 		return ApiResponse.onSuccess(GeneralSuccessCode._DELETED);
+	}
+
+	@GetMapping("/{boardId}/comments/count")
+	public ApiResponse<CommentCountDTO> getCount(@PathVariable Long boardId) {
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, commentService.getCommentCount(boardId));
 	}
 }

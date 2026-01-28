@@ -1,8 +1,6 @@
 package navik.domain.board.service;
 
-import java.util.List;
-
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.board.converter.CommentConverter;
 import navik.domain.board.converter.CommentListConverter;
 import navik.domain.board.converter.ReplyConverter;
+import navik.domain.board.dto.CommentCountDTO;
 import navik.domain.board.dto.CommentCreateDTO;
 import navik.domain.board.dto.CommentDeleteDTO;
 import navik.domain.board.dto.CommentListDTO;
@@ -34,6 +33,17 @@ public class CommentService {
 	private final UserQueryService userQueryService;
 
 	/**
+	 * 전체 댓글 수 조회
+	 * @param boardId
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public CommentCountDTO getCommentCount(Long boardId) {
+		Long count = commentRepository.countActiveComments(boardId);
+		return new CommentCountDTO(count != null ? count : 0L);
+	}
+
+	/**
 	 * 게시글의 댓글 목록 조회
 	 * @param parameter
 	 * @return
@@ -41,16 +51,16 @@ public class CommentService {
 	@Transactional(readOnly = true)
 	public CursorResponseDto<CommentListDTO.ResponseComment> getCommentList(CommentListDTO.Parameter parameter) {
 		// 1. 게시글 조회
-		Page<Comment> comments = commentRepository.findByBoardId(parameter.getBoardId(),
+		Slice<Comment> comments = commentRepository.findByBoardId(
+			parameter.getBoardId(),
 			parameter.getPageable());
 
-		// 2. 내가 쓴 댓글이 맞는지 확인
-		List<Boolean> isMyComments = comments.stream()
-			.map(comment -> comment.getUser().getId().equals(parameter.getUserId()))
-			.toList();
+		// 2. 다믐 커서 값 추출 (마지막 데이터 Id)
+		String nextCusor = (comments.hasNext() && !comments.isEmpty()) ?
+			comments.getContent().get(comments.getNumberOfElements() - 1).getId().toString() : null;
 
 		// 3. DTO 변환
-		return CommentListConverter.toResponse(comments, isMyComments);
+		return CommentListConverter.toResponse(comments, nextCusor, parameter.getUserId());
 	}
 
 	/**
