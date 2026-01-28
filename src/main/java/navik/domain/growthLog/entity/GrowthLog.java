@@ -1,5 +1,6 @@
 package navik.domain.growthLog.entity;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +74,11 @@ public class GrowthLog extends BaseEntity {
 	@Column(nullable = false)
 	@Builder.Default
 	private GrowthLogStatus status = GrowthLogStatus.COMPLETED;
+
+	@Column(name = "processing_token")
+	private String processingToken;
+
+	private LocalDateTime processingStartedAt;
 
 	@OneToMany(mappedBy = "growthLog", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
