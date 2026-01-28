@@ -45,8 +45,13 @@ public enum GeneralErrorCode implements BaseCode {
 	AUTH_COMMENT_NOT_WRITER(HttpStatus.UNAUTHORIZED, "COMMENT_401_01", "해당 댓글의 작성자가 아닙니다."),
 
 	// 8 KPI
-	KPI_NOT_FOUND(HttpStatus.NOT_FOUND, "KPI_404", "존재하지 않는 KPI입니다.");
+	KPI_NOT_FOUND(HttpStatus.NOT_FOUND, "KPI_404", "존재하지 않는 KPI입니다."),
 
+	// 9. STUDY
+	STUDY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY_404", "존재하지 않는 스터디입니다"),
+
+	// 10. TAG
+	TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "TAG_404", "존재하지 않는 태그입니다");
 	/**
 	 * HTTP 상태 코드
 	 */
