@@ -40,7 +40,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                                         Authentication authentication) throws IOException, ServletException {
 
         // 1. 토큰 생성
-        TokenDto tokenDto = jwtTokenProvider.generateTokenDto(authentication);
+        TokenDto tokenDto = jwtTokenProvider.generateTokenDto(authentication,accessTokenValidityInSeconds,refreshTokenValidityInSeconds);
 
         // 2. Refresh Token 저장
         saveRefreshToken(authentication, tokenDto);
