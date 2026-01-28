@@ -43,12 +43,7 @@ public class AsyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStra
 		Long id = growthLogPersistenceService.savePendingUserInputLog(userId, inputContent);
 
 		// 2) enqueue (실패 시 FAILED 보상 + 에러코드 통일)
-		publishWithCompensation(
-			userId,
-			id,
-			GrowthLogStatus.PENDING,
-			GrowthLogStatus.FAILED
-		);
+		publishWithCompensation(userId, id);
 
 		// 3) 즉시 응답
 		return new GrowthLogResponseDTO.CreateResult(id, GrowthLogStatus.PENDING);
@@ -71,8 +66,7 @@ public class AsyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStra
 
 		// FAILED -> PENDING 원자 전환
 		int acquired = growthLogRepository.updateStatusIfMatch(
-			userId,
-			growthLogId,
+			userId, growthLogId,
 			GrowthLogStatus.FAILED,
 			GrowthLogStatus.PENDING
 		);
@@ -83,12 +77,7 @@ public class AsyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStra
 		}
 
 		// enqueue (실패 시 FAILED 보상 + 에러코드 통일)
-		publishWithCompensation(
-			userId,
-			growthLogId,
-			GrowthLogStatus.PENDING,
-			GrowthLogStatus.FAILED
-		);
+		publishWithCompensation(userId, growthLogId);
 
 		return new GrowthLogResponseDTO.RetryResult(growthLogId, GrowthLogStatus.PENDING);
 	}
@@ -97,37 +86,52 @@ public class AsyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStra
 	 * Redis Stream publish 시도.
 	 * 실패하면 상태를 (from -> to)로 보상 업데이트하고, API 레벨은 통일된 ErrorCode로 던진다.
 	 */
-	private void publishWithCompensation(
-		Long userId,
-		Long growthLogId,
-		GrowthLogStatus from,
-		GrowthLogStatus to
-	) {
+	private void publishWithCompensation(Long userId, Long growthLogId) {
 		String traceId = UUID.randomUUID().toString();
 		String processingToken = UUID.randomUUID().toString();
+		GrowthLogStatus currentStatus = GrowthLogStatus.PENDING;
 
 		try {
-			growthLogRepository.overwriteProcessingToken(userId, growthLogId, processingToken);
+			// 1) processingToken 저장
+			int tokenSet = growthLogRepository.overwriteProcessingToken(userId, growthLogId, processingToken);
+			if (tokenSet == 0) {
+				throw new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND);
+			}
 
+			// 2) PENDING -> PROCESSING 전환 (token 조건 포함)
+			int moved = growthLogRepository.updateStatusIfMatchAndToken(
+				userId,
+				growthLogId,
+				GrowthLogStatus.PENDING,
+				GrowthLogStatus.PROCESSING,
+				processingToken
+			);
+
+			if (moved == 0) {
+				throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
+			}
+
+			currentStatus = GrowthLogStatus.PROCESSING;
+
+			// 3) Redis Stream publish (token 포함 메시지)
 			publisher.publish(new GrowthLogEvaluationMessage(userId, growthLogId, traceId, processingToken));
 
 		} catch (Exception e) {
 
-			int rolledBack = growthLogRepository.updateStatusIfMatch(userId, growthLogId, from, to);
+			int rolledBack = growthLogRepository.updateStatusIfMatch(
+				userId, growthLogId, currentStatus, GrowthLogStatus.FAILED
+			);
 
 			if (rolledBack == 0) {
 				log.warn(
-					"Redis Stream 발행 실패: 성장 로그 상태 보상 실패. " +
-						"이미 상태가 변경되었거나 DB 이슈 가능. " +
-						"userId={}, growthLogId={}, from={}, to={}, traceId={}, token={}",
-					userId, growthLogId, from, to, traceId, processingToken, e
+					"Redis Stream 발행 실패: 상태 보상 실패. userId={}, growthLogId={}, currentStatus={}, traceId={}, token={}",
+					userId, growthLogId, currentStatus, traceId, processingToken, e
 				);
 
 			} else {
 				log.error(
-					"Redis Stream 발행 실패: 성장 로그 평가 메시지 enqueue 중 오류 발생 (상태 보상 완료). " +
-						"userId={}, growthLogId={}, from={}, to={}, traceId={}, token={}",
-					userId, growthLogId, from, to, traceId, processingToken, e
+					"Redis Stream 발행 실패 (상태 보상 완료). userId={}, growthLogId={}, currentStatus={}, traceId={}, token={}",
+					userId, growthLogId, currentStatus, traceId, processingToken, e
 				);
 			}
 
