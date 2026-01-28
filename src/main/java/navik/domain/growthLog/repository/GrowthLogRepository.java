@@ -19,7 +19,7 @@ import navik.domain.growthLog.enums.GrowthType;
 @Repository
 public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 
-	List<GrowthLog> findTop20ByUserIdOrderByCreatedAtDesc(Long userId);
+	List<GrowthLog> findTop20ByUser_IdOrderByCreatedAtDesc(Long userId);
 
 	@Query("""
 		select gl
@@ -146,11 +146,11 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query("""
-		    update GrowthLog gl
-		       set gl.status = :to
-		     where gl.id = :growthLogId
-		       and gl.user.id = :userId
-		       and gl.status = :from
+		    update GrowthLog g
+		       set g.status = :to
+		     where g.id = :growthLogId
+		       and g.user.id = :userId
+		       and g.status = :from
 		""")
 	int updateStatusIfMatch(
 		@Param("userId") Long userId,
@@ -162,9 +162,9 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 	@Modifying
 	@Query("""
 			update GrowthLog g
-			set g.processingToken = :token
-			where g.userId = :userId
-			  and g.id = :growthLogId
+			   set g.processingToken = :token
+			 where g.user.id = :userId
+			   and g.id = :growthLogId
 		""")
 	int overwriteProcessingToken(
 		@Param("userId") Long userId,
@@ -175,12 +175,12 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 	@Modifying
 	@Query("""
 			update GrowthLog g
-			set g.status = :next,
-			    g.processingStartedAt = CURRENT_TIMESTAMP
-			where g.userId = :userId
-			  and g.id = :growthLogId
-			  and g.status = :expect
-			  and g.processingToken = :token
+			   set g.status = :next,
+			       g.processingStartedAt = CURRENT_TIMESTAMP
+			 where g.user.id = :userId
+			   and g.id = :growthLogId
+			   and g.status = :expect
+			   and g.processingToken = :token
 		""")
 	int updateStatusIfMatchAndToken(
 		@Param("userId") Long userId,
@@ -190,18 +190,19 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 		@Param("token") String token
 	);
 
-	@Modifying
 	@Query("""
-			update GrowthLog g
-			set g.processingToken = null,
-			    g.processingStartedAt = null
-			where g.userId = :userId
-			  and g.id = :growthLogId
-			  and g.processingToken = :token
+		update GrowthLog g
+		   set g.processingToken = null,
+		       g.processingStartedAt = null
+		 where g.user.id = :userId
+		   and g.id = :growthLogId
+		   and g.processingToken = :token
+		   and g.status = :expectedStatus
 		""")
 	int clearProcessingTokenIfMatch(
 		@Param("userId") Long userId,
 		@Param("growthLogId") Long growthLogId,
-		@Param("token") String token
+		@Param("token") String token,
+		@Param("expectedStatus") GrowthLogStatus expectedStatus
 	);
 }
