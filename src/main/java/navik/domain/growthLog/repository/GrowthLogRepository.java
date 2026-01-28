@@ -158,4 +158,50 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 		@Param("from") GrowthLogStatus from,
 		@Param("to") GrowthLogStatus to
 	);
+
+	@Modifying
+	@Query("""
+			update GrowthLog g
+			set g.processingToken = :token
+			where g.userId = :userId
+			  and g.id = :growthLogId
+		""")
+	int overwriteProcessingToken(
+		@Param("userId") Long userId,
+		@Param("growthLogId") Long growthLogId,
+		@Param("token") String token
+	);
+
+	@Modifying
+	@Query("""
+			update GrowthLog g
+			set g.status = :next,
+			    g.processingStartedAt = CURRENT_TIMESTAMP
+			where g.userId = :userId
+			  and g.id = :growthLogId
+			  and g.status = :expect
+			  and g.processingToken = :token
+		""")
+	int updateStatusIfMatchAndToken(
+		@Param("userId") Long userId,
+		@Param("growthLogId") Long growthLogId,
+		@Param("expect") GrowthLogStatus expect,
+		@Param("next") GrowthLogStatus next,
+		@Param("token") String token
+	);
+
+	@Modifying
+	@Query("""
+			update GrowthLog g
+			set g.processingToken = null,
+			    g.processingStartedAt = null
+			where g.userId = :userId
+			  and g.id = :growthLogId
+			  and g.processingToken = :token
+		""")
+	int clearProcessingTokenIfMatch(
+		@Param("userId") Long userId,
+		@Param("growthLogId") Long growthLogId,
+		@Param("token") String token
+	);
 }
