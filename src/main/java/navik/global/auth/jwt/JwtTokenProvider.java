@@ -52,7 +52,7 @@ public class JwtTokenProvider {
 		}
 
 		long now = (new Date()).getTime();
-		Date accessTokenExpiresIn = new Date(now + expirationTime);
+		Date accessTokenExpiresIn = new Date(now + expirationTime * 1000); // 밀리초 -> 초
 
 		return Jwts.builder()
 			.subject(authentication.getName())
@@ -66,17 +66,17 @@ public class JwtTokenProvider {
 		long now = (new Date()).getTime();
 		return Jwts.builder()
 			.subject(authentication.getName()) // email 주소
-			.expiration(new Date(now + expirationTime))
+			.expiration(new Date(now + expirationTime * 1000))
 			.signWith(key)
 			.compact();
 	}
 
-	public TokenDto generateTokenDto(Authentication authentication, long accessTokenValidityInMilliseconds, long refreshTokenValidityInMilliseconds) {
-		String accessToken = generateAccessToken(authentication, accessTokenValidityInMilliseconds);
-		String refreshToken = generateRefreshToken(authentication, refreshTokenValidityInMilliseconds);
+	public TokenDto generateTokenDto(Authentication authentication, long accessTokenValidityInSeconds, long refreshTokenValidityInSeconds) {
+		String accessToken = generateAccessToken(authentication, accessTokenValidityInSeconds);
+		String refreshToken = generateRefreshToken(authentication, refreshTokenValidityInSeconds);
 
 		long now = (new Date()).getTime();
-		Date accessTokenExpiresIn = new Date(now + accessTokenValidityInMilliseconds);
+		Date accessTokenExpiresIn = new Date(now + accessTokenValidityInSeconds);
 
 		return TokenDto.builder()
 			.grantType(BEARER_TYPE)
