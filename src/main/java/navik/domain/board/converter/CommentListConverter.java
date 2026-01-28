@@ -63,7 +63,7 @@ public class CommentListConverter {
 		return CursorResponseDto.<CommentListDTO.ResponseComment>builder()
 			.content(rootComments)
 			.nextCursor(nextCursor)
-			.pageSize(comments.getNumberOfElements())
+			.pageSize(rootComments.size())
 			.hasNext(comments.hasNext())
 			.build();
 	}
