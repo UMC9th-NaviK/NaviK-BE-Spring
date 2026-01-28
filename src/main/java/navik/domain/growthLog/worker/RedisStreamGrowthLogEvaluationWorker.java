@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "navik.growth-log.evaluation-mode", havingValue = "async")
+@ConditionalOnProperty(name = "navik.growth-log.worker.enabled", havingValue = "true")
 public class RedisStreamGrowthLogEvaluationWorker {
 
 	private static final String STREAM_KEY = "growthlog:evaluate";
