@@ -43,7 +43,18 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
 			.from(comment)
 			.where(
 				comment.board.id.eq(boardId),
-				comment.parentComment.isNull()
+				comment.parentComment.isNull(),
+				comment.isDeleted.isFalse() // 삭제 안 됐거나
+					.or(
+						comment.isDeleted.isTrue() // 삭제됐는데
+							.and(
+								JPAExpressions.selectOne() // 자식이 있는 경우만
+									.from(subComment)
+									.where(subComment.parentComment.id.eq(comment.id),
+										subComment.isDeleted.isFalse())
+									.exists()
+							)
+					)
 			)
 			.orderBy(comment.createdAt.asc())
 			.offset(pageable.getOffset())
