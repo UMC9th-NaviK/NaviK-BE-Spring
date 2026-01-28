@@ -2,7 +2,6 @@ package navik.global.dto;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
 
 import lombok.AllArgsConstructor;
@@ -39,14 +38,11 @@ public class CursorResponseDto<T> {
 	 */
 	private final boolean hasNext;
 
-	private final Long totalElements;
-
 	public CursorResponseDto(Slice<T> slice, String nextCursor) {
 		this.content = slice.getContent();
 		this.pageSize = slice.getNumberOfElements();
 		this.nextCursor = nextCursor;
 		this.hasNext = slice.hasNext();
-		this.totalElements = (slice instanceof Page) ? ((Page<T>)slice).getTotalElements() : null;
 	}
 
 	/**
@@ -58,7 +54,6 @@ public class CursorResponseDto<T> {
 			.hasNext(hasNext)
 			.nextCursor(nextCursor)
 			.pageSize(content.size())
-			.totalElements(0L)
 			.build();
 	}
 
