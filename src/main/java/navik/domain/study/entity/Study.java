@@ -65,6 +65,9 @@ public class Study extends BaseEntity implements Notifiable {
 	@Column(name = "open_chat_url")
 	private String openChatUrl;
 
+	@Column(name = "week_time", nullable = false)
+	private Integer weekTime; // 1주일에 몇 회
+
 	@Override
 	public NotificationType getNotificationType() {
 		return NotificationType.STUDY;
