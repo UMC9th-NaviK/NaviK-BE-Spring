@@ -26,7 +26,8 @@ public class RedisStreamGrowthLogEvaluationPublisher implements GrowthLogEvaluat
 		Map<String, String> fields = Map.of(
 			"userId", String.valueOf(message.userId()),
 			"growthLogId", String.valueOf(message.growthLogId()),
-			"traceId", message.traceId()
+			"traceId", message.traceId(),
+			"processingToken", message.processingToken()
 		);
 
 		RecordId recordId = redisTemplate.opsForStream()
