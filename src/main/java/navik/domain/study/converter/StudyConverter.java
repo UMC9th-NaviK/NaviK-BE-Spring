@@ -20,6 +20,7 @@ public class StudyConverter {
 			.startDate(request.getStartDate())
 			.endDate(request.getEndDate())
 			.openChatUrl(request.getOpenChatUrl())
+			.weekTime(request.getWeekTime())
 			.recruitmentStatus(RecruitmentStatus.RECURRING) // 스터디 초기 상태 '모집중'
 			.build();
 	}
