@@ -104,31 +104,33 @@ public class AsyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStra
 		GrowthLogStatus to
 	) {
 		String traceId = UUID.randomUUID().toString();
+		String processingToken = UUID.randomUUID().toString();
 
 		try {
-			publisher.publish(new GrowthLogEvaluationMessage(userId, growthLogId, traceId));
+			growthLogRepository.overwriteProcessingToken(userId, growthLogId, processingToken);
+
+			publisher.publish(new GrowthLogEvaluationMessage(userId, growthLogId, traceId, processingToken));
+
 		} catch (Exception e) {
 
 			int rolledBack = growthLogRepository.updateStatusIfMatch(userId, growthLogId, from, to);
 
-			// 보상 실패는 "장애 관찰"을 위해 반드시 남김 (상태가 이미 바뀌었거나 DB 이슈일 수 있음)
 			if (rolledBack == 0) {
 				log.warn(
 					"Redis Stream 발행 실패: 성장 로그 상태 보상 실패. " +
 						"이미 상태가 변경되었거나 DB 이슈 가능. " +
-						"userId={}, growthLogId={}, from={}, to={}, traceId={}",
-					userId, growthLogId, from, to, traceId, e
+						"userId={}, growthLogId={}, from={}, to={}, traceId={}, token={}",
+					userId, growthLogId, from, to, traceId, processingToken, e
 				);
 
 			} else {
 				log.error(
 					"Redis Stream 발행 실패: 성장 로그 평가 메시지 enqueue 중 오류 발생 (상태 보상 완료). " +
-						"userId={}, growthLogId={}, from={}, to={}, traceId={}",
-					userId, growthLogId, from, to, traceId, e
+						"userId={}, growthLogId={}, from={}, to={}, traceId={}, token={}",
+					userId, growthLogId, from, to, traceId, processingToken, e
 				);
 			}
 
-			// 외부 응답은 일관된 에러코드로
 			throw new GeneralExceptionHandler(GrowthLogRedisErrorCode.STREAM_PUBLISH_FAILED);
 		}
 	}
