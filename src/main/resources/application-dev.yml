@@ -12,10 +12,10 @@ spring:
   jpa:
     show-sql: true
     generate-ddl: true
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
-        hbm2ddl:
-          auto: update
         format_sql: true
         use_sql_comments: true
 
