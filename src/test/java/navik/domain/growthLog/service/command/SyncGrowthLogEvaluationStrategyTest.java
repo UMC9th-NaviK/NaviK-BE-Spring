@@ -1,37 +1,31 @@
 package navik.domain.growthLog.service.command;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import navik.domain.growthLog.ai.client.GrowthLogAiClient;
+import navik.domain.growthLog.ai.limiter.RetryRateLimiter;
+import navik.domain.growthLog.dto.internal.Evaluated;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO;
 import navik.domain.growthLog.dto.req.GrowthLogRequestDTO;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO;
-import navik.domain.growthLog.dto.res.GrowthLogResponseDTO;
 import navik.domain.growthLog.entity.GrowthLog;
-import navik.domain.growthLog.entity.GrowthLogKpiLink;
 import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.enums.GrowthType;
-import navik.domain.growthLog.repository.GrowthLogKpiLinkRepository;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.growthLog.service.command.strategy.SyncGrowthLogEvaluationStrategy;
-import navik.domain.kpi.entity.KpiCard;
-import navik.domain.kpi.repository.KpiCardRepository;
-import navik.domain.portfolio.entity.Portfolio;
-import navik.domain.portfolio.repository.PortfolioRepository;
+import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @ExtendWith(MockitoExtension.class)
 class SyncGrowthLogEvaluationStrategyTest {
@@ -40,223 +34,333 @@ class SyncGrowthLogEvaluationStrategyTest {
 	GrowthLogRepository growthLogRepository;
 
 	@Mock
-	GrowthLogKpiLinkRepository growthLogKpiLinkRepository;
-
-	@Mock
-	KpiCardRepository kpiCardRepository;
-
-	@Mock
-	PortfolioRepository portfolioRepository;
-
-	@Mock
-	GrowthLogAiClient growthLogAiClient;
+	GrowthLogEvaluationCoreService core;
 
 	@Mock
 	GrowthLogPersistenceService growthLogPersistenceService;
 
+	@Mock
+	RetryRateLimiter retryRateLimiter;
+
 	@InjectMocks
 	SyncGrowthLogEvaluationStrategy strategy;
 
-	@Test
-	@DisplayName("AI 평가 중 예외 발생 시 FAILED로 저장되고 COMPLETED 저장은 호출되지 않는다")
-	void create_aiException_resultsInFailed() {
-		// given
-		Long userId = 1L;
+	@Nested
+	@DisplayName("create()")
+	class Create {
 
-		givenLatestPortfolio(userId, "포트폴리오 제목", "포트폴리오 내용");
+		@Test
+		@DisplayName("성공 시 COMPLETED 상태로 반환한다")
+		void success() {
+			// given
+			Long userId = 1L;
+			String input = "오늘의 성장 기록";
 
-		GrowthLog recent = mockLog(10L, GrowthType.PORTFOLIO, "지난 로그", "지난 내용",
-			LocalDateTime.of(2026, 1, 1, 0, 0));
-		givenRecentLogs(userId, List.of(recent));
-
-		givenLinksFor(List.of(10L), List.of(mockLink(recent, 100L, 2)));
-
-		givenAiReturns(
-			new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
+			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
 				"제목",
 				"내용",
 				List.of(new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(100L, 3))
-			)
-		);
+			);
+			var evaluated = new Evaluated(normalized, normalized.kpis(), 3);
 
-		given(kpiCardRepository.countByIdIn(List.of(100L))).willReturn(1L);
-		given(growthLogPersistenceService.saveUserInputLog(eq(userId), any(), eq(3), any()))
-			.willReturn(999L);
+			given(core.buildContext(eq(userId), eq(input))).willReturn(context);
+			given(core.evaluate(eq(userId), eq(context))).willReturn(evaluated);
+			given(growthLogPersistenceService.saveUserInputLog(eq(userId), eq(normalized), eq(3), any()))
+				.willReturn(999L);
 
-		// when
-		GrowthLogResponseDTO.CreateResult result =
-			strategy.create(userId, new GrowthLogRequestDTO.CreateUserInput("입력"));
+			// when
+			var result = strategy.create(userId, new GrowthLogRequestDTO.CreateUserInput(input));
 
-		// then - 결과
-		assertThat(result.id()).isEqualTo(999L);
-		assertThat(result.status()).isEqualTo(GrowthLogStatus.COMPLETED);
+			// then
+			assertThat(result.id()).isEqualTo(999L);
+			assertThat(result.status()).isEqualTo(GrowthLogStatus.COMPLETED);
 
-		// then - AI로 전달된 context 검증 (핵심만)
-		GrowthLogAiRequestDTO.GrowthLogEvaluationContext ctx = captureContext(userId);
-		assertThat(ctx.resumeText()).contains("포트폴리오 제목");
-		assertThat(ctx.resumeText()).contains("포트폴리오 내용");
-		assertThat(ctx.newContent()).isEqualTo("입력");
-		assertThat(ctx.recentGrowthLogs().size()).isEqualTo(1);
-		assertThat(ctx.recentGrowthLogs().get(0).id()).isEqualTo(10L);
-		assertThat(ctx.recentKpiDeltas().size()).isEqualTo(1);
-		assertThat(ctx.recentKpiDeltas().get(0).kpiCardId()).isEqualTo(100L);
+			verify(core).buildContext(userId, input);
+			verify(core).evaluate(userId, context);
+			verify(growthLogPersistenceService).saveUserInputLog(eq(userId), eq(normalized), eq(3), any());
+			verify(growthLogPersistenceService, never()).saveFailedUserInputLog(anyLong(), anyString());
+		}
 
-		// then - 동작 검증
-		verify(growthLogPersistenceService, never()).saveFailedUserInputLog(anyLong(), anyString());
-		verify(growthLogKpiLinkRepository).findByGrowthLogIdIn(List.of(10L));
-		verify(kpiCardRepository).countByIdIn(List.of(100L));
+		@Test
+		@DisplayName("빈 입력은 '(내용 없음)'으로 변환된다")
+		void emptyInput_convertedToDefault() {
+			// given
+			Long userId = 1L;
+
+			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of());
+			var evaluated = new Evaluated(normalized, List.of(), 0);
+
+			given(core.buildContext(eq(userId), eq("(내용 없음)"))).willReturn(context);
+			given(core.evaluate(eq(userId), eq(context))).willReturn(evaluated);
+			given(growthLogPersistenceService.saveUserInputLog(eq(userId), any(), anyInt(), any()))
+				.willReturn(1L);
+
+			// when
+			strategy.create(userId, new GrowthLogRequestDTO.CreateUserInput("   "));
+
+			// then
+			verify(core).buildContext(userId, "(내용 없음)");
+		}
+
+		@Test
+		@DisplayName("buildContext 예외 발생 시 FAILED 상태로 저장한다")
+		void buildContextException_resultsInFailed() {
+			// given
+			Long userId = 1L;
+			String input = "입력";
+
+			given(core.buildContext(eq(userId), eq(input)))
+				.willThrow(new RuntimeException("DB error"));
+			given(growthLogPersistenceService.saveFailedUserInputLog(eq(userId), eq(input)))
+				.willReturn(123L);
+
+			// when
+			var result = strategy.create(userId, new GrowthLogRequestDTO.CreateUserInput(input));
+
+			// then
+			assertThat(result.id()).isEqualTo(123L);
+			assertThat(result.status()).isEqualTo(GrowthLogStatus.FAILED);
+
+			verify(growthLogPersistenceService).saveFailedUserInputLog(userId, input);
+			verify(growthLogPersistenceService, never()).saveUserInputLog(anyLong(), any(), anyInt(), any());
+		}
+
+		@Test
+		@DisplayName("evaluate 예외 발생 시 FAILED 상태로 저장한다")
+		void evaluateException_resultsInFailed() {
+			// given
+			Long userId = 1L;
+			String input = "입력";
+
+			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
+
+			given(core.buildContext(eq(userId), eq(input))).willReturn(context);
+			given(core.evaluate(eq(userId), eq(context)))
+				.willThrow(new RuntimeException("AI down"));
+			given(growthLogPersistenceService.saveFailedUserInputLog(eq(userId), eq(input)))
+				.willReturn(456L);
+
+			// when
+			var result = strategy.create(userId, new GrowthLogRequestDTO.CreateUserInput(input));
+
+			// then
+			assertThat(result.id()).isEqualTo(456L);
+			assertThat(result.status()).isEqualTo(GrowthLogStatus.FAILED);
+		}
+
+		@Test
+		@DisplayName("persistence 저장 예외 발생 시 FAILED 상태로 저장한다")
+		void persistenceException_resultsInFailed() {
+			// given
+			Long userId = 1L;
+			String input = "입력";
+
+			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of());
+			var evaluated = new Evaluated(normalized, List.of(), 0);
+
+			given(core.buildContext(eq(userId), eq(input))).willReturn(context);
+			given(core.evaluate(eq(userId), eq(context))).willReturn(evaluated);
+			given(growthLogPersistenceService.saveUserInputLog(eq(userId), any(), anyInt(), any()))
+				.willThrow(new RuntimeException("DB write error"));
+			given(growthLogPersistenceService.saveFailedUserInputLog(eq(userId), eq(input)))
+				.willReturn(789L);
+
+			// when
+			var result = strategy.create(userId, new GrowthLogRequestDTO.CreateUserInput(input));
+
+			// then
+			assertThat(result.id()).isEqualTo(789L);
+			assertThat(result.status()).isEqualTo(GrowthLogStatus.FAILED);
+		}
 	}
 
-	@Test
-	@DisplayName("최근 성장 로그 여러 개가 context로 전달되고 해당 ID들로 KPI link를 조회한다")
-	void create_withMultipleRecentLogs_buildsContextCorrectly() {
-		// given
-		Long userId = 1L;
+	@Nested
+	@DisplayName("retry()")
+	class Retry {
 
-		givenNoPortfolio(userId);
-		givenRecentLogs(userId, List.of());
+		@Test
+		@DisplayName("성공 시 COMPLETED 상태로 반환한다")
+		void success() {
+			// given
+			Long userId = 1L;
+			Long growthLogId = 10L;
 
-		given(growthLogAiClient.evaluateUserInput(anyLong(), any()))
-			.willThrow(new RuntimeException("AI down"));
+			GrowthLog growthLog = mockGrowthLog(GrowthType.USER_INPUT, "원본 내용");
 
-		given(growthLogPersistenceService.saveFailedUserInputLog(eq(userId), anyString()))
-			.willReturn(123L);
+			given(growthLogRepository.findByIdAndUserId(growthLogId, userId))
+				.willReturn(Optional.of(growthLog));
+			given(retryRateLimiter.tryAcquire(anyString(), eq(3))).willReturn(true);
+			given(growthLogRepository.updateStatusIfMatch(userId, growthLogId, GrowthLogStatus.FAILED,
+				GrowthLogStatus.PENDING))
+				.willReturn(1);
 
-		// when
-		GrowthLogResponseDTO.CreateResult result =
-			strategy.create(userId, new GrowthLogRequestDTO.CreateUserInput("입력"));
+			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of());
+			var evaluated = new Evaluated(normalized, List.of(), 0);
 
-		// then
-		assertThat(result.status()).isEqualTo(GrowthLogStatus.FAILED);
-		assertThat(result.id()).isEqualTo(123L);
+			given(core.buildContext(eq(userId), eq("원본 내용"))).willReturn(context);
+			given(core.evaluate(eq(userId), eq(context))).willReturn(evaluated);
 
-		verify(growthLogPersistenceService, never())
-			.saveUserInputLog(anyLong(), any(), anyInt(), any());
+			// when
+			var result = strategy.retry(userId, growthLogId);
 
-		// 구현상 recentLogs 비어있으면 link 조회도 안 함
-		verify(growthLogKpiLinkRepository, never()).findByGrowthLogIdIn(anyList());
-	}
+			// then
+			assertThat(result.growthLogId()).isEqualTo(growthLogId);
+			assertThat(result.status()).isEqualTo(GrowthLogStatus.COMPLETED);
 
-	@Test
-	@DisplayName("최근 성장 로그 여러 개가 context로 전달되고 해당 ID 목록으로 KPI 링크를 조회한다")
-	void create_withMultipleRecentLogs_buildsContextAndQueriesLinks() {
-		// given
-		Long userId = 1L;
+			verify(growthLogPersistenceService).updateGrowthLogAfterRetry(
+				eq(userId), eq(growthLogId), eq(normalized), eq(0), any()
+			);
+		}
 
-		givenLatestPortfolio(userId, "포트폴리오 제목", "포트폴리오 내용");
+		@Test
+		@DisplayName("존재하지 않는 growthLog면 예외를 던진다")
+		void notFound_throwsException() {
+			// given
+			Long userId = 1L;
+			Long growthLogId = 999L;
 
-		GrowthLog log1 = mockLog(10L, GrowthType.PORTFOLIO, "로그1", "내용1",
-			LocalDateTime.of(2026, 1, 1, 0, 0));
-		GrowthLog log2 = mockLog(11L, GrowthType.USER_INPUT, "로그2", "내용2",
-			LocalDateTime.of(2026, 1, 2, 0, 0));
-		GrowthLog log3 = mockLog(12L, GrowthType.PORTFOLIO, "로그3", "내용3",
-			LocalDateTime.of(2026, 1, 3, 0, 0));
+			given(growthLogRepository.findByIdAndUserId(growthLogId, userId))
+				.willReturn(Optional.empty());
 
-		givenRecentLogs(userId, List.of(log1, log2, log3));
+			// when & then
+			assertThatThrownBy(() -> strategy.retry(userId, growthLogId))
+				.isInstanceOf(GeneralExceptionHandler.class);
+		}
 
-		givenLinksFor(
-			List.of(10L, 11L, 12L),
-			List.of(
-				mockLink(log1, 100L, 1),
-				mockLink(log2, 101L, 2)
-			)
-		);
+		@Test
+		@DisplayName("USER_INPUT 타입이 아니면 예외를 던진다")
+		void invalidType_throwsException() {
+			// given
+			Long userId = 1L;
+			Long growthLogId = 10L;
 
-		givenAiReturns(
-			new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
-				"제목",
-				"내용",
-				List.of(
-					new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(100L, 1),
-					new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(101L, 2)
-				)
-			)
-		);
+			GrowthLog growthLog = mockGrowthLog(GrowthType.PORTFOLIO, "내용");
 
-		given(kpiCardRepository.countByIdIn(List.of(100L, 101L))).willReturn(2L);
-		given(growthLogPersistenceService.saveUserInputLog(eq(userId), any(), eq(3), any()))
-			.willReturn(999L);
+			given(growthLogRepository.findByIdAndUserId(growthLogId, userId))
+				.willReturn(Optional.of(growthLog));
 
-		// when
-		GrowthLogResponseDTO.CreateResult result =
-			strategy.create(userId, new GrowthLogRequestDTO.CreateUserInput("입력"));
+			// when & then
+			assertThatThrownBy(() -> strategy.retry(userId, growthLogId))
+				.isInstanceOf(GeneralExceptionHandler.class);
+		}
 
-		// then - 결과
-		assertThat(result.status()).isEqualTo(GrowthLogStatus.COMPLETED);
-		assertThat(result.id()).isEqualTo(999L);
+		@Test
+		@DisplayName("Rate limit 초과 시 예외를 던진다")
+		void rateLimitExceeded_throwsException() {
+			// given
+			Long userId = 1L;
+			Long growthLogId = 10L;
 
-		// then - AI로 전달된 context (여러 개)
-		GrowthLogAiRequestDTO.GrowthLogEvaluationContext ctx = captureContext(userId);
-		assertThat(ctx.recentGrowthLogs().size()).isEqualTo(3);
+			GrowthLog growthLog = mockGrowthLog(GrowthType.USER_INPUT, "내용");
 
-		List<Long> ids = ctx.recentGrowthLogs().stream()
-			.map(GrowthLogAiRequestDTO.PastGrowthLog::id)
-			.toList();
-		assertThat(ids).isEqualTo(List.of(10L, 11L, 12L)); // findTop20 결과 순서 그대로 매핑됨
+			given(growthLogRepository.findByIdAndUserId(growthLogId, userId))
+				.willReturn(Optional.of(growthLog));
+			given(retryRateLimiter.tryAcquire(anyString(), eq(3))).willReturn(false);
 
-		// then - link 조회가 recentIds로 갔는지
-		verify(growthLogKpiLinkRepository).findByGrowthLogIdIn(List.of(10L, 11L, 12L));
-		verify(kpiCardRepository).countByIdIn(List.of(100L, 101L));
-		verify(growthLogPersistenceService, never()).saveFailedUserInputLog(anyLong(), anyString());
+			// when & then
+			assertThatThrownBy(() -> strategy.retry(userId, growthLogId))
+				.isInstanceOf(GeneralExceptionHandler.class);
+		}
+
+		@Test
+		@DisplayName("상태가 FAILED가 아니면 예외를 던진다")
+		void invalidStatus_throwsException() {
+			// given
+			Long userId = 1L;
+			Long growthLogId = 10L;
+
+			GrowthLog growthLog = mockGrowthLog(GrowthType.USER_INPUT, "내용");
+
+			given(growthLogRepository.findByIdAndUserId(growthLogId, userId))
+				.willReturn(Optional.of(growthLog));
+			given(retryRateLimiter.tryAcquire(anyString(), eq(3))).willReturn(true);
+			given(growthLogRepository.updateStatusIfMatch(userId, growthLogId, GrowthLogStatus.FAILED,
+				GrowthLogStatus.PENDING))
+				.willReturn(0);
+
+			// when & then
+			assertThatThrownBy(() -> strategy.retry(userId, growthLogId))
+				.isInstanceOf(GeneralExceptionHandler.class);
+		}
+
+		@Test
+		@DisplayName("평가 중 예외 발생 시 FAILED로 롤백하고 FAILED 상태로 반환한다")
+		void evaluateException_rollbackToFailed() {
+			// given
+			Long userId = 1L;
+			Long growthLogId = 10L;
+
+			GrowthLog growthLog = mockGrowthLog(GrowthType.USER_INPUT, "원본 내용");
+
+			given(growthLogRepository.findByIdAndUserId(growthLogId, userId))
+				.willReturn(Optional.of(growthLog));
+			given(retryRateLimiter.tryAcquire(anyString(), eq(3))).willReturn(true);
+			given(growthLogRepository.updateStatusIfMatch(userId, growthLogId, GrowthLogStatus.FAILED,
+				GrowthLogStatus.PENDING))
+				.willReturn(1);
+
+			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
+
+			given(core.buildContext(eq(userId), eq("원본 내용"))).willReturn(context);
+			given(core.evaluate(eq(userId), eq(context)))
+				.willThrow(new RuntimeException("AI error"));
+
+			// when
+			var result = strategy.retry(userId, growthLogId);
+
+			// then
+			assertThat(result.growthLogId()).isEqualTo(growthLogId);
+			assertThat(result.status()).isEqualTo(GrowthLogStatus.FAILED);
+
+			verify(growthLogRepository).updateStatusIfMatch(
+				userId, growthLogId, GrowthLogStatus.PENDING, GrowthLogStatus.FAILED
+			);
+		}
+
+		@Test
+		@DisplayName("빈 content는 '(내용 없음)'으로 변환된다")
+		void emptyContent_convertedToDefault() {
+			// given
+			Long userId = 1L;
+			Long growthLogId = 10L;
+
+			GrowthLog growthLog = mockGrowthLog(GrowthType.USER_INPUT, "  ");
+
+			given(growthLogRepository.findByIdAndUserId(growthLogId, userId))
+				.willReturn(Optional.of(growthLog));
+			given(retryRateLimiter.tryAcquire(anyString(), eq(3))).willReturn(true);
+			given(growthLogRepository.updateStatusIfMatch(userId, growthLogId, GrowthLogStatus.FAILED,
+				GrowthLogStatus.PENDING))
+				.willReturn(1);
+
+			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of());
+			var evaluated = new Evaluated(normalized, List.of(), 0);
+
+			given(core.buildContext(eq(userId), eq("(내용 없음)"))).willReturn(context);
+			given(core.evaluate(eq(userId), eq(context))).willReturn(evaluated);
+
+			// when
+			strategy.retry(userId, growthLogId);
+
+			// then
+			verify(core).buildContext(userId, "(내용 없음)");
+		}
 	}
 
 	// -------------------------
 	// Helpers
 	// -------------------------
 
-	private void givenLatestPortfolio(Long userId, String title, String content) {
-		Portfolio p = Portfolio.builder().title(title).content(content).build();
-		given(portfolioRepository.findTopByUserIdOrderByCreatedAtDesc(userId))
-			.willReturn(Optional.of(p));
+	private GrowthLog mockGrowthLog(GrowthType type, String content) {
+		GrowthLog growthLog = mock(GrowthLog.class);
+		lenient().when(growthLog.getType()).thenReturn(type);
+		lenient().when(growthLog.getContent()).thenReturn(content);
+		return growthLog;
 	}
 
-	private void givenNoPortfolio(Long userId) {
-		given(portfolioRepository.findTopByUserIdOrderByCreatedAtDesc(userId))
-			.willReturn(Optional.empty());
-	}
-
-	private GrowthLog mockLog(Long id, GrowthType type, String title, String content, LocalDateTime createdAt) {
-		GrowthLog gl = mock(GrowthLog.class);
-		given(gl.getId()).willReturn(id);
-		given(gl.getType()).willReturn(type);
-		given(gl.getTitle()).willReturn(title);
-		given(gl.getContent()).willReturn(content);
-		given(gl.getTotalDelta()).willReturn(0);
-		given(gl.getCreatedAt()).willReturn(createdAt);
-		return gl;
-	}
-
-	private void givenRecentLogs(Long userId, List<GrowthLog> logs) {
-		given(growthLogRepository.findTop20ByUserIdOrderByCreatedAtDesc(userId))
-			.willReturn(logs);
-	}
-
-	private GrowthLogKpiLink mockLink(GrowthLog growthLog, Long kpiId, int delta) {
-		KpiCard kpiCard = mock(KpiCard.class);
-		given(kpiCard.getId()).willReturn(kpiId);
-
-		GrowthLogKpiLink link = mock(GrowthLogKpiLink.class);
-		given(link.getGrowthLog()).willReturn(growthLog);
-		given(link.getKpiCard()).willReturn(kpiCard);
-		given(link.getDelta()).willReturn(delta);
-		return link;
-	}
-
-	private void givenLinksFor(List<Long> growthLogIds, List<GrowthLogKpiLink> links) {
-		given(growthLogKpiLinkRepository.findByGrowthLogIdIn(growthLogIds))
-			.willReturn(links);
-	}
-
-	private void givenAiReturns(GrowthLogAiResponseDTO.GrowthLogEvaluationResult aiResult) {
-		given(growthLogAiClient.evaluateUserInput(anyLong(), any()))
-			.willReturn(aiResult);
-	}
-
-	private GrowthLogAiRequestDTO.GrowthLogEvaluationContext captureContext(Long userId) {
-		ArgumentCaptor<GrowthLogAiRequestDTO.GrowthLogEvaluationContext> captor =
-			ArgumentCaptor.forClass(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
-
-		verify(growthLogAiClient).evaluateUserInput(eq(userId), captor.capture());
-		return captor.getValue();
-	}
 }
