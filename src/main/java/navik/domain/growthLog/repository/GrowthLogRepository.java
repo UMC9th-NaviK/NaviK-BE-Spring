@@ -19,7 +19,7 @@ import navik.domain.growthLog.enums.GrowthType;
 @Repository
 public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 
-	List<GrowthLog> findTop20ByUser_IdOrderByCreatedAtDesc(Long userId);
+	List<GrowthLog> findTop20ByUserIdOrderByCreatedAtDesc(Long userId);
 
 	@Query("""
 		select gl
@@ -204,5 +204,21 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 		@Param("growthLogId") Long growthLogId,
 		@Param("token") String token,
 		@Param("expectedStatus") GrowthLogStatus expectedStatus
+	);
+
+	@Modifying
+	@Query("""
+			update GrowthLog g
+			   set g.appliedProcessingToken = :token
+			 where g.user.id = :userId
+			   and g.id = :growthLogId
+			   and g.status = navik.domain.growthLog.enums.GrowthLogStatus.PROCESSING
+			   and g.processingToken = :token
+			   and g.appliedProcessingToken is null
+		""")
+	int acquireApplyLock(
+		@Param("userId") Long userId,
+		@Param("growthLogId") Long growthLogId,
+		@Param("token") String token
 	);
 }
