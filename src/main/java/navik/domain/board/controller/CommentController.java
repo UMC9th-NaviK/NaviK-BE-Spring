@@ -32,6 +32,13 @@ import navik.global.dto.CursorResponseDto;
 public class CommentController implements CommentControllerDocs {
 	private final CommentService commentService;
 
+	/**
+	 * 댓글 목록 조회
+	 * @param boardId
+	 * @param userId
+	 * @param pageable
+	 * @return
+	 */
 	@GetMapping("/{boardId}/comments")
 	public ApiResponse<CursorResponseDto<CommentListDTO.ResponseComment>> getComments(
 		@PathVariable Long boardId,
@@ -43,6 +50,13 @@ public class CommentController implements CommentControllerDocs {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 
+	/**
+	 * 댓글 작성
+	 * @param boardId
+	 * @param request
+	 * @param userId
+	 * @return
+	 */
 	@PostMapping("/{boardId}/comment")
 	public ApiResponse<CommentCreateDTO.Response> addComment(
 		@PathVariable Long boardId,
@@ -54,6 +68,14 @@ public class CommentController implements CommentControllerDocs {
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, response);
 	}
 
+	/**
+	 * 대댓글 작성
+	 * @param boardId
+	 * @param commentId
+	 * @param request
+	 * @param userId
+	 * @return
+	 */
 	@PostMapping("/{boardId}/comments/{commentId}/reply")
 	public ApiResponse<ReplyDTO.Response> addReply(
 		@PathVariable Long boardId,
@@ -68,6 +90,13 @@ public class CommentController implements CommentControllerDocs {
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, response);
 	}
 
+	/**
+	 * 댓글 삭제
+	 * @param boardId
+	 * @param commentId
+	 * @param userId
+	 * @return
+	 */
 	@DeleteMapping("/{boardId}/comment/{commentId}")
 	public ApiResponse<Object> deleteComment(
 		@PathVariable Long boardId,
@@ -78,6 +107,11 @@ public class CommentController implements CommentControllerDocs {
 		return ApiResponse.onSuccess(GeneralSuccessCode._DELETED);
 	}
 
+	/**
+	 * 전체 댓글 수 조회
+	 * @param boardId
+	 * @return
+	 */
 	@GetMapping("/{boardId}/comments/count")
 	public ApiResponse<CommentCountDTO> getCount(@PathVariable Long boardId) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, commentService.getCommentCount(boardId));

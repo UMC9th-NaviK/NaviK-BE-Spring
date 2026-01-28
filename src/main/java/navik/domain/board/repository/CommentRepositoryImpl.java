@@ -1,5 +1,6 @@
 package navik.domain.board.repository;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -36,12 +37,37 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
 
 	@Override
 	public Slice<Comment> findByBoardId(Long boardId, Pageable pageable) {
+		// 1. 현재 페이지에 보여줄 '부모 댓글'의 id들만 먼저 조회한다
+		List<Long> parentIds = queryFactory
+			.select(comment.id)
+			.from(comment)
+			.where(
+				comment.board.id.eq(boardId),
+				comment.parentComment.isNull()
+			)
+			.orderBy(comment.createdAt.asc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize() + 1)
+			.fetch();
+
+		if (parentIds.isEmpty()) {
+			return new SliceImpl<>(Collections.emptyList(), pageable, false);
+		}
+
+		boolean hasNext = false;
+		if (parentIds.size() > pageable.getPageSize()) {
+			parentIds.remove(pageable.getPageSize());
+			hasNext = true;
+		}
+
+		// 2. 부모 댓글 id들에 속한 모든 댓글 조회
 		List<Comment> result = queryFactory
 			.selectFrom(comment)
 			.leftJoin(comment.parentComment).fetchJoin()
 			.leftJoin(comment.user).fetchJoin()
 			.where(
 				comment.board.id.eq(boardId),
+				comment.id.in(parentIds).or(comment.parentComment.id.in(parentIds)),
 				// 조회하는 조건은 삭제되지 않았거나, 삭제되었지만 대댓글이 존재하는 경우 (대댓글 존재하지 않으면 조회x)
 				comment.isDeleted.isFalse() // 삭제되지 않으면 모두 조회
 					.or(
@@ -69,15 +95,7 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
 				// 순서보장을 위해 자식 중에서 오래된 순으로 정렬
 				comment.createdAt.asc()
 			)
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize() + 1)
 			.fetch();
-
-		boolean hasNext = false;
-		if (result.size() > pageable.getPageSize()) {
-			result.remove(pageable.getPageSize());
-			hasNext = true;
-		}
 
 		return new SliceImpl<>(result, pageable, hasNext);
 	}
