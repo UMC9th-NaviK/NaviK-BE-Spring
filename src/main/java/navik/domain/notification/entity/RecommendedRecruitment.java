@@ -22,7 +22,7 @@ import navik.global.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@Table(name = "recommended_recruitment")
+@Table(name = "recommended_recruitments")
 public class RecommendedRecruitment extends BaseEntity {
 
 	@Id
