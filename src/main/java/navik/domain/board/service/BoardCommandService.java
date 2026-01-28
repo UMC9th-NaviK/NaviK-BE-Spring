@@ -10,8 +10,8 @@ import navik.domain.board.entity.Board;
 import navik.domain.board.repository.BoardRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralExceptionHandler;
 
 @Service
 @RequiredArgsConstructor

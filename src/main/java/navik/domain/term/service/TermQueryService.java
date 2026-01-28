@@ -5,11 +5,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.term.dto.TermResponseDTO;
-import navik.domain.term.entity.Term;
 import navik.domain.term.repository.TermRepository;
 import navik.domain.term.repository.projection.TermInfoView;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralExceptionHandler;
 
 @Service
 @RequiredArgsConstructor

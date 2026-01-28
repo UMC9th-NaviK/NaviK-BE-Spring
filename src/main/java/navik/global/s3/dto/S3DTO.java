@@ -6,7 +6,7 @@ import lombok.Getter;
 /**
  * Amazon S3 관련 데이터 전송 객체(DTO)를 포함하는 클래스입니다.
  */
-public class S3Dto {
+public class S3DTO {
 
 	/**
 	 * Presigned URL 응답을 위한 DTO 클래스입니다.

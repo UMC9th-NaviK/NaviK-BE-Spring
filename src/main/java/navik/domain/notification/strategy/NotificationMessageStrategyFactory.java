@@ -6,11 +6,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.nimbusds.oauth2.sdk.GeneralException;
-
 import navik.domain.notification.entity.NotificationType;
-import navik.global.apiPayload.code.status.NotificationErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.NotificationErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralExceptionHandler;
 
 @Component
 public class NotificationMessageStrategyFactory {

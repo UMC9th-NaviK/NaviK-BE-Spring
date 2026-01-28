@@ -16,7 +16,7 @@ import navik.domain.kpi.enums.KpiCardType;
 import navik.domain.kpi.service.query.KpiCardQueryService;
 import navik.domain.kpi.service.query.KpiScoreQueryService;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
 
 @RestController

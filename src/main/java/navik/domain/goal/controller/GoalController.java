@@ -18,9 +18,9 @@ import navik.domain.goal.entity.GoalStatus;
 import navik.domain.goal.service.GoalCommandService;
 import navik.domain.goal.service.GoalQueryService;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,7 +32,7 @@ public class GoalController implements GoalControllerDocs {
 
 	@Override
 	@GetMapping("/list")
-	public ApiResponse<CursorResponseDto<GoalResponseDTO.PreviewDTO>> getGoals(
+	public ApiResponse<CursorResponseDTO<GoalResponseDTO.PreviewDTO>> getGoals(
 		@AuthUser Long userId,
 		@RequestParam(required = false) Long cursor,
 		@RequestParam(defaultValue = "10") Integer size,

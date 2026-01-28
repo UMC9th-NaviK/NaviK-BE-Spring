@@ -15,7 +15,7 @@ import navik.domain.board.dto.BoardResponseDTO;
 import navik.domain.board.dto.BoardUpdateDTO;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 
 @Tag(name = "Board", description = "게시판 관련 API")
 public interface BoardControllerDocs {
@@ -28,7 +28,7 @@ public interface BoardControllerDocs {
 		@Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 ID (첫 조회 시 비움)", example = "100"),
 		@Parameter(name = "size", description = "한 페이지에 가져올 게시글 개수 (기본 10개)", example = "10")
 	})
-	ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> getBoards(
+	ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> getBoards(
 		@RequestParam(value = "cursor", required = false) Long cursor,
 		@RequestParam(value = "size", defaultValue = "10") int pageSize
 	);
@@ -42,7 +42,7 @@ public interface BoardControllerDocs {
 		@Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 ID (첫 조회 시 비움)", example = "90"),
 		@Parameter(name = "size", description = "한 페이지에 가져올 게시글 개수 (기본 10개)", example = "10")
 	})
-	ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> getBoardsByJob(
+	ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> getBoardsByJob(
 		@RequestParam(name = "jobName") String jobName,
 		@RequestParam(value = "cursor", required = false) Long cursor,
 		@RequestParam(value = "size", defaultValue = "10") int pageSize
@@ -56,7 +56,7 @@ public interface BoardControllerDocs {
 		@Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 '점수_ID' (첫 조회 시에는 비워서 보냅니다)", example = "15_23"),
 		@Parameter(name = "size", description = "한 페이지에 가져올 게시글 개수 (기본 10개)", example = "10")
 	})
-	ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> getHotBoards(
+	ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> getHotBoards(
 		@RequestParam(value = "cursor", required = false) String cursor,
 		@PageableDefault(size = 10) Pageable pageable
 	);
@@ -67,7 +67,7 @@ public interface BoardControllerDocs {
 		@Parameter(name = "cursor", description = "마지막 게시글 ID", example = "100"),
 		@Parameter(name = "size", description = "페이지 크기", example = "10")
 	})
-	ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> searchBoards(
+	ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> searchBoards(
 		@RequestParam String keyword,
 		@RequestParam(value = "cursor", required = false) Long cursor,
 		@RequestParam(value = "size", defaultValue = "10") int size

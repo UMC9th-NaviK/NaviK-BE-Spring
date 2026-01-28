@@ -11,8 +11,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import navik.global.apiPayload.code.status.AuthErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.AuthErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralExceptionHandler;
 import navik.global.auth.JwtUserDetails;
 import navik.global.auth.annotation.AuthUser;
 
