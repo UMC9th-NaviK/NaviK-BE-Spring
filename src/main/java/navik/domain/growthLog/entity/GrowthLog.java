@@ -78,6 +78,9 @@ public class GrowthLog extends BaseEntity {
 	@Column(name = "processing_token")
 	private String processingToken;
 
+	@Column(name = "applied_processing_token")
+	private String appliedProcessingToken;
+
 	private LocalDateTime processingStartedAt;
 
 	@OneToMany(mappedBy = "growthLog", cascade = CascadeType.ALL, orphanRemoval = true)

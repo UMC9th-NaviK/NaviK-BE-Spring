@@ -30,11 +30,11 @@ public class GrowthLogEvaluationApplyService {
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
 			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
 
-		if (growthLog.getStatus() == GrowthLogStatus.COMPLETED)
+		if (growthLog.getStatus() == GrowthLogStatus.PROCESSING
+			&& java.util.Objects.equals(token, growthLog.getProcessingToken()))
 			return;
 
-		if (growthLog.getStatus() == GrowthLogStatus.PROCESSING
-			&& token.equals(growthLog.getProcessingToken()))
+		if (growthLog.getStatus() == GrowthLogStatus.COMPLETED)
 			return;
 
 		int updated = growthLogRepository.updateStatusIfMatchAndToken(
@@ -58,9 +58,9 @@ public class GrowthLogEvaluationApplyService {
 		if (growthLog.getStatus() == GrowthLogStatus.COMPLETED)
 			return;
 
-		// PROCESSING + token 일치 강제
-		if (growthLog.getStatus() != GrowthLogStatus.PROCESSING) {
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_PROCESSING);
+		int locked = growthLogRepository.acquireApplyLock(userId, growthLogId, token);
+		if (locked == 0) {
+			return;
 		}
 
 		if (!token.equals(growthLog.getProcessingToken())) {
@@ -90,6 +90,6 @@ public class GrowthLogEvaluationApplyService {
 			kpis
 		);
 
-		growthLogRepository.clearProcessingTokenIfMatch(userId, growthLogId, token);
+		growthLogRepository.clearProcessingTokenIfMatch(userId, growthLogId, token, GrowthLogStatus.COMPLETED);
 	}
 }

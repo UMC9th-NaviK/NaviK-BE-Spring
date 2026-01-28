@@ -106,6 +106,7 @@ public class GrowthLogPersistenceService {
 
 	}
 
+	@Transactional
 	public void completeGrowthLogAfterProcessing(
 		Long userId,
 		Long growthLogId,
@@ -116,13 +117,12 @@ public class GrowthLogPersistenceService {
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
 			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
 
-		// 선점된 PROCESSING만 반영 가능 (중복 처리 방지)
+		// 방어: 최소한 PROCESSING만 허용
 		if (growthLog.getStatus() != GrowthLogStatus.PROCESSING) {
 			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 
 		applyEvaluationResult(growthLog, userId, normalized, totalDelta, kpis);
-
 	}
 
 	private GrowthLog newUserInputLog(
