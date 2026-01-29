@@ -93,7 +93,7 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 			.where(
 				studyKpi.kpiCard.id.in(weaknessKpiIds), // 약점 KPI 중 하나라도 포함되어야 함
 				study.id.notIn(excludeStudyIds), // 이미 참여중인 스터디 제외되어야 함
-				study.recruitmentStatus.eq(RecruitmentStatus.RECURRING), // 모집중인 스터디이어야 함
+				study.recruitmentStatus.ne(RecruitmentStatus.CLOSED), // 모집중인 스터디이어야 함
 
 				JPAExpressions.select(studyUser.count()) // 현재 참여 인원 < 최대 수용인원
 					.from(studyUser)
