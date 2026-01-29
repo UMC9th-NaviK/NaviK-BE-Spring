@@ -10,9 +10,17 @@ import navik.domain.study.entity.StudyUser;
 import navik.domain.users.entity.User;
 
 public interface StudyUserRepository extends JpaRepository<StudyUser, Long> {
+
+	List<StudyUser> findByUserId(Long userId);
+
 	// 여러 스터디의 현재 참여 인원수를 한번에 조회한다
-	@Query("SELECT su.study.id, COUNT(su) " + "FROM StudyUser su " +
-		"WHERE su.study.id IN :studyIds " + "AND su.attend = 'ACCEPTANCE' " + "GROUP BY su.study.id")
+	@Query("""
+		SELECT su.study.id, COUNT(su)
+		FROM StudyUser su
+		WHERE su.study.id IN :studyIds
+		  AND su.attend = 'ACCEPTANCE'
+		GROUP BY su.study.id
+		""")
 	List<Object[]> countParticipantsByStudyIds(@Param("studyIds") List<Long> studyIds);
 
 	// 해당 스터디에 참여하는 인원 조회
