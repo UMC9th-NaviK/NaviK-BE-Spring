@@ -25,6 +25,9 @@ public class Term extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@Column(name = "title", nullable = false)
+	private String title;
+
 	@Column(name = "content", nullable = false, columnDefinition = "TEXT")
 	private String content;
 }
