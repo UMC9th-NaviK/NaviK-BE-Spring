@@ -1,4 +1,4 @@
-package navik.domain.growthLog.service.command;
+package navik.domain.growthLog.service.command.strategy;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -24,7 +24,8 @@ import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.enums.GrowthType;
 import navik.domain.growthLog.repository.GrowthLogRepository;
-import navik.domain.growthLog.service.command.strategy.SyncGrowthLogEvaluationStrategy;
+import navik.domain.growthLog.service.command.GrowthLogEvaluationCoreService;
+import navik.domain.growthLog.service.command.GrowthLogPersistenceService;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @ExtendWith(MockitoExtension.class)
