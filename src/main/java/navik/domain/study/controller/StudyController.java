@@ -1,6 +1,8 @@
 package navik.domain.study.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import navik.domain.study.dto.StudyApplicationDTO;
 import navik.domain.study.dto.StudyCreateDTO;
 import navik.domain.study.dto.StudyDTO;
 import navik.domain.study.dto.StudyKpiCardDTO;
@@ -96,5 +99,53 @@ public class StudyController implements StudyControllerDocs {
 	) {
 		CursorResponseDto<StudyRecommendDTO> response = studyQueryService.getRecommendedStudyList(userId, cursor, size);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
+	}
+
+	/**
+	 * 스터디 신청하 버튼 클릭
+	 * @param studyId
+	 * @param userId
+	 * @return
+	 */
+	@PostMapping("/{studyId}/apply")
+	public ApiResponse<String> applyStudy(
+		@PathVariable Long studyId,
+		@AuthUser Long userId
+	) {
+		studyCommandService.studyApply(userId, studyId);
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK);
+	}
+
+	/**
+	 * 스터디 신청 현황 목록 조회 (스터디장)
+	 * @param studyId
+	 * @param cursor
+	 * @param size
+	 * @return
+	 */
+	@GetMapping("/{studyId}/applicants")
+	public ApiResponse<CursorResponseDto<StudyApplicationDTO.ApplicationPreviewDTO>> getApplicants(
+		@PathVariable Long studyId,
+		@RequestParam(value = "cursor", required = false) Long cursor,
+		@RequestParam(value = "size", defaultValue = "10") int size
+	) {
+		CursorResponseDto<StudyApplicationDTO.ApplicationPreviewDTO> response = studyQueryService.getApplicantList(
+			studyId, cursor, size);
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
+	}
+
+	/**
+	 * 신청 수락/거절 처리
+	 * @param studyUserId
+	 * @param request
+	 * @return
+	 */
+	@PatchMapping("/applicants/{studyUserId}")
+	public ApiResponse<String> processApply(
+		@PathVariable Long studyUserId,
+		@RequestBody @Valid StudyApplicationDTO.ProcessApplicationDTO request
+	) {
+		studyCommandService.resolveApplication(studyUserId, request.getAccept());
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK);
 	}
 }
