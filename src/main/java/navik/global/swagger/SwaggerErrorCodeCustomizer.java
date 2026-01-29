@@ -1,5 +1,9 @@
 package navik.global.swagger;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,8 +12,10 @@ import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
 import navik.global.apiPayload.code.status.BaseCode;
 
+@Slf4j
 @Configuration
 public class SwaggerErrorCodeCustomizer {
 
@@ -17,18 +23,29 @@ public class SwaggerErrorCodeCustomizer {
 	public OperationCustomizer apiErrorCodesCustomizer() {
 		return (operation, handlerMethod) -> {
 
-			ApiErrorCodes ann = handlerMethod.getMethodAnnotation(ApiErrorCodes.class);
-			if (ann == null)
-				return operation;
+			List<ApiErrorCodes> annotations = new ArrayList<>();
 
-			Class<? extends Enum<?>> enumClass = ann.enumClass();
-			String[] includes = ann.includes();
+			ApiErrorCodes single = handlerMethod.getMethodAnnotation(ApiErrorCodes.class);
+			ApiErrorCodesGroup group = handlerMethod.getMethodAnnotation(ApiErrorCodesGroup.class);
 
-			for (String name : includes) {
-				Enum<?> constant = Enum.valueOf(enumClass.asSubclass(Enum.class), name);
+			if (single != null)
+				annotations.add(single);
+			if (group != null)
+				annotations.addAll(Arrays.asList(group.value()));
 
-				if (constant instanceof BaseCode baseCode) {
-					addErrorResponse(operation, baseCode);
+			for (ApiErrorCodes ann : annotations) {
+				for (String name : ann.includes()) {
+					try {
+						@SuppressWarnings("unchecked")
+						Class<? extends Enum> enumClass = (Class<? extends Enum>)ann.enumClass();
+						Enum<?> constant = Enum.valueOf(enumClass, name);
+
+						if (constant instanceof BaseCode baseCode) {
+							addErrorResponse(operation, baseCode);
+						}
+					} catch (IllegalArgumentException e) {
+						System.err.println("Invalid enum: " + name);
+					}
 				}
 			}
 
@@ -53,6 +70,15 @@ public class SwaggerErrorCodeCustomizer {
 			.description(baseCode.getMessage())
 			.content(new Content().addMediaType("application/json", mediaType));
 
-		operation.getResponses().addApiResponse(statusCode, apiResponse);
+		ApiResponse existing = operation.getResponses().get(statusCode);
+		if (existing != null) {
+			existing.getContent()
+				.get("application/json")
+				.addExamples(baseCode.getCode(), example);
+		} else {
+			operation.getResponses().addApiResponse(statusCode, apiResponse);
+		}
 	}
 }
+
+

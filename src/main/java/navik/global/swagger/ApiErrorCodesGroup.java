@@ -1,17 +1,13 @@
 package navik.global.swagger;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(ApiErrorCodesGroup.class)
-public @interface ApiErrorCodes {
+public @interface ApiErrorCodesGroup {
 
-	Class<? extends Enum<?>> enumClass();
-
-	String[] includes();
+	ApiErrorCodes[] value();
 }

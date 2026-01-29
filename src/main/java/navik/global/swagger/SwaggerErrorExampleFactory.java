@@ -1,6 +1,5 @@
 package navik.global.swagger;
 
-import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -17,7 +16,8 @@ public class SwaggerErrorExampleFactory {
 		m.put("code", code.getCode());
 		m.put("message", code.getMessage());
 		m.put("result", null);
-		m.put("timestamp", LocalDateTime.now().withNano(0).toString());
+		m.put("timestamp", "2025-01-01T00:00:00");
+
 		return m;
 	}
 }
