@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
@@ -65,7 +64,6 @@ public interface KpiScoreControllerDocs {
 		summary = "내 KPI 카드 백분위 조회",
 		description = "특정 KPI 카드에 대해 나의 점수 및 상위/하위 백분위를 조회합니다."
 	)
-	@SecurityRequirement(name = "bearerAuth")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "KPI_SCORE_NOT_FOUND"),

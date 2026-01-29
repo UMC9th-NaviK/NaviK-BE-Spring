@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.kpi.dto.res.KpiCardResponseDTO;
 import navik.domain.kpi.dto.res.KpiCardResponseDTO.GridItem;
@@ -92,7 +91,6 @@ public interface KpiCardControllerDocs {
 		summary = "상위 3개 KPI 카드 조회",
 		description = "사용자 기준 상위 3개 KPI 카드를 조회합니다."
 	)
-	@SecurityRequirement(name = "bearerAuth")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200",
@@ -111,7 +109,6 @@ public interface KpiCardControllerDocs {
 		summary = "하위 3개 KPI 카드 조회",
 		description = "사용자 기준 하위 3개 KPI 카드를 조회합니다."
 	)
-	@SecurityRequirement(name = "bearerAuth")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200",
