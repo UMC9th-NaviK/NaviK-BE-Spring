@@ -1,5 +1,7 @@
 package navik.domain.term.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +26,23 @@ public class TermQueryService {
 		if (termInfoView == null) {
 			throw new GeneralExceptionHandler(GeneralErrorCode.ENTITY_NOT_FOUND);
 		}
-		return new TermResponseDTO.TermInfo(termInfoView.getId(), termInfoView.getContent(),
-			termInfoView.getUpdatedAt());
+		return new TermResponseDTO.TermInfo(
+			termInfoView.getId(),
+			termInfoView.getTitle(),
+			termInfoView.getContent(),
+			termInfoView.getUpdatedAt()
+		);
+	}
+
+	public List<TermResponseDTO.TermInfo> getTerms() {
+		List<Term> terms = termRepository.findAll();
+
+		return terms.stream()
+			.map(term -> new TermResponseDTO.TermInfo(
+				term.getId(),
+				term.getTitle(),
+				term.getContent(),
+				term.getUpdatedAt()
+			)).toList();
 	}
 }
