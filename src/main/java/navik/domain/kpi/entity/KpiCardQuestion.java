@@ -8,8 +8,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,9 +24,14 @@ import navik.global.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@Table(name = "kpi_card_questions")
+@Table(
+	name = "kpi_card_questions",
+	uniqueConstraints = @UniqueConstraint(
+		name = "uk_kpi_card_type",
+		columnNames = {"kpi_card_id", "type"}
+	)
+)
 public class KpiCardQuestion extends BaseEntity {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -33,8 +39,8 @@ public class KpiCardQuestion extends BaseEntity {
 	@Column(name = "content", nullable = false)
 	private String content;
 
-	@OneToOne
-	@JoinColumn(name = "kpi_card_id")
+	@ManyToOne
+	@JoinColumn(name = "kpi_card_id", nullable = false)
 	private KpiCard kpiCard;
 
 	@Column(name = "type", nullable = false)
