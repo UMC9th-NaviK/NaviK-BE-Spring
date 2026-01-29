@@ -55,21 +55,4 @@ public class AuthController implements AuthControllerDocs {
 
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, "로그아웃 되었습니다.");
 	}
-
-	@PostMapping("/dev-token")
-	@Profile(value = {"dev"})
-	public ApiResponse<String> createDevToken(@RequestParam Long userId,
-		@RequestParam Long accessTokenValidityInSeconds,
-		@RequestParam Long refreshTokenValidityInSeconds,
-		HttpServletResponse response) {
-
-		TokenDto tokenDto = authService.createDevToken(userId, accessTokenValidityInSeconds,
-			refreshTokenValidityInSeconds);
-
-		// Refresh Token Cookie 설정
-		ResponseCookie cookie = authService.createRefreshTokenCookie(tokenDto.getRefreshToken());
-		response.addHeader("Set-Cookie", cookie.toString());
-
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK, tokenDto.getAccessToken());
-	}
 }

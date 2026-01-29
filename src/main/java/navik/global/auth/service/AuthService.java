@@ -98,16 +98,16 @@ public class AuthService {
 	}
 
 	@Transactional
-	public TokenDto createDevToken(Long userId, Long accessTokenValidityInMs, Long refreshTokenValidityInMs) {
+	public TokenDto createDevToken(Long userId, Long accessTokenValidityInSeconds, Long refreshTokenValidityInSeconds) {
 		// 1. 사용자 정보 로드
 		UserDetails userDetails = customUserDetailsService.loadUserByUsername(userId.toString());
 
 		// 2. Authentication 객체 생성
-		Authentication authentication = new UsernamePasswordAuthenticationToken(
-			userDetails, null, userDetails.getAuthorities());
+		Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
+			userDetails.getAuthorities());
 
-		TokenDto tokenDto = jwtTokenProvider.generateTokenDto(authentication, accessTokenValidityInMs,
-			refreshTokenValidityInMs);
+		TokenDto tokenDto = jwtTokenProvider.generateTokenDto(authentication, accessTokenValidityInSeconds,
+			refreshTokenValidityInSeconds);
 
 		// 4. Refresh Token Redis에 저장
 		RefreshToken refreshToken = RefreshToken.builder()
