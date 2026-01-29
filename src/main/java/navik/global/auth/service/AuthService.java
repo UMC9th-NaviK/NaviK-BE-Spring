@@ -35,7 +35,7 @@ public class AuthService {
 	@Transactional
 	public TokenDto reissue(String refreshToken) {
 		// 1. Refresh Token 검증
-		jwtTokenProvider.validateToken(refreshToken,false);
+		jwtTokenProvider.validateToken(refreshToken, false);
 
 		// 2. Refresh Token 에서 사용자 ID 가져오기
 		String userIdStr = jwtTokenProvider.getSubject(refreshToken);
@@ -53,7 +53,8 @@ public class AuthService {
 		UserDetails userDetails = customUserDetailsService.loadUserByUsername(userIdStr);
 		Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
 			userDetails.getAuthorities());
-		TokenDto tokenDto = jwtTokenProvider.generateTokenDto(authentication,accessTokenValidityInSeconds,refreshTokenValidityInSeconds);
+		TokenDto tokenDto = jwtTokenProvider.generateTokenDto(authentication, accessTokenValidityInSeconds,
+			refreshTokenValidityInSeconds);
 
 		// 6. 리프레시 토큰 갱신 (RTR 방식)
 		redisRefreshToken.updateToken(tokenDto.getRefreshToken());
@@ -70,7 +71,7 @@ public class AuthService {
 		}
 
 		// 1. Access Token 검증
-		jwtTokenProvider.validateToken(accessToken,true);
+		jwtTokenProvider.validateToken(accessToken, true);
 
 		// 2. Access Token 에서 User ID 가져오기
 		Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
@@ -105,7 +106,8 @@ public class AuthService {
 		Authentication authentication = new UsernamePasswordAuthenticationToken(
 			userDetails, null, userDetails.getAuthorities());
 
-		TokenDto tokenDto = jwtTokenProvider.generateTokenDto(authentication, accessTokenValidityInMs, refreshTokenValidityInMs);
+		TokenDto tokenDto = jwtTokenProvider.generateTokenDto(authentication, accessTokenValidityInMs,
+			refreshTokenValidityInMs);
 
 		// 4. Refresh Token Redis에 저장
 		RefreshToken refreshToken = RefreshToken.builder()

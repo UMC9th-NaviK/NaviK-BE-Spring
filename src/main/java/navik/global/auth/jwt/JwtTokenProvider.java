@@ -15,7 +15,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +66,7 @@ public class JwtTokenProvider {
 			.signWith(key)
 			.compact();
 	}
+
 	public String generateRefreshToken(Authentication authentication, long expirationTime) {
 		long now = (new Date()).getTime();
 		return Jwts.builder()
@@ -71,7 +76,8 @@ public class JwtTokenProvider {
 			.compact();
 	}
 
-	public TokenDto generateTokenDto(Authentication authentication, long accessTokenValidityInSeconds, long refreshTokenValidityInSeconds) {
+	public TokenDto generateTokenDto(Authentication authentication, long accessTokenValidityInSeconds,
+		long refreshTokenValidityInSeconds) {
 		String accessToken = generateAccessToken(authentication, accessTokenValidityInSeconds);
 		String refreshToken = generateRefreshToken(authentication, refreshTokenValidityInSeconds);
 
@@ -120,7 +126,8 @@ public class JwtTokenProvider {
 			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_TOKEN_INVALID);
 		} catch (ExpiredJwtException e) {
 			log.warn("만료된 JWT 토큰입니다.", e);
-			throw new GeneralExceptionHandler(isAccessToken ? AuthErrorCode.AUTH_TOKEN_EXPIRED : AuthErrorCode.REFRESH_TOKEN_EXPIRED);
+			throw new GeneralExceptionHandler(
+				isAccessToken ? AuthErrorCode.AUTH_TOKEN_EXPIRED : AuthErrorCode.REFRESH_TOKEN_EXPIRED);
 		} catch (UnsupportedJwtException e) {
 			log.error("지원되지 않는 JWT 토큰입니다.", e);
 			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_TOKEN_INVALID);
