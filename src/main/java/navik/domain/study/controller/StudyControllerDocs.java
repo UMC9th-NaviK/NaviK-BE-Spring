@@ -12,6 +12,7 @@ import navik.domain.study.dto.StudyKpiCardDTO;
 import navik.domain.study.dto.StudyRecommendDTO;
 import navik.domain.study.enums.StudyRole;
 import navik.global.apiPayload.ApiResponse;
+import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDto;
 
 @Tag(name = "Study", description = "스터디 관련 API")
@@ -29,7 +30,7 @@ public interface StudyControllerDocs {
 		@Parameter(name = "size", description = "한 번에 조회할 스터디 개수", example = "10")
 	})
 	ApiResponse<CursorResponseDto<StudyDTO.MyStudyDTO>> getMyStudies(StudyRole role, Long cursor, int size,
-		Long userId);
+		@AuthUser Long userId);
 
 	@Operation(summary = "직무별 KPI 카드 목록 조회 API", description = "스터디 생성 시 특정 직무를 선택했을 때 해당되는 KPI 카드 리스트를 조회합니다. 커서 기반 페이징(무한 스크롤)을 지원합니다.")
 	@Parameters({
@@ -48,5 +49,6 @@ public interface StudyControllerDocs {
 		@Parameter(name = "cursor", description = "마지막으로 조회된 스터디 ID", example = "100"),
 		@Parameter(name = "size", description = "한 번에 조회할 스터디 개수", example = "10")
 	})
-	ApiResponse<CursorResponseDto<StudyRecommendDTO>> getRecommendedStudies(Long cursor, int size, Long userId);
+	ApiResponse<CursorResponseDto<StudyRecommendDTO>> getRecommendedStudies(Long cursor, int size,
+		@AuthUser Long userId);
 }
