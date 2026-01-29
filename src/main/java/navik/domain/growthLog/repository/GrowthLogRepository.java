@@ -190,6 +190,7 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 		@Param("token") String token
 	);
 
+	@Modifying
 	@Query("""
 		update GrowthLog g
 		   set g.processingToken = null,
