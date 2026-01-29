@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import navik.domain.job.dto.JobResponseDTO;
+import navik.domain.users.exception.code.JobErrorCode;
+import navik.global.swagger.ApiErrorCodes;
 
 public interface JobControllerDocs {
 
@@ -33,6 +35,10 @@ public interface JobControllerDocs {
 	})
 	navik.global.apiPayload.ApiResponse<List<JobResponseDTO.JobItem>> getJobs();
 
+	@ApiErrorCodes(
+		enumClass = JobErrorCode.class,
+		includes = {"JOB_NOT_FOUND"}
+	)
 	@Operation(
 		summary = "직무 단건 조회",
 		description = "jobId에 해당하는 직무 정보를 조회합니다."
@@ -45,10 +51,6 @@ public interface JobControllerDocs {
 				mediaType = "application/json",
 				schema = @Schema(implementation = JobResponseDTO.JobItem.class)
 			)
-		),
-		@ApiResponse(
-			responseCode = "404",
-			description = "직무를 찾을 수 없음"
 		)
 	})
 	navik.global.apiPayload.ApiResponse<JobResponseDTO.JobItem> getJob(
