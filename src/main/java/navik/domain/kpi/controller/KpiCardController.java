@@ -27,6 +27,13 @@ public class KpiCardController implements KpiCardControllerDocs {
 	private final KpiCardQueryService kpiCardQueryService;
 	private final KpiScoreQueryService kpiScoreQueryService;
 
+	@GetMapping("/me")
+	@Override
+	public ApiResponse<List<GridItem>> getMyKpiCards(@AuthUser Long userId) {
+		List<GridItem> cards = kpiCardQueryService.getAllCardsByUser(userId);
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, cards);
+	}
+
 	@GetMapping
 	@Override
 	public ApiResponse<List<GridItem>> getKpiCards(@RequestParam Long jobId) {

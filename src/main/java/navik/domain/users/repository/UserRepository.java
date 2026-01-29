@@ -35,4 +35,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		WHERE u.id = :userId
 		""")
 	Optional<User> findByIdWithUserDepartmentAndDepartment(Long userId);
+
+	@Query("select u.job.id from User u where u.id = :userId")
+	Optional<Long> findJobIdByUserId(@Param("userId") Long userId);
 }

@@ -20,6 +20,17 @@ import navik.global.auth.annotation.AuthUser;
 public interface KpiCardControllerDocs {
 
 	@Operation(
+		summary = "내 직무 기준 KPI 카드 목록 조회",
+		description = "인증된 사용자의 직무(job)를 기반으로 KPI 카드 목록을 조회합니다."
+	)
+	@SecurityRequirement(name = "bearerAuth")
+	@io.swagger.v3.oas.annotations.responses.ApiResponses({
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "사용자 직무 미설정 (JOB_NOT_ASSIGNED)")
+	})
+	navik.global.apiPayload.ApiResponse<List<GridItem>> getMyKpiCards(Long userId);
+
+	@Operation(
 		summary = "KPI 카드 목록 조회",
 		description = "jobId에 해당하는 KPI 카드 그리드 목록을 조회합니다."
 	)
