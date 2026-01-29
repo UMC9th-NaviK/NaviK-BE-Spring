@@ -31,7 +31,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query("""
 		SELECT DISTINCT u FROM User u
 		LEFT JOIN FETCH u.userDepartments ud
-		JOIN FETCH ud.department
+		LEFT JOIN FETCH ud.department
 		WHERE u.id = :userId
 		""")
 	Optional<User> findByIdWithUserDepartmentAndDepartment(Long userId);
