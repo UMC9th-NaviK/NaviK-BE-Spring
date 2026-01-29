@@ -146,31 +146,45 @@ public class RedisStreamGrowthLogEvaluationWorker {
 			Long userId = parseLong(body.get("userId"));
 			Long growthLogId = parseLong(body.get("growthLogId"));
 			String traceId = String.valueOf(body.getOrDefault("traceId", ""));
+			String processingToken = String.valueOf(body.getOrDefault("processingToken", ""));
 
-			if (userId == null || growthLogId == null) {
+			if (userId == null || growthLogId == null || processingToken.isBlank()) {
 				log.warn("[GrowthLogWorker] invalid message. recordId={}, body={}", recordId, body);
 				ack(recordId);
 				continue;
 			}
 
 			try {
-				var result = processor.process(userId, growthLogId, traceId);
+				var result = processor.process(userId, growthLogId, traceId, processingToken);
 
-				if (result == GrowthLogEvaluationWorkerProcessor.ProcessResult.SKIP_NOT_PENDING) {
-					log.info("[GrowthLogWorker] skip (not pending). traceId={}, userId={}, growthLogId={}, recordId={}",
-						traceId, userId, growthLogId, recordId);
-				} else {
-					log.info("[GrowthLogWorker] completed. traceId={}, userId={}, growthLogId={}, recordId={}",
-						traceId, userId, growthLogId, recordId);
+				switch (result) {
+					case COMPLETED -> log.info(
+						"[GrowthLogWorker] completed. traceId={}, userId={}, growthLogId={}",
+						traceId, userId, growthLogId);
+					case SKIP_ALREADY_COMPLETED -> log.debug(
+						"[GrowthLogWorker] skip (already completed). traceId={}, userId={}, growthLogId={}",
+						traceId, userId, growthLogId);
+					case SKIP_NOT_PROCESSING -> log.warn(
+						"[GrowthLogWorker] skip (not processing status). traceId={}, userId={}, growthLogId={}",
+						traceId, userId, growthLogId);
+					case SKIP_TOKEN_MISMATCH -> log.warn(
+						"[GrowthLogWorker] skip (token mismatch). traceId={}, userId={}, growthLogId={}",
+						traceId, userId, growthLogId);
+					case SKIP_ALREADY_APPLYING -> log.debug(
+						"[GrowthLogWorker] skip (already applying by another worker). traceId={}, userId={}, growthLogId={}",
+						traceId, userId, growthLogId);
+					case SKIP_NOT_FOUND -> log.warn(
+						"[GrowthLogWorker] skip (not found). traceId={}, userId={}, growthLogId={}",
+						traceId, userId, growthLogId);
 				}
 
 				ack(recordId);
 
 			} catch (Exception e) {
-				processor.markFailedIfProcessing(userId, growthLogId);
+				processor.markFailedIfProcessing(userId, growthLogId, processingToken);
 
-				log.warn("[GrowthLogWorker] failed. traceId={}, userId={}, growthLogId={}, recordId={}, err={}",
-					traceId, userId, growthLogId, recordId, e.toString());
+				log.error("[GrowthLogWorker] failed. traceId={}, userId={}, growthLogId={}, recordId={}",
+					traceId, userId, growthLogId, recordId, e);
 
 				ack(recordId);
 			}

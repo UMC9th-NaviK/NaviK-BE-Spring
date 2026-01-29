@@ -18,30 +18,50 @@ public class GrowthLogEvaluationWorkerProcessor {
 	private final GrowthLogPersistenceService persistence;
 
 	@Transactional
-	public ProcessResult process(Long userId, Long growthLogId, String traceId) {
+	public ProcessResult process(Long userId, Long growthLogId, String traceId, String processingToken) {
 
-		// 1) 선점: PENDING -> PROCESSING
-		int acquired = growthLogRepository.updateStatusIfMatch(
-			userId,
-			growthLogId,
-			GrowthLogStatus.PENDING,
-			GrowthLogStatus.PROCESSING
-		);
+		// 1) 조회
+		var growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
+			.orElse(null);
 
-		if (acquired == 0) {
-			return ProcessResult.SKIP_NOT_PENDING;
+		if (growthLog == null) {
+			return ProcessResult.SKIP_NOT_FOUND;
 		}
 
-		// 2) 입력(content) 조회
-		String content = growthLogRepository.findByIdAndUserId(growthLogId, userId)
-			.map(gl -> gl.getContent())
-			.orElse("(내용 없음)");
+		// 2) 상태 검증 (명시적 분기)
+		GrowthLogStatus status = growthLog.getStatus();
 
-		// 3) 평가 수행
+		if (status == GrowthLogStatus.COMPLETED) {
+			return ProcessResult.SKIP_ALREADY_COMPLETED;
+		}
+
+		if (status != GrowthLogStatus.PROCESSING) {
+			// PENDING, FAILED 등 예상치 못한 상태
+			return ProcessResult.SKIP_NOT_PROCESSING;
+		}
+
+		// 3) 토큰 검증
+		if (!processingToken.equals(growthLog.getProcessingToken())) {
+			return ProcessResult.SKIP_TOKEN_MISMATCH;
+		}
+
+		// 4) Lock 획득 (apply 중복 방지)
+		int locked = growthLogRepository.acquireApplyLock(userId, growthLogId, processingToken);
+		if (locked == 0) {
+			// 이미 다른 worker가 적용 중이거나 appliedProcessingToken이 세팅됨
+			return ProcessResult.SKIP_ALREADY_APPLYING;
+		}
+
+		// 5) 평가 수행
+		String content = growthLog.getContent();
+		if (content == null || content.isBlank()) {
+			content = "(내용 없음)";
+		}
+
 		var ctx = core.buildContext(userId, content);
 		var evaluated = core.evaluate(userId, ctx);
 
-		// 4) 완료 반영 (applyEvaluation()에서 COMPLETED 처리)
+		// 6) 완료 반영
 		persistence.completeGrowthLogAfterProcessing(
 			userId,
 			growthLogId,
@@ -50,21 +70,28 @@ public class GrowthLogEvaluationWorkerProcessor {
 			evaluated.kpis()
 		);
 
+		// 7) 토큰 정리
+		growthLogRepository.clearProcessingTokenIfMatch(
+			userId, growthLogId, processingToken, GrowthLogStatus.COMPLETED
+		);
+
 		return ProcessResult.COMPLETED;
 	}
 
 	@Transactional
-	public void markFailedIfProcessing(Long userId, Long growthLogId) {
-		growthLogRepository.updateStatusIfMatch(
-			userId,
-			growthLogId,
-			GrowthLogStatus.PROCESSING,
-			GrowthLogStatus.FAILED
+	public void markFailedIfProcessing(Long userId, Long growthLogId, String processingToken) {
+		// 원자적으로 처리 (조회 없이 바로 update)
+		growthLogRepository.updateStatusIfMatchAndToken(
+			userId, growthLogId, GrowthLogStatus.PROCESSING, GrowthLogStatus.FAILED, processingToken
 		);
 	}
 
 	public enum ProcessResult {
 		COMPLETED,
-		SKIP_NOT_PENDING
+		SKIP_NOT_FOUND,
+		SKIP_ALREADY_COMPLETED,
+		SKIP_NOT_PROCESSING,
+		SKIP_TOKEN_MISMATCH,
+		SKIP_ALREADY_APPLYING
 	}
 }
