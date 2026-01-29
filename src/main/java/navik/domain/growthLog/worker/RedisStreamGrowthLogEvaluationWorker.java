@@ -67,11 +67,9 @@ public class RedisStreamGrowthLogEvaluationWorker {
 	public void poll() {
 		Consumer consumer = Consumer.from(GROUP, consumerName);
 
-		// 1) PEL(미처리) 우선 회수해서 처리
+		// 1) PEL 우선 회수해서 처리
 		int recovered = recoverPending(consumer);
 		if (recovered > 0) {
-			// PEL을 처리했으면 바로 다음 스케줄에서 새 메시지 처리로 넘어가도 됨
-			// (원하면 여기서 바로 새 메시지도 이어서 처리 가능)
 			return;
 		}
 

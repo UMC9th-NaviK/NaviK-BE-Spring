@@ -1,0 +1,10 @@
+package navik.domain.growthLog.enums;
+
+public enum ProcessResult {
+	COMPLETED,
+	SKIP_NOT_FOUND,
+	SKIP_ALREADY_COMPLETED,
+	SKIP_NOT_PROCESSING,
+	SKIP_TOKEN_MISMATCH,
+	SKIP_ALREADY_APPLYING
+}

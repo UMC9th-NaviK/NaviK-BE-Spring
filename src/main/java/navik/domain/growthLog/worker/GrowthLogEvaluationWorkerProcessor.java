@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.growthLog.enums.GrowthLogStatus;
+import navik.domain.growthLog.enums.ProcessResult;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.growthLog.service.command.GrowthLogEvaluationCoreService;
 import navik.domain.growthLog.service.command.GrowthLogPersistenceService;
@@ -86,12 +87,4 @@ public class GrowthLogEvaluationWorkerProcessor {
 		);
 	}
 
-	public enum ProcessResult {
-		COMPLETED,
-		SKIP_NOT_FOUND,
-		SKIP_ALREADY_COMPLETED,
-		SKIP_NOT_PROCESSING,
-		SKIP_TOKEN_MISMATCH,
-		SKIP_ALREADY_APPLYING
-	}
 }
