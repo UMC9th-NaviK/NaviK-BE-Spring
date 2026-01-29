@@ -20,6 +20,7 @@ import navik.global.auth.handler.OAuth2SuccessHandler;
 import navik.global.auth.jwt.JwtAuthenticationFilter;
 import navik.global.auth.jwt.JwtTokenProvider;
 import navik.global.auth.service.CustomOAuth2UserService;
+import navik.global.enums.SecurityPermitPath;
 
 @Configuration
 @EnableWebSecurity
@@ -41,20 +42,10 @@ public class SecurityConfig {
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
 			.authorizeHttpRequests(auth -> auth
-				// 1. 공통 정적 리소스 및 H2 콘솔
-				.requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
-
-				// 2. Swagger UI (개발 환경)
-				.requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**",
-					"/swagger-resources/**").permitAll()
-
-				// 3. 인증/인가 관련 엔드포인트
-				.requestMatchers("/v1/auth/**", "/oauth2/**", "/login/oauth2/**").permitAll()
-
-				// 4. S3 관련
-				.requestMatchers("/v1/s3/**").permitAll()
-				
-				// 그 외 모든 요청은 인증 필요
+				.requestMatchers(SecurityPermitPath.STATIC.getPaths()).permitAll()
+				.requestMatchers(SecurityPermitPath.SWAGGER.getPaths()).permitAll()
+				.requestMatchers(SecurityPermitPath.AUTH.getPaths()).permitAll()
+				.requestMatchers(SecurityPermitPath.S3.getPaths()).permitAll()
 				.anyRequest().authenticated())
 
 			// 인증되지 않은 사용자의 접근 시 401 JSON 응답 반환
