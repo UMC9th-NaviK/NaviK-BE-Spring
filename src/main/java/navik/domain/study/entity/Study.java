@@ -42,9 +42,6 @@ public class Study extends BaseEntity implements Notifiable {
 	@Column(name = "description", nullable = false)
 	private String description; // 스터디 소개
 
-	@Column(name = "gathering_period", nullable = false)
-	private Integer gatheringPeriod; // 모이는 기간
-
 	@Column(name = "participation_method", nullable = false)
 	private String participationMethod; // 참여 방법
 
