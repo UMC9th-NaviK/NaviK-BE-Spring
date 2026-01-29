@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.growthLog.ai.limiter.RetryRateLimiter;
@@ -25,6 +26,7 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 @Service
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "navik.growth-log.evaluation-mode", havingValue = "async")
+@Transactional
 public class AsyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStrategy {
 
 	private static final Logger log = LoggerFactory.getLogger(AsyncGrowthLogEvaluationStrategy.class);
