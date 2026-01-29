@@ -25,7 +25,6 @@ public interface KpiScoreControllerDocs {
 			- 없으면 create
 			"""
 	)
-	@SecurityRequirement(name = "bearerAuth")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "생성/초기화 성공"),
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "EMPTY_KPI_SCORES / INVALID_KPI_SCORE_REQUEST / DUPLICATED_KPI_CARD_ID"),
@@ -44,7 +43,6 @@ public interface KpiScoreControllerDocs {
 			- request 또는 request.delta가 null이면 delta=1로 처리합니다.
 			"""
 	)
-	@SecurityRequirement(name = "bearerAuth")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "증감 성공"),
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "KPI_SCORE_NOT_FOUND"),
