@@ -42,7 +42,14 @@ public class RecruitmentRequestDTO {
 			private AreaType areaType;
 			private String detailAddress;
 			private MajorType majorType;
-			private List<String> kpis;
+			private List<KPI> kpis;
+
+			@Getter
+			@NoArgsConstructor
+			public static class KPI {
+				private String kpi;
+				private float[] embedding;
+			}
 		}
 	}
 }
