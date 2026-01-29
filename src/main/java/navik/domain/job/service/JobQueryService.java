@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import navik.domain.job.dto.JobResponseDTO;
 import navik.domain.job.entity.Job;
-import navik.domain.job.exception.code.JobErrorCode;
 import navik.domain.job.repository.JobRepository;
+import navik.domain.users.exception.code.JobErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Service
