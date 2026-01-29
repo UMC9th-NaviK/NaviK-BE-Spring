@@ -46,4 +46,7 @@ public class KpiCardQuestion extends BaseEntity {
 	@Column(name = "type", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private KpiCardQuestionType type;
+
+	@Column(name = "is_reverse")
+	private boolean isReverse;
 }
