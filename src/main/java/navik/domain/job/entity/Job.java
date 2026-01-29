@@ -30,4 +30,7 @@ public class Job extends BaseEntity {
 
 	@Column(name = "name", nullable = false, unique = true, length = 100)
 	private String name;
+
+	@Column(name = "description", length = 500)
+	private String description;
 }
