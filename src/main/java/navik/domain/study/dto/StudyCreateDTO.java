@@ -28,8 +28,6 @@ public class StudyCreateDTO {
 		private Long jobId;
 		@NotNull
 		private Long kpiId;
-		@NotNull
-		private Integer gatheringPeriod;
 		@NotBlank(message = "참여 방법을 선택해주세요")
 		private String participationMethod;
 		@NotNull

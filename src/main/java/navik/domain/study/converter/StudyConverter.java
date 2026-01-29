@@ -14,7 +14,6 @@ public class StudyConverter {
 			.title(request.getTitle())
 			.capacity(request.getCapacity())
 			.description(request.getDescription())
-			.gatheringPeriod(request.getGatheringPeriod())
 			.participationMethod(request.getParticipationMethod())
 			.synergyType(request.getSynergyType())
 			.startDate(request.getStartDate())
