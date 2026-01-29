@@ -2,11 +2,13 @@ package navik.domain.study.converter;
 
 import java.time.LocalDateTime;
 
+import navik.domain.study.dto.StudyApplicationDTO;
 import navik.domain.study.dto.StudyCreateDTO;
 import navik.domain.study.dto.StudyDTO;
 import navik.domain.study.entity.Study;
 import navik.domain.study.entity.StudyUser;
 import navik.domain.study.enums.RecruitmentStatus;
+import navik.domain.users.entity.User;
 
 public class StudyConverter {
 	public static Study toStudy(StudyCreateDTO.CreateDTO request) {
@@ -47,5 +49,19 @@ public class StudyConverter {
 			.role(studyUser.getRole().name()) // 스터디장, 스터디원
 			.canEvaluate(canEvaluate) // 종료된 경우에만 버튼 활성화
 			.build();
+	}
+
+	public static StudyApplicationDTO.ApplicationPreviewDTO toApplicantPreviewListDTO(StudyUser studyUser) {
+		User user = studyUser.getUser();
+
+		return StudyApplicationDTO.ApplicationPreviewDTO.builder()
+			.studyUserId(studyUser.getId())
+			.userId(user.getId())
+			.name(user.getName())
+			.jobName(user.getJob().getName())
+			.level(user.getLevel())
+			.profileImageUrl(user.getProfileImageUrl())
+			.build();
+
 	}
 }
