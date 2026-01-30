@@ -1,6 +1,5 @@
 package navik.domain.recruitment.entity;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -76,12 +75,6 @@ public class Position extends BaseEntity {
 
 	@OneToMany(mappedBy = "position", fetch = FetchType.LAZY)
 	private List<PositionKpi> positionKpis;
-
-	@Column(name = "start_date")
-	private LocalDateTime startDate;
-
-	@Column(name = "end_date")
-	private LocalDateTime endDate;
 
 	public void assignId(Long id) {
 		this.id = id;

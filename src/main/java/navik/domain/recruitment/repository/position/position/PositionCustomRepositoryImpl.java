@@ -146,13 +146,11 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 			    area_type,
 			    major_type,
 			    work_place,
-			    start_date,
-			    end_date,
 			    created_at,
 			    updated_at
 			)
 			VALUES (
-			    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+			    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 			)
 			""";
 
@@ -170,12 +168,8 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 					ps.setObject(7, position.getAreaType() != null ? position.getAreaType().name() : null);
 					ps.setObject(8, position.getMajorType() != null ? position.getMajorType().name() : null);
 					ps.setString(9, position.getWorkPlace());
-					ps.setTimestamp(10,
-						position.getStartDate() != null ? Timestamp.valueOf(position.getStartDate()) : null);
-					ps.setTimestamp(11,
-						position.getEndDate() != null ? Timestamp.valueOf(position.getEndDate()) : null);
-					ps.setTimestamp(12, now);
-					ps.setTimestamp(13, now);
+					ps.setTimestamp(10, now);
+					ps.setTimestamp(11, now);
 					ps.addBatch();
 				}
 
@@ -267,7 +261,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	 */
 	private BooleanExpression endDate(boolean showEnded) {
 		if (!showEnded)
-			return position.endDate.isNull().or(recruitment.endDate.goe(LocalDateTime.now()));
+			return recruitment.endDate.isNull().or(recruitment.endDate.goe(LocalDateTime.now()));
 		return null;
 	}
 

@@ -19,6 +19,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import navik.domain.notification.entity.Notifiable;
+import navik.domain.notification.entity.NotificationType;
 import navik.domain.recruitment.enums.CompanySize;
 import navik.domain.recruitment.enums.IndustryType;
 import navik.global.entity.BaseEntity;
@@ -30,7 +32,7 @@ import navik.global.entity.BaseEntity;
 @Builder
 @BatchSize(size = 100)
 @Table(name = "recruitments")
-public class Recruitment extends BaseEntity {
+public class Recruitment extends BaseEntity implements Notifiable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -71,4 +73,19 @@ public class Recruitment extends BaseEntity {
 	@BatchSize(size = 100)
 	@OneToMany(mappedBy = "recruitment")
 	private List<Position> positions;
+
+	@Override
+	public NotificationType getNotificationType() {
+		return NotificationType.RECRUITMENT;
+	}
+
+	@Override
+	public Long getNotifiableId() {
+		return this.id;
+	}
+
+	@Override
+	public boolean isCompleted() {
+		return false;
+	}
 }

@@ -111,8 +111,6 @@ public class PositionConverter {
 			.areaType(position.getAreaType())
 			.majorType(position.getMajorType())
 			.workPlace(position.getDetailAddress())
-			.startDate(recruitment.getStartDate())
-			.endDate(recruitment.getEndDate())
 			.build();
 	}
 }
