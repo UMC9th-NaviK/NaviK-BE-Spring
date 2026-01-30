@@ -14,6 +14,7 @@ import navik.domain.kpi.enums.KpiCardType;
 import navik.domain.kpi.exception.code.KpiCardErrorCode;
 import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.users.exception.code.JobErrorCode;
+import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Service
@@ -23,6 +24,16 @@ public class KpiCardQueryService {
 
 	private final KpiCardRepository kpiCardRepository;
 	private final JobRepository jobRepository;
+	private final UserRepository userRepository;
+
+	public List<GridItem> getAllCardsByUser(Long userId) {
+		Long jobId = userRepository.findJobIdByUserId(userId)
+			.orElseThrow(() -> new GeneralExceptionHandler(JobErrorCode.JOB_NOT_ASSIGNED));
+
+		return kpiCardRepository.findGridByJobId(jobId).stream()
+			.map(v -> new KpiCardResponseDTO.GridItem(v.getId(), v.getName()))
+			.toList();
+	}
 
 	public List<GridItem> getAllCardsByJob(Long jobId) {
 

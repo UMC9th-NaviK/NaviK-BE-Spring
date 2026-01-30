@@ -10,8 +10,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
 import navik.domain.kpi.dto.res.KpiScoreResponseDTO;
+import navik.domain.kpi.exception.code.KpiCardErrorCode;
+import navik.domain.kpi.exception.code.KpiScoreErrorCode;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
+import navik.global.swagger.ApiErrorCodes;
 
 @Tag(name = "KPI Score", description = "KPI 점수 API")
 public interface KpiScoreControllerDocs {
@@ -24,11 +27,25 @@ public interface KpiScoreControllerDocs {
 			- 없으면 create
 			"""
 	)
+
+	@ApiErrorCodes(
+		enumClass = KpiScoreErrorCode.class,
+		includes = {
+			"EMPTY_KPI_SCORES",
+			"INVALID_KPI_SCORE_REQUEST",
+			"DUPLICATED_KPI_CARD_ID",
+			"SCORE_OUT_OF_RANGE"
+		}
+	)
+	@ApiErrorCodes(
+		enumClass = KpiCardErrorCode.class,
+		includes = {"KPI_CARD_NOT_FOUND"}
+	)
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "생성/초기화 성공"),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "EMPTY_KPI_SCORES / INVALID_KPI_SCORE_REQUEST / DUPLICATED_KPI_CARD_ID"),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "KPI_CARD_NOT_FOUND"),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패")
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "201",
+			description = "생성/초기화 성공"
+		)
 	})
 	ApiResponse<KpiScoreResponseDTO.Initialize> initialize(
 		@Parameter(hidden = true) @AuthUser Long userId,
@@ -42,10 +59,18 @@ public interface KpiScoreControllerDocs {
 			- request 또는 request.delta가 null이면 delta=1로 처리합니다.
 			"""
 	)
+	@ApiErrorCodes(
+		enumClass = KpiScoreErrorCode.class,
+		includes = {
+			"KPI_SCORE_NOT_FOUND",
+			"SCORE_OUT_OF_RANGE"
+		}
+	)
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "증감 성공"),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "KPI_SCORE_NOT_FOUND"),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패")
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200",
+			description = "증감 성공"
+		)
 	})
 	ApiResponse<KpiScoreResponseDTO.Increment> increment(
 		@Parameter(hidden = true) @AuthUser Long userId,
@@ -64,10 +89,15 @@ public interface KpiScoreControllerDocs {
 		summary = "내 KPI 카드 백분위 조회",
 		description = "특정 KPI 카드에 대해 나의 점수 및 상위/하위 백분위를 조회합니다."
 	)
+	@ApiErrorCodes(
+		enumClass = KpiScoreErrorCode.class,
+		includes = {"KPI_SCORE_NOT_FOUND"}
+	)
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "KPI_SCORE_NOT_FOUND"),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패")
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200",
+			description = "조회 성공"
+		)
 	})
 	ApiResponse<KpiScoreResponseDTO.Percentile> percentile(
 		@Parameter(hidden = true) @AuthUser Long userId,
