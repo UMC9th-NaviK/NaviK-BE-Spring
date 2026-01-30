@@ -13,24 +13,47 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.kpi.dto.res.KpiCardResponseDTO;
 import navik.domain.kpi.dto.res.KpiCardResponseDTO.GridItem;
 import navik.domain.kpi.enums.KpiCardType;
+import navik.domain.kpi.exception.code.KpiCardErrorCode;
+import navik.domain.users.exception.code.JobErrorCode;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
+import navik.global.swagger.ApiErrorCodes;
 
 @Tag(name = "KPI Card", description = "KPI 카드 조회 API")
 public interface KpiCardControllerDocs {
 
 	@Operation(
+		summary = "내 직무 기준 KPI 카드 목록 조회",
+		description = "인증된 사용자의 직무(job)를 기반으로 KPI 카드 목록을 조회합니다."
+	)
+	@SecurityRequirement(name = "bearerAuth")
+	@ApiErrorCodes(
+		enumClass = JobErrorCode.class,
+		includes = {"JOB_NOT_ASSIGNED"}
+	)
+	@io.swagger.v3.oas.annotations.responses.ApiResponses({
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200",
+			description = "조회 성공"
+		)
+	})
+	ApiResponse<List<GridItem>> getMyKpiCards(
+		@Parameter(hidden = true)
+		@AuthUser Long userId
+	);
+
+	@Operation(
 		summary = "KPI 카드 목록 조회",
 		description = "jobId에 해당하는 KPI 카드 그리드 목록을 조회합니다."
+	)
+	@ApiErrorCodes(
+		enumClass = JobErrorCode.class,
+		includes = {"JOB_NOT_FOUND"}
 	)
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200",
 			description = "성공"
-		),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "404",
-			description = "JOB_NOT_FOUND"
 		)
 	})
 	ApiResponse<List<GridItem>> getKpiCards(
@@ -42,18 +65,17 @@ public interface KpiCardControllerDocs {
 		summary = "KPI 카드 상세 조회(타입별)",
 		description = "kpiCardId와 type(strong/weak)에 해당하는 상세를 조회합니다."
 	)
+	@ApiErrorCodes(
+		enumClass = KpiCardErrorCode.class,
+		includes = {
+			"INVALID_KPI_CARD_TYPE",
+			"KPI_CARD_NOT_FOUND"
+		}
+	)
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200",
 			description = "성공"
-		),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "400",
-			description = "INVALID_TYPE_VALUE"
-		),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "404",
-			description = "KPI_CARD_NOT_FOUND"
 		)
 	})
 	ApiResponse<KpiCardResponseDTO.Detail> getKpiCardDetail(
@@ -73,14 +95,14 @@ public interface KpiCardControllerDocs {
 		summary = "KPI 카드 상세 조회(전체)",
 		description = "kpiCardId에 해당하는 strong/weak 전체 상세를 조회합니다."
 	)
+	@ApiErrorCodes(
+		enumClass = KpiCardErrorCode.class,
+		includes = {"KPI_CARD_NOT_FOUND"}
+	)
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200",
 			description = "성공"
-		),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "404",
-			description = "KPI_CARD_NOT_FOUND"
 		)
 	})
 	ApiResponse<KpiCardResponseDTO.AllDetail> getKpiCardAllDetail(
