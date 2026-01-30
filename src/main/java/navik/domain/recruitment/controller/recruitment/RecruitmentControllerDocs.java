@@ -2,8 +2,9 @@ package navik.domain.recruitment.controller.recruitment;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.PathVariable;
+
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.recruitment.dto.recruitment.RecruitmentResponseDTO;
 import navik.global.apiPayload.ApiResponse;
@@ -24,7 +25,7 @@ public interface RecruitmentControllerDocs {
 		})
 	@Operation(summary = "KPI 관련 채용 공고 조회", description = "KPI 카드와 관련된 채용 공고 최대 5건을 조회합니다.")
 	ApiResponse<List<RecruitmentResponseDTO.RecommendedPost>> getRecommendedPostsByCard(
-		@Parameter(description = "KPI 카드 ID", example = "1", required = true) Long cardId
+		@PathVariable Long kpiCardId
 	);
 
 	@io.swagger.v3.oas.annotations.responses.ApiResponses(

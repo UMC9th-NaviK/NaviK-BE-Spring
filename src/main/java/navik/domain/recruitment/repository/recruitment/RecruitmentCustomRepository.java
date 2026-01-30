@@ -2,6 +2,8 @@ package navik.domain.recruitment.repository.recruitment;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+
 import navik.domain.job.entity.Job;
 import navik.domain.kpi.entity.KpiCard;
 import navik.domain.recruitment.enums.ExperienceType;
@@ -14,9 +16,10 @@ public interface RecruitmentCustomRepository {
 	List<RecommendedRecruitmentProjection> findRecommendedPosts(
 		User user,
 		Job job,
-		EducationLevel EducationLevel,
+		EducationLevel educationLevel,
 		ExperienceType experienceType,
-		List<MajorType> majorTypes
+		List<MajorType> majorTypes,
+		Pageable pageable
 	);
 
 	List<RecommendedRecruitmentProjection> findRecommendedPostsByCard(

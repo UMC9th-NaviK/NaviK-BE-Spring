@@ -1,7 +1,13 @@
 package navik.domain.recruitment.enums;
 
+import java.util.Arrays;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import navik.domain.recruitment.exception.code.RecruitmentErrorCode;
+import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Getter
 @RequiredArgsConstructor
@@ -12,4 +18,12 @@ public enum ExperienceType {
 
 	private final String label;
 	private final int order;
+
+	@JsonCreator
+	public static ExperienceType deserialize(String experienceType) {
+		return Arrays.stream(values())
+			.filter(type -> type.name().equalsIgnoreCase(experienceType))
+			.findAny()
+			.orElseThrow(() -> new GeneralExceptionHandler(RecruitmentErrorCode.EXPERIENCE_TYPE_NOT_FOUND));
+	}
 }

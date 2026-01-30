@@ -1,5 +1,10 @@
 package navik.domain.growthLog.entity;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,16 +13,19 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.enums.GrowthType;
-import navik.domain.kpi.entity.KpiCard;
+import navik.domain.users.entity.User;
 import navik.global.entity.BaseEntity;
 
 @Entity
@@ -25,7 +33,19 @@ import navik.global.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@Table(name = "growth_logs")
+@Table(
+	name = "growth_logs",
+	indexes = {
+		@Index(
+			name = "idx_growthlog_user_createdat",
+			columnList = "user_id, created_at"
+		),
+		@Index(
+			name = "idx_growthlog_user_type_createdat",
+			columnList = "user_id, type, created_at"
+		)
+	}
+)
 public class GrowthLog extends BaseEntity {
 
 	@Id
@@ -33,8 +53,8 @@ public class GrowthLog extends BaseEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "kpi_card_id", nullable = false)
-	private KpiCard kpiCard;
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "type", nullable = false)
@@ -46,6 +66,40 @@ public class GrowthLog extends BaseEntity {
 	@Column(name = "content", nullable = false)
 	private String content;
 
-	@Column(name = "score", nullable = false)
-	private Integer score;
+	@Column(nullable = false)
+	@Builder.Default
+	private Integer totalDelta = 0;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	@Builder.Default
+	private GrowthLogStatus status = GrowthLogStatus.COMPLETED;
+
+	@Column(name = "processing_token")
+	private String processingToken;
+
+	@Column(name = "applied_processing_token")
+	private String appliedProcessingToken;
+
+	private LocalDateTime processingStartedAt;
+
+	@OneToMany(mappedBy = "growthLog", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<GrowthLogKpiLink> kpiLinks = new ArrayList<>();
+
+	public void addKpiLink(GrowthLogKpiLink link) {
+		kpiLinks.add(link);
+		link.attachGrowthLog(this);
+	}
+
+	public void clearKpiLinks() {
+		this.kpiLinks.clear(); // orphanRemoval=true 이라 DB에서도 삭제됨
+	}
+
+	public void applyEvaluation(String title, String content, int totalDelta) {
+		this.title = title;
+		this.content = content;
+		this.totalDelta = totalDelta;
+		this.status = GrowthLogStatus.COMPLETED;
+	}
 }

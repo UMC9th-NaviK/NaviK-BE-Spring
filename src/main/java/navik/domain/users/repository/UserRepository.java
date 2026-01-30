@@ -1,5 +1,6 @@
 package navik.domain.users.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -38,4 +39,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query("select u.job.id from User u where u.id = :userId")
 	Optional<Long> findJobIdByUserId(@Param("userId") Long userId);
+
+	@Query("SELECT u.id FROM User u")
+	List<Long> findAllIds();
 }
