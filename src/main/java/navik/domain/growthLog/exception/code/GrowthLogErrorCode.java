@@ -65,6 +65,18 @@ public enum GrowthLogErrorCode implements BaseCode {
 		HttpStatus.BAD_REQUEST,
 		"GROWTH_LOG_400_05",
 		"AI 서버 주소가 설정되지 않았습니다."
+	),
+
+	PROCESSING_TOKEN_MISMATCH(
+		HttpStatus.CONFLICT,
+		"GROWTH_LOG_409_01",
+		"성장 로그 처리 토큰이 일치하지 않습니다."
+	),
+
+	GROWTH_LOG_NOT_PROCESSING(
+		HttpStatus.CONFLICT,
+		"GROWTH_LOG_409_02",
+		"성장 로그가 처리 중 상태가 아닙니다."
 	);
 
 	private final HttpStatus httpStatus;

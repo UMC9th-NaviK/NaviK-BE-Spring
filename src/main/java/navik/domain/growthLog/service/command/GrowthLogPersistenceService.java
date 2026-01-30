@@ -55,13 +55,31 @@ public class GrowthLogPersistenceService {
 		return id;
 	}
 
+	public Long savePendingUserInputLog(Long userId, String content) {
+		User user = userRepository.getReferenceById(userId);
+
+		GrowthLog growthLog = newUserInputLog(
+			user,
+			"평가 중입니다.",          // placeholder title
+			safe(content),            // 원본 입력 저장 (null/blank 방어)
+			0,                        // totalDelta는 평가 전이므로 0
+			GrowthLogStatus.PENDING   // 비동기 평가 대기
+		);
+
+		return growthLogRepository.save(growthLog).getId();
+	}
+
+	private String safe(String s) {
+		return (s == null || s.isBlank()) ? "(내용 없음)" : s.trim();
+	}
+
 	public Long saveFailedUserInputLog(Long userId, String content) {
 		User user = userRepository.getReferenceById(userId);
 
 		GrowthLog growthLog = newUserInputLog(
 			user,
-			"제목이 아직 정해지지 않았습니다.",
-			content,
+			"평가에 실패했습니다.",
+			safe(content),
 			0,
 			GrowthLogStatus.FAILED
 		);
@@ -84,11 +102,27 @@ public class GrowthLogPersistenceService {
 			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 
-		growthLog.clearKpiLinks();
-		growthLog.applyEvaluation(normalized.title(), normalized.content(), totalDelta);
+		applyEvaluationResult(growthLog, userId, normalized, totalDelta, kpis);
 
-		attachKpiLinks(growthLog, kpis);
-		applyKpiScoreDeltas(userId, kpis);
+	}
+
+	@Transactional
+	public void completeGrowthLogAfterProcessing(
+		Long userId,
+		Long growthLogId,
+		GrowthLogEvaluationResult normalized,
+		int totalDelta,
+		List<GrowthLogEvaluationResult.KpiDelta> kpis
+	) {
+		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
+
+		// 방어: 최소한 PROCESSING만 허용
+		if (growthLog.getStatus() != GrowthLogStatus.PROCESSING) {
+			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
+		}
+
+		applyEvaluationResult(growthLog, userId, normalized, totalDelta, kpis);
 	}
 
 	private GrowthLog newUserInputLog(
@@ -129,5 +163,18 @@ public class GrowthLogPersistenceService {
 				kd.delta()
 			);
 		}
+	}
+
+	private void applyEvaluationResult(
+		GrowthLog growthLog,
+		Long userId,
+		GrowthLogEvaluationResult normalized,
+		int totalDelta,
+		List<GrowthLogEvaluationResult.KpiDelta> kpis
+	) {
+		growthLog.clearKpiLinks();
+		growthLog.applyEvaluation(normalized.title(), normalized.content(), totalDelta);
+		attachKpiLinks(growthLog, kpis);
+		applyKpiScoreDeltas(userId, kpis);
 	}
 }

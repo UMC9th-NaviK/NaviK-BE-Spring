@@ -17,11 +17,37 @@ public class FakeGrowthLogAiClient implements GrowthLogAiClient {
 		Long userId,
 		GrowthLogAiRequestDTO.GrowthLogEvaluationContext context
 	) {
-		// 임시 응답
+		// context에서 KPI 정보 활용해서 더미 응답 생성
+		List<GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta> kpiDeltas =
+			context.recentKpiDeltas().stream()
+				.map(kpi -> new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(
+					kpi.kpiCardId(),
+					1  // 테스트용 고정 delta
+				))
+				.distinct()
+				.limit(3)
+				.toList();
+
+		// KPI가 없으면 빈 리스트 유지
+		if (kpiDeltas.isEmpty() && !context.recentKpiDeltas().isEmpty()) {
+			kpiDeltas = List.of(
+				new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(
+					context.recentKpiDeltas().get(0).kpiCardId(),
+					1
+				)
+			);
+		}
+
 		return new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
-			"임시 평가",
-			"AI 서버 연동 전 더미 응답입니다.",
-			List.of()
+			"[Fake] " + truncate(context.newContent(), 20),
+			"AI 서버 연동 전 더미 응답입니다. 입력: " + truncate(context.newContent(), 50),
+			kpiDeltas
 		);
+	}
+
+	private String truncate(String s, int maxLen) {
+		if (s == null)
+			return "";
+		return s.length() > maxLen ? s.substring(0, maxLen) + "..." : s;
 	}
 }
