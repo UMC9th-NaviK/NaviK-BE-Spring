@@ -1,9 +1,5 @@
 package navik.domain.kpi.entity;
 
-import org.hibernate.annotations.Array;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -52,8 +49,6 @@ public class KpiCard extends BaseEntity {
 	@Column(name = "weak_content", nullable = false, length = 2000)
 	private String weakContent;
 
-	@JdbcTypeCode(SqlTypes.VECTOR)
-	@Array(length = 1536)
-	@Column(name = "embedding", nullable = false)
-	private float[] embedding;
+	@OneToOne(mappedBy = "kpiCard", fetch = FetchType.LAZY)
+	private KpiCardEmbedding kpiCardEmbedding;
 }

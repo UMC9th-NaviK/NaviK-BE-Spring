@@ -1,5 +1,6 @@
 package navik.domain.board.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -11,22 +12,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.board.converter.BoardConverter;
-import navik.domain.board.dto.BoardCreateDTO;
 import navik.domain.board.dto.BoardResponseDTO;
-import navik.domain.board.dto.BoardUpdateDTO;
 import navik.domain.board.entity.Board;
 import navik.domain.board.repository.BoardLikeRepository;
 import navik.domain.board.repository.BoardRepository;
 import navik.domain.board.repository.CommentRepository;
-import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
-import navik.global.dto.PageResponseDto;
+import navik.global.dto.CursorResponseDto;
 
 @Service
 @RequiredArgsConstructor
-public class BoardService {
+public class BoardQueryService {
 	private final UserRepository userRepository;
 	private final BoardRepository boardRepository;
 	private final BoardLikeRepository boardLikeRepository;
@@ -39,18 +37,25 @@ public class BoardService {
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public PageResponseDto<BoardResponseDTO.BoardDTO> getBoardList(Long lastId, int pageSize) {
+	public CursorResponseDto<BoardResponseDTO.BoardDTO> getBoardList(Long lastId, int pageSize) {
 		List<Board> boards = boardRepository.findAllByCursor(lastId, pageSize);
 		return processCursorPage(boards, pageSize);
 	}
 
+	/**
+	 * 직무별 게시글 조회
+	 * @param jobName
+	 * @param lastId
+	 * @param pageSize
+	 * @return
+	 */
 	@Transactional(readOnly = true)
-	public PageResponseDto<BoardResponseDTO.BoardDTO> getBoardListByJob(String jobName, Long lastId, int pageSize) {
+	public CursorResponseDto<BoardResponseDTO.BoardDTO> getBoardListByJob(String jobName, Long lastId, int pageSize) {
 		List<Board> boards = boardRepository.findByJobAndCursor(jobName, lastId, pageSize);
 		return processCursorPage(boards, pageSize);
 	}
 
-	private PageResponseDto<BoardResponseDTO.BoardDTO> processCursorPage(List<Board> boards, int pageSize) {
+	private CursorResponseDto<BoardResponseDTO.BoardDTO> processCursorPage(List<Board> boards, int pageSize) {
 		List<Long> boardIds = boards.stream().map(Board::getId).collect(Collectors.toList());
 
 		Map<Long, Integer> likeCountMap = getLikeCountMap(boardIds);
@@ -67,7 +72,7 @@ public class BoardService {
 		boolean hasNext = boards.size() >= pageSize;
 		String nextCursor = (hasNext && !boards.isEmpty()) ? boards.get(boards.size() - 1).getId().toString() : null;
 
-		return PageResponseDto.of(doList, hasNext, nextCursor);
+		return CursorResponseDto.of(doList, hasNext, nextCursor);
 	}
 
 	/**
@@ -130,6 +135,43 @@ public class BoardService {
 	}
 
 	/**
+	 * 게시글 검색
+	 * @param keyword
+	 * @param lastId
+	 * @param pageSize
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public CursorResponseDto<BoardResponseDTO.BoardDTO> searchBoard(String keyword, Long lastId, int pageSize) {
+		// 1. 키워드 및 커서 기반 검색 실행
+		List<Board> boards = boardRepository.searchByKeyword(keyword, lastId, pageSize);
+
+		// 2. 검색 결과가 없을 경우 빈 응답 반환
+		if (boards.isEmpty()) {
+			return CursorResponseDto.of(Collections.emptyList(), false, null);
+		}
+
+		List<Long> boardIds = boards.stream().map(Board::getId).toList();
+
+		// 3. N+1 방지를 위한 Batch 조회 (Map 방식)
+		Map<Long, Integer> likeCountMap = getLikeCountMap(boardIds);
+		Map<Long, Integer> commentCountMap = getCommentCountMap(boardIds);
+
+		// 4. DTO 변환 및 결과 매핑
+		List<BoardResponseDTO.BoardDTO> content = boards.stream()
+			.map(board -> BoardConverter.toBoardDTO(board,
+				likeCountMap.getOrDefault(board.getId(), 0),
+				commentCountMap.getOrDefault(board.getId(), 0)))
+			.toList();
+
+		// 5. 다음 페이지 여부 및 커서 생성
+		boolean hasNext = boards.size() >= pageSize;
+		String nextCursor = hasNext ? boards.get(boards.size() - 1).getId().toString() : null;
+
+		return CursorResponseDto.of(content, hasNext, nextCursor);
+	}
+
+	/**
 	 * 상세 게시글 조회
 	 * @param boardId
 	 * @return
@@ -147,61 +189,5 @@ public class BoardService {
 			boardLikeRepository.countLikeByBoard(board),
 			commentRepository.countCommentByBoard(board)
 		);
-	}
-
-	/**
-	 *
-	 * @param userId
-	 * @param request
-	 * @return
-	 */
-	@Transactional
-	public Long createBoard(Long userId, BoardCreateDTO request) {
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
-		Board board = Board.builder()
-			.user(user)
-			.articleTitle(request.getArticleTitle())
-			.articleContent(request.getArticleContent())
-			.articleViews(0)
-			.build();
-
-		return boardRepository.save(board).getId();
-	}
-
-	/**
-	 * 게시글 수정
-	 * @param boardId
-	 * @param userId
-	 * @param request
-	 * @return
-	 */
-	@Transactional
-	public Long updateBoard(Long boardId, Long userId, BoardUpdateDTO request) {
-		Board board = boardRepository.findById(boardId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
-
-		if (!board.getUser().getId().equals(userId)) {
-			throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_BOARD_NOT_WRITER);
-		}
-
-		board.updateBoard(request.getArticleTitle(), request.getArticleContent());
-		return boardRepository.save(board).getId();
-	}
-
-	/**
-	 * 게시글 삭제
-	 * @param boardId
-	 * @param userId
-	 */
-	@Transactional
-	public void deleteBoard(Long boardId, Long userId) {
-		Board board = boardRepository.findById(boardId) // 게시글 찾을 수 없음
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
-
-		if (!board.getUser().getId().equals(userId)) { // 게시글 작성자가 아님
-			throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_BOARD_NOT_WRITER);
-		}
-		boardRepository.delete(board);
 	}
 }
