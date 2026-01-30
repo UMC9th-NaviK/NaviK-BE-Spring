@@ -1,12 +1,14 @@
 package navik.domain.recruitment.service.recruitment;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.kpi.entity.KpiCard;
 import navik.domain.kpi.exception.code.KpiCardErrorCode;
 import navik.domain.kpi.repository.KpiCardRepository;
@@ -21,6 +23,7 @@ import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -45,13 +48,25 @@ public class RecruitmentQueryService {
 			.map(userDepartment -> userDepartment.getDepartment().getName())
 			.toList();
 
+		List<MajorType> majorTypes = departments.stream()
+			.map(name -> {
+				try {
+					return MajorType.valueOf(name);
+				} catch (Exception e) {
+					log.error("[RecruitmentQueryService] 존재하지 않는 학과 타입입니다 : {}", name, e);
+					return null;
+				}
+			})
+			.filter(Objects::nonNull)
+			.toList();
+
 		// 3. 모든 ability <-> 모든 PositionKPI => 종합 유사도 합산이 가장 높은 공고 반환
 		List<RecommendedRecruitmentProjection> results = recruitmentRepository.findRecommendedPosts(
 			user,
 			user.getJob(),
 			user.getEducationLevel(),
 			user.getIsEntryLevel() ? ExperienceType.ENTRY : ExperienceType.EXPERIENCED,
-			departments.stream().map(MajorType::valueOf).toList(),
+			majorTypes,
 			PageRequest.of(0, 5)    // 5건
 		);
 

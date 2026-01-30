@@ -190,7 +190,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	 */
 	private BooleanExpression endDate(boolean showEnded) {
 		if (!showEnded)
-			return position.endDate.isNull().or(recruitment.endDate.goe(LocalDateTime.now()));
+			return recruitment.endDate.isNull().or(recruitment.endDate.goe(LocalDateTime.now()));
 		return null;
 	}
 
