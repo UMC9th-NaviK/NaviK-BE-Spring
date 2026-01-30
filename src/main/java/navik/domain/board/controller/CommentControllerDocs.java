@@ -14,7 +14,7 @@ import navik.domain.board.dto.CommentListDTO;
 import navik.domain.board.dto.ReplyDTO;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.PageResponseDto;
+import navik.global.dto.CursorResponseDto;
 
 @Tag(name = "Comment", description = "댓글 관련 API")
 public interface CommentControllerDocs {
@@ -24,7 +24,7 @@ public interface CommentControllerDocs {
 		@Parameter(name = "userId", description = "현재 로그인한 유저 ID입니다.", hidden = true),
 		@Parameter(name = "pageable", description = "페이징 파라미터입니다. (page, size, sort)")
 	})
-	ApiResponse<PageResponseDto<CommentListDTO.ResponseComment>> getComments(
+	ApiResponse<CursorResponseDto<CommentListDTO.ResponseComment>> getComments(
 		@PathVariable Long boardId,
 		@AuthUser Long userId,
 		Pageable pageable
