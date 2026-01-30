@@ -1,6 +1,7 @@
 package navik.global.auth.jwt;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +26,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	public static final String AUTHORIZATION_HEADER = "Authorization";
 	public static final String BEARER_PREFIX = "Bearer ";
 
+	// JWT 필터를 적용하지 않을 경로 목록
+	private static final List<String> EXCLUDED_PATHS = List.of(
+		"/v1/auth/refresh",
+		"/dev/token"
+	);
+
 	private final JwtTokenProvider jwtTokenProvider;
 
 	@Override
@@ -38,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			// 2. validateToken 으로 토큰 유효성 검사
 			// 정상 토큰이면 해당 토큰으로 Authentication 을 가져와서 SecurityContext 에 저장
 			if (StringUtils.hasText(jwt)) {
-				jwtTokenProvider.validateToken(jwt);
+				jwtTokenProvider.validateToken(jwt, true);
 				Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
@@ -67,5 +74,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			return bearerToken.substring(7);
 		}
 		return null;
+	}
+
+	@Override
+	protected boolean shouldNotFilter(HttpServletRequest request) {
+		String path = request.getRequestURI();
+		return EXCLUDED_PATHS.stream().anyMatch(path::equals);
 	}
 }

@@ -1,9 +1,9 @@
 package navik.domain.job.entity;
 
+import org.hibernate.annotations.BatchSize;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,7 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import navik.domain.job.enums.JobType;
 import navik.global.entity.BaseEntity;
 
 @Entity
@@ -21,6 +20,7 @@ import navik.global.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
+@BatchSize(size = 100)
 @Table(name = "jobs")
 public class Job extends BaseEntity {
 
@@ -28,7 +28,9 @@ public class Job extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "job_type", nullable = false, unique = true)
-	@Enumerated(EnumType.STRING)
-	private JobType jobType;
+	@Column(name = "name", nullable = false, unique = true, length = 100)
+	private String name;
+
+	@Column(name = "description", length = 500)
+	private String description;
 }

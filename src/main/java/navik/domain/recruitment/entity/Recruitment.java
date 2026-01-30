@@ -1,6 +1,9 @@
 package navik.domain.recruitment.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import org.hibernate.annotations.BatchSize;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,12 +12,15 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import navik.domain.notification.entity.Notifiable;
+import navik.domain.notification.entity.NotificationType;
 import navik.domain.recruitment.enums.CompanySize;
 import navik.domain.recruitment.enums.IndustryType;
 import navik.global.entity.BaseEntity;
@@ -24,8 +30,9 @@ import navik.global.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
+@BatchSize(size = 100)
 @Table(name = "recruitments")
-public class Recruitment extends BaseEntity {
+public class Recruitment extends BaseEntity implements Notifiable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,6 +53,9 @@ public class Recruitment extends BaseEntity {
 	@Column(name = "company_logo")
 	private String companyLogo;
 
+	@Column(name = "summary")
+	private String summary;
+
 	@Column(name = "company_size")
 	@Enumerated(EnumType.STRING)
 	private CompanySize companySize;
@@ -59,4 +69,23 @@ public class Recruitment extends BaseEntity {
 
 	@Column(name = "end_date")
 	private LocalDateTime endDate;
+
+	@BatchSize(size = 100)
+	@OneToMany(mappedBy = "recruitment")
+	private List<Position> positions;
+
+	@Override
+	public NotificationType getNotificationType() {
+		return NotificationType.RECRUITMENT;
+	}
+
+	@Override
+	public Long getNotifiableId() {
+		return this.id;
+	}
+
+	@Override
+	public boolean isCompleted() {
+		return false;
+	}
 }

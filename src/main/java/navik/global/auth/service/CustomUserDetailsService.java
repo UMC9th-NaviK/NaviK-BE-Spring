@@ -15,6 +15,7 @@ import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.auth.JwtUserDetails;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +36,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 	private UserDetails createUserDetails(User user) {
 		GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(user.getRole().getKey());
 
-		return new org.springframework.security.core.userdetails.User(
-			String.valueOf(user.getId()),
-			"", // 소셜로그인만 구현 -> 임의값
+		return new JwtUserDetails(
+			user.getId(),
+			user.getUserStatus().toString(),
 			List.of(grantedAuthority)
 		);
 	}

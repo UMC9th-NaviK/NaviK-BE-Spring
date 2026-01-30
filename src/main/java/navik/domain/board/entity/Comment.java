@@ -47,4 +47,8 @@ public class Comment extends BaseEntity {
 	@Column(name = "is_deleted", nullable = false)
 	@Builder.Default
 	private boolean isDeleted = false;
+
+	public void changeToDeletedStatus() {
+		this.isDeleted = true;
+	}
 }
