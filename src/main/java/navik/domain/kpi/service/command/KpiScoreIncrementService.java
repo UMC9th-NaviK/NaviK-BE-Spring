@@ -20,7 +20,8 @@ public class KpiScoreIncrementService {
 
 	public KpiScoreResponseDTO.Increment incrementKpiScore(Long userId, Long kpiCardId,
 		KpiScoreRequestDTO.Increment request) {
-		int delta = (request == null || request.delta() == null) ? 1 : request.delta();
+
+		int delta = request.delta();
 
 		int updatedRows = kpiScoreRepository.incrementScore(userId, kpiCardId, delta);
 		if (updatedRows == 0) {
@@ -31,5 +32,12 @@ public class KpiScoreIncrementService {
 			.orElseThrow(() -> new GeneralExceptionHandler(KpiScoreErrorCode.KPI_SCORE_NOT_FOUND));
 
 		return new KpiScoreResponseDTO.Increment(kpiCardId, score.getScore());
+	}
+
+	public void incrementInternal(Long userId, Long kpiCardId, int delta) {
+		int updatedRows = kpiScoreRepository.incrementScore(userId, kpiCardId, delta);
+		if (updatedRows == 0) {
+			throw new GeneralExceptionHandler(KpiScoreErrorCode.KPI_SCORE_NOT_FOUND);
+		}
 	}
 }
