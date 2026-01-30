@@ -19,38 +19,38 @@ import navik.global.auth.service.AuthService;
 @RequiredArgsConstructor
 public class AuthController implements AuthControllerDocs {
 
-    private final AuthService authService;
+	private final AuthService authService;
 
-    @PostMapping("/refresh")
-    public ApiResponse<String> reissue(@CookieValue("refresh_token") String refreshToken,
-                                       HttpServletResponse response) {
+	@PostMapping("/refresh")
+	public ApiResponse<String> reissue(@CookieValue("refresh_token") String refreshToken,
+		HttpServletResponse response) {
 
-        TokenDto tokenDto = authService.reissue(refreshToken);
+		TokenDto tokenDto = authService.reissue(refreshToken);
 
-        // Refresh Token Cookie 설정
-        ResponseCookie cookie = authService.createRefreshTokenCookie(tokenDto.getRefreshToken());
-        response.addHeader("Set-Cookie", cookie.toString());
+		// Refresh Token Cookie 설정
+		ResponseCookie cookie = authService.createRefreshTokenCookie(tokenDto.getRefreshToken());
+		response.addHeader("Set-Cookie", cookie.toString());
 
-        return ApiResponse.onSuccess(GeneralSuccessCode._OK, tokenDto.getAccessToken());
-    }
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, tokenDto.getAccessToken());
+	}
 
-    @PostMapping("/logout")
-    public ApiResponse<String> logout(@RequestHeader("Authorization") String accessToken,
-                                      @CookieValue("refresh_token") String refreshToken,
-                                      HttpServletResponse response) {
+	@PostMapping("/logout")
+	public ApiResponse<String> logout(@RequestHeader("Authorization") String accessToken,
+		@CookieValue("refresh_token") String refreshToken,
+		HttpServletResponse response) {
 
-        authService.logout(accessToken, refreshToken);
+		authService.logout(accessToken, refreshToken);
 
-        // 쿠키 삭제 (빈 값으로 덮어쓰기)
-        ResponseCookie cookie = ResponseCookie.from("refresh_token", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/v1/auth")
-                .maxAge(0) // 만료
-                .sameSite("None")
-                .build();
-        response.addHeader("Set-Cookie", cookie.toString());
+		// 쿠키 삭제 (빈 값으로 덮어쓰기)
+		ResponseCookie cookie = ResponseCookie.from("refresh_token", "")
+			.httpOnly(true)
+			.secure(true)
+			.path("/v1/auth")
+			.maxAge(0) // 만료
+			.sameSite("None")
+			.build();
+		response.addHeader("Set-Cookie", cookie.toString());
 
-        return ApiResponse.onSuccess(GeneralSuccessCode._OK, "로그아웃 되었습니다.");
-    }
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, "로그아웃 되었습니다.");
+	}
 }

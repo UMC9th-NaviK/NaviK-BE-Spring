@@ -46,6 +46,10 @@ public class SecurityConfig {
 				.requestMatchers(SecurityPermitPath.SWAGGER.getPaths()).permitAll()
 				.requestMatchers(SecurityPermitPath.AUTH.getPaths()).permitAll()
 				.requestMatchers(SecurityPermitPath.S3.getPaths()).permitAll()
+				// 5. 개발환경 전용
+				.requestMatchers("/dev/**").permitAll()
+
+				// 그 외 모든 요청은 인증 필요
 				.anyRequest().authenticated())
 
 			// 인증되지 않은 사용자의 접근 시 401 JSON 응답 반환

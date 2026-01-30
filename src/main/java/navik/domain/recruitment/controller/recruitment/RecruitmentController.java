@@ -3,8 +3,8 @@ package navik.domain.recruitment.controller.recruitment;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -29,10 +29,11 @@ public class RecruitmentController implements RecruitmentControllerDocs {
 	}
 
 	@Override
-	@GetMapping("/cards")
+	@GetMapping("/kpi-cards/{kpiCardId}")
 	public ApiResponse<List<RecruitmentResponseDTO.RecommendedPost>> getRecommendedPostsByCard(
-		@RequestParam("cardId") Long cardId) {
-		List<RecruitmentResponseDTO.RecommendedPost> result = recruitmentQueryService.getRecommendedPostsByCard(cardId);
+		@PathVariable Long kpiCardId) {
+		List<RecruitmentResponseDTO.RecommendedPost> result = recruitmentQueryService.getRecommendedPostsByCard(
+			kpiCardId);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
 	}
 

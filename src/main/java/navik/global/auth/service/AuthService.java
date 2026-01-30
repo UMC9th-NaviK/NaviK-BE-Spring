@@ -29,13 +29,13 @@ public class AuthService {
 
 	@Value("${spring.jwt.refresh-token-validity-in-seconds}")
 	private long refreshTokenValidityInSeconds;
+	@Value("${spring.jwt.access-token-validity-in-seconds}")
+	private long accessTokenValidityInSeconds;
 
 	@Transactional
 	public TokenDto reissue(String refreshToken) {
 		// 1. Refresh Token 검증
-		if (!jwtTokenProvider.validateToken(refreshToken)) {
-			throw new GeneralExceptionHandler(AuthErrorCode.INVALID_REFRESH_TOKEN);
-		}
+		jwtTokenProvider.validateToken(refreshToken, false);
 
 		// 2. Refresh Token 에서 사용자 ID 가져오기
 		String userIdStr = jwtTokenProvider.getSubject(refreshToken);
@@ -53,7 +53,8 @@ public class AuthService {
 		UserDetails userDetails = customUserDetailsService.loadUserByUsername(userIdStr);
 		Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
 			userDetails.getAuthorities());
-		TokenDto tokenDto = jwtTokenProvider.generateTokenDto(authentication);
+		TokenDto tokenDto = jwtTokenProvider.generateTokenDto(authentication, accessTokenValidityInSeconds,
+			refreshTokenValidityInSeconds);
 
 		// 6. 리프레시 토큰 갱신 (RTR 방식)
 		redisRefreshToken.updateToken(tokenDto.getRefreshToken());
@@ -70,9 +71,7 @@ public class AuthService {
 		}
 
 		// 1. Access Token 검증
-		if (!jwtTokenProvider.validateToken(accessToken)) {
-			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_TOKEN_INVALID);
-		}
+		jwtTokenProvider.validateToken(accessToken, true);
 
 		// 2. Access Token 에서 User ID 가져오기
 		Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
@@ -96,5 +95,27 @@ public class AuthService {
 			.maxAge(refreshTokenValidityInSeconds)
 			.sameSite("None")
 			.build();
+	}
+
+	@Transactional
+	public TokenDto createDevToken(Long userId, Long accessTokenValidityInSeconds, Long refreshTokenValidityInSeconds) {
+		// 1. 사용자 정보 로드
+		UserDetails userDetails = customUserDetailsService.loadUserByUsername(userId.toString());
+
+		// 2. Authentication 객체 생성
+		Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
+			userDetails.getAuthorities());
+
+		TokenDto tokenDto = jwtTokenProvider.generateTokenDto(authentication, accessTokenValidityInSeconds,
+			refreshTokenValidityInSeconds);
+
+		// 4. Refresh Token Redis에 저장
+		RefreshToken refreshToken = RefreshToken.builder()
+			.id(userId.toString())
+			.token(tokenDto.getRefreshToken())
+			.build();
+		refreshTokenRepository.save(refreshToken);
+
+		return tokenDto;
 	}
 }
