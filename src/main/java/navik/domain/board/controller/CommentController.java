@@ -57,7 +57,7 @@ public class CommentController implements CommentControllerDocs {
 	 * @param userId
 	 * @return
 	 */
-	@PostMapping("/{boardId}/comment")
+	@PostMapping("/{boardId}/comments")
 	public ApiResponse<CommentCreateDTO.Response> addComment(
 		@PathVariable Long boardId,
 		@RequestBody @Valid CommentCreateDTO.Request request,
@@ -97,7 +97,7 @@ public class CommentController implements CommentControllerDocs {
 	 * @param userId
 	 * @return
 	 */
-	@DeleteMapping("/{boardId}/comment/{commentId}")
+	@DeleteMapping("/{boardId}/comments/{commentId}")
 	public ApiResponse<Object> deleteComment(
 		@PathVariable Long boardId,
 		@PathVariable Long commentId,

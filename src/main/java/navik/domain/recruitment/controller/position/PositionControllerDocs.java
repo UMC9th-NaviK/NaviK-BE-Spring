@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.recruitment.dto.position.PositionRequestDTO;
 import navik.domain.recruitment.dto.position.PositionResponseDTO;
 import navik.global.apiPayload.ApiResponse;
+import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDto;
 
 @Tag(name = "Position", description = "채용 공고 중 포지션 관련 API")
@@ -96,7 +97,7 @@ public interface PositionControllerDocs {
 			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "RECRUITMENT_404_07 - 존재하지 않는 전공 유형입니다.")
 		})
 	ApiResponse<CursorResponseDto<PositionResponseDTO.RecommendedPosition>> getPositions(
-		Long userId,
+		@AuthUser Long userId,
 		@RequestBody PositionRequestDTO.SearchCondition searchCondition,
 		@Parameter(description = "마지막으로 조회한 커서 Base64 인코딩 값 (nextCursor)") String cursor,
 		@Parameter(description = "한번에 가져올 데이터 수") Integer size

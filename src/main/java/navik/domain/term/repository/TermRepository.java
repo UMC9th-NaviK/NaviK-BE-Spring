@@ -11,7 +11,7 @@ import navik.domain.term.repository.projection.TermInfoView;
 @Repository
 public interface TermRepository extends JpaRepository<Term, Long> {
 	@Query("""
-		SELECT t.id as id, t.content as content, t.updatedAt as updatedAt
+		SELECT t.id as id, t.title as title, t.content as content, t.updatedAt as updatedAt
 		FROM Term t
 		WHERE t.id = :termId
 		""")

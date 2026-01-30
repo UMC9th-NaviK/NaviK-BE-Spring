@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
@@ -28,7 +27,6 @@ public interface KpiScoreControllerDocs {
 			- 없으면 create
 			"""
 	)
-	@SecurityRequirement(name = "bearerAuth")
 	@ApiErrorCodes(
 		enumClass = KpiScoreErrorCode.class,
 		includes = {
@@ -60,7 +58,6 @@ public interface KpiScoreControllerDocs {
 			- request 또는 request.delta가 null이면 delta=1로 처리합니다.
 			"""
 	)
-	@SecurityRequirement(name = "bearerAuth")
 	@ApiErrorCodes(
 		enumClass = KpiScoreErrorCode.class,
 		includes = {
@@ -91,7 +88,6 @@ public interface KpiScoreControllerDocs {
 		summary = "내 KPI 카드 백분위 조회",
 		description = "특정 KPI 카드에 대해 나의 점수 및 상위/하위 백분위를 조회합니다."
 	)
-	@SecurityRequirement(name = "bearerAuth")
 	@ApiErrorCodes(
 		enumClass = KpiScoreErrorCode.class,
 		includes = {"KPI_SCORE_NOT_FOUND"}

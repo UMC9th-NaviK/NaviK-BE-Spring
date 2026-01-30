@@ -1,5 +1,7 @@
 package navik.domain.term.controller;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +26,12 @@ public class TermController implements TermControllerDocs {
 
 	private final TermQueryService termQueryService;
 	private final UserTermCommandService userTermCommandService;
+
+	@Override
+	@GetMapping
+	public ApiResponse<List<TermResponseDTO.TermInfo>> getTerms() {
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, termQueryService.getTerms());
+	}
 
 	@Override
 	@GetMapping("/{termId}")
