@@ -20,11 +20,20 @@ public enum JobType {
 
 	private final String label;
 
-	@JsonCreator
+	public static JobType getByLabel(String label) {
+		for (JobType jobType : JobType.values()) {
+			if (jobType.getLabel().equals(label)) {
+				return jobType;
+			}
+		}
+		return null;
+	}
+  
+  @JsonCreator
 	public static JobType deserialize(String jobType) {
 		return Arrays.stream(values())
 			.filter(type -> type.name().equalsIgnoreCase(jobType))
 			.findAny()
 			.orElseThrow(() -> new GeneralExceptionHandler(RecruitmentErrorCode.JOB_TYPE_NOT_FOUND));
-	}
+  }
 }

@@ -1,4 +1,4 @@
-package navik.domain.recruitment.repository.position.projection;
+package navik.domain.recruitment.repository.position.position.projection;
 
 import com.querydsl.core.annotations.QueryProjection;
 

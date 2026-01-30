@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.hibernate.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -123,4 +125,21 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 		return ApiResponse.onFailure(code, null);
 	}
 
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ApiResponse<Object> handleMethodArgumentTypeMismatch(
+		MethodArgumentTypeMismatchException e,
+		HttpServletRequest request
+	) {
+
+		log.warn("TypeMismatch param={} value={} requiredType={}", e.getName(), e.getValue(), e.getRequiredType());
+		return ApiResponse.onFailure(GeneralErrorCode.INVALID_TYPE_VALUE, null);
+	}
+
+	@ExceptionHandler(TypeMismatchException.class)
+	public ApiResponse<Object> handleTypeMismatch(
+		TypeMismatchException e,
+		HttpServletRequest request
+	) {
+		return ApiResponse.onFailure(GeneralErrorCode.INVALID_TYPE_VALUE, null);
+	}
 }

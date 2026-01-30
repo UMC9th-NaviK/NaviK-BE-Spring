@@ -40,9 +40,11 @@ public class Board extends BaseEntity {
 	private String articleContent;
 
 	@Column(name = "article_views", nullable = false)
+	@Builder.Default
 	private Integer articleViews = 0;
 
 	@Column(name = "article_likes", nullable = false)
+	@Builder.Default
 	private Integer articleLikes = 0;
 
 	public void incrementArticleViews() {

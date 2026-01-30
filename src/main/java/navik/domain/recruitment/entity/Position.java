@@ -82,4 +82,8 @@ public class Position extends BaseEntity {
 
 	@Column(name = "end_date")
 	private LocalDateTime endDate;
+
+	public void assignId(Long id) {
+		this.id = id;
+	}
 }

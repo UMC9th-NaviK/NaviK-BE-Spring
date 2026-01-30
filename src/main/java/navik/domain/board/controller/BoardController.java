@@ -127,14 +127,13 @@ public class BoardController implements BoardControllerDocs {
 	 * @param userId
 	 * @return
 	 */
-
 	@PostMapping
 	public ApiResponse<Long> createBoard(
 		@RequestBody @Valid BoardCreateDTO request,
 		@AuthUser Long userId
 	) {
 		Long boardId = boardCommandService.createBoard(userId, request);
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK, boardId);
+		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, boardId);
 	}
 
 	/**

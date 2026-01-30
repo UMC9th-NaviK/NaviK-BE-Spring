@@ -2,6 +2,7 @@ package navik.domain.recruitment.dto.position;
 
 import java.util.List;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.recruitment.enums.AreaType;
@@ -25,5 +26,13 @@ public class PositionRequestDTO {
 		private List<AreaType> areaTypes;
 		private List<IndustryType> industryTypes;
 		private boolean withEnded;
+	}
+
+	@Getter
+	@Builder
+	public static class CursorRequest {
+		private Double lastSimilarity;
+		private Long lastMatchCount;
+		private Long lastId;
 	}
 }

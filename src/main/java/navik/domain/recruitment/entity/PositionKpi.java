@@ -38,4 +38,8 @@ public class PositionKpi extends BaseEntity {
 
 	@OneToOne(mappedBy = "positionKpi", fetch = FetchType.LAZY)
 	private PositionKpiEmbedding positionKpiEmbedding;
+
+	public void assignId(Long id) {
+		this.id = id;
+	}
 }
