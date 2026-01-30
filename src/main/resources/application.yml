@@ -30,7 +30,6 @@ navik:
         min-idle-ms: ${GROWTH_LOG_WORKER_CLAIM_MIN_IDLE_MS:60000}
         batch-size: ${GROWTH_LOG_WORKER_CLAIM_BATCH_SIZE:10}
 
-
 ai:
   server:
     base-url: ${AI_SERVER_BASE_URL:http://localhost:8081}

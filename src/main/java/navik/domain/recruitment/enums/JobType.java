@@ -13,4 +13,13 @@ public enum JobType {
 	BACKEND("백엔드 개발자");
 
 	private final String label;
+
+	public static JobType getByLabel(String label) {
+		for (JobType jobType : JobType.values()) {
+			if (jobType.getLabel().equals(label)) {
+				return jobType;
+			}
+		}
+		return null;
+	}
 }

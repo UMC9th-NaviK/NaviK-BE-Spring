@@ -42,7 +42,7 @@ dependencies {
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
     // Database
-    runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.postgresql:postgresql'
 
     // JWT (로컬 보안 설정 유지)
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'

@@ -12,10 +12,10 @@ spring:
   jpa:
     show-sql: true
     generate-ddl: true
-    hibernate:
-      ddl-auto: update
     properties:
       hibernate:
+        hbm2ddl:
+          auto: update
         format_sql: true
         use_sql_comments: true
 
@@ -36,6 +36,10 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+      stream:
+        recruitment:
+          key: ${STREAM_RECRUITMENT_KEY:recruitment}
+          consumer-group-name: ${STREAM_RECRUITMENT_CONSUMER_GROUP_NAME:group}
 
   security:
     oauth2:
