@@ -75,4 +75,8 @@ public class Position extends BaseEntity {
 
 	@OneToMany(mappedBy = "position", fetch = FetchType.LAZY)
 	private List<PositionKpi> positionKpis;
+
+	public void assignId(Long id) {
+		this.id = id;
+	}
 }

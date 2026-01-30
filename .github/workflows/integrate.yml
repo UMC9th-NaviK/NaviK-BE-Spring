@@ -48,11 +48,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: JDK 17 설치
+      - name: JDK 21 설치
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
           cache: gradle
 
       - name: Gradle 실행 권한 부여
@@ -80,8 +80,9 @@ jobs:
       - name: PR 코드 단독 테스트
         run: |
           echo "::notice::PR 코드 단독 테스트를 실행합니다."
-          ./gradlew test --stacktrace --info || {
-            echo "::error::❌ PR 코드 자체에서 테스트가 실패했습니다."
+          ./gradlew test --no-daemon --console=plain --quiet || {
+            echo "::error::❌ PR 코드 자체에서 테스트가 실패했습니다. 상세 로그로 재시도합니다."
+            ./gradlew test --no-daemon --console=plain --info --stacktrace
             exit 1
           }
 
@@ -104,7 +105,8 @@ jobs:
       - name: 머지 결과 빌드 및 테스트
         run: |
           echo "::notice::머지된 결과 기준으로 빌드 및 테스트를 실행합니다."
-          ./gradlew clean build --stacktrace --info || {
-            echo "::error::❌ PR은 통과했지만 develop과 머지된 결과에서 실패했습니다."
+          ./gradlew build --no-daemon --console=plain --quiet || {
+            echo "::error::❌ PR은 통과했지만 develop과 머지된 결과에서 실패했습니다. 상세 로그로 재시도합니다."
+            ./gradlew build --no-daemon --console=plain --info --stacktrace
             exit 1
           }

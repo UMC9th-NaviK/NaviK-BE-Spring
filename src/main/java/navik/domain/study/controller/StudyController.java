@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.study.dto.StudyCreateDTO;
 import navik.domain.study.dto.StudyDTO;
 import navik.domain.study.dto.StudyKpiCardDTO;
+import navik.domain.study.dto.StudyRecommendDTO;
 import navik.domain.study.enums.StudyRole;
 import navik.domain.study.service.StudyCommandService;
 import navik.domain.study.service.StudyQueryService;
@@ -77,6 +78,23 @@ public class StudyController implements StudyControllerDocs {
 		CursorResponseDto<StudyKpiCardDTO.StudyKpiCardNameDTO> response =
 			studyQueryService.getKpiCardListByJob(jobName, cursor, size);
 
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
+	}
+
+	/**
+	 * 맞춤형 스터디 추천 목록 조회
+	 * @param cursor
+	 * @param size
+	 * @param userId
+	 * @return
+	 */
+	@GetMapping("/recommendation")
+	public ApiResponse<CursorResponseDto<StudyRecommendDTO>> getRecommendedStudies(
+		@RequestParam(value = "cursor", required = false) Long cursor,
+		@RequestParam(value = "size", defaultValue = "10") int size,
+		@AuthUser Long userId
+	) {
+		CursorResponseDto<StudyRecommendDTO> response = studyQueryService.getRecommendedStudyList(userId, cursor, size);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 }

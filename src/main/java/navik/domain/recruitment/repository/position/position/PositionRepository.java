@@ -1,4 +1,4 @@
-package navik.domain.recruitment.repository.position;
+package navik.domain.recruitment.repository.position.position;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
