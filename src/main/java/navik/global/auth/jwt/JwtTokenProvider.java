@@ -15,7 +15,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -30,22 +34,16 @@ public class JwtTokenProvider {
 
 	private static final String AUTHORITIES_KEY = "auth";
 	private static final String BEARER_TYPE = "Bearer";
-	private final long accessTokenValidityInMilliseconds;
-	private final long refreshTokenValidityInMilliseconds;
 
 	// Key -> SecretKey 타입 변경 (0.12.x 권장)
 	private final SecretKey key;
 
-	public JwtTokenProvider(@Value("${spring.jwt.secret}") String secretKey,
-		@Value("${spring.jwt.access-token-validity-in-seconds}") long accessTokenValidityInSeconds,
-		@Value("${spring.jwt.refresh-token-validity-in-seconds}") long refreshTokenValidityInSeconds) {
-		this.accessTokenValidityInMilliseconds = accessTokenValidityInSeconds * 1000;
-		this.refreshTokenValidityInMilliseconds = refreshTokenValidityInSeconds * 1000;
+	public JwtTokenProvider(@Value("${spring.jwt.secret}") String secretKey) {
 		byte[] keyBytes = Decoders.BASE64.decode(secretKey);
 		this.key = Keys.hmacShaKeyFor(keyBytes);
 	}
 
-	public String generateAccessToken(Authentication authentication) {
+	public String generateAccessToken(Authentication authentication, long expirationTime) {
 		String authorities = authentication.getAuthorities().stream()
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.joining(","));
@@ -58,7 +56,7 @@ public class JwtTokenProvider {
 		}
 
 		long now = (new Date()).getTime();
-		Date accessTokenExpiresIn = new Date(now + accessTokenValidityInMilliseconds);
+		Date accessTokenExpiresIn = new Date(now + expirationTime * 1000); // 밀리초 -> 초
 
 		return Jwts.builder()
 			.subject(authentication.getName())
@@ -69,21 +67,22 @@ public class JwtTokenProvider {
 			.compact();
 	}
 
-	public String generateRefreshToken(Authentication authentication) {
+	public String generateRefreshToken(Authentication authentication, long expirationTime) {
 		long now = (new Date()).getTime();
 		return Jwts.builder()
 			.subject(authentication.getName()) // email 주소
-			.expiration(new Date(now + refreshTokenValidityInMilliseconds))
+			.expiration(new Date(now + expirationTime * 1000))
 			.signWith(key)
 			.compact();
 	}
 
-	public TokenDto generateTokenDto(Authentication authentication) {
-		String accessToken = generateAccessToken(authentication);
-		String refreshToken = generateRefreshToken(authentication);
+	public TokenDto generateTokenDto(Authentication authentication, long accessTokenValidityInSeconds,
+		long refreshTokenValidityInSeconds) {
+		String accessToken = generateAccessToken(authentication, accessTokenValidityInSeconds);
+		String refreshToken = generateRefreshToken(authentication, refreshTokenValidityInSeconds);
 
 		long now = (new Date()).getTime();
-		Date accessTokenExpiresIn = new Date(now + accessTokenValidityInMilliseconds);
+		Date accessTokenExpiresIn = new Date(now + accessTokenValidityInSeconds * 1000);
 
 		return TokenDto.builder()
 			.grantType(BEARER_TYPE)
@@ -115,20 +114,20 @@ public class JwtTokenProvider {
 		return new UsernamePasswordAuthenticationToken(principal, "", authorities);
 	}
 
-	public boolean validateToken(String token) {
+	public void validateToken(String token, boolean isAccessToken) {
 		try {
 			// [변경 5] parserBuilder() -> parser(), verifyWith(key), parseSignedClaims()
 			Jwts.parser()
 				.verifyWith(key)
 				.build()
 				.parseSignedClaims(token);
-			return true;
 		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
 			log.error("잘못된 JWT 서명입니다.", e);
 			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_TOKEN_INVALID);
 		} catch (ExpiredJwtException e) {
-			log.error("만료된 JWT 토큰입니다.", e);
-			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_TOKEN_EXPIRED);
+			log.warn("만료된 JWT 토큰입니다.", e);
+			throw new GeneralExceptionHandler(
+				isAccessToken ? AuthErrorCode.AUTH_TOKEN_EXPIRED : AuthErrorCode.REFRESH_TOKEN_EXPIRED);
 		} catch (UnsupportedJwtException e) {
 			log.error("지원되지 않는 JWT 토큰입니다.", e);
 			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_TOKEN_INVALID);
