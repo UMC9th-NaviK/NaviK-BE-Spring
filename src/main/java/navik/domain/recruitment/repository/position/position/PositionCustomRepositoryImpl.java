@@ -1,5 +1,9 @@
-package navik.domain.recruitment.repository.position;
+package navik.domain.recruitment.repository.position.position;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -8,6 +12,8 @@ import java.util.stream.Stream;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -22,8 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 import navik.domain.ability.entity.QAbility;
 import navik.domain.ability.entity.QAbilityEmbedding;
 import navik.domain.job.entity.Job;
-import navik.domain.recruitment.dto.position.CursorRequest;
 import navik.domain.recruitment.dto.position.PositionRequestDTO;
+import navik.domain.recruitment.entity.Position;
 import navik.domain.recruitment.entity.QPosition;
 import navik.domain.recruitment.entity.QPositionKpi;
 import navik.domain.recruitment.entity.QPositionKpiEmbedding;
@@ -33,8 +39,8 @@ import navik.domain.recruitment.enums.CompanySize;
 import navik.domain.recruitment.enums.EmploymentType;
 import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.IndustryType;
-import navik.domain.recruitment.repository.position.projection.QRecommendedPositionProjection;
-import navik.domain.recruitment.repository.position.projection.RecommendedPositionProjection;
+import navik.domain.recruitment.repository.position.position.projection.QRecommendedPositionProjection;
+import navik.domain.recruitment.repository.position.position.projection.RecommendedPositionProjection;
 import navik.domain.users.entity.User;
 import navik.domain.users.enums.EducationLevel;
 
@@ -44,6 +50,7 @@ import navik.domain.users.enums.EducationLevel;
 public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 
 	private final JPAQueryFactory jpaQueryFactory;
+	private final JdbcTemplate jdbcTemplate;
 
 	private final QRecruitment recruitment = QRecruitment.recruitment;
 	private final QPosition position = QPosition.position;
@@ -57,7 +64,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 		User user,
 		List<Job> jobs,
 		PositionRequestDTO.SearchCondition searchCondition,
-		CursorRequest cursorRequest,
+		PositionRequestDTO.CursorRequest cursorRequest,
 		Pageable pageable
 	) {
 
@@ -120,6 +127,70 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 
 		// 5. Slice 반환
 		return toSlice(result, pageable);
+	}
+
+	/**
+	 * Position에 대한 Batch Insert를 수행합니다.
+	 * PK에 대한 set도 처리합니다.
+	 */
+	@Override
+	public void batchSaveAll(List<Position> positions) {
+		String sql = """
+			INSERT INTO positions (
+			    job_id,
+			    recruitment_id,
+			    name,
+			    employment_type,
+			    experience_type,
+			    education_level,
+			    area_type,
+			    major_type,
+			    work_place,
+			    created_at,
+			    updated_at
+			)
+			VALUES (
+			    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+			)
+			""";
+
+		jdbcTemplate.execute((ConnectionCallback<Void>)con -> {
+			try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+				Timestamp now = Timestamp.valueOf(LocalDateTime.now());
+
+				for (Position position : positions) {
+					ps.setLong(1, position.getJob().getId());
+					ps.setLong(2, position.getRecruitment().getId());
+					ps.setString(3, position.getName());
+					ps.setObject(4, position.getEmploymentType() != null ? position.getEmploymentType().name() : null);
+					ps.setObject(5, position.getExperienceType() != null ? position.getExperienceType().name() : null);
+					ps.setObject(6, position.getEducationLevel() != null ? position.getEducationLevel().name() : null);
+					ps.setObject(7, position.getAreaType() != null ? position.getAreaType().name() : null);
+					ps.setObject(8, position.getMajorType() != null ? position.getMajorType().name() : null);
+					ps.setString(9, position.getWorkPlace());
+					ps.setTimestamp(10, now);
+					ps.setTimestamp(11, now);
+					ps.addBatch();
+				}
+
+				// 쿼리 실행
+				ps.executeBatch();
+
+				// PK 설정
+				try (ResultSet rs = ps.getGeneratedKeys()) {
+					int index = 0;
+					while (rs.next()) {
+						long generatedId = rs.getLong("id");
+						positions.get(index).assignId(generatedId);
+						index++;
+					}
+					if (index != positions.size()) {
+						throw new IllegalStateException("Position 개수와 PK 개수가 일치하지 않습니다.");
+					}
+				}
+				return null;
+			}
+		});
 	}
 
 	/**
@@ -190,7 +261,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	 */
 	private BooleanExpression endDate(boolean showEnded) {
 		if (!showEnded)
-			return position.endDate.isNull().or(recruitment.endDate.goe(LocalDateTime.now()));
+			return recruitment.endDate.isNull().or(recruitment.endDate.goe(LocalDateTime.now()));
 		return null;
 	}
 
@@ -200,7 +271,8 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	 * 	 2순위: 매칭 개수 Desc
 	 * 	 3순위: PK Asc
 	 */
-	private BooleanExpression cursorExpression(CursorRequest cursorRequest, NumberExpression<Double> scoreSum,
+	private BooleanExpression cursorExpression(PositionRequestDTO.CursorRequest cursorRequest,
+		NumberExpression<Double> scoreSum,
 		NumberExpression<Long> matchCount) {
 		if (cursorRequest == null || cursorRequest.getLastId() == null
 			|| cursorRequest.getLastSimilarity() == null || cursorRequest.getLastMatchCount() == null)

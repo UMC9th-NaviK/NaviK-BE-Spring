@@ -14,12 +14,11 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.job.entity.Job;
 import navik.domain.job.repository.JobRepository;
 import navik.domain.recruitment.converter.position.PositionConverter;
-import navik.domain.recruitment.dto.position.CursorRequest;
 import navik.domain.recruitment.dto.position.PositionRequestDTO;
 import navik.domain.recruitment.dto.position.PositionResponseDTO;
 import navik.domain.recruitment.enums.JobType;
-import navik.domain.recruitment.repository.position.PositionRepository;
-import navik.domain.recruitment.repository.position.projection.RecommendedPositionProjection;
+import navik.domain.recruitment.repository.position.position.PositionRepository;
+import navik.domain.recruitment.repository.position.position.projection.RecommendedPositionProjection;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
@@ -59,7 +58,7 @@ public class PositionQueryService {
 		List<Job> jobs = jobRepository.findByNameIn(jobNames);
 
 		// 3. 커서 디코딩
-		CursorRequest cursorRequest = decodeCursor(cursor);
+		PositionRequestDTO.CursorRequest cursorRequest = decodeCursor(cursor);
 
 		// 4. 추천 포지션 조회
 		Slice<RecommendedPositionProjection> result = positionRepository.findRecommendedPositions(
@@ -86,7 +85,7 @@ public class PositionQueryService {
 		return Base64.getEncoder().encodeToString(original.getBytes());
 	}
 
-	private CursorRequest decodeCursor(String cursor) {
+	private PositionRequestDTO.CursorRequest decodeCursor(String cursor) {
 		if (cursor == null)
 			return null;
 		String decoded = new String(Base64.getDecoder().decode(cursor));
@@ -95,7 +94,7 @@ public class PositionQueryService {
 			Double similarity = Double.parseDouble(matcher.group(1));
 			Long matchCount = Long.parseLong(matcher.group(2));
 			Long id = Long.parseLong(matcher.group(3));
-			return CursorRequest.builder()
+			return PositionRequestDTO.CursorRequest.builder()
 				.lastSimilarity(similarity)
 				.lastMatchCount(matchCount)
 				.lastId(id)
