@@ -37,7 +37,10 @@ public interface KpiCardControllerDocs {
 			description = "조회 성공"
 		)
 	})
-	ApiResponse<List<GridItem>> getMyKpiCards(Long userId);
+	ApiResponse<List<GridItem>> getMyKpiCards(
+		@Parameter(hidden = true)
+		@AuthUser Long userId
+	);
 
 	@Operation(
 		summary = "KPI 카드 목록 조회",
@@ -65,7 +68,7 @@ public interface KpiCardControllerDocs {
 	@ApiErrorCodes(
 		enumClass = KpiCardErrorCode.class,
 		includes = {
-			"INVALID_TYPE_VALUE",
+			"INVALID_KPI_CARD_TYPE",
 			"KPI_CARD_NOT_FOUND"
 		}
 	)

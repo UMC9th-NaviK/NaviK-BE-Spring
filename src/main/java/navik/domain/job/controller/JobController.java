@@ -16,7 +16,7 @@ import navik.global.apiPayload.code.status.GeneralSuccessCode;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("v1/jobs")
+@RequestMapping("/v1/jobs")
 public class JobController implements JobControllerDocs {
 
 	private final JobQueryService jobQueryService;

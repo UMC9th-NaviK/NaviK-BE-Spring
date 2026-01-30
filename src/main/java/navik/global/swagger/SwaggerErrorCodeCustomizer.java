@@ -44,7 +44,7 @@ public class SwaggerErrorCodeCustomizer {
 							addErrorResponse(operation, baseCode);
 						}
 					} catch (IllegalArgumentException e) {
-						System.err.println("Invalid enum: " + name);
+						log.warn("Invalid enum constant: {} in {}", name, ann.enumClass().getSimpleName());
 					}
 				}
 			}
@@ -71,7 +71,8 @@ public class SwaggerErrorCodeCustomizer {
 			.content(new Content().addMediaType("application/json", mediaType));
 
 		ApiResponse existing = operation.getResponses().get(statusCode);
-		if (existing != null) {
+		if (existing != null && existing.getContent() != null
+			&& existing.getContent().get("application/json") != null) {
 			existing.getContent()
 				.get("application/json")
 				.addExamples(baseCode.getCode(), example);
