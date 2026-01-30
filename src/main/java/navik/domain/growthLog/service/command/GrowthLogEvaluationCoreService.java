@@ -139,13 +139,9 @@ public class GrowthLogEvaluationCoreService {
 
 	private String buildResumeText(Portfolio p) {
 		return """
-			[포트폴리오 제목]
-			%s
-			
 			[포트폴리오 내용]
 			%s
 			""".formatted(
-			safe(p.getTitle()),
 			safe(p.getContent())
 		);
 	}
