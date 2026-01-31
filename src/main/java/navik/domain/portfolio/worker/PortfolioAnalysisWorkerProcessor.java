@@ -47,6 +47,7 @@ public class PortfolioAnalysisWorkerProcessor {
 
 		if (result == null || result.scores() == null || result.scores().isEmpty()) {
 			log.warn("[PortfolioAnalysis] skip (empty AI response). traceId={}, portfolioId={}", traceId, portfolioId);
+			portfolio.updateStatus(PortfolioStatus.FAILED);
 			return false;
 		}
 
