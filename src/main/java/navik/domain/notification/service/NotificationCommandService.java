@@ -41,14 +41,14 @@ public class NotificationCommandService {
 		User user = userQueryService.getUser(userId);
 		long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), endDate);
 		NotificationMessageStrategy strategy = strategyFactory.getStrategy(target.getNotificationType());
-		String content = strategy.createDeadlineMessage(user, target, daysLeft);
+		String content = strategy.createMessage(user, target, daysLeft);
 		createNotification(userId, target, content);
 	}
 
 	public void createCompletionNotification(Long userId, Notifiable target) {
 		User user = userQueryService.getUser(userId);
 		NotificationMessageStrategy strategy = strategyFactory.getStrategy(target.getNotificationType());
-		// String content = strategy.createDeadlineMessage(user, target, 0);
-		createNotification(userId, target, "");
+		String content = strategy.createMessage(user, target, 0);
+		createNotification(userId, target, content);
 	}
 }

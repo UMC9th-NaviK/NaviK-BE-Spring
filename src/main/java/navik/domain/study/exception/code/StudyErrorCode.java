@@ -4,12 +4,13 @@ import org.springframework.http.HttpStatus;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import navik.global.apiPayload.code.status.BaseCode;
 
 @Getter
 @RequiredArgsConstructor
-public enum StudyErrorCode {
+public enum StudyErrorCode implements BaseCode {
 
-	JOB_NOT_FOUND(
+	STUDY_NOT_FOUND(
 		HttpStatus.NOT_FOUND,
 		"STUDY_404_01",
 		"존재하지 않는 스터디입니다."
