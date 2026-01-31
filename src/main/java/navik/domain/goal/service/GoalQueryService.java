@@ -1,6 +1,6 @@
 package navik.domain.goal.service;
 
-import navik.global.apiPayload.code.status.AuthErrorCode;
+import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -11,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.goal.converter.GoalConverter;
 import navik.domain.goal.dto.GoalResponseDTO;
 import navik.domain.goal.entity.Goal;
+import navik.domain.goal.entity.GoalStatus;
 import navik.domain.goal.repository.GoalRepository;
+import navik.global.apiPayload.code.status.AuthErrorCode;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import navik.global.dto.CursorResponseDto;
@@ -62,4 +64,18 @@ public class GoalQueryService {
 		return new CursorResponseDto<>(previewSlice, String.valueOf(nextCursor));
 	}
 
+	public List<GoalResponseDTO.InProgressDTO> getInProgressGoals(Long userId) {
+
+		List<GoalStatus> statuses = List.of(GoalStatus.NONE, GoalStatus.IN_PROGRESS);
+		List<Goal> goals = goalRepository.findTop3ByUserIdAndStatusInOrderByEndDateAscIdAsc(userId, statuses);
+		Long totalCount = goalRepository.countByStatusIn(statuses);
+
+		List<GoalResponseDTO.PreviewDTO> previews = goals.stream()
+			.map(GoalConverter::toPreviewDto)
+			.toList();
+
+		return goals.stream()
+			.map(goal -> GoalConverter.toInProgressDto(previews, totalCount))
+			.toList();
+	}
 }
