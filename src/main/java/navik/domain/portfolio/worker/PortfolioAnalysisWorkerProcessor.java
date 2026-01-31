@@ -39,6 +39,7 @@ public class PortfolioAnalysisWorkerProcessor {
 		String resumeText = portfolio.getContent();
 		if (resumeText == null || resumeText.isBlank()) {
 			log.warn("[PortfolioAnalysis] skip (empty content). traceId={}, portfolioId={}", traceId, portfolioId);
+			portfolio.updateStatus(PortfolioStatus.FAILED);
 			return false;
 		}
 

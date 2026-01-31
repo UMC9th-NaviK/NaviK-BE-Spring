@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +45,12 @@ public class PortfolioCommandService {
 
 		portfolioRepository.save(portfolio);
 
-		publishAnalysisMessage(userId, portfolio.getId());
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+			@Override
+			public void afterCommit() {
+				publishAnalysisMessage(userId, portfolio.getId());
+			}
+		});
 
 		return new PortfolioResponseDto.Created(portfolio.getId(), request.inputType());
 	}
