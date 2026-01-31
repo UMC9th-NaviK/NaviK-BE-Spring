@@ -12,6 +12,8 @@ public class GrowthLogAiRequestDTO {
 	}
 
 	public record GrowthLogEvaluationContext(
+		Long jobId,
+		Integer levelValue,
 		String resumeText,
 		List<PastGrowthLog> recentGrowthLogs,
 		List<PastKpiDelta> recentKpiDeltas,
