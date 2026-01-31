@@ -37,14 +37,14 @@ public class UserCommandService {
 	public void updateMyInfo(Long userId, UserRequestDTO.MyInfoDto req) {
 		User user = userQueryService.getUser(userId);
 
-		if (req.departments() != null) {
+		if (req.departmentIds() != null) {
 			userDepartmentRepository.deleteAllByUserId(userId);
 
-			List<UserDepartment> newDepartments = req.departments()
+			List<UserDepartment> newDepartments = req.departmentIds()
 				.stream()
-				.map(dept -> UserDepartment.builder()
+				.map(deptId -> UserDepartment.builder()
 					.user(user)
-					.department(departmentRepository.getReferenceById(dept.getId()))
+					.department(departmentRepository.getReferenceById(deptId))
 					.build())
 				.toList();
 

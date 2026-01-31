@@ -20,6 +20,6 @@ public class UserRequestDTO {
 		String nickname,
 		Boolean isEntryLevel,
 		EducationLevel educationLevel,
-		List<Department> departments
+		List<Long> departmentIds
 	) {}
 }
