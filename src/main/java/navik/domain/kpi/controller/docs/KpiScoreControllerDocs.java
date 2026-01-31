@@ -89,7 +89,7 @@ public interface KpiScoreControllerDocs {
 
 	@Operation(
 		summary = "내 KPI 카드 백분위 조회",
-		description = "특정 KPI 카드에 대해 나의 점수 및 상위/하위 백분위를 조회합니다."
+		description = "특정 KPI 카드에 대해 나의 점수와 상위/하위 백분위를 조회합니다."
 	)
 	@ApiErrorCodes(
 		enumClass = KpiScoreErrorCode.class,
@@ -98,11 +98,33 @@ public interface KpiScoreControllerDocs {
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200",
-			description = "조회 성공"
+			description = "조회 성공",
+			content = @Content(
+				examples = {
+					@ExampleObject(
+						name = "정상 조회",
+						value = """
+							{
+							  "isSuccess": true,
+							  "code": "COMMON200",
+							  "message": "성공입니다.",
+							  "result": {
+							    "kpiCardId": 10,
+							    "score": 75,
+							    "topPercent": 20,
+							    "bottomPercent": 80
+							  },
+							  "timestamp": "2026-02-01T02:01:32"
+							}
+							"""
+					)
+				}
+			)
 		)
 	})
 	ApiResponse<KpiScoreResponseDTO.Percentile> percentile(
-		@Parameter(hidden = true) @AuthUser Long userId,
+		@Parameter(hidden = true)
+		@AuthUser Long userId,
 
 		@Parameter(description = "KPI 카드 ID", example = "10", required = true)
 		@PathVariable Long kpiCardId
