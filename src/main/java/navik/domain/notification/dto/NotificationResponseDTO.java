@@ -13,5 +13,6 @@ public class NotificationResponseDTO {
 		private Long notificationId;
 		private String content;
 		private LocalDateTime createdAt;
+		private boolean isRead;
 	}
 }

@@ -10,6 +10,7 @@ public class NotificationConverter {
 			.notificationId(notification.getId())
 			.content(notification.getContent())
 			.createdAt(notification.getCreatedAt())
+			.isRead(notification.getIsRead())
 			.build();
 	}
 }
