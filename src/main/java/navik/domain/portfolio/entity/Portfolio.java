@@ -44,13 +44,4 @@ public class Portfolio extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "input_type", nullable = false)
 	private InputType inputType;
-
-	@Enumerated(EnumType.STRING)
-	@Column(name = "status", nullable = false)
-	private PortfolioStatus status;
-
-	public void completeOcr(String extractedContent) {
-		this.content = extractedContent;
-		this.status = PortfolioStatus.PDF_ANALYZED;
-	}
 }
