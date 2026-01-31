@@ -103,19 +103,28 @@ public interface KpiCardControllerDocs {
 						summary = "jobId 기반 카드 그리드 조회용 응답",
 						value = """
 							{
-							  "data": [
-							    {
-							      "id": 10,
-							      "name": "문제 해결 능력",
-							      "imageUrl": "https://cdn.navik.co.kr/kpi/problem-solving.png"
-							    },
-							    {
-							      "id": 11,
-							      "name": "협업 능력",
-							      "imageUrl": "https://cdn.navik.co.kr/kpi/collaboration.png"
-							    }
-							  ]
-							}
+							     "isSuccess": true,
+							     "code": "COMMON200",
+							     "message": "성공입니다.",
+							     "result": [
+							         {
+							             "kpiCardId": 11,
+							             "name": "문제 해결 능력",
+							             "imageUrl": "https://navik-bucket.s3.ap-northeast-2.amazonaws.com/kpi-cards/backend/BE1.png"
+							         },
+							         {
+							             "kpiCardId": 12,
+							             "name": "코드 품질",
+							             "imageUrl": "https://navik-bucket.s3.ap-northeast-2.amazonaws.com/kpi-cards/backend/BE1.png"
+							         },
+							         {
+							             "kpiCardId": 13,
+							             "name": "테스트 작성",
+							             "imageUrl": "https://navik-bucket.s3.ap-northeast-2.amazonaws.com/kpi-cards/backend/BE1.png"
+							         }
+							     ],
+							     "timestamp": "2026-01-31T21:55:34"
+							 }
 							"""
 					)
 				}
@@ -234,25 +243,23 @@ public interface KpiCardControllerDocs {
 					name = "KPI 카드 상세 조회 응답",
 					value = """
 						{
-						  "isSuccess": true,
-						  "code": "COMMON200",
-						  "message": "성공입니다.",
-						  "result": {
-							"kpiCardId": 11,
-							"name": "문제 해결 능력",
-							"content": {
-							  "strong": {
-								"title": "문제 구조화",
-								"content": "복잡한 문제를 체계적으로 정리합니다."
-							  },
-							  "weak": {
-								"title": "과도한 분석",
-								"content": "분석에 시간이 오래 걸릴 수 있습니다."
-							  }
-							},
-							"imageUrl": null
-						  },
-						  "timestamp": "2026-01-31T18:14:27"
+						    "isSuccess": true,
+						    "code": "COMMON200",
+						    "message": "성공입니다.",
+						    "result": {
+						        "kpiCardId": 11,
+						        "name": "문제 해결 능력",
+						        "strong": {
+						            "title": "문제 구조화",
+						            "content": "복잡한 문제를 단계별로 나누어 해결합니다."
+						        },
+						        "weak": {
+						            "title": "과도한 분석",
+						            "content": "분석에 시간이 오래 걸릴 수 있습니다."
+						        },
+						        "imageUrl": "https://cdn.navik.co.kr/kpi/problem-solving.png"
+						    },
+						    "timestamp": "2026-01-31T18:14:42"
 						}
 						"""
 				)
@@ -290,19 +297,16 @@ public interface KpiCardControllerDocs {
 							{
 							  "kpiCardId": 3,
 							  "name": "커뮤니케이션",
-							  "score": 85,
 							  "imageUrl": null
 							},
 							{
 							  "kpiCardId": 7,
 							  "name": "문제 해결 능력",
-							  "score": 78,
 							  "imageUrl": null
 							},
 							{
 							  "kpiCardId": 1,
 							  "name": "자기 주도성",
-							  "score": 72,
 							  "imageUrl": null
 							}
 						  ],
@@ -343,19 +347,16 @@ public interface KpiCardControllerDocs {
 							{
 							  "kpiCardId": 9,
 							  "name": "시간 관리",
-							  "score": 32,
 							  "imageUrl": null
 							},
 							{
 							  "kpiCardId": 5,
 							  "name": "우선순위 설정",
-							  "score": 28,
 							  "imageUrl": null
 							},
 							{
 							  "kpiCardId": 12,
 							  "name": "집중력",
-							  "score": 21,
 							  "imageUrl": null
 							}
 						  ],
