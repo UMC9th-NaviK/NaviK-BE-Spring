@@ -1,5 +1,7 @@
 package navik.domain.goal.controller;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -38,6 +40,12 @@ public class GoalController implements GoalControllerDocs {
 		@RequestParam(defaultValue = "10") Integer size,
 		@RequestParam String sortBy) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, goalQueryService.getGoals(userId, cursor, size, sortBy));
+	}
+
+	@Override
+	@GetMapping("/in-progress")
+	public ApiResponse<List<GoalResponseDTO.InProgressDTO>> getInProgressGoals(@AuthUser Long userId) {
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, goalQueryService.getInProgressGoals(userId));
 	}
 
 	@Override

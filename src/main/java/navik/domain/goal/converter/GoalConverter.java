@@ -1,5 +1,7 @@
 package navik.domain.goal.converter;
 
+import java.util.List;
+
 import navik.domain.goal.dto.GoalRequestDTO;
 import navik.domain.goal.dto.GoalResponseDTO;
 import navik.domain.goal.entity.Goal;
@@ -28,6 +30,14 @@ public class GoalConverter {
 			.goalId(goal.getId())
 			.content(goal.getContent())
 			.status(goal.getStatus())
+			.build();
+	}
+
+	public static GoalResponseDTO.InProgressDTO toInProgressDto(List<GoalResponseDTO.PreviewDTO> previewDTOs,
+		Long totalCount) {
+		return GoalResponseDTO.InProgressDTO.builder()
+			.inProgressGoals(previewDTOs)
+			.totalCount(totalCount)
 			.build();
 	}
 }
