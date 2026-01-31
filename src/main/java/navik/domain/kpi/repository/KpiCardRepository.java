@@ -15,7 +15,7 @@ import navik.domain.kpi.repository.projection.KpiCardGridItemView;
 public interface KpiCardRepository extends JpaRepository<KpiCard, Long> {
 
 	@Query("""
-		select c.id as id, c.name as name
+		select c.id as id, c.name as name, c.imageUrl as imageUrl
 		from KpiCard c
 		where c.job.id = :jobId
 		order by c.id asc
@@ -23,7 +23,7 @@ public interface KpiCardRepository extends JpaRepository<KpiCard, Long> {
 	List<KpiCardGridItemView> findGridByJobId(@Param("jobId") Long jobId);
 
 	Optional<KpiCard> findById(Long id);
-	
+
 	long countByIdIn(List<Long> ids);
 
 	@Query("select c from KpiCard c left join fetch c.job where c.id = :kpiCardId")

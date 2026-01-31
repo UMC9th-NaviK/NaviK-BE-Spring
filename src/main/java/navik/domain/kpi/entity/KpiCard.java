@@ -49,6 +49,9 @@ public class KpiCard extends BaseEntity {
 	@Column(name = "weak_content", nullable = false, length = 2000)
 	private String weakContent;
 
+	@Column(name = "image_url", length = 500)
+	private String imageUrl;
+
 	@OneToOne(mappedBy = "kpiCard", fetch = FetchType.LAZY)
 	private KpiCardEmbedding kpiCardEmbedding;
 }
