@@ -92,7 +92,6 @@ public class StudyCommandService {
 			.role(StudyRole.STUDY_MEMBER)
 			.attend(AttendStatus.WAITING)
 			.isActive(false)
-			.memberStartDate(LocalDateTime.now())
 			.build();
 
 		studyUserRepository.save(application);
@@ -110,7 +109,9 @@ public class StudyCommandService {
 		if (accept) {
 			applicant.setAttend(AttendStatus.ACCEPTANCE);
 			applicant.setActive(true);
+			applicant.setMemberStartDate(LocalDateTime.now());
 		} else {
+			applicant.setActive(false);
 			applicant.setAttend(AttendStatus.REJECTION);
 		}
 	}
