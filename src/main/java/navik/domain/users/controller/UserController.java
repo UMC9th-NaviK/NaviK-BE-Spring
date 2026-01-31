@@ -1,8 +1,10 @@
 package navik.domain.users.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -51,4 +53,16 @@ public class UserController implements UserControllerDocs {
 	public ApiResponse<UserResponseDTO.MyPageDTO> getMyInfo(@AuthUser Long userId) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getMyPage(userId));
 	}
+
+	@PatchMapping("/my-page")
+	public void updateMyInfo(@AuthUser Long userId, @Valid UserRequestDTO.MyInfoDto req) {
+		userCommandService.updateMyInfo(userId, req);
+	}
+
+	@PutMapping("/profile-image")
+	public void updateProfileImage(@AuthUser Long userId, String imageUrl){
+		userCommandService.updateProfileImage(userId, imageUrl);
+	}
+
+
 }
