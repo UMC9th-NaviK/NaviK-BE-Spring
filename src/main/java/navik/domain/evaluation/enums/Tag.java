@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Tag {
 
-	COLLABORATION("협업&커뮤니케이션"),
-	RESPONSIBILITY("책임감&실행력"),
+	COMMUNICATION("협업&커뮤니케이션"),
+	EXECUTION("책임감&실행력"),
 	PROBLEM_SOLVING("문제해결&주도성"),
-	LEARN_ATTITUDE("학습태도&성장성"),
-	CONTRIBUTION("기여도&전문성"),
+	GROWTH("학습태도&성장성"),
+	EXPERTISE("기여도&전문성"),
 	LEADERSHIP("리더쉽&조직화");
 
 	private final String label;

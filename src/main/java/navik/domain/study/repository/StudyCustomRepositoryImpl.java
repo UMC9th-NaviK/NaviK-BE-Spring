@@ -19,6 +19,7 @@ import navik.domain.study.entity.StudyUser;
 import navik.domain.study.enums.AttendStatus;
 import navik.domain.study.enums.RecruitmentStatus;
 import navik.domain.study.enums.StudyRole;
+import navik.domain.users.entity.QUser;
 
 @Repository
 @RequiredArgsConstructor
@@ -65,7 +66,7 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 			.selectFrom(kpiCard)
 			.where(
 				kpiCard.job.name.eq(jobName),
-				ltCursorId(cursor)
+				ltKpiId(cursor)
 			)
 			.orderBy(kpiCard.id.desc())
 			.limit(pageSize + 1)
@@ -93,7 +94,7 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 			.where(
 				studyKpi.kpiCard.id.in(weaknessKpiIds), // 약점 KPI 중 하나라도 포함되어야 함
 				study.id.notIn(excludeStudyIds), // 이미 참여중인 스터디 제외되어야 함
-				study.recruitmentStatus.eq(RecruitmentStatus.RECURRING), // 모집중인 스터디이어야 함
+				study.recruitmentStatus.ne(RecruitmentStatus.CLOSED), // 모집중인 스터디이어야 함
 
 				JPAExpressions.select(studyUser.count()) // 현재 참여 인원 < 최대 수용인원
 					.from(studyUser)
@@ -111,6 +112,31 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 			.fetch();
 	}
 
+	/**
+	 * 스터디 신청 현항
+	 * @param studyId
+	 * @param cursor
+	 * @param pageSize
+	 * @return
+	 */
+	@Override
+	public List<StudyUser> findApplicants(Long studyId, Long cursor, int pageSize) {
+		QStudyUser studyUser = QStudyUser.studyUser;
+		QUser user = QUser.user;
+
+		return queryFactory
+			.selectFrom(studyUser)
+			.join(studyUser.user, user).fetchJoin()
+			.where(
+				studyUser.study.id.eq(studyId),
+				studyUser.attend.eq(AttendStatus.WAITING), // 대기 중인 신청자만
+				ltApplicantId(cursor, studyUser)
+			)
+			.limit(pageSize + 1)
+			.orderBy(studyUser.id.asc())
+			.fetch();
+	}
+
 	private BooleanExpression roleEq(StudyRole role) {
 		return role != null ? QStudyUser.studyUser.role.eq(role) : null;
 	}
@@ -119,11 +145,15 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 		return lastId != null ? QStudyUser.studyUser.id.lt(lastId) : null;
 	}
 
-	private BooleanExpression ltCursorId(Long cursor) {
+	private BooleanExpression ltKpiId(Long cursor) {
 		return cursor != null ? kpiCard.id.lt(cursor) : null;
 	}
 
 	private BooleanExpression ltStudyId(Long cursor) {
 		return cursor != null ? QStudy.study.id.lt(cursor) : null;
+	}
+
+	private BooleanExpression ltApplicantId(Long cursor, QStudyUser studyUser) {
+		return cursor == null ? null : studyUser.id.gt(cursor);
 	}
 }

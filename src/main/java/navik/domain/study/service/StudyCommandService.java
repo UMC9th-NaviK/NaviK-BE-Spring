@@ -72,4 +72,47 @@ public class StudyCommandService {
 		studyUserRepository.save(leader);
 		return savedStudy.getId();
 	}
+
+	/**
+	 * 스터디 신청하기
+	 * @param userId
+	 * @param studyId
+	 */
+	@Transactional
+	public void studyApply(Long userId, Long studyId) {
+
+		Study study = studyRepository.findById(studyId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.STUDY_NOT_FOUND));
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+
+		StudyUser application = StudyUser.builder()
+			.study(study)
+			.user(user)
+			.role(StudyRole.STUDY_MEMBER)
+			.attend(AttendStatus.WAITING)
+			.isActive(false)
+			.build();
+
+		studyUserRepository.save(application);
+	}
+
+	/**
+	 * 스터디 승인/거절
+	 * @param studyUserId
+	 * @param accept
+	 */
+	@Transactional
+	public void resolveApplication(Long studyUserId, boolean accept) {
+		StudyUser applicant = studyUserRepository.findById(studyUserId).orElseThrow();
+
+		if (accept) {
+			applicant.setAttend(AttendStatus.ACCEPTANCE);
+			applicant.setActive(true);
+			applicant.setMemberStartDate(LocalDateTime.now());
+		} else {
+			applicant.setActive(false);
+			applicant.setAttend(AttendStatus.REJECTION);
+		}
+	}
 }

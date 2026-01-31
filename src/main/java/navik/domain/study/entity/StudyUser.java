@@ -18,12 +18,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import navik.domain.study.enums.AttendStatus;
 import navik.domain.study.enums.StudyRole;
 import navik.domain.users.entity.User;
 import navik.global.entity.BaseEntity;
 
 @Entity
+@Setter
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
