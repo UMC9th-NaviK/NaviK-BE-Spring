@@ -1,5 +1,6 @@
 package navik.domain.users.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -55,12 +57,14 @@ public class UserController implements UserControllerDocs {
 	}
 
 	@PatchMapping("/my-page")
-	public void updateMyInfo(@AuthUser Long userId, @Valid UserRequestDTO.MyInfoDto req) {
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void updateMyInfo(@AuthUser Long userId, @Valid @RequestBody UserRequestDTO.MyInfoDto req) {
 		userCommandService.updateMyInfo(userId, req);
 	}
 
 	@PutMapping("/profile-image")
-	public void updateProfileImage(@AuthUser Long userId, String imageUrl){
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void updateProfileImage(@AuthUser Long userId, @RequestBody String imageUrl){
 		userCommandService.updateProfileImage(userId, imageUrl);
 	}
 
