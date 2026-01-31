@@ -36,4 +36,13 @@ public class KpiScoreResponseDTO {
 	) {
 	}
 
+	public record MonthlyTotalScoreChange(
+		int year,
+		int month,
+		int currentScore,
+		int previousScore,
+		Double changeRate
+	) {
+	}
+
 }
