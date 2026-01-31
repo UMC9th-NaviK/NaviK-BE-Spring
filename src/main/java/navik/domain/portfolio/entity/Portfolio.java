@@ -49,4 +49,8 @@ public class Portfolio extends BaseEntity {
 	@Column(name = "status", nullable = false)
 	private PortfolioStatus status;
 
+	public void completeOcr(String extractedContent) {
+		this.content = extractedContent;
+		this.status = PortfolioStatus.PDF_ANALYZED;
+	}
 }
