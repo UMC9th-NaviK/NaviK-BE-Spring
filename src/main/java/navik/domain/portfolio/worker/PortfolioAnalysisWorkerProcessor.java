@@ -12,6 +12,7 @@ import navik.domain.kpi.service.command.KpiScoreInitialService;
 import navik.domain.portfolio.ai.client.PortfolioAiClient;
 import navik.domain.portfolio.dto.PortfolioAiDto;
 import navik.domain.portfolio.entity.Portfolio;
+import navik.domain.portfolio.entity.PortfolioStatus;
 import navik.domain.portfolio.repository.PortfolioRepository;
 
 @Slf4j
@@ -31,6 +32,8 @@ public class PortfolioAnalysisWorkerProcessor {
 		if (portfolio == null) {
 			log.warn("[PortfolioAnalysis] skip (not found). traceId={}, portfolioId={}", traceId, portfolioId);
 			return false;
+		}else{
+			portfolio.updateStatus(PortfolioStatus.PROCESSING);
 		}
 
 		String resumeText = portfolio.getContent();
@@ -55,6 +58,7 @@ public class PortfolioAnalysisWorkerProcessor {
 
 		kpiScoreInitialService.initializeKpiScores(userId, new KpiScoreRequestDTO.Initialize(items));
 
+		portfolio.updateStatus(PortfolioStatus.COMPLETED);
 		log.info("[PortfolioAnalysis] completed. traceId={}, userId={}, portfolioId={}, scoreCount={}", traceId, userId,
 			portfolioId, result.scores().size());
 
