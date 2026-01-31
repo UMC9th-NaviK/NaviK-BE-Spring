@@ -33,7 +33,10 @@ public class NotificationQueryService {
 
 		LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
 
-		return notificationRepository.findAllByUserIdAndCreatedAtGreaterThanEqual(user.getId(), sevenDaysAgo)
+		return notificationRepository.findAllByUserIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(
+				user.getId(),
+				sevenDaysAgo
+			)
 			.stream()
 			.map(NotificationConverter::toNotification)
 			.toList();

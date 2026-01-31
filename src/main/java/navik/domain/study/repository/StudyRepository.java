@@ -1,6 +1,6 @@
 package navik.domain.study.repository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,7 +16,7 @@ public interface StudyRepository extends JpaRepository<Study, Long> {
 			SELECT s.id FROM Study s
 			WHERE s.endDate = :endDate
 		""")
-	List<Long> findAllIdsByEndDateWithStudyUser(@Param("endDate") LocalDate endDate);
+	List<Long> findAllIdsByEndDateWithStudyUser(@Param("endDate") LocalDateTime endDate);
 
 	@Query("""
 			SELECT s FROM Study s

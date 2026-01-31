@@ -1,6 +1,7 @@
 package navik.domain.notification.scheduler;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,7 +73,7 @@ public class NotificationScheduler {
 	public void checkStudyCompleted() {
 		log.info("[NotificationScheduler] 스터디 완료 알림 스케쥴러 실행");
 
-		LocalDate yesterday = LocalDate.now().minusDays(1);
+		LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
 		studyRepository.findAllIdsByEndDateWithStudyUser(yesterday).forEach(
 			studyId -> {
 				try {
@@ -93,7 +94,8 @@ public class NotificationScheduler {
 	public void deleteExpiredNotifications() {
 		log.info("[NotificationScheduler] 만료 알림 삭제 스케쥴러 실행");
 
-		notificationRepository.findAllIdsByCreatedAtBefore(LocalDate.now().minusDays(7)).forEach(
+		LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+		notificationRepository.findAllIdsByCreatedAtBefore(sevenDaysAgo).forEach(
 			notificationId -> {
 				try {
 					notificationCommandService.deleteNotification(notificationId);

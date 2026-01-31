@@ -15,7 +15,10 @@ public interface NotificationControllerDocs {
 
 	@Operation(
 		summary = "최근 7일 간 알림을 모두 조회합니다.",
-		description = "최근 7일 간 알림을 모두 조회합니다."
+		description = """
+			최근 7일 간 알림을 모두 조회합니다.
+			최신순으로 정렬되어 반환합니다.
+			"""
 	)
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(

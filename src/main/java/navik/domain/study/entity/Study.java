@@ -1,6 +1,5 @@
 package navik.domain.study.entity;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -57,10 +56,10 @@ public class Study extends BaseEntity implements Notifiable {
 	private StudySynergy synergyType;
 
 	@Column(name = "start_date", nullable = false)
-	private LocalDate startDate; // 스터디 시작일
+	private LocalDateTime startDate; // 스터디 시작일
 
 	@Column(name = "end_date", nullable = false)
-	private LocalDate endDate; // 스터디 종료일
+	private LocalDateTime endDate; // 스터디 종료일
 
 	@Column(name = "recruitment_status", nullable = false)
 	@Enumerated(EnumType.STRING)
