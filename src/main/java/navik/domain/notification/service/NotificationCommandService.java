@@ -61,4 +61,17 @@ public class NotificationCommandService {
 
 		notificationRepository.delete(notification);
 	}
+
+	public void readNotification(Long userId, Long notificationId) {
+
+		User user = userQueryService.getUser(userId);
+
+		Notification notification = notificationRepository.findById(notificationId)
+			.orElseThrow(() -> new GeneralExceptionHandler(NotificationErrorCode.NOTIFICATION_NOT_FOUND));
+
+		if (!notification.getUser().equals(user))
+			throw new GeneralExceptionHandler(NotificationErrorCode.NOTIFICATION_NOT_OWNER);
+
+		notification.setIsRead();
+	}
 }

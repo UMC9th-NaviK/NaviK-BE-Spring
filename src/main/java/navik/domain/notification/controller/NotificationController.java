@@ -3,6 +3,8 @@ package navik.domain.notification.controller;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,4 +30,9 @@ public class NotificationController implements NotificationControllerDocs {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
 	}
 
+	@PatchMapping("/{notificationId}")
+	public ApiResponse<Void> readNotification(@AuthUser Long userId, @PathVariable Long notificationId) {
+		notificationCommandService.readNotification(userId, notificationId);
+		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED);
+	}
 }

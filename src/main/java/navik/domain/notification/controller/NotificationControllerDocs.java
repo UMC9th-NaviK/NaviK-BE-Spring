@@ -2,6 +2,8 @@ package navik.domain.notification.controller;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.PathVariable;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.notification.dto.NotificationResponseDTO;
@@ -22,4 +24,19 @@ public interface NotificationControllerDocs {
 		)
 	})
 	ApiResponse<List<NotificationResponseDTO.Notification>> getRecentNotifications(@AuthUser Long userId);
+
+	@Operation(
+		summary = "알림을 읽음 처리합니다.",
+		description = """
+			알림에 대한 고유 id (notificationId)를 입력받아, 읽음 처리합니다.
+			경로 변수로 입력 받습니다.
+			"""
+	)
+	@io.swagger.v3.oas.annotations.responses.ApiResponses({
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "201",
+			description = "COMMON_201 - 요청 성공"
+		)
+	})
+	ApiResponse<Void> readNotification(@AuthUser Long userId, @PathVariable Long notificationId);
 }
