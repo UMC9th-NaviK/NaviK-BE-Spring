@@ -14,6 +14,7 @@ import navik.domain.kpi.controller.docs.KpiScoreControllerDocs;
 import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
 import navik.domain.kpi.dto.res.KpiScoreResponseDTO;
 import navik.domain.kpi.dto.res.KpiScoreResponseDTO.Initialize;
+import navik.domain.kpi.dto.res.KpiScoreResponseDTO.MonthlyTotalScoreChange;
 import navik.domain.kpi.dto.res.KpiScoreResponseDTO.Percentile;
 import navik.domain.kpi.service.command.KpiScoreIncrementService;
 import navik.domain.kpi.service.command.KpiScoreInitialService;
@@ -61,6 +62,16 @@ public class KpiScoreController implements KpiScoreControllerDocs {
 		@PathVariable Long kpiCardId
 	) {
 		Percentile response = kpiScoreQueryService.getMyPercentile(userId, kpiCardId);
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
+	}
+
+	@GetMapping("/monthly-change-rate")
+	@Override
+	public ApiResponse<KpiScoreResponseDTO.MonthlyTotalScoreChange> getMonthlyChangeRate(
+		@AuthUser Long userId
+	) {
+
+		MonthlyTotalScoreChange response = kpiScoreQueryService.getMonthlyChangeRate(userId);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 

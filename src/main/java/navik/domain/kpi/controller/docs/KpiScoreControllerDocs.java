@@ -5,7 +5,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
@@ -103,5 +106,65 @@ public interface KpiScoreControllerDocs {
 
 		@Parameter(description = "KPI 카드 ID", example = "10", required = true)
 		@PathVariable Long kpiCardId
+	);
+
+	@Operation(
+		summary = "전월 대비 KPI 점수 증감률 조회",
+		description = """
+			현재 KPI 누적 점수(전체 합)를 기준으로 전월 대비 증감률(%)을 반환합니다.
+			- currentScore: 현재 누적 점수
+			- previousScore: 전월 말 누적 점수(= currentScore - 이번 달 증가분)
+			- changeRate: ((currentScore - previousScore) / previousScore) * 100, 소수점 1자리 반올림
+			- previousScore가 0이면 증감률은 산정하지 않으며(changeRate = null) 비교 불가로 처리합니다.
+			"""
+	)
+	@ApiResponses({
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200",
+			description = "성공",
+			content = @Content(
+				examples = {
+					@ExampleObject(
+						name = "비교 가능",
+						value = """
+							{
+							  "isSuccess": true,
+							  "code": "COMMON200",
+							  "message": "성공입니다.",
+							  "result": {
+							    "year": 2026,
+							    "month": 2,
+							    "currentScore": 712,
+							    "previousScore": 662,
+							    "changeRate": 7.6
+							  },
+							  "timestamp": "2026-02-01T02:01:32"
+							}
+							"""
+					),
+					@ExampleObject(
+						name = "비교 불가(전월 0)",
+						value = """
+							{
+							  "isSuccess": true,
+							  "code": "COMMON200",
+							  "message": "성공입니다.",
+							  "result": {
+							    "year": 2026,
+							    "month": 2,
+							    "currentScore": 40,
+							    "previousScore": 0,
+							    "changeRate": null
+							  },
+							  "timestamp": "2026-02-01T02:01:32"
+							}
+							"""
+					)
+				}
+			)
+		)
+	})
+	ApiResponse<KpiScoreResponseDTO.MonthlyTotalScoreChange> getMonthlyChangeRate(
+		@Parameter(hidden = true) Long userId
 	);
 }
