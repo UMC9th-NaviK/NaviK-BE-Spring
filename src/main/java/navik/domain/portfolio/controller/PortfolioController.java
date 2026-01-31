@@ -22,7 +22,7 @@ public class PortfolioController implements PortfolioControllerDocs {
 	private final PortfolioCommandService portfolioCommandService;
 
 	@PostMapping
-	public ApiResponse<PortfolioResponseDto.Created> createPortfolio(
+	public ApiResponse<PortfolioResponseDto.Created> registerPortfolio(
 		@AuthUser Long userId,
 		@RequestBody @Valid PortfolioRequestDto.Create request) {
 
