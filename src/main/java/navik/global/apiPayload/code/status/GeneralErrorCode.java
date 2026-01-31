@@ -51,7 +51,10 @@ public enum GeneralErrorCode implements BaseCode {
 	STUDY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY_404", "존재하지 않는 스터디입니다"),
 
 	// 10. TAG
-	TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "TAG_404", "존재하지 않는 태그입니다");
+	TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "TAG_404", "존재하지 않는 태그입니다"),
+
+	// 11. 평가
+	EVALUATION_ALREADY_EXISTS(HttpStatus.CONFLICT, "EVALUATION_409", "이미 평가를 진행했습니다");
 	/**
 	 * HTTP 상태 코드
 	 */
