@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.portfolio.ai.client.PortfolioAiClient;
 import navik.domain.portfolio.dto.PortfolioRequestDto;
 import navik.domain.portfolio.dto.PortfolioResponseDto;
+import navik.domain.portfolio.entity.InputType;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.entity.PortfolioStatus;
 import navik.domain.portfolio.repository.PortfolioRepository;
@@ -40,8 +41,10 @@ public class PortfolioCommandService {
 			.user(user)
 			.build();
 
+		if(portfolio.getInputType().equals(InputType.PDF)){
+			analyzePortfolioPdf(portfolio);
+		}
 		portfolioRepository.save(portfolio);
-		analyzePortfolioPdf(portfolio);
 
 		return new PortfolioResponseDto.Created(portfolio.getId(), request.inputType());
 	}

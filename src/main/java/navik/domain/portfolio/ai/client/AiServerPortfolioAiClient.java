@@ -19,7 +19,7 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 
 	private final WebClient aiWebClient;
 
-	private static final String OCR_PATH = "/v1/portfolios/ocr";
+	private static final String OCR_PATH = "/ocr/pdf";
 
 	@Override
 	public String extractTextFromPdf(String fileUrl) {
@@ -34,7 +34,7 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 				.timeout(Duration.ofSeconds(30))
 				.block();
 
-			return response.content();
+			return response.text();
 		} catch (Exception e) {
 			throw new GeneralExceptionHandler(GeneralErrorCode.EXTERNAL_API_ERROR);
 		}
