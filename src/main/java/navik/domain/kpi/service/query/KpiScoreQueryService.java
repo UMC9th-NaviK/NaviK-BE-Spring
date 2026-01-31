@@ -20,6 +20,7 @@ public class KpiScoreQueryService {
 
 	private final KpiScoreRepository kpiScoreRepository;
 
+	// 상위 3개 KPIScore 조회해서 KPICard 반환
 	public List<KpiCardResponseDTO.GridItem> getTop3KpiCards(Long userId) {
 		return kpiScoreRepository.findTopByUserIdWithCard(userId, PageRequest.of(0, 3)).stream()
 			.map(ks -> new KpiCardResponseDTO.GridItem(
@@ -29,6 +30,7 @@ public class KpiScoreQueryService {
 			.toList();
 	}
 
+	// 하위 3개 KPIScore 조회해서 KPICard 반환
 	public List<KpiCardResponseDTO.GridItem> getBottom3KpiCards(Long userId) {
 		return kpiScoreRepository.findBottomByUserIdWithCard(userId, PageRequest.of(0, 3)).stream()
 			.map(ks -> new KpiCardResponseDTO.GridItem(
@@ -38,6 +40,7 @@ public class KpiScoreQueryService {
 			.toList();
 	}
 
+	// 해당 KPIScore 백분위 반환
 	public KpiScoreResponseDTO.Percentile getMyPercentile(
 		Long userId,
 		Long kpiCardId
