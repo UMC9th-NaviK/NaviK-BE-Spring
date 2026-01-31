@@ -19,7 +19,7 @@ import navik.global.auth.annotation.AuthUser;
 @RestController
 @RequestMapping("/v1/evaluations")
 @RequiredArgsConstructor
-public class EvaluationController {
+public class EvaluationController implements EvaluationControllerDocs {
 
 	private final EvaluationQueryService evaluationQueryService;
 

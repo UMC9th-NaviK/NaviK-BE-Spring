@@ -54,9 +54,12 @@ public class EvaluationQueryService {
 
 	@Transactional
 	public void submitEvaluation(Long evaluatorId, Long studyId, EvaluationSubmitDTO req) {
-		Study study = studyRepository.getReferenceById(studyId);
-		User evaluator = userRepository.getReferenceById(evaluatorId);
-		User evaluatee = userRepository.getReferenceById(req.targetUserId());
+		Study study = studyRepository.findById(studyId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.STUDY_NOT_FOUND));
+		User evaluator = userRepository.findById(evaluatorId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+		User evaluatee = userRepository.findById(req.targetUserId())
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
 
 		// 이미 해당 스터디원에 대한 평가를 진행했으면 오류발생
 		if (evaluationRepository.existsByStudyIdAndEvaluatorIdAndEvaluateeId(studyId, evaluatorId,

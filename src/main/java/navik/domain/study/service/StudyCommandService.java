@@ -81,8 +81,10 @@ public class StudyCommandService {
 	@Transactional
 	public void studyApply(Long userId, Long studyId) {
 
-		Study study = studyRepository.findById(studyId).orElseThrow();
-		User user = userRepository.findById(userId).orElseThrow();
+		Study study = studyRepository.findById(studyId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.STUDY_NOT_FOUND));
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
 
 		StudyUser application = StudyUser.builder()
 			.study(study)
