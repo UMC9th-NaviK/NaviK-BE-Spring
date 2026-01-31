@@ -56,7 +56,8 @@ public class KpiCardQueryService {
 		return new KpiCardResponseDTO.Detail(
 			card.getId(),
 			card.getName(),
-			type.toContent(card)
+			type.toContent(card),
+			card.getImageUrl()
 		);
 	}
 
@@ -69,7 +70,8 @@ public class KpiCardQueryService {
 			card.getId(),
 			card.getName(),
 			new KpiCardResponseDTO.Content(card.getStrongTitle(), card.getStrongContent()),
-			new KpiCardResponseDTO.Content(card.getWeakTitle(), card.getWeakContent())
+			new KpiCardResponseDTO.Content(card.getWeakTitle(), card.getWeakContent()),
+			card.getImageUrl()
 		);
 	}
 }

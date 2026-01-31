@@ -18,7 +18,8 @@ public class KpiCardResponseDTO {
 	public record Detail(
 		Long kpiCardId,
 		String name,
-		Content content
+		Content content,
+		String imageUrl
 	) {
 	}
 
@@ -26,7 +27,8 @@ public class KpiCardResponseDTO {
 		Long kpiCardId,
 		String name,
 		Content strong,
-		Content weak
+		Content weak,
+		String imageUrl
 	) {
 	}
 
