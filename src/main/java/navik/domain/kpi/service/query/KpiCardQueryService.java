@@ -32,7 +32,7 @@ public class KpiCardQueryService {
 			.orElseThrow(() -> new GeneralExceptionHandler(JobErrorCode.JOB_NOT_ASSIGNED));
 
 		return kpiCardRepository.findGridByJobId(jobId).stream()
-			.map(v -> new KpiCardResponseDTO.GridItem(v.getId(), v.getName()))
+			.map(v -> new KpiCardResponseDTO.GridItem(v.getId(), v.getName(), v.getImageUrl()))
 			.toList();
 	}
 
@@ -43,7 +43,7 @@ public class KpiCardQueryService {
 			.orElseThrow(() -> new GeneralExceptionHandler(JobErrorCode.JOB_NOT_FOUND));
 
 		return kpiCardRepository.findGridByJobId(jobId).stream()
-			.map(v -> new KpiCardResponseDTO.GridItem(v.getId(), v.getName()))
+			.map(v -> new KpiCardResponseDTO.GridItem(v.getId(), v.getName(), v.getImageUrl()))
 			.toList();
 	}
 

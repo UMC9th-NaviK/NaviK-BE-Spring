@@ -4,7 +4,8 @@ public class KpiCardResponseDTO {
 
 	public record GridItem(
 		Long kpiCardId,
-		String name
+		String name,
+		String imageUrl
 	) {
 	}
 
