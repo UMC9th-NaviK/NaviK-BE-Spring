@@ -14,6 +14,8 @@ import navik.domain.notification.strategy.NotificationMessageStrategy;
 import navik.domain.notification.strategy.NotificationMessageStrategyFactory;
 import navik.domain.users.entity.User;
 import navik.domain.users.service.UserQueryService;
+import navik.global.apiPayload.code.status.NotificationErrorCode;
+import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Service
 @Transactional
@@ -41,14 +43,35 @@ public class NotificationCommandService {
 		User user = userQueryService.getUser(userId);
 		long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), endDate);
 		NotificationMessageStrategy strategy = strategyFactory.getStrategy(target.getNotificationType());
-		String content = strategy.createDeadlineMessage(user, target, daysLeft);
+		String content = strategy.createMessage(user, target, daysLeft);
 		createNotification(userId, target, content);
 	}
 
 	public void createCompletionNotification(Long userId, Notifiable target) {
 		User user = userQueryService.getUser(userId);
 		NotificationMessageStrategy strategy = strategyFactory.getStrategy(target.getNotificationType());
-		// String content = strategy.createDeadlineMessage(user, target, 0);
-		createNotification(userId, target, "");
+		String content = strategy.createMessage(user, target, 0);
+		createNotification(userId, target, content);
+	}
+
+	public void deleteNotification(Long notificationId) {
+
+		Notification notification = notificationRepository.findById(notificationId)
+			.orElseThrow(() -> new GeneralExceptionHandler(NotificationErrorCode.NOTIFICATION_NOT_FOUND));
+
+		notificationRepository.delete(notification);
+	}
+
+	public void readNotification(Long userId, Long notificationId) {
+
+		User user = userQueryService.getUser(userId);
+
+		Notification notification = notificationRepository.findById(notificationId)
+			.orElseThrow(() -> new GeneralExceptionHandler(NotificationErrorCode.NOTIFICATION_NOT_FOUND));
+
+		if (!notification.getUser().equals(user))
+			throw new GeneralExceptionHandler(NotificationErrorCode.NOTIFICATION_NOT_OWNER);
+
+		notification.setIsRead();
 	}
 }

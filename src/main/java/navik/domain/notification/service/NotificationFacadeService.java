@@ -22,6 +22,9 @@ import navik.domain.recruitment.enums.ExperienceType;
 import navik.domain.recruitment.enums.MajorType;
 import navik.domain.recruitment.repository.recruitment.RecruitmentRepository;
 import navik.domain.recruitment.repository.recruitment.projection.RecommendedRecruitmentProjection;
+import navik.domain.study.entity.Study;
+import navik.domain.study.exception.code.StudyErrorCode;
+import navik.domain.study.repository.StudyRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
@@ -38,6 +41,7 @@ public class NotificationFacadeService {
 	private final NotificationConfig notificationConfig;
 	private final NotificationCommandService notificationCommandService;
 	private final RecommendedRecruitmentRepository recommendedRecruitmentRepository;
+	private final StudyRepository studyRepository;
 
 	public void createRecommendedRecruitmentNotification(Long userId) {
 
@@ -117,5 +121,20 @@ public class NotificationFacadeService {
 
 		// 5. 추천 공고 삭제
 		recommendedRecruitmentRepository.deleteById(recommendedRecruitmentNotificationId);
+	}
+
+	public void sendStudyCompletionNotification(Long studyId) {
+
+		// 1. 스터디 검색
+		Study study = studyRepository.findByIdWithStudyUser(studyId)
+			.orElseThrow(() -> new GeneralExceptionHandler(StudyErrorCode.STUDY_NOT_FOUND));
+
+		// 2. 스터디 활성화 상태 유저만 알림
+		study.getStudyUsers().forEach(
+			studyUser -> {
+				if (studyUser.isActive())
+					notificationCommandService.createCompletionNotification(studyUser.getId(), study);
+			}
+		);
 	}
 }
