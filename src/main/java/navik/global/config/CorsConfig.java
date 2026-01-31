@@ -15,7 +15,7 @@ public class CorsConfig {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowedOrigins(List.of("http://localhost:3000"));  // 프론트 실배포 추가
 		config.setAllowCredentials(true);  // 쿠키 전송 허용
-		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE"));
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		config.setAllowedHeaders(List.of("*"));
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
