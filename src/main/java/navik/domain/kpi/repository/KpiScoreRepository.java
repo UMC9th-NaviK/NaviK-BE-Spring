@@ -19,11 +19,14 @@ public interface KpiScoreRepository extends JpaRepository<KpiScore, Long> {
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query("""
 		    update KpiScore ks
-		       set ks.score = ks.score + :delta
+		       set ks.score = ks.score + :delta,
+		           ks.updatedAt = CURRENT_TIMESTAMP
 		     where ks.user.id = :userId
 		       and ks.kpiCard.id = :kpiCardId
 		""")
-	int incrementScore(@Param("userId") Long userId, @Param("kpiCardId") Long kpiCardId, @Param("delta") int delta);
+	int incrementScore(@Param("userId") Long userId,
+		@Param("kpiCardId") Long kpiCardId,
+		@Param("delta") int delta);
 
 	Optional<KpiScore> findByUserIdAndKpiCard_Id(Long userId, Long kpiCardId);
 
