@@ -13,6 +13,7 @@ import navik.domain.goal.entity.Goal;
 import navik.domain.goal.repository.GoalRepository;
 import navik.domain.notification.config.NotificationConfig;
 import navik.domain.notification.entity.NotificationType;
+import navik.domain.notification.repository.NotificationRepository;
 import navik.domain.notification.repository.RecommendedRecruitmentRepository;
 import navik.domain.notification.service.NotificationCommandService;
 import navik.domain.notification.service.NotificationFacadeService;
@@ -31,6 +32,7 @@ public class NotificationScheduler {
 	private final UserRepository userRepository;
 	private final RecommendedRecruitmentRepository recommendedRecruitmentRepository;
 	private final StudyRepository studyRepository;
+	private final NotificationRepository notificationRepository;
 
 	/**
 	 * 매일 오전 9시에 알림 대상 목표의 마감일을 체크하여 D-day 알림 생성
@@ -82,6 +84,26 @@ public class NotificationScheduler {
 		);
 
 		log.info("[NotificationScheduler] 스터디 완료 알림 스케쥴러 완료");
+	}
+
+	/**
+	 * 매일 자정, 7일 이상 지난 알림을 삭제합니다.
+	 */
+	@Scheduled(cron = "0 0 0 * * *")
+	public void deleteExpiredNotifications() {
+		log.info("[NotificationScheduler] 만료 알림 삭제 스케쥴러 실행");
+
+		notificationRepository.findAllIdsByCreatedAtBefore(LocalDate.now().minusDays(7)).forEach(
+			notificationId -> {
+				try {
+					notificationCommandService.deleteNotification(notificationId);
+				} catch (Exception e) {
+					log.error("❌ 만료 알림 삭제 실패 - Notification ID: {}", notificationId, e);
+				}
+			}
+		);
+
+		log.info("[NotificationScheduler] 만료 알림 삭제 스케쥴러 완료");
 	}
 
 	/**

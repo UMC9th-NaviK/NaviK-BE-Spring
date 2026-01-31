@@ -9,7 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum NotificationErrorCode implements BaseCode {
 
-	UNSUPPORTED_NOTIFICATION_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON_500_01", "지원하지 않는 알림 타입입니다. ");
+	NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION_404_01", "알림을 찾을 수 없습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;

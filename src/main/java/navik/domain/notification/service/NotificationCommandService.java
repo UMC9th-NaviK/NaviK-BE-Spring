@@ -14,6 +14,8 @@ import navik.domain.notification.strategy.NotificationMessageStrategy;
 import navik.domain.notification.strategy.NotificationMessageStrategyFactory;
 import navik.domain.users.entity.User;
 import navik.domain.users.service.UserQueryService;
+import navik.global.apiPayload.code.status.NotificationErrorCode;
+import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Service
 @Transactional
@@ -50,5 +52,13 @@ public class NotificationCommandService {
 		NotificationMessageStrategy strategy = strategyFactory.getStrategy(target.getNotificationType());
 		String content = strategy.createMessage(user, target, 0);
 		createNotification(userId, target, content);
+	}
+
+	public void deleteNotification(Long notificationId) {
+
+		Notification notification = notificationRepository.findById(notificationId)
+			.orElseThrow(() -> new GeneralExceptionHandler(NotificationErrorCode.NOTIFICATION_NOT_FOUND));
+
+		notificationRepository.delete(notification);
 	}
 }
