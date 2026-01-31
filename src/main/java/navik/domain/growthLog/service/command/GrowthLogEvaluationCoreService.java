@@ -21,6 +21,9 @@ import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.repository.PortfolioRepository;
+import navik.domain.users.entity.User;
+import navik.domain.users.repository.UserRepository;
+import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Service
@@ -31,10 +34,17 @@ public class GrowthLogEvaluationCoreService {
 	private final GrowthLogKpiLinkRepository growthLogKpiLinkRepository;
 	private final KpiCardRepository kpiCardRepository;
 	private final PortfolioRepository portfolioRepository;
-
+	private final UserRepository userRepository;
 	private final GrowthLogAiClient growthLogAiClient;
 
 	public GrowthLogEvaluationContext buildContext(Long userId, String inputContent) {
+
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+
+		Integer userLevel = user.getLevel();
+		Long jobId = user.getJob() != null ? user.getJob().getId() : null;
+
 		String resumeText = portfolioRepository
 			.findTopByUserIdOrderByCreatedAtDesc(userId)
 			.map(this::buildResumeText)
@@ -67,6 +77,8 @@ public class GrowthLogEvaluationCoreService {
 			.toList();
 
 		return new GrowthLogEvaluationContext(
+			jobId,
+			userLevel,
 			resumeText,
 			recentGrowthLogs,
 			recentKpiDeltas,
