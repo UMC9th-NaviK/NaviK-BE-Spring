@@ -26,6 +26,7 @@ public class KpiCardQueryService {
 	private final JobRepository jobRepository;
 	private final UserRepository userRepository;
 
+	// 유저 직무 기반 KPI 카드 조회
 	public List<GridItem> getAllCardsByUser(Long userId) {
 		Long jobId = userRepository.findJobIdByUserId(userId)
 			.orElseThrow(() -> new GeneralExceptionHandler(JobErrorCode.JOB_NOT_ASSIGNED));
@@ -35,6 +36,7 @@ public class KpiCardQueryService {
 			.toList();
 	}
 
+	// 직무 ID 기반 KPI 카드 조회
 	public List<GridItem> getAllCardsByJob(Long jobId) {
 
 		jobRepository.findById(jobId)
@@ -45,6 +47,7 @@ public class KpiCardQueryService {
 			.toList();
 	}
 
+	// KPI 카드 강점/약점 별 상세 내용 반환
 	public KpiCardResponseDTO.Detail getCardDetail(Long cardId, KpiCardType type) {
 
 		KpiCard card = kpiCardRepository.findById(cardId)
@@ -57,6 +60,7 @@ public class KpiCardQueryService {
 		);
 	}
 
+	// KPI 카드 전체 상세 내용 반환
 	public KpiCardResponseDTO.AllDetail getCardAllDetail(Long cardId) {
 		KpiCard card = kpiCardRepository.findById(cardId)
 			.orElseThrow(() -> new GeneralExceptionHandler(KpiCardErrorCode.KPI_CARD_NOT_FOUND));
