@@ -43,14 +43,14 @@ public class EvaluationConverter {
 	 * @param evaluatee
 	 * @return
 	 */
-	public static Evaluation toEvaluation(EvaluationSubmitDTO.EvaluationSubmit req, Study study, User evaluator,
+	public static Evaluation toEvaluation(EvaluationSubmitDTO req, Study study, User evaluator,
 		User evaluatee) {
 		return Evaluation.builder()
 			.study(study)
 			.evaluator(evaluator)
 			.evaluatee(evaluatee)
-			.score(req.getScore())
-			.content(req.getAdvice())
+			.score(req.score())
+			.content(req.advice())
 			.build();
 	}
 }

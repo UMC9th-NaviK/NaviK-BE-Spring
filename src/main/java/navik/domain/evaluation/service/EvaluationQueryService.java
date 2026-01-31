@@ -53,16 +53,16 @@ public class EvaluationQueryService {
 	}
 
 	@Transactional
-	public void submitEvaluation(Long evaluatorId, Long studyId, EvaluationSubmitDTO.EvaluationSubmit req) {
-		// 자기 자신을 평가하려는 경우, 존재하지 않는다고 예외처리
-		if (evaluatorId.equals(req.getTargetUserId())) {
-			throw new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND);
-		}
-
+	public void submitEvaluation(Long evaluatorId, Long studyId, EvaluationSubmitDTO req) {
 		Study study = studyRepository.getReferenceById(studyId);
 		User evaluator = userRepository.getReferenceById(evaluatorId);
-		User evaluatee = userRepository.findById(req.getTargetUserId())
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+		User evaluatee = userRepository.getReferenceById(req.targetUserId());
+
+		// 이미 해당 스터디원에 대한 평가를 진행했으면 오류발생
+		if (evaluationRepository.existsByStudyIdAndEvaluatorIdAndEvaluateeId(studyId, evaluatorId,
+			req.targetUserId())) {
+			throw new GeneralExceptionHandler(GeneralErrorCode.EVALUATION_ALREADY_EXISTS);
+		}
 
 		// 1. 메인 평가 내용 저장
 		Evaluation evaluation = evaluationRepository.save(
@@ -70,20 +70,16 @@ public class EvaluationQueryService {
 		);
 
 		// 2. 강점, 약점 태그 ID 통합
-		List<Long> allTagIds = Stream.concat(req.getStrengthTagIds().stream(), req.getWeaknessTagIds().stream())
+		List<Long> allTagIds = Stream.concat(req.strengthTagIds().stream(), req.weaknessTagIds().stream())
 			.toList();
+		List<EvaluationTag> tags = evaluationTagRepository.findAllById(allTagIds);
 
 		// 3. EvaluationTagSelection 매핑 데이터 저장
-		List<EvaluationTagSelection> selections = allTagIds.stream()
-			.map(tagId -> {
-				EvaluationTag tag = evaluationTagRepository.findById(tagId)
-					.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.TAG_NOT_FOUND));
-
-				return EvaluationTagSelection.builder()
-					.evaluation(evaluation)
-					.tag(tag)
-					.build();
-			})
+		List<EvaluationTagSelection> selections = tags.stream()
+			.map(tag -> EvaluationTagSelection.builder()
+				.evaluation(evaluation)
+				.tag(tag)
+				.build())
 			.toList();
 
 		selectionTagRepository.saveAll(selections);
