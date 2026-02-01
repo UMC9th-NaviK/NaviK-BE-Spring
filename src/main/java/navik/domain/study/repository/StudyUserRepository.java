@@ -24,6 +24,12 @@ public interface StudyUserRepository extends JpaRepository<StudyUser, Long> {
 	List<Object[]> countParticipantsByStudyIds(@Param("studyIds") List<Long> studyIds);
 
 	// 해당 스터디에 참여하는 인원 조회
-	@Query("SELECT sm.user FROM StudyUser sm WHERE sm.study.id = :studyId")
+	@Query("""
+		SELECT sm.user
+		FROM StudyUser sm
+		WHERE sm.study.id = :studyId
+		  AND sm.attend = 'ACCEPTANCE'
+		  AND sm.isActive = true
+		""")
 	List<User> findUserByStudyId(@Param("studyId") Long studyId);
 }
