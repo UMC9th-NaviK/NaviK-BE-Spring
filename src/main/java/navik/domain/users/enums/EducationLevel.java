@@ -1,7 +1,5 @@
 package navik.domain.users.enums;
 
-import java.util.Arrays;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -12,12 +10,4 @@ public enum EducationLevel {
 
 	private final String label;
 	private final int order;
-
-	public static EducationLevel fromOrder(int order) {
-		return Arrays.stream(values())
-			.filter(e -> e.order == order)
-			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException("Invalid EducationLevel order: " + order));
-	}
-
 }
