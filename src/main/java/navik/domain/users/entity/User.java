@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -21,6 +22,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.job.entity.Job;
+import navik.domain.users.EducationLevelConverter;
 import navik.domain.users.enums.EducationLevel;
 import navik.domain.users.enums.Role;
 import navik.domain.users.enums.UserStatus;
@@ -79,7 +81,7 @@ public class User extends BaseEntity {
 	private Boolean isEntryLevel = true;
 
 	@Column(name = "education_level")
-	@Enumerated(EnumType.STRING)
+	@Convert(converter = EducationLevelConverter.class)
 	private EducationLevel educationLevel;
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
