@@ -14,14 +14,15 @@ public interface StudyRepository extends JpaRepository<Study, Long> {
 
 	@Query("""
 			SELECT s.id FROM Study s
-			WHERE s.endDate = :endDate
+			WHERE s.endDate >= :start AND s.endDate < :end
 		""")
-	List<Long> findAllIdsByEndDateWithStudyUser(@Param("endDate") LocalDateTime endDate);
+	List<Long> findAllIdsByEndDateBetweenWithStudyUser(LocalDateTime start, LocalDateTime end);
 
 	@Query("""
 			SELECT s FROM Study s
 			JOIN FETCH s.studyUsers su
 			JOIN FETCH su.user
+			WHERE s.id = :id
 		""")
 	Optional<Study> findByIdWithStudyUser(@Param("id") Long id);
 }

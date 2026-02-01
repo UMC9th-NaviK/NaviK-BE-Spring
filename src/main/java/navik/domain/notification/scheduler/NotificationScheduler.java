@@ -73,8 +73,10 @@ public class NotificationScheduler {
 	public void checkStudyCompleted() {
 		log.info("[NotificationScheduler] 스터디 완료 알림 스케쥴러 실행");
 
-		LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
-		studyRepository.findAllIdsByEndDateWithStudyUser(yesterday).forEach(
+		LocalDate yesterday = LocalDate.now().minusDays(1);
+		LocalDateTime start = yesterday.atStartOfDay();
+		LocalDateTime end = start.plusDays(1);
+		studyRepository.findAllIdsByEndDateBetweenWithStudyUser(start, end).forEach(
 			studyId -> {
 				try {
 					notificationFacadeService.sendStudyCompletionNotification(studyId);
