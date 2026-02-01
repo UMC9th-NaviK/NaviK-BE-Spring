@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import navik.domain.study.entity.StudyUser;
+import navik.domain.users.entity.User;
 
 public interface StudyUserRepository extends JpaRepository<StudyUser, Long> {
 
@@ -21,4 +22,14 @@ public interface StudyUserRepository extends JpaRepository<StudyUser, Long> {
 		GROUP BY su.study.id
 		""")
 	List<Object[]> countParticipantsByStudyIds(@Param("studyIds") List<Long> studyIds);
+
+	// 해당 스터디에 참여하는 인원 조회
+	@Query("""
+		SELECT sm.user
+		FROM StudyUser sm
+		WHERE sm.study.id = :studyId
+		  AND sm.attend = 'ACCEPTANCE'
+		  AND sm.isActive = true
+		""")
+	List<User> findUserByStudyId(@Param("studyId") Long studyId);
 }

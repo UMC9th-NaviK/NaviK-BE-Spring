@@ -15,6 +15,7 @@ import navik.domain.kpi.service.query.KpiScoreQueryService;
 import navik.domain.study.converter.StudyConverter;
 import navik.domain.study.converter.StudyKpiCardConverter;
 import navik.domain.study.converter.StudyRecommendConverter;
+import navik.domain.study.dto.StudyApplicationDTO;
 import navik.domain.study.dto.StudyDTO;
 import navik.domain.study.dto.StudyKpiCardDTO;
 import navik.domain.study.dto.StudyRecommendDTO;
@@ -163,7 +164,6 @@ public class StudyQueryService {
 
 		String nextCursor = hasNext ? pagingList.get(pagingList.size() - 1).getId().toString() : null;
 		return CursorResponseDto.of(content, hasNext, nextCursor);
-
 	}
 
 	private Map<Long, Integer> getParticipantCountMap(List<Long> studyIds) {
@@ -184,4 +184,37 @@ public class StudyQueryService {
 			));
 	}
 
+	/**
+	 * 스터디 신청자 목록
+	 * @param studyId
+	 * @param cursor
+	 * @param size
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public CursorResponseDto<StudyApplicationDTO.ApplicationPreviewDTO> getApplicantList(Long studyId, Long cursor,
+		int size) {
+
+		// 1. Repository를 통해 신청자 목록 조회 (다음 페이지 확인을 위해 size + 1개를 가져옴)
+		List<StudyUser> applicants = studyCustomRepository.findApplicants(studyId, cursor, size);
+
+		// 2. 다음 페이지 존재 여부 확인
+		boolean hasNext = applicants.size() > size;
+
+		// 3. 실제 페이지에 포함될 리스트 결정
+		List<StudyUser> pagingList = hasNext ? applicants.subList(0, size) : applicants;
+
+		// 4. 다음 커서 값 결정
+		String nextCursor = hasNext ? pagingList.get(pagingList.size() - 1).getId().toString() : null;
+
+		// 5. DTO로 변환하여 반환
+		return CursorResponseDto.<StudyApplicationDTO.ApplicationPreviewDTO>builder()
+			.content(pagingList.stream()
+				.map(StudyConverter::toApplicantPreviewListDTO)
+				.toList())
+			.pageSize(pagingList.size())
+			.nextCursor(nextCursor)
+			.hasNext(hasNext)
+			.build();
+	}
 }
