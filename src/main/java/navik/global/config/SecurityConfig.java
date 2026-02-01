@@ -49,9 +49,7 @@ public class SecurityConfig {
 				.requestMatchers(SecurityPermitPath.SWAGGER.getPaths()).permitAll()
 				.requestMatchers(SecurityPermitPath.AUTH.getPaths()).permitAll()
 				.requestMatchers(SecurityPermitPath.S3.getPaths()).permitAll()
-				// 5. 개발환경 전용
-				.requestMatchers("/dev/**").permitAll()
-
+				.requestMatchers(SecurityPermitPath.DEV.getPaths()).permitAll()
 				// 그 외 모든 요청은 인증 필요
 				.anyRequest().authenticated())
 
