@@ -29,5 +29,6 @@ public interface KpiCardRepository extends JpaRepository<KpiCard, Long> {
 	@Query("select c from KpiCard c left join fetch c.job where c.id = :kpiCardId")
 	Optional<KpiCard> findByIdWithJob(@Param("kpiCardId") Long kpiCardId);
 
-	List<KpiCard> findAllByJobId(Long jobId);
+	@Query("select c from KpiCard c where c.job.id = :jobId")
+	List<KpiCard> findAllByJobId(@Param("jobId") Long jobId);
 }
