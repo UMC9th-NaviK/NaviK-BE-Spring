@@ -23,7 +23,12 @@ public interface KpiCardControllerDocs {
 
 	@Operation(
 		summary = "내 직무 기준 KPI 카드 목록 조회",
-		description = "인증된 사용자의 직무(job)를 기반으로 KPI 카드 목록을 조회합니다."
+		description = """
+			**[4-1 리포트 > 내 카드 > 전체 KPI 카드]**
+			
+			인증된 사용자의 직무(job)를 기준으로 KPI 카드 그리드 목록을 조회합니다.
+			"""
+
 	)
 	@ApiErrorCodes(
 		enumClass = JobErrorCode.class,
@@ -32,7 +37,41 @@ public interface KpiCardControllerDocs {
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200",
-			description = "조회 성공"
+			description = "조회 성공",
+			content = @io.swagger.v3.oas.annotations.media.Content(
+				mediaType = "application/json",
+				examples = {
+					@io.swagger.v3.oas.annotations.media.ExampleObject(
+						name = "KPI 카드 그리드 조회 예시",
+						summary = "카드 그리드 조회용 응답",
+						value = """
+							{
+							    "isSuccess": true,
+							    "code": "COMMON200",
+							    "message": "성공입니다.",
+							    "result": [
+							        {
+							            "kpiCardId": 11,
+							            "name": "문제 해결 능력",
+							            "imageUrl": "https://cdn.navik.co.kr/kpi/problem-solving.png"
+							        },
+							        {
+							            "kpiCardId": 12,
+							            "name": "코드 품질",
+							            "imageUrl": "https://cdn.navik.co.kr/kpi/problem-solving.png"
+							        },
+							        {
+							            "kpiCardId": 13,
+							            "name": "테스트 작성",
+							            "imageUrl": "https://cdn.navik.co.kr/kpi/problem-solving.png"
+							        }
+							    ],
+							    "timestamp": "2026-01-31T18:07:22"
+							}
+							"""
+					)
+				}
+			)
 		)
 	})
 	ApiResponse<List<GridItem>> getMyKpiCards(
@@ -42,7 +81,11 @@ public interface KpiCardControllerDocs {
 
 	@Operation(
 		summary = "KPI 카드 목록 조회",
-		description = "jobId에 해당하는 KPI 카드 그리드 목록을 조회합니다."
+		description = """
+			**[4-1 리포트 > 내 카드 > 전체 KPI 카드]**
+			
+			jobId에 해당하는 KPI 카드 그리드 목록을 조회합니다.
+			"""
 	)
 	@ApiErrorCodes(
 		enumClass = JobErrorCode.class,
@@ -51,7 +94,41 @@ public interface KpiCardControllerDocs {
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200",
-			description = "성공"
+			description = "조회 성공",
+			content = @io.swagger.v3.oas.annotations.media.Content(
+				mediaType = "application/json",
+				examples = {
+					@io.swagger.v3.oas.annotations.media.ExampleObject(
+						name = "KPI 카드 그리드 조회 예시",
+						summary = "jobId 기반 카드 그리드 조회용 응답",
+						value = """
+							{
+							     "isSuccess": true,
+							     "code": "COMMON200",
+							     "message": "성공입니다.",
+							     "result": [
+							         {
+							             "kpiCardId": 11,
+							             "name": "문제 해결 능력",
+							             "imageUrl": "https://navik-bucket.s3.ap-northeast-2.amazonaws.com/kpi-cards/backend/BE1.png"
+							         },
+							         {
+							             "kpiCardId": 12,
+							             "name": "코드 품질",
+							             "imageUrl": "https://navik-bucket.s3.ap-northeast-2.amazonaws.com/kpi-cards/backend/BE1.png"
+							         },
+							         {
+							             "kpiCardId": 13,
+							             "name": "테스트 작성",
+							             "imageUrl": "https://navik-bucket.s3.ap-northeast-2.amazonaws.com/kpi-cards/backend/BE1.png"
+							         }
+							     ],
+							     "timestamp": "2026-01-31T21:55:34"
+							 }
+							"""
+					)
+				}
+			)
 		)
 	})
 	ApiResponse<List<GridItem>> getKpiCards(
@@ -61,7 +138,13 @@ public interface KpiCardControllerDocs {
 
 	@Operation(
 		summary = "KPI 카드 상세 조회(타입별)",
-		description = "kpiCardId와 type(strong/weak)에 해당하는 상세를 조회합니다."
+		description = """
+			**[4-1 리포트/내카드/카드 클릭]**
+			
+			kpiCardId와 type(strong/weak)에 해당하는 KPI 카드 상세 정보를 조회합니다.
+			리포트 또는 내 카드 화면에서 핵심역량/극복역량 목록을 조회한 뒤,
+			선택한 카드의 id와 type을 사용하여 상세 조회할 수 있습니다.
+			"""
 	)
 	@ApiErrorCodes(
 		enumClass = KpiCardErrorCode.class,
@@ -73,7 +156,54 @@ public interface KpiCardControllerDocs {
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200",
-			description = "성공"
+			description = "조회 성공",
+			content = @io.swagger.v3.oas.annotations.media.Content(
+				mediaType = "application/json",
+				examples = {
+					@io.swagger.v3.oas.annotations.media.ExampleObject(
+						name = "strong 상세 조회 예시",
+						summary = "strong type",
+						value = """
+							{
+							    "isSuccess": true,
+							    "code": "COMMON200",
+							    "message": "성공입니다.",
+							    "result": {
+							        "kpiCardId": 11,
+							        "name": "문제 해결 능력",
+							        "content": {
+							            "title": "좋은 분석",
+							            "content": "분석을 굉장히 잘하시네요."
+							        },
+							        "imageUrl": "https://cdn.navik.co.kr/kpi/problem-solving.png"
+							    },
+							    "timestamp": "2026-01-31T18:14:27"
+							}
+							"""
+					),
+					@io.swagger.v3.oas.annotations.media.ExampleObject(
+						name = "weak 상세 조회 예시",
+						summary = "weak type",
+						value = """
+							{
+							    "isSuccess": true,
+							    "code": "COMMON200",
+							    "message": "성공입니다.",
+							    "result": {
+							        "kpiCardId": 11,
+							        "name": "문제 해결 능력",
+							        "content": {
+							            "title": "과도한 분석",
+							            "content": "분석에 시간이 오래 걸릴 수 있습니다."
+							        },
+							        "imageUrl": "https://cdn.navik.co.kr/kpi/problem-solving.png"
+							    },
+							    "timestamp": "2026-01-31T18:14:27"
+							}
+							"""
+					)
+				}
+			)
 		)
 	})
 	ApiResponse<KpiCardResponseDTO.Detail> getKpiCardDetail(
@@ -81,7 +211,7 @@ public interface KpiCardControllerDocs {
 		@PathVariable Long kpiCardId,
 
 		@Parameter(
-			description = "카드 타입",
+			description = "카드 타입 (strong | weak)",
 			required = true,
 			schema = @Schema(allowableValues = {"strong", "weak"}),
 			example = "strong"
@@ -91,7 +221,13 @@ public interface KpiCardControllerDocs {
 
 	@Operation(
 		summary = "KPI 카드 상세 조회(전체)",
-		description = "kpiCardId에 해당하는 strong/weak 전체 상세를 조회합니다."
+		description = """
+			**[4-1 리포트 > 내 카드]**
+			
+			kpiCardId에 해당하는 KPI 카드의 strong/weak 상세 정보를 모두 조회합니다.
+			리포트/내 카드 화면에서 선택한 KPI 카드의 id로 상세 화면 진입 시 사용합니다.
+			※ imageUrl은 이미지 미적용 상태에서는 null로 반환될 수 있습니다.
+			"""
 	)
 	@ApiErrorCodes(
 		enumClass = KpiCardErrorCode.class,
@@ -100,7 +236,34 @@ public interface KpiCardControllerDocs {
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200",
-			description = "성공"
+			description = "성공",
+			content = @io.swagger.v3.oas.annotations.media.Content(
+				mediaType = "application/json",
+				examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+					name = "KPI 카드 상세 조회 응답",
+					value = """
+						{
+						    "isSuccess": true,
+						    "code": "COMMON200",
+						    "message": "성공입니다.",
+						    "result": {
+						        "kpiCardId": 11,
+						        "name": "문제 해결 능력",
+						        "strong": {
+						            "title": "문제 구조화",
+						            "content": "복잡한 문제를 단계별로 나누어 해결합니다."
+						        },
+						        "weak": {
+						            "title": "과도한 분석",
+						            "content": "분석에 시간이 오래 걸릴 수 있습니다."
+						        },
+						        "imageUrl": "https://cdn.navik.co.kr/kpi/problem-solving.png"
+						    },
+						    "timestamp": "2026-01-31T18:14:42"
+						}
+						"""
+				)
+			)
 		)
 	})
 	ApiResponse<KpiCardResponseDTO.AllDetail> getKpiCardAllDetail(
@@ -110,16 +273,48 @@ public interface KpiCardControllerDocs {
 
 	@Operation(
 		summary = "상위 3개 KPI 카드 조회",
-		description = "사용자 기준 상위 3개 KPI 카드를 조회합니다."
+		description = """
+			**[4-1 리포트 > 내 카드 > 핵심 역량]**
+			
+			사용자 기준 점수가 높은 KPI 카드 3개를 조회합니다.
+			메인/대시보드 화면에서 상위 KPI 카드 영역 렌더링에 사용합니다.
+			"""
 	)
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200",
-			description = "성공"
-		),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "401",
-			description = "인증 실패"
+			description = "성공",
+			content = @io.swagger.v3.oas.annotations.media.Content(
+				mediaType = "application/json",
+				examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+					name = "상위 KPI 카드 조회 응답",
+					value = """
+						{
+						  "isSuccess": true,
+						  "code": "COMMON200",
+						  "message": "성공입니다.",
+						  "result": [
+							{
+							  "kpiCardId": 3,
+							  "name": "커뮤니케이션",
+							  "imageUrl": null
+							},
+							{
+							  "kpiCardId": 7,
+							  "name": "문제 해결 능력",
+							  "imageUrl": null
+							},
+							{
+							  "kpiCardId": 1,
+							  "name": "자기 주도성",
+							  "imageUrl": null
+							}
+						  ],
+						  "timestamp": "2026-01-31T18:14:27"
+						}
+						"""
+				)
+			)
 		)
 	})
 	ApiResponse<List<KpiCardResponseDTO.GridItem>> top(
@@ -128,16 +323,48 @@ public interface KpiCardControllerDocs {
 
 	@Operation(
 		summary = "하위 3개 KPI 카드 조회",
-		description = "사용자 기준 하위 3개 KPI 카드를 조회합니다."
+		description = """
+			**[4-1 리포트 > 내 카드 > 극복 역량]**
+			
+			사용자 기준 점수가 낮은 KPI 카드 3개를 조회합니다.
+			메인/대시보드 화면에서 개선 필요 KPI 카드 영역 렌더링에 사용합니다.
+			"""
 	)
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200",
-			description = "성공"
-		),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "401",
-			description = "인증 실패"
+			description = "성공",
+			content = @io.swagger.v3.oas.annotations.media.Content(
+				mediaType = "application/json",
+				examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+					name = "하위 KPI 카드 조회 응답",
+					value = """
+						{
+						  "isSuccess": true,
+						  "code": "COMMON200",
+						  "message": "성공입니다.",
+						  "result": [
+							{
+							  "kpiCardId": 9,
+							  "name": "시간 관리",
+							  "imageUrl": null
+							},
+							{
+							  "kpiCardId": 5,
+							  "name": "우선순위 설정",
+							  "imageUrl": null
+							},
+							{
+							  "kpiCardId": 12,
+							  "name": "집중력",
+							  "imageUrl": null
+							}
+						  ],
+						  "timestamp": "2026-01-31T18:14:27"
+						}
+						"""
+				)
+			)
 		)
 	})
 	ApiResponse<List<KpiCardResponseDTO.GridItem>> bottom(
