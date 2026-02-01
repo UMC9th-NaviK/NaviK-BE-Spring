@@ -3,6 +3,7 @@ package navik.domain.kpi.service.command;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -29,6 +30,8 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 @Transactional
 public class KpiScoreInitialService {
 
+	private static final int DEFAULT_SCORE = 0;
+
 	private final KpiScoreRepository kpiScoreRepository;
 	private final KpiCardRepository kpiCardRepository;
 	private final UserRepository userRepository;
@@ -45,6 +48,8 @@ public class KpiScoreInitialService {
 		validateNoDuplicateCardIds(cardIds);
 
 		User userRef = userRepository.getReferenceById(userId);
+
+		ensureAllKpiScoresExist(userRef); // 모든 KPI Score 항목이 생겼는지 보장
 
 		Map<Long, KpiCard> cardMap = loadCardMapOrThrow(cardIds);
 		Map<Long, KpiScore> existingMap = loadExistingScoreMap(userId, cardIds);
@@ -140,6 +145,36 @@ public class KpiScoreInitialService {
 		}
 
 		return new KpiScoreInitializeResult(created, updated, toCreate, resultItems, kpiDeltasForLog);
+	}
+
+	private void ensureAllKpiScoresExist(User user) {
+		Long jobId = user.getJob().getId();
+
+		// 유저 직무에 해당하는 전체 KPI 카드 조회
+		List<KpiCard> allCards = kpiCardRepository.findAllByJobId(jobId);
+
+		// 이미 KpiScore가 존재하는 카드 ID 수집
+		Set<Long> existingCardIds = kpiScoreRepository
+			.findAllByUserIdAndKpiCard_IdIn(
+				user.getId(),
+				allCards.stream().map(KpiCard::getId).toList()
+			).stream()
+			.map(s -> s.getKpiCard().getId())
+			.collect(Collectors.toSet());
+
+		// 아직 생성되지 않은 카드만 기본값(0점)으로 생성 = 처음일 경우에는 다 생성
+		List<KpiScore> toCreate = allCards.stream()
+			.filter(card -> !existingCardIds.contains(card.getId()))
+			.map(card -> KpiScore.builder()
+				.user(user)
+				.kpiCard(card)
+				.score(DEFAULT_SCORE)
+				.build())
+			.toList();
+
+		if (!toCreate.isEmpty()) {
+			kpiScoreRepository.saveAll(toCreate);
+		}
 	}
 
 	private void createPortfolioGrowthLogIfNeeded(List<GrowthLogInternalCreateRequest.KpiDelta> deltas) {
