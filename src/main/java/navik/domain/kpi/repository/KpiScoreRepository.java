@@ -72,10 +72,10 @@ public interface KpiScoreRepository extends JpaRepository<KpiScore, Long> {
 
 	// 전체 Score 합계 반환
 	@Query("""
-			select coalesce(sum(ks.score), 0)
+			select coalesce(sum(ks.score), 0L)
 			  from KpiScore ks
 			 where ks.user.id = :userId
 		""")
-	int sumTotalScore(@Param("userId") Long userId);
+	Long sumTotalScore(@Param("userId") Long userId);
 
 }

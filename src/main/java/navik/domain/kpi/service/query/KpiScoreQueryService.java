@@ -73,7 +73,7 @@ public class KpiScoreQueryService {
 		LocalDateTime end = currentYm.plusMonths(1).atDay(1).atStartOfDay();
 
 		// 현재 전체 누적 점수
-		int currentTotalScore = kpiScoreRepository.sumTotalScore(userId);
+		long currentTotalScore = kpiScoreRepository.sumTotalScore(userId);
 
 		// 이번 달 증가분
 		List<Object[]> rows = growthLogRepository.sumByMonth(userId, null, start, end);
@@ -90,7 +90,7 @@ public class KpiScoreQueryService {
 		}
 
 		//전월 말 누적 점수 = 현재 누적 - 이번 달 증가분
-		int prevTotalScore = currentTotalScore - deltaThisMonth;
+		long prevTotalScore = currentTotalScore - deltaThisMonth;
 
 		Double changeRate = calculateChangeRate(currentTotalScore, prevTotalScore);
 
@@ -117,7 +117,7 @@ public class KpiScoreQueryService {
 		return ((Number)value).intValue();
 	}
 
-	private Double calculateChangeRate(int current, int prev) {
+	private Double calculateChangeRate(long current, long prev) {
 		if (prev == 0) {
 			return null;
 		}
