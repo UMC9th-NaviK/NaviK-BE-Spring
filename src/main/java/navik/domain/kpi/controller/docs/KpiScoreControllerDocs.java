@@ -41,7 +41,10 @@ public interface KpiScoreControllerDocs {
 	)
 	@ApiErrorCodes(
 		enumClass = KpiCardErrorCode.class,
-		includes = {"KPI_CARD_NOT_FOUND"}
+		includes = {
+			"KPI_CARD_NOT_FOUND",
+			"KPI_CARD_NOT_INITIALIZED"
+		}
 	)
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
