@@ -40,7 +40,7 @@ public class KpiScoreResponseDTO {
 		int year,
 		int month,
 		long currentScore,
-		long previousScore,
+		Long previousScore,
 		Double changeRate
 	) {
 	}
