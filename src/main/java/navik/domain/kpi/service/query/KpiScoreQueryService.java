@@ -107,6 +107,12 @@ public class KpiScoreQueryService {
 		if (value instanceof java.sql.Date date) {
 			return date.toLocalDate();
 		}
+		if (value instanceof java.sql.Timestamp ts) {
+			return ts.toLocalDateTime().toLocalDate();
+		}
+		if (value instanceof LocalDateTime ldt) {
+			return ldt.toLocalDate();
+		}
 		return (LocalDate)value;
 	}
 
