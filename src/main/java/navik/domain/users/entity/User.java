@@ -22,7 +22,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.job.entity.Job;
-import navik.domain.users.EducationLevelConverter;
 import navik.domain.users.enums.EducationLevel;
 import navik.domain.users.enums.Role;
 import navik.domain.users.enums.UserStatus;
@@ -81,7 +80,7 @@ public class User extends BaseEntity {
 	private Boolean isEntryLevel = true;
 
 	@Column(name = "education_level")
-	@Convert(converter = EducationLevelConverter.class)
+	@Enumerated(EnumType.STRING)
 	private EducationLevel educationLevel;
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
