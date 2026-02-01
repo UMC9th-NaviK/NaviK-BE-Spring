@@ -33,20 +33,22 @@ public class GoalResponseDTO {
 		@NotNull
 		private Long goalId;
 		@NotNull
+		private String title;
+		@NotNull
 		private String content;
 		@NotNull
 		private LocalDate endDate;
 		@NotNull
 		private GoalStatus status;
 	}
-	
+
 	@Builder
 	@AllArgsConstructor
 	@NoArgsConstructor
 	@Getter
 	public static class InProgressDTO {
 		@NotNull
-		private List<PreviewDTO> inProgressGoals;
+		private List<InfoDTO> inProgressGoals;
 		@NotNull
 		private Long totalCount;
 	}

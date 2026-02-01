@@ -64,18 +64,16 @@ public class GoalQueryService {
 		return new CursorResponseDto<>(previewSlice, String.valueOf(nextCursor));
 	}
 
-	public List<GoalResponseDTO.InProgressDTO> getInProgressGoals(Long userId) {
+	public GoalResponseDTO.InProgressDTO getInProgressGoals(Long userId) {
 
 		List<GoalStatus> statuses = List.of(GoalStatus.NONE, GoalStatus.IN_PROGRESS);
 		List<Goal> goals = goalRepository.findTop3ByUserIdAndStatusInOrderByEndDateAscIdAsc(userId, statuses);
-		Long totalCount = goalRepository.countByStatusIn(statuses);
+		Long totalCount = goalRepository.countByUserIdAndStatusIn(userId, statuses);
 
-		List<GoalResponseDTO.PreviewDTO> previews = goals.stream()
-			.map(GoalConverter::toPreviewDto)
+		List<GoalResponseDTO.InfoDTO> infos = goals.stream()
+			.map(GoalConverter::toInfoDto)
 			.toList();
 
-		return goals.stream()
-			.map(goal -> GoalConverter.toInProgressDto(previews, totalCount))
-			.toList();
+		return GoalConverter.toInProgressDto(infos, totalCount);
 	}
 }

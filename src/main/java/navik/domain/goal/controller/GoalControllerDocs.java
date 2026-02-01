@@ -1,7 +1,5 @@
 package navik.domain.goal.controller;
 
-import java.util.List;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,5 +52,5 @@ public interface GoalControllerDocs {
 	@io.swagger.v3.oas.annotations.responses.ApiResponses(
 		value = {@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "OK")
 		})
-	ApiResponse<List<GoalResponseDTO.InProgressDTO>> getInProgressGoals(@AuthUser Long userId);
+	ApiResponse<GoalResponseDTO.InProgressDTO> getInProgressGoals(@AuthUser Long userId);
 }

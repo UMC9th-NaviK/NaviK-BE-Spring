@@ -31,5 +31,5 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
 		List<GoalStatus> statuses
 	);
 
-	Long countByStatusIn(List<GoalStatus> statuses);
+	Long countByUserIdAndStatusIn(Long userId, List<GoalStatus> statuses);
 }
