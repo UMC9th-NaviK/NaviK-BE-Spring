@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class PortfolioAiDto {
+public class PortfolioAiDTO {
 
 	public record OcrRequest(String pdfUrl) {
 	}
