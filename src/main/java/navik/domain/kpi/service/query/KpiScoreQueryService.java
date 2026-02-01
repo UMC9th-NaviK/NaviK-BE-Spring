@@ -80,13 +80,8 @@ public class KpiScoreQueryService {
 
 		int deltaThisMonth = 0;
 		for (Object[] row : rows) {
-			LocalDate periodStart = toLocalDate(row[0]);
 			int sumScore = extractSumScore(row[1]);
-
-			if (periodStart.equals(currentMonthStart)) {
-				deltaThisMonth = sumScore;
-				break;
-			}
+			deltaThisMonth += sumScore;
 		}
 
 		//전월 말 누적 점수 = 현재 누적 - 이번 달 증가분
@@ -101,19 +96,6 @@ public class KpiScoreQueryService {
 			prevTotalScore,
 			changeRate
 		);
-	}
-
-	private LocalDate toLocalDate(Object value) {
-		if (value instanceof java.sql.Date date) {
-			return date.toLocalDate();
-		}
-		if (value instanceof java.sql.Timestamp ts) {
-			return ts.toLocalDateTime().toLocalDate();
-		}
-		if (value instanceof LocalDateTime ldt) {
-			return ldt.toLocalDate();
-		}
-		return (LocalDate)value;
 	}
 
 	private int extractSumScore(Object value) {
