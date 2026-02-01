@@ -14,7 +14,11 @@ public class CorsConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowedOrigins(
-			List.of("http://localhost:5173", "http://localhost:8080", "https://api.navik.kro.kr"));  // 프론트 실배포 추가
+			List.of(
+				"http://localhost:5173",
+				"http://localhost:8080",
+				"https://api.navik.kro.kr",
+				"https://www.navik.kr"));
 		config.setAllowCredentials(true);  // 쿠키 전송 허용
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
