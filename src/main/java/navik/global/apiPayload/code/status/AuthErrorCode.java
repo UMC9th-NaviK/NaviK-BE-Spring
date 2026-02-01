@@ -1,9 +1,9 @@
 package navik.global.apiPayload.code.status;
 
+import org.springframework.http.HttpStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -57,7 +57,12 @@ public enum AuthErrorCode implements BaseCode {
 	/**
 	 * Redis에 저장된 리프레시 토큰과 불일치
 	 */
-	REFRESH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "AUTH4009", "저장된 리프레시 토큰과 일치하지 않습니다.");
+	REFRESH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "AUTH4009", "저장된 리프레시 토큰과 일치하지 않습니다."),
+
+	/**
+	 * 온보딩 미완료 사용자의 일반 API 접근 시
+	 */
+	ONBOARDING_REQUIRED(HttpStatus.FORBIDDEN, "AUTH4010", "온보딩이 완료되지 않았습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;

@@ -20,6 +20,7 @@ import navik.global.apiPayload.code.status.AuthErrorCode;
 import navik.global.auth.handler.OAuth2SuccessHandler;
 import navik.global.auth.jwt.JwtAuthenticationFilter;
 import navik.global.auth.jwt.JwtTokenProvider;
+import navik.global.auth.jwt.UserStatusFilter;
 import navik.global.auth.service.CustomOAuth2UserService;
 import navik.global.enums.SecurityPermitPath;
 
@@ -36,44 +37,47 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http
-			.csrf(AbstractHttpConfigurer::disable)
+		http.csrf(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
 			.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.cors(cors -> cors.configurationSource(corsConfigurationSource))
 
-			.authorizeHttpRequests(auth -> auth
-				.requestMatchers(SecurityPermitPath.STATIC.getPaths()).permitAll()
-				.requestMatchers(SecurityPermitPath.SWAGGER.getPaths()).permitAll()
-				.requestMatchers(SecurityPermitPath.AUTH.getPaths()).permitAll()
-				.requestMatchers(SecurityPermitPath.S3.getPaths()).permitAll()
-				.requestMatchers(SecurityPermitPath.DEV.getPaths()).permitAll()
+			.authorizeHttpRequests(auth -> auth.requestMatchers(SecurityPermitPath.STATIC.getPaths())
+				.permitAll()
+				.requestMatchers(SecurityPermitPath.SWAGGER.getPaths())
+				.permitAll()
+				.requestMatchers(SecurityPermitPath.AUTH.getPaths())
+				.permitAll()
+				.requestMatchers(SecurityPermitPath.S3.getPaths())
+				.permitAll()
+				.requestMatchers(SecurityPermitPath.DEV.getPaths())
+				.permitAll()
 				// 그 외 모든 요청은 인증 필요
-				.anyRequest().authenticated())
+				.anyRequest()
+				.authenticated())
 
 			// 인증되지 않은 사용자의 접근 시 401 JSON 응답 반환
 			// (토큰이 없는 상태에서 인증 필요 엔드포인트 접근)
-			.exceptionHandling(exception -> exception
-				.authenticationEntryPoint((request, response, authException) -> {
-					response.setContentType("application/json;charset=UTF-8");
-					response.setStatus(AuthErrorCode.UNAUTHORIZED.getHttpStatus().value());
+			.exceptionHandling(exception -> exception.authenticationEntryPoint((request, response, authException) -> {
+				response.setContentType("application/json;charset=UTF-8");
+				response.setStatus(AuthErrorCode.UNAUTHORIZED.getHttpStatus().value());
 
-					ApiResponse.Body<?> errorBody = ApiResponse.createFailureBody(AuthErrorCode.UNAUTHORIZED);
+				ApiResponse.Body<?> errorBody = ApiResponse.createFailureBody(AuthErrorCode.UNAUTHORIZED);
 
-					ObjectMapper objectMapper = new ObjectMapper();
-					objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
-					response.getWriter().write(objectMapper.writeValueAsString(errorBody));
-				}))
+				ObjectMapper objectMapper = new ObjectMapper();
+				objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+				response.getWriter().write(objectMapper.writeValueAsString(errorBody));
+			}))
 
-			.oauth2Login(oauth2 -> oauth2
-				.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+			.oauth2Login(oauth2 -> oauth2.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
 				.successHandler(oAuth2SuccessHandler))
 
 			// JWT 필터 배치
-			.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
-				UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+			// 온보딩 미완료(PENDING) 사용자 접근 제어
+			.addFilterAfter(new UserStatusFilter(), JwtAuthenticationFilter.class);
 
 		return http.build();
 	}
