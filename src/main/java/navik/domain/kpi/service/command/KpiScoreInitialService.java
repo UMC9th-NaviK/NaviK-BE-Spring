@@ -153,6 +153,10 @@ public class KpiScoreInitialService {
 		// 유저 직무에 해당하는 전체 KPI 카드 조회
 		List<KpiCard> allCards = kpiCardRepository.findAllByJobId(jobId);
 
+		if (allCards.isEmpty()) {
+			throw new GeneralExceptionHandler(KpiCardErrorCode.KPI_CARD_NOT_INITIALIZED);
+		}
+
 		// 이미 KpiScore가 존재하는 카드 ID 수집
 		Set<Long> existingCardIds = kpiScoreRepository
 			.findAllByUserIdAndKpiCard_IdIn(
