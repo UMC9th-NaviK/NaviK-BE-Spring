@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import navik.domain.evaluation.dto.EvaluationMyDTO;
 import navik.domain.evaluation.dto.EvaluationStudyUserDTO;
 import navik.domain.evaluation.dto.EvaluationSubmitDTO;
 import navik.global.apiPayload.ApiResponse;
@@ -24,4 +25,10 @@ public interface EvaluationControllerDocs {
 		@Parameter(name = "userId", hidden = true)
 	})
 	ApiResponse<String> submit(Long studyId, Long userId, EvaluationSubmitDTO request);
+
+	@Operation(summary = "나의 누적 평가 요약 조회 API", description = "전체 스터디에서 받은 누적 평균 평점과 강점/보완점 TOP 3를 조회합니다.")
+	@Parameters({
+		@Parameter(name = "userId", hidden = true)
+	})
+	ApiResponse<EvaluationMyDTO> getMyEvaluation(Long userId);
 }
