@@ -123,8 +123,8 @@ public class EvaluationQueryService {
 		List<EvaluationTagSelection> selections = selectionTagRepository.findAllByEvaluationIn(evaluations);
 
 		// 4. 강점 및 보완점 TOP 3 추출 로직
-		List<String> topStrengths = extractTop3(selections, TagType.STRENGTH);
-		List<String> topWeaknesses = extractTop3(selections, TagType.IMPROVEMENT);
+		List<String> topStrengths = extractTopTags(selections, TagType.STRENGTH, 3);
+		List<String> topWeaknesses = extractTopTags(selections, TagType.IMPROVEMENT, 3);
 
 		return EvaluationMyConverter.toEvaluationMyDTO(averageRating, topStrengths, topWeaknesses);
 	}
@@ -136,6 +136,7 @@ public class EvaluationQueryService {
 	 * @param pageSize
 	 * @return
 	 */
+	@Transactional(readOnly = true)
 	public CursorResponseDto<EvaluationMyDTO.MyStudyEvaluationPreviewDTO> getMyEvaluations(Long userId, Long cursor,
 		int pageSize) {
 		Pageable pageable = PageRequest.of(0, pageSize + 1);
@@ -158,6 +159,7 @@ public class EvaluationQueryService {
 	 * @param studyId
 	 * @return
 	 */
+	@Transactional(readOnly = true)
 	public EvaluationMyDTO.MyStudyEvaluationDetailDTO getMyEvaluationDetails(Long userId, Long studyId) {
 		// 스터디 참여했는지 확인
 		StudyUser studyUser = studyUserRepository.findByUserIdAndStudyId(userId, studyId)
@@ -186,31 +188,15 @@ public class EvaluationQueryService {
 
 		// 강점, 보완 태그 5개씩
 		List<EvaluationTagSelection> selections = selectionTagRepository.findAllByEvaluationIn(evaluations);
-		List<String> strengths = extractTopTags(selections, TagType.STRENGTH);
-		List<String> weaknesses = extractTopTags(selections, TagType.IMPROVEMENT);
+		List<String> strengths = extractTopTags(selections, TagType.STRENGTH, 5);
+		List<String> weaknesses = extractTopTags(selections, TagType.IMPROVEMENT, 5);
 
 		return EvaluationConverter.toEvaluationDetail(studyUser, study, averageRating, strengths, weaknesses,
 			adviceList, countMember);
 	}
 
-	// 평가 요약 top 3
-	private List<String> extractTop3(List<EvaluationTagSelection> selections, TagType type) {
-		return selections.stream()
-			.map(EvaluationTagSelection::getTag) // 매핑 엔티티에서 실제 Tag 엔티티 추출
-			.filter(tagType -> tagType.getTagType() == type)
-			.collect(Collectors.groupingBy(EvaluationTag::getTagContent, Collectors.counting())) // 이름별 빈도수 계산
-			.entrySet().stream()
-			.sorted((a, b) -> {
-				int compare = b.getValue().compareTo(a.getValue()); // 1순위: 빈도수 높은 순
-				return (compare == 0) ? -1 : compare; // 2순위: 동일 빈도일 경우 최신순(입력 순서 기반)
-			})
-			.limit(3)
-			.map(Map.Entry::getKey)
-			.toList();
-	}
-
-	// 상세 평가 top5
-	private List<String> extractTopTags(List<EvaluationTagSelection> selections, TagType type) {
+	// top3, top5
+	private List<String> extractTopTags(List<EvaluationTagSelection> selections, TagType type, int limit) {
 		return selections.stream()
 			.map(EvaluationTagSelection::getTag)
 			.filter(tag -> tag.getTagType() == type)
