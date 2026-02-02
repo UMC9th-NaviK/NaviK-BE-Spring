@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import navik.domain.evaluation.dto.EvaluationMyDTO;
 import navik.domain.evaluation.dto.EvaluationStudyUserDTO;
 import navik.domain.evaluation.dto.EvaluationSubmitDTO;
 import navik.domain.evaluation.service.EvaluationQueryService;
@@ -54,4 +55,18 @@ public class EvaluationController implements EvaluationControllerDocs {
 		evaluationQueryService.submitEvaluation(userId, studyId, request);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, "성공적으로 평가가 제출되었습니다.");
 	}
+
+	/**
+	 * 내 평가 조회
+	 * @param userId
+	 * @return
+	 */
+	@GetMapping("/my")
+	public ApiResponse<EvaluationMyDTO> getMyEvaluation(
+		@AuthUser Long userId
+	) {
+		EvaluationMyDTO response = evaluationQueryService.myEvaluation(userId);
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
+	}
+
 }
