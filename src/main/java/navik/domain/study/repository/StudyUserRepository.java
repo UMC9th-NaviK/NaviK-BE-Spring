@@ -43,6 +43,7 @@ public interface StudyUserRepository extends JpaRepository<StudyUser, Long> {
 		JOIN FETCH su.study
 		WHERE su.user.id = :userId
 			AND su.attend = 'ACCEPTANCE'
+			AND su.isActive = true
 			AND (:cursor IS NULL OR su.id < :cursor)
 		ORDER BY su.id	DESC
 		""")
