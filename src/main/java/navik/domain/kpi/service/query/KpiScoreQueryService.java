@@ -78,9 +78,9 @@ public class KpiScoreQueryService {
 		// 이번 달 증가분
 		List<Object[]> rows = growthLogRepository.sumByMonth(userId, null, start, end);
 
-		int deltaThisMonth = 0;
+		long deltaThisMonth = 0;
 		for (Object[] row : rows) {
-			int sumScore = extractSumScore(row[1]);
+			long sumScore = extractSumScore(row[1]);
 			deltaThisMonth += sumScore;
 		}
 
@@ -98,11 +98,11 @@ public class KpiScoreQueryService {
 		);
 	}
 
-	private int extractSumScore(Object value) {
+	private long extractSumScore(Object value) {
 		if (value == null) {
-			return 0;
+			return 0L;
 		}
-		return ((Number)value).intValue();
+		return ((Number)value).longValue();
 	}
 
 	private Double calculateChangeRate(long current, long prev) {
