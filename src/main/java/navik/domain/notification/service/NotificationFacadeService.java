@@ -133,7 +133,7 @@ public class NotificationFacadeService {
 		study.getStudyUsers().forEach(
 			studyUser -> {
 				if (studyUser.isActive())
-					notificationCommandService.createCompletionNotification(studyUser.getId(), study);
+					notificationCommandService.createCompletionNotification(studyUser.getUser().getId(), study);
 			}
 		);
 	}

@@ -16,7 +16,10 @@ public interface StudyRepository extends JpaRepository<Study, Long> {
 			SELECT s.id FROM Study s
 			WHERE s.endDate >= :start AND s.endDate < :end
 		""")
-	List<Long> findAllIdsByEndDateBetweenWithStudyUser(LocalDateTime start, LocalDateTime end);
+	List<Long> findAllIdsByEndDateBetweenWithStudyUser(
+		@Param("start") LocalDateTime start,
+		@Param("end") LocalDateTime end
+	);
 
 	@Query("""
 			SELECT s FROM Study s
