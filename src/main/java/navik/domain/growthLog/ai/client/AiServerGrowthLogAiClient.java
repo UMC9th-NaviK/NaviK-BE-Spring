@@ -39,7 +39,7 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 				)
 				.retrieve()
 				.bodyToMono(GrowthLogEvaluationResult.class)
-				.timeout(Duration.ofSeconds(props.timeoutSeconds()))
+				.timeout(Duration.ofSeconds(props.timeoutSeconds() != null ? props.timeoutSeconds() : 10))
 				.block();
 		} catch (Exception e) {
 			throw new GeneralExceptionHandler(
