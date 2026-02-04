@@ -1,6 +1,7 @@
 package navik.domain.portfolio.entity;
 
 public enum PortfolioStatus {
+	WAITING_ADDITIONAL_INFO, // 추가 정보 입력 대기
 	PENDING,    // 평가 대기
 	PROCESSING, // 평가 처리 중
 	COMPLETED,  // 평가 완료
