@@ -1,20 +1,23 @@
 package navik.domain.growthLog.service.command;
 
+import static navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.*;
+
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.growthLog.dto.internal.GrowthLogInternalApplyEvaluationRequest;
 import navik.domain.growthLog.dto.internal.GrowthLogInternalProcessingStartRequest;
-import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO;
 import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GrowthLogEvaluationApplyService {
@@ -69,17 +72,19 @@ public class GrowthLogEvaluationApplyService {
 
 		// totalDelta는 Spring에서 재계산
 		int totalDelta = req.kpis().stream().mapToInt(GrowthLogInternalApplyEvaluationRequest.KpiDelta::delta).sum();
+		List<GrowthLogEvaluationResult.AbilityResult> abilities = convertAbilities(req.abilities());
 
-		GrowthLogAiResponseDTO.GrowthLogEvaluationResult normalized =
-			new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
+		GrowthLogEvaluationResult normalized =
+			new GrowthLogEvaluationResult(
 				req.title(),
 				req.content(),
 				req.kpis().stream()
-					.map(k -> new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(k.kpiCardId(), k.delta()))
-					.toList()
+					.map(k -> new GrowthLogEvaluationResult.KpiDelta(k.kpiCardId(), k.delta()))
+					.toList(),
+				abilities
 			);
 
-		List<GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta> kpis =
+		List<GrowthLogEvaluationResult.KpiDelta> kpis =
 			normalized.kpis(); // 동일 리스트 재사용
 
 		persistence.completeGrowthLogAfterProcessing(
@@ -87,9 +92,35 @@ public class GrowthLogEvaluationApplyService {
 			growthLogId,
 			normalized,
 			totalDelta,
-			kpis
+			kpis,
+			abilities
 		);
 
 		growthLogRepository.clearProcessingTokenIfMatch(userId, growthLogId, token, GrowthLogStatus.COMPLETED);
+	}
+
+	private List<GrowthLogEvaluationResult.AbilityResult> convertAbilities(
+		List<GrowthLogInternalApplyEvaluationRequest.AbilityDelta> abilities
+	) {
+		if (abilities == null || abilities.isEmpty()) {
+			return List.of();
+		}
+
+		return abilities.stream()
+			.filter(a -> {
+				if (a == null || a.content() == null || a.content().isBlank()) {
+					log.warn("Invalid ability content filtered: {}", a);
+					return false;
+				}
+				if (a.embedding() == null || a.embedding().length != 1536) {
+					log.warn("Invalid ability embedding dimension filtered: content={}, dimension={}",
+						a.content(),
+						a.embedding() == null ? "null" : a.embedding().length);
+					return false;
+				}
+				return true;
+			})
+			.map(a -> new GrowthLogEvaluationResult.AbilityResult(a.content().trim(), a.embedding()))
+			.toList();
 	}
 }

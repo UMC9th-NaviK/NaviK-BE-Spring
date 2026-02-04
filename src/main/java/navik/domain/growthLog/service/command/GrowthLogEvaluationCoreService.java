@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.growthLog.ai.client.GrowthLogAiClient;
 import navik.domain.growthLog.dto.internal.Evaluated;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO.GrowthLogEvaluationContext;
@@ -26,6 +27,7 @@ import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GrowthLogEvaluationCoreService {
@@ -98,7 +100,9 @@ public class GrowthLogEvaluationCoreService {
 			.mapToInt(GrowthLogEvaluationResult.KpiDelta::delta)
 			.sum();
 
-		return new Evaluated(normalized, kpis, totalDelta);
+		List<GrowthLogEvaluationResult.AbilityResult> abilities = normalizeAbilities(normalized.abilities());
+
+		return new Evaluated(normalized, kpis, totalDelta, abilities);
 	}
 
 	private GrowthLogEvaluationResult normalize(GrowthLogEvaluationResult r) {
@@ -109,13 +113,39 @@ public class GrowthLogEvaluationCoreService {
 		String title = (r.title() == null) ? "" : r.title().trim();
 		String content = (r.content() == null) ? "" : r.content().trim();
 		List<GrowthLogEvaluationResult.KpiDelta> kpis = (r.kpis() == null) ? List.of() : r.kpis();
+		List<GrowthLogEvaluationResult.AbilityResult> abilities = (r.abilities() == null) ? List.of() : r.abilities();
 
 		if (title.isBlank())
 			title = "사용자 입력 성장 기록";
 		if (content.isBlank())
 			content = "(내용 없음)";
 
-		return new GrowthLogEvaluationResult(title, content, kpis);
+		return new GrowthLogEvaluationResult(title, content, kpis, abilities);
+	}
+
+	private List<GrowthLogEvaluationResult.AbilityResult> normalizeAbilities(
+		List<GrowthLogEvaluationResult.AbilityResult> abilities
+	) {
+		if (abilities == null || abilities.isEmpty()) {
+			return List.of();
+		}
+
+		return abilities.stream()
+			.filter(a -> {
+				if (a == null || a.content() == null || a.content().isBlank()) {
+					log.warn("Invalid ability content filtered: {}", a);
+					return false;
+				}
+				if (a.embedding() == null || a.embedding().length != 1536) {
+					log.warn("Invalid ability embedding dimension filtered: content={}, dimension={}",
+						a.content(),
+						a.embedding() == null ? "null" : a.embedding().length);
+					return false;
+				}
+				return true;
+			})
+			.map(a -> new GrowthLogEvaluationResult.AbilityResult(a.content().trim(), a.embedding()))
+			.toList();
 	}
 
 	private List<GrowthLogEvaluationResult.KpiDelta> mergeSameKpi(List<GrowthLogEvaluationResult.KpiDelta> kpis) {

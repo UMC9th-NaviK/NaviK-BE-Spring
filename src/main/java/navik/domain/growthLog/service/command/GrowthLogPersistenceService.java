@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import navik.domain.ability.service.command.AbilityCommandService;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.GrowthLogEvaluationResult;
 import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.entity.GrowthLogKpiLink;
@@ -29,12 +30,14 @@ public class GrowthLogPersistenceService {
 	private final GrowthLogRepository growthLogRepository;
 	private final KpiCardRepository kpiCardRepository;
 	private final KpiScoreIncrementService kpiScoreIncrementService;
+	private final AbilityCommandService abilityCommandService;
 
 	public Long saveUserInputLog(
 		Long userId,
 		GrowthLogEvaluationResult normalized,
 		int totalDelta,
-		List<GrowthLogEvaluationResult.KpiDelta> kpis
+		List<GrowthLogEvaluationResult.KpiDelta> kpis,
+		List<GrowthLogEvaluationResult.AbilityResult> abilities
 	) {
 		User user = userRepository.getReferenceById(userId);
 
@@ -51,6 +54,7 @@ public class GrowthLogPersistenceService {
 		Long id = growthLogRepository.save(growthLog).getId();
 
 		applyKpiScoreDeltas(userId, kpis);
+		abilityCommandService.saveAbilities(userId, abilities);
 
 		return id;
 	}
@@ -92,7 +96,8 @@ public class GrowthLogPersistenceService {
 		Long growthLogId,
 		GrowthLogEvaluationResult normalized,
 		int totalDelta,
-		List<GrowthLogEvaluationResult.KpiDelta> kpis
+		List<GrowthLogEvaluationResult.KpiDelta> kpis,
+		List<GrowthLogEvaluationResult.AbilityResult> abilities
 	) {
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
 			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
@@ -103,7 +108,7 @@ public class GrowthLogPersistenceService {
 		}
 
 		applyEvaluationResult(growthLog, userId, normalized, totalDelta, kpis);
-
+		abilityCommandService.saveAbilities(userId, abilities);
 	}
 
 	@Transactional
@@ -112,7 +117,8 @@ public class GrowthLogPersistenceService {
 		Long growthLogId,
 		GrowthLogEvaluationResult normalized,
 		int totalDelta,
-		List<GrowthLogEvaluationResult.KpiDelta> kpis
+		List<GrowthLogEvaluationResult.KpiDelta> kpis,
+		List<GrowthLogEvaluationResult.AbilityResult> abilities
 	) {
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
 			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
@@ -123,6 +129,7 @@ public class GrowthLogPersistenceService {
 		}
 
 		applyEvaluationResult(growthLog, userId, normalized, totalDelta, kpis);
+		abilityCommandService.saveAbilities(userId, abilities);
 	}
 
 	private GrowthLog newUserInputLog(

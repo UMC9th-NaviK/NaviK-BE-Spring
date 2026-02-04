@@ -40,7 +40,8 @@ public class SyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStrat
 				userId,
 				evaluated.normalized(),
 				evaluated.totalDelta(),
-				evaluated.kpis()
+				evaluated.kpis(),
+				evaluated.abilities()
 			);
 
 			return new GrowthLogResponseDTO.CreateResult(id, GrowthLogStatus.COMPLETED);
@@ -87,7 +88,8 @@ public class SyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStrat
 				growthLogId,
 				evaluated.normalized(),
 				evaluated.totalDelta(),
-				evaluated.kpis()
+				evaluated.kpis(),
+				evaluated.abilities()
 			);
 
 			return new GrowthLogResponseDTO.RetryResult(growthLogId, GrowthLogStatus.COMPLETED);

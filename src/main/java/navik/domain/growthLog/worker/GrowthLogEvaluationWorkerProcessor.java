@@ -68,7 +68,8 @@ public class GrowthLogEvaluationWorkerProcessor {
 			growthLogId,
 			evaluated.normalized(),
 			evaluated.totalDelta(),
-			evaluated.kpis()
+			evaluated.kpis(),
+			evaluated.abilities()
 		);
 
 		// 7) 토큰 정리
