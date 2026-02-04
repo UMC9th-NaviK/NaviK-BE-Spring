@@ -7,15 +7,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.portfolio.dto.PortfolioAiDTO;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AiServerPortfolioAiClient implements PortfolioAiClient {
 
 	private final WebClient aiWebClient;
+	private final WebClient ocrWebClient;
 
 	private static final String OCR_PATH = "/ocr/pdf";
 	private static final String ANALYZE_PATH = "/api/kpi/analyze/backend";
@@ -24,7 +27,7 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 	@Override
 	public String extractTextFromPdf(String fileUrl) {
 		try {
-			PortfolioAiDTO.OcrResponse response = aiWebClient.post()
+			PortfolioAiDTO.OcrResponse response = ocrWebClient.post()
 				.uri(OCR_PATH)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
@@ -36,7 +39,7 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 
 			return response.text();
 		} catch (Exception e) {
-			throw new GeneralExceptionHandler(GeneralErrorCode.EXTERNAL_API_ERROR);
+			throw  new GeneralExceptionHandler(GeneralErrorCode.EXTERNAL_API_ERROR);
 		}
 	}
 
