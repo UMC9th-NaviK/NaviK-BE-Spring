@@ -186,7 +186,7 @@ public class GrowthLogPersistenceService {
 
 		try {
 			abilityCommandService.saveAbilities(userId, abilities);
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			log.warn("Ability 저장 실패로 스킵 (growthLog는 유지). userId={}, growthLogId={}, abilitiesSize={}",
 				userId, growthLogId, (abilities == null ? 0 : abilities.size()), e);
 		}
