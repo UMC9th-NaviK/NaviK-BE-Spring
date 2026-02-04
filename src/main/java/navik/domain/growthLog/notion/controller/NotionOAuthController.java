@@ -1,11 +1,9 @@
 package navik.domain.growthLog.notion.controller;
 
 import java.net.URI;
-import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.domain.growthLog.notion.dto.NotionOAuthResponse;
 import navik.domain.growthLog.notion.service.NotionOAuthService;
+import navik.global.apiPayload.code.status.NotionErrorCode;
+import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import navik.global.auth.annotation.AuthUser;
 
 @Slf4j
@@ -58,53 +58,40 @@ public class NotionOAuthController implements NotionOAuthControllerDocs {
 		// 사용자가 권한 부여를 거부한 경우
 		if (error != null) {
 			log.warn("Notion OAuth 거부됨: error={}, userId={}", error, state);
-			return ResponseEntity.badRequest()
-					.body(new NotionOAuthResponse.CallbackResponse(false, "Notion 연동이 거부되었습니다.", state, null, null));
+			throw new GeneralExceptionHandler(NotionErrorCode.OAUTH_DENIED);
 		}
 
 		// state(userId) 검증
 		if (state == null || state.isBlank()) {
 			log.error("Notion OAuth 콜백 오류: state 누락");
-			return ResponseEntity.badRequest()
-					.body(new NotionOAuthResponse.CallbackResponse(false, "잘못된 요청입니다. (state 누락)", null, null, null));
+			throw new GeneralExceptionHandler(NotionErrorCode.OAUTH_STATE_MISSING);
 		}
 
+		log.info("Notion OAuth 콜백 수신: userId={}", state);
+
+		Long userId;
 		try {
-			log.info("Notion OAuth 콜백 수신: userId={}", state);
-
-			Long userId;
-			try {
-				userId = Long.parseLong(state.replace("user-", ""));
-			} catch (NumberFormatException e) {
-				log.error("잘못된 userId 형식(숫자 아님): {}", state);
-				return ResponseEntity.badRequest()
-						.body(new NotionOAuthResponse.CallbackResponse(false, "잘못된 userId 형식입니다.", state, null, null));
-			}
-
-			// Authorization Code → Access Token 교환
-			NotionOAuthResponse.TokenResponse tokenResponse = oAuthService.exchangeCodeForToken(code);
-
-			// 토큰 저장 (TokenResponse 전체 전달)
-			oAuthService.saveToken(userId, tokenResponse);
-
-			log.info("Notion 연동 완료: userId={}, workspace={}, workspaceId={}",
-					userId, tokenResponse.workspaceName(), tokenResponse.workspaceId());
-
-			return ResponseEntity.ok(new NotionOAuthResponse.CallbackResponse(
-					true,
-					"Notion 연동이 완료되었습니다!",
-					String.valueOf(userId),
-					tokenResponse.workspaceName(),
-					tokenResponse.workspaceId()));
-
-		} catch (Exception e) {
-			log.error("Notion OAuth 처리 실패: userId={}", state, e);
-			return ResponseEntity.internalServerError()
-					.body(
-							new NotionOAuthResponse.CallbackResponse(false, "Notion 연동 중 오류가 발생했습니다: " + e.getMessage(),
-									state,
-									null, null));
+			userId = Long.parseLong(state.replace("user-", ""));
+		} catch (NumberFormatException e) {
+			log.error("잘못된 userId 형식(숫자 아님): {}", state);
+			throw new GeneralExceptionHandler(NotionErrorCode.OAUTH_INVALID_USER_ID);
 		}
+
+		// Authorization Code → Access Token 교환
+		NotionOAuthResponse.TokenResponse tokenResponse = oAuthService.exchangeCodeForToken(code);
+
+		// 토큰 저장 (TokenResponse 전체 전달)
+		oAuthService.saveToken(userId, tokenResponse);
+
+		log.info("Notion 연동 완료: userId={}, workspace={}, workspaceId={}",
+				userId, tokenResponse.workspaceName(), tokenResponse.workspaceId());
+
+		return ResponseEntity.ok(new NotionOAuthResponse.CallbackResponse(
+				true,
+				"Notion 연동이 완료되었습니다!",
+				String.valueOf(userId),
+				tokenResponse.workspaceName(),
+				tokenResponse.workspaceId()));
 	}
 
 	// /**
