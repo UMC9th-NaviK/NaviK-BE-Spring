@@ -1,5 +1,7 @@
 package navik.domain.growthLog.dto.internal;
 
+import static navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.*;
+
 import java.util.List;
 
 import jakarta.validation.Valid;
@@ -15,16 +17,11 @@ public record GrowthLogInternalApplyEvaluationRequest(
 	@NotBlank String content,
 
 	@NotNull List<@Valid KpiDelta> kpis,
-	List<@Valid AbilityDelta> abilities
+	List<GrowthLogEvaluationResult.@Valid AbilityResult> abilities
 ) {
 	public record KpiDelta(
 		@NotNull Long kpiCardId,
 		@NotNull Integer delta) {
 	}
 
-	public record AbilityDelta(
-		@NotBlank String content,
-		@NotNull float[] embedding
-	) {
-	}
 }

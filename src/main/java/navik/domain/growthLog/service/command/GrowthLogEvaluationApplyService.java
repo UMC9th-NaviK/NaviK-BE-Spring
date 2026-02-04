@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import navik.domain.ability.normalizer.AbilityNormalizer;
 import navik.domain.growthLog.dto.internal.GrowthLogInternalApplyEvaluationRequest;
 import navik.domain.growthLog.dto.internal.GrowthLogInternalProcessingStartRequest;
 import navik.domain.growthLog.entity.GrowthLog;
@@ -22,11 +23,9 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 @RequiredArgsConstructor
 public class GrowthLogEvaluationApplyService {
 
-	private static final int EMBEDDING_DIM = 1536;
-	private static final int CONTENT_LOG_MAX = 30;
-
 	private final GrowthLogRepository growthLogRepository;
 	private final GrowthLogPersistenceService persistence;
+	private final AbilityNormalizer abilityNormalizer;
 
 	@Transactional
 	public void startProcessing(Long growthLogId, GrowthLogInternalProcessingStartRequest req) {
@@ -75,7 +74,7 @@ public class GrowthLogEvaluationApplyService {
 
 		// totalDelta는 Spring에서 재계산
 		int totalDelta = req.kpis().stream().mapToInt(GrowthLogInternalApplyEvaluationRequest.KpiDelta::delta).sum();
-		List<GrowthLogEvaluationResult.AbilityResult> abilities = convertAbilities(req.abilities());
+		List<GrowthLogEvaluationResult.AbilityResult> abilities = abilityNormalizer.normalize(req.abilities());
 
 		GrowthLogEvaluationResult normalized =
 			new GrowthLogEvaluationResult(
@@ -97,39 +96,4 @@ public class GrowthLogEvaluationApplyService {
 		growthLogRepository.clearProcessingTokenIfMatch(userId, growthLogId, token, GrowthLogStatus.COMPLETED);
 	}
 
-	private List<GrowthLogEvaluationResult.AbilityResult> convertAbilities(
-		List<GrowthLogInternalApplyEvaluationRequest.AbilityDelta> abilities
-	) {
-		if (abilities == null || abilities.isEmpty())
-			return List.of();
-
-		return abilities.stream()
-			.filter(a -> {
-				if (a == null) {
-					log.warn("Invalid ability filtered: null");
-					return false;
-				}
-				String content = a.content();
-				if (content == null || content.isBlank()) {
-					log.warn("Invalid ability content filtered: blank");
-					return false;
-				}
-				float[] emb = a.embedding();
-				if (emb == null || emb.length != EMBEDDING_DIM) {
-					log.warn("Invalid ability embedding dimension filtered: content={}, dimension={}",
-						abbreviate(content.trim()),
-						emb == null ? "null" : emb.length
-					);
-					return false;
-				}
-				return true;
-			})
-			.map(a -> new GrowthLogEvaluationResult.AbilityResult(a.content().trim(), a.embedding()))
-			.toList();
-	}
-
-	private String abbreviate(String s) {
-		return (s.length() <= CONTENT_LOG_MAX) ? s : s.substring(0,
-			CONTENT_LOG_MAX) + "...";
-	}
 }
