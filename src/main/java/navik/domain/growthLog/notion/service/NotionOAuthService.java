@@ -29,6 +29,9 @@ import navik.domain.growthLog.notion.dto.NotionOAuthResponse;
 import navik.domain.growthLog.notion.dto.NotionOAuthResponse.*;
 import navik.domain.growthLog.notion.dto.NotionWorkspaceToken;
 import navik.domain.growthLog.notion.repository.NotionTokenRepository;
+import navik.global.apiPayload.code.status.NotificationErrorCode;
+import navik.global.apiPayload.code.status.NotionErrorCode;
+import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Slf4j
 @Service
@@ -88,8 +91,11 @@ public class NotionOAuthService {
 			.bodyToMono(TokenResponse.class)
 			.block();
 
-		log.info("Notion OAuth 토큰 교환 완료: workspaceName={}",
-			response != null ? response.workspaceName() : "null");
+		if(response == null) {
+			throw new GeneralExceptionHandler(NotionErrorCode.NOTION_OAUTH_RESPONSE_NULL);
+		}
+
+		log.info("Notion OAuth 토큰 교환 완료: workspaceName={}",response.workspaceName());
 
 		return response;
 	}
