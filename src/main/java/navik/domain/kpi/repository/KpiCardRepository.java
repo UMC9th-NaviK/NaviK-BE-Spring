@@ -3,6 +3,7 @@ package navik.domain.kpi.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,4 +29,7 @@ public interface KpiCardRepository extends JpaRepository<KpiCard, Long> {
 
 	@Query("select c from KpiCard c left join fetch c.job where c.id = :kpiCardId")
 	Optional<KpiCard> findByIdWithJob(@Param("kpiCardId") Long kpiCardId);
+
+	@Query("select k.id from KpiCard k")
+	List<Long> findTop5Ids(Pageable pageable);
 }
