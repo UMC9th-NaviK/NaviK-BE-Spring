@@ -184,7 +184,7 @@ class PortfolioAnalysisWorkerProcessorTest {
 			Portfolio portfolio = mockPortfolio("이력서 내용");
 			given(portfolioRepository.findById(portfolioId)).willReturn(Optional.of(portfolio));
 			given(portfolioAiClient.analyzePortfolio("이력서 내용"))
-				.willReturn(new PortfolioAiDto.AnalyzeResponse(List.of()));
+				.willReturn(new PortfolioAiDTO.AnalyzeResponse(List.of()));
 
 			// when
 			boolean result = processor.process(userId, portfolioId, "trace-id");
