@@ -10,6 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import navik.domain.portfolio.dto.PortfolioRequestDto;
 import navik.domain.portfolio.dto.PortfolioResponseDto;
 import navik.domain.portfolio.entity.Portfolio;
+import navik.domain.portfolio.entity.PortfolioStatus;
+import navik.domain.portfolio.exception.code.PortfolioErrorCode;
+import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import navik.domain.portfolio.message.PortfolioAnalysisMessage;
 import navik.domain.portfolio.message.PortfolioAnalysisPublisher;
 import navik.domain.portfolio.repository.PortfolioRepository;
@@ -43,9 +46,39 @@ public class PortfolioCommandService {
 
 		portfolioRepository.save(portfolio);
 
-		publishAnalysisMessage(userId, portfolio.getId()); //todo: portfolio 커밋 후 실행되도록
+		publishAnalysisMessage(userId, portfolio.getId());
 
 		return new PortfolioResponseDto.Created(portfolio.getId(), request.inputType());
+	}
+
+	public PortfolioResponseDto.AdditionalInfoSubmitted submitAdditionalInfo(
+		Long userId,
+		Long portfolioId,
+		PortfolioRequestDto.AdditionalInfo request
+	) {
+		Portfolio portfolio = portfolioRepository.findById(portfolioId)
+			.orElseThrow(() -> new GeneralExceptionHandler(PortfolioErrorCode.PORTFOLIO_NOT_FOUND));
+
+		if (!portfolio.getUser().getId().equals(userId)) {
+			throw new GeneralExceptionHandler(PortfolioErrorCode.PORTFOLIO_NOT_OWNED);
+		}
+
+		if (portfolio.getStatus() != PortfolioStatus.FAILED) {
+			throw new GeneralExceptionHandler(PortfolioErrorCode.INVALID_PORTFOLIO_STATUS);
+		}
+
+		portfolio.updateAdditionalInfo(
+			request.qB1(),
+			request.qB2(),
+			request.qB3(),
+			request.qB4(),
+			request.qB5()
+		);
+		portfolioRepository.save(portfolio);
+
+		publishAnalysisMessage(userId, portfolioId);
+
+		return new PortfolioResponseDto.AdditionalInfoSubmitted(portfolioId);
 	}
 
 	private void publishAnalysisMessage(Long userId, Long portfolioId) {

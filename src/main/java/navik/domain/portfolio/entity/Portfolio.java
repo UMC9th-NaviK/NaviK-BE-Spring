@@ -48,7 +48,7 @@ public class Portfolio extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false)
 	@Builder.Default
-	private PortfolioStatus status = PortfolioStatus.WAITING_ADDITIONAL_INFO;
+	private PortfolioStatus status = PortfolioStatus.PENDING;
 
 	@Column(name = "q_b1")
 	private Integer qB1;
