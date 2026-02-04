@@ -31,7 +31,6 @@ public interface PortfolioControllerDocs {
 			- **AI 분석(KPI 도출)**은 백그라운드(Redis Stream)에서 별도로 진행되며, 완료 후 결과가 업데이트됩니다.
 			"""
 	)
-	@SecurityRequirement(name = "bearerAuth")
 	@ApiResponses(value = {
 		@ApiResponse(
 			responseCode = "201",
@@ -133,7 +132,6 @@ public interface PortfolioControllerDocs {
 			- 추가 정보 저장 후 재분석이 비동기로 진행됩니다.
 			"""
 	)
-	@SecurityRequirement(name = "bearerAuth")
 	@ApiResponses(value = {
 		@ApiResponse(
 			responseCode = "200",
