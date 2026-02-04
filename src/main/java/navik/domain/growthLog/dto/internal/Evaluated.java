@@ -7,6 +7,7 @@ import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO;
 public record Evaluated(
 	GrowthLogAiResponseDTO.GrowthLogEvaluationResult normalized,
 	List<GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta> kpis,
-	int totalDelta
+	int totalDelta,
+	List<GrowthLogAiResponseDTO.GrowthLogEvaluationResult.AbilityResult> abilities
 ) {
 }

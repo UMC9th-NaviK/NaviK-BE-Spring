@@ -14,8 +14,17 @@ public record GrowthLogInternalApplyEvaluationRequest(
 	@NotBlank String title,
 	@NotBlank String content,
 
-	@NotNull List<@Valid KpiDelta> kpis
+	@NotNull List<@Valid KpiDelta> kpis,
+	List<@Valid AbilityDelta> abilities
 ) {
-	public record KpiDelta(@NotNull Long kpiCardId, @NotNull Integer delta) {
+	public record KpiDelta(
+		@NotNull Long kpiCardId,
+		@NotNull Integer delta) {
+	}
+
+	public record AbilityDelta(
+		@NotBlank String content,
+		@NotNull float[] embedding
+	) {
 	}
 }
