@@ -1,5 +1,6 @@
 package navik.global.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -34,6 +36,9 @@ public class SecurityConfig {
 	private final OAuth2SuccessHandler oAuth2SuccessHandler;
 	private final CorsConfigurationSource corsConfigurationSource;
 
+	@Value("${management.endpoints.web.exposure.allowed-ip:localhost}")
+	private String allowedIp;
+
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
@@ -49,8 +54,13 @@ public class SecurityConfig {
 				.requestMatchers(SecurityPermitPath.SWAGGER.getPaths()).permitAll()
 				.requestMatchers(SecurityPermitPath.AUTH.getPaths()).permitAll()
 				.requestMatchers(SecurityPermitPath.S3.getPaths()).permitAll()
-				// 5. 개발환경 전용
+				// 개발환경 전용
 				.requestMatchers("/dev/**").permitAll()
+
+				// 모니터링 접근 제한
+				.requestMatchers("/actuator/prometheus").access(new WebExpressionAuthorizationManager(
+					makeAllowedIpExpression(allowedIp)
+				))
 
 				// 그 외 모든 요청은 인증 필요
 				.anyRequest().authenticated())
@@ -78,5 +88,15 @@ public class SecurityConfig {
 				UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
+	}
+
+	private String makeAllowedIpExpression(String allowedIp) {
+		if (allowedIp == null || allowedIp.isBlank()) {
+			return "denyAll";
+		}
+		if ("localhost".equalsIgnoreCase(allowedIp)) {
+			return "hasIpAddress('127.0.0.1')";
+		}
+		return "hasIpAddress('" + allowedIp + "')";
 	}
 }

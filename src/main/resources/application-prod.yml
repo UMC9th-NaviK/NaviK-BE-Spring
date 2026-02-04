@@ -90,3 +90,10 @@ spring:
 ai:
   server:
     base-url: ${AI_SERVER_BASE_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"   # prometheus만 공개
+        allowed-ip: ${ALLOWED_IP}
