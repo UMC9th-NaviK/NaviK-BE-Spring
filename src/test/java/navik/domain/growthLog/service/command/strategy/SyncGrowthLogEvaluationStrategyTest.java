@@ -62,13 +62,13 @@ class SyncGrowthLogEvaluationStrategyTest {
 				"제목",
 				"내용",
 				List.of(new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(100L, 3)),
-				List.of()  // abilities 추가
+				List.of()
 			);
-			var evaluated = new Evaluated(normalized, normalized.kpis(), 3, List.of());
+			var evaluated = new Evaluated(normalized, 3);
 
 			given(core.buildContext(eq(userId), eq(input))).willReturn(context);
 			given(core.evaluate(eq(userId), eq(context))).willReturn(evaluated);
-			given(growthLogPersistenceService.saveUserInputLog(eq(userId), eq(normalized), eq(3), any(), any()))
+			given(growthLogPersistenceService.saveUserInputLog(eq(userId), eq(normalized), eq(3)))
 				.willReturn(999L);
 
 			// when
@@ -80,7 +80,7 @@ class SyncGrowthLogEvaluationStrategyTest {
 
 			verify(core).buildContext(userId, input);
 			verify(core).evaluate(userId, context);
-			verify(growthLogPersistenceService).saveUserInputLog(eq(userId), eq(normalized), eq(3), any(), any());
+			verify(growthLogPersistenceService).saveUserInputLog(eq(userId), eq(normalized), eq(3));
 			verify(growthLogPersistenceService, never()).saveFailedUserInputLog(anyLong(), anyString());
 		}
 
@@ -91,13 +91,12 @@ class SyncGrowthLogEvaluationStrategyTest {
 			Long userId = 1L;
 
 			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
-			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of(),
-				List.of());  // abilities 추가
-			var evaluated = new Evaluated(normalized, List.of(), 0, List.of());
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of(), List.of());
+			var evaluated = new Evaluated(normalized, 0);
 
 			given(core.buildContext(eq(userId), eq("(내용 없음)"))).willReturn(context);
 			given(core.evaluate(eq(userId), eq(context))).willReturn(evaluated);
-			given(growthLogPersistenceService.saveUserInputLog(eq(userId), any(), anyInt(), any(), any()))
+			given(growthLogPersistenceService.saveUserInputLog(eq(userId), any(), anyInt()))
 				.willReturn(1L);
 
 			// when
@@ -127,7 +126,7 @@ class SyncGrowthLogEvaluationStrategyTest {
 			assertThat(result.status()).isEqualTo(GrowthLogStatus.FAILED);
 
 			verify(growthLogPersistenceService).saveFailedUserInputLog(userId, input);
-			verify(growthLogPersistenceService, never()).saveUserInputLog(anyLong(), any(), anyInt(), any(), any());
+			verify(growthLogPersistenceService, never()).saveUserInputLog(anyLong(), any(), anyInt());
 		}
 
 		@Test
@@ -161,13 +160,12 @@ class SyncGrowthLogEvaluationStrategyTest {
 			String input = "입력";
 
 			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
-			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of(),
-				List.of());  // abilities 추가
-			var evaluated = new Evaluated(normalized, List.of(), 0, List.of());
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of(), List.of());
+			var evaluated = new Evaluated(normalized, 0);
 
 			given(core.buildContext(eq(userId), eq(input))).willReturn(context);
 			given(core.evaluate(eq(userId), eq(context))).willReturn(evaluated);
-			given(growthLogPersistenceService.saveUserInputLog(eq(userId), any(), anyInt(), any(), any()))
+			given(growthLogPersistenceService.saveUserInputLog(eq(userId), any(), anyInt()))
 				.willThrow(new RuntimeException("DB write error"));
 			given(growthLogPersistenceService.saveFailedUserInputLog(eq(userId), eq(input)))
 				.willReturn(789L);
@@ -197,14 +195,13 @@ class SyncGrowthLogEvaluationStrategyTest {
 			given(growthLogRepository.findByIdAndUserId(growthLogId, userId))
 				.willReturn(Optional.of(growthLog));
 			given(retryRateLimiter.tryAcquire(anyString(), eq(3))).willReturn(true);
-			given(growthLogRepository.updateStatusIfMatch(userId, growthLogId, GrowthLogStatus.FAILED,
-				GrowthLogStatus.PENDING))
-				.willReturn(1);
+			given(growthLogRepository.updateStatusIfMatch(
+				userId, growthLogId, GrowthLogStatus.FAILED, GrowthLogStatus.PENDING
+			)).willReturn(1);
 
 			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
-			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of(),
-				List.of());  // abilities 추가
-			var evaluated = new Evaluated(normalized, List.of(), 0, List.of());
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of(), List.of());
+			var evaluated = new Evaluated(normalized, 0);
 
 			given(core.buildContext(eq(userId), eq("원본 내용"))).willReturn(context);
 			given(core.evaluate(eq(userId), eq(context))).willReturn(evaluated);
@@ -217,7 +214,7 @@ class SyncGrowthLogEvaluationStrategyTest {
 			assertThat(result.status()).isEqualTo(GrowthLogStatus.COMPLETED);
 
 			verify(growthLogPersistenceService).updateGrowthLogAfterRetry(
-				eq(userId), eq(growthLogId), eq(normalized), eq(0), any(), any()
+				eq(userId), eq(growthLogId), eq(normalized), eq(0)
 			);
 		}
 
@@ -283,9 +280,9 @@ class SyncGrowthLogEvaluationStrategyTest {
 			given(growthLogRepository.findByIdAndUserId(growthLogId, userId))
 				.willReturn(Optional.of(growthLog));
 			given(retryRateLimiter.tryAcquire(anyString(), eq(3))).willReturn(true);
-			given(growthLogRepository.updateStatusIfMatch(userId, growthLogId, GrowthLogStatus.FAILED,
-				GrowthLogStatus.PENDING))
-				.willReturn(0);
+			given(growthLogRepository.updateStatusIfMatch(
+				userId, growthLogId, GrowthLogStatus.FAILED, GrowthLogStatus.PENDING
+			)).willReturn(0);
 
 			// when & then
 			assertThatThrownBy(() -> strategy.retry(userId, growthLogId))
@@ -304,9 +301,9 @@ class SyncGrowthLogEvaluationStrategyTest {
 			given(growthLogRepository.findByIdAndUserId(growthLogId, userId))
 				.willReturn(Optional.of(growthLog));
 			given(retryRateLimiter.tryAcquire(anyString(), eq(3))).willReturn(true);
-			given(growthLogRepository.updateStatusIfMatch(userId, growthLogId, GrowthLogStatus.FAILED,
-				GrowthLogStatus.PENDING))
-				.willReturn(1);
+			given(growthLogRepository.updateStatusIfMatch(
+				userId, growthLogId, GrowthLogStatus.FAILED, GrowthLogStatus.PENDING
+			)).willReturn(1);
 
 			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
 
@@ -338,14 +335,13 @@ class SyncGrowthLogEvaluationStrategyTest {
 			given(growthLogRepository.findByIdAndUserId(growthLogId, userId))
 				.willReturn(Optional.of(growthLog));
 			given(retryRateLimiter.tryAcquire(anyString(), eq(3))).willReturn(true);
-			given(growthLogRepository.updateStatusIfMatch(userId, growthLogId, GrowthLogStatus.FAILED,
-				GrowthLogStatus.PENDING))
-				.willReturn(1);
+			given(growthLogRepository.updateStatusIfMatch(
+				userId, growthLogId, GrowthLogStatus.FAILED, GrowthLogStatus.PENDING
+			)).willReturn(1);
 
 			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
-			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of(),
-				List.of());  // abilities 추가
-			var evaluated = new Evaluated(normalized, List.of(), 0, List.of());
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of(), List.of());
+			var evaluated = new Evaluated(normalized, 0);
 
 			given(core.buildContext(eq(userId), eq("(내용 없음)"))).willReturn(context);
 			given(core.evaluate(eq(userId), eq(context))).willReturn(evaluated);

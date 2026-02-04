@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import navik.domain.ability.normalizer.AbilityNormalizer;
 import navik.domain.growthLog.dto.internal.GrowthLogInternalApplyEvaluationRequest;
 import navik.domain.growthLog.dto.internal.GrowthLogInternalProcessingStartRequest;
 import navik.domain.growthLog.entity.GrowthLog;
@@ -33,6 +34,9 @@ class GrowthLogEvaluationApplyServiceTest {
 
 	@InjectMocks
 	GrowthLogEvaluationApplyService service;
+
+	@Mock
+	AbilityNormalizer abilityNormalizer;
 
 	@Nested
 	@DisplayName("startProcessing()")
