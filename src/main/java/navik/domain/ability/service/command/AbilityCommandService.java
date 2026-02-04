@@ -5,6 +5,7 @@ import static navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.*;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.ability.entity.Ability;
@@ -22,6 +23,7 @@ public class AbilityCommandService {
 	private final AbilityEmbeddingRepository abilityEmbeddingRepository;
 	private final UserRepository userRepository;
 
+	@Transactional
 	public void saveAbilities(Long userId,
 		List<GrowthLogEvaluationResult.AbilityResult> abilities) {
 		if (abilities == null || abilities.isEmpty()) {
