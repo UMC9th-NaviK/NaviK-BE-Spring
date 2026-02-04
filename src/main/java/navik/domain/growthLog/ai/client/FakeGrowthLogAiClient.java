@@ -1,6 +1,7 @@
 package navik.domain.growthLog.ai.client;
 
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO;
+import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.GrowthLogEvaluationResult.AbilityResult;
 import navik.domain.kpi.repository.KpiCardRepository;
 
 @Component
@@ -17,6 +19,7 @@ import navik.domain.kpi.repository.KpiCardRepository;
 public class FakeGrowthLogAiClient implements GrowthLogAiClient {
 
 	private final KpiCardRepository kpiCardRepository;
+	private final Random random = new Random();
 
 	@Override
 	public GrowthLogAiResponseDTO.GrowthLogEvaluationResult evaluateUserInput(
@@ -26,16 +29,14 @@ public class FakeGrowthLogAiClient implements GrowthLogAiClient {
 		List<Long> kpiCardIds =
 			kpiCardRepository.findTop5Ids(PageRequest.of(0, 5));
 
-		// context에서 KPI 정보 활용해서 더미 응답 생성
 		List<GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta> kpiDeltas =
 			kpiCardIds.stream()
 				.map(id -> new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(
 					id,
-					10 // 테스트용 고정 delta
+					10
 				))
 				.toList();
 
-		// KPI가 없으면 빈 리스트 유지
 		if (kpiDeltas.isEmpty() && !context.recentKpiDeltas().isEmpty()) {
 			kpiDeltas = List.of(
 				new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(
@@ -45,11 +46,35 @@ public class FakeGrowthLogAiClient implements GrowthLogAiClient {
 			);
 		}
 
+		List<AbilityResult> abilities = generateFakeAbilities(context.newContent());
+
 		return new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
 			"[Fake] " + truncate(context.newContent(), 20),
 			"AI 서버 연동 전 더미 응답입니다. 입력: " + truncate(context.newContent(), 50),
-			kpiDeltas
+			kpiDeltas,
+			abilities
 		);
+	}
+
+	private List<AbilityResult> generateFakeAbilities(String content) {
+		return List.of(
+			new AbilityResult(
+				"[Fake] " + truncate(content, 30) + " 관련 역량",
+				generateFakeEmbedding()
+			),
+			new AbilityResult(
+				"[Fake] 문제 해결 및 분석 능력",
+				generateFakeEmbedding()
+			)
+		);
+	}
+
+	private float[] generateFakeEmbedding() {
+		float[] embedding = new float[1536];
+		for (int i = 0; i < 1536; i++) {
+			embedding[i] = random.nextFloat() * 2 - 1;  // -1 ~ 1 범위
+		}
+		return embedding;
 	}
 
 	private String truncate(String s, int maxLen) {
