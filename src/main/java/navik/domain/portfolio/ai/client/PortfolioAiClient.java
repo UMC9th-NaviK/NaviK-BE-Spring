@@ -1,10 +1,10 @@
 package navik.domain.portfolio.ai.client;
 
-import navik.domain.portfolio.dto.PortfolioAiDto;
+import navik.domain.portfolio.dto.PortfolioAiDTO;
 
 public interface PortfolioAiClient {
 
 	String extractTextFromPdf(String fileUrl);
 
-	PortfolioAiDto.AnalyzeResponse analyzePortfolio(String portfolioText);
+	PortfolioAiDTO.AnalyzeResponse analyzePortfolio(String portfolioText);
 }

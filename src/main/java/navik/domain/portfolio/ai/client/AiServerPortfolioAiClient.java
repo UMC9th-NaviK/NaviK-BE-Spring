@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import lombok.RequiredArgsConstructor;
-import navik.domain.portfolio.dto.PortfolioAiDto;
+import navik.domain.portfolio.dto.PortfolioAiDTO;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
@@ -23,13 +23,13 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 	@Override
 	public String extractTextFromPdf(String fileUrl) {
 		try {
-			PortfolioAiDto.OcrResponse response = aiWebClient.post()
+			PortfolioAiDTO.OcrResponse response = aiWebClient.post()
 				.uri(OCR_PATH)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.bodyValue(new PortfolioAiDto.OcrRequest(fileUrl))
+				.bodyValue(new PortfolioAiDTO.OcrRequest(fileUrl))
 				.retrieve()
-				.bodyToMono(PortfolioAiDto.OcrResponse.class)
+				.bodyToMono(PortfolioAiDTO.OcrResponse.class)
 				.timeout(Duration.ofSeconds(30))
 				.block();
 
@@ -40,15 +40,15 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 	}
 
 	@Override
-	public PortfolioAiDto.AnalyzeResponse analyzePortfolio(String resumeText) {
+	public PortfolioAiDTO.AnalyzeResponse analyzePortfolio(String resumeText) {
 		try {
 			return aiWebClient.post()
 				.uri(ANALYZE_PATH)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.bodyValue(new PortfolioAiDto.AnalyzeRequest(resumeText))
+				.bodyValue(new PortfolioAiDTO.AnalyzeRequest(resumeText))
 				.retrieve()
-				.bodyToMono(PortfolioAiDto.AnalyzeResponse.class)
+				.bodyToMono(PortfolioAiDTO.AnalyzeResponse.class)
 				.timeout(Duration.ofSeconds(30))
 				.block();
 		} catch (Exception e) {

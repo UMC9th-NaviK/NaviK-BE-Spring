@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
 import navik.domain.kpi.service.command.KpiScoreInitialService;
 import navik.domain.portfolio.ai.client.PortfolioAiClient;
-import navik.domain.portfolio.dto.PortfolioAiDto;
+import navik.domain.portfolio.dto.PortfolioAiDTO;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.entity.PortfolioStatus;
 import navik.domain.portfolio.repository.PortfolioRepository;
@@ -44,7 +44,7 @@ public class PortfolioAnalysisWorkerProcessor {
 		}
 
 		// 2) AI 서버 분석 요청
-		PortfolioAiDto.AnalyzeResponse result = portfolioAiClient.analyzePortfolio(resumeText);
+		PortfolioAiDTO.AnalyzeResponse result = portfolioAiClient.analyzePortfolio(resumeText);
 
 		if (result == null || result.scores() == null || result.scores().isEmpty()) {
 			log.warn("[PortfolioAnalysis] skip (empty AI response). traceId={}, portfolioId={}", traceId, portfolioId);

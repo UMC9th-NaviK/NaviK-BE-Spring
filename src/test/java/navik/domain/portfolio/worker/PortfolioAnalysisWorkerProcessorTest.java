@@ -19,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
 import navik.domain.kpi.service.command.KpiScoreInitialService;
 import navik.domain.portfolio.ai.client.PortfolioAiClient;
-import navik.domain.portfolio.dto.PortfolioAiDto;
+import navik.domain.portfolio.dto.PortfolioAiDTO;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.repository.PortfolioRepository;
 
@@ -54,11 +54,11 @@ class PortfolioAnalysisWorkerProcessorTest {
 			given(portfolioRepository.findById(portfolioId)).willReturn(Optional.of(portfolio));
 
 			var scores = List.of(
-				new PortfolioAiDto.AnalyzeResponse.KpiScoreItem(1L, "주력 언어 숙련도", 85, "high"),
-				new PortfolioAiDto.AnalyzeResponse.KpiScoreItem(2L, "프레임워크 이해도", 70, "medium")
+				new PortfolioAiDTO.AnalyzeResponse.KpiScoreItem(1L, "주력 언어 숙련도", 85, "high"),
+				new PortfolioAiDTO.AnalyzeResponse.KpiScoreItem(2L, "프레임워크 이해도", 70, "medium")
 			);
 			given(portfolioAiClient.analyzePortfolio("이력서 텍스트 내용"))
-				.willReturn(new PortfolioAiDto.AnalyzeResponse(scores));
+				.willReturn(new PortfolioAiDTO.AnalyzeResponse(scores));
 
 			// when
 			boolean result = processor.process(userId, portfolioId, traceId);
@@ -79,11 +79,11 @@ class PortfolioAnalysisWorkerProcessorTest {
 			given(portfolioRepository.findById(portfolioId)).willReturn(Optional.of(portfolio));
 
 			var scores = List.of(
-				new PortfolioAiDto.AnalyzeResponse.KpiScoreItem(1L, "주력 언어 숙련도", 85, "high"),
-				new PortfolioAiDto.AnalyzeResponse.KpiScoreItem(2L, "프레임워크 이해도", 70, "medium")
+				new PortfolioAiDTO.AnalyzeResponse.KpiScoreItem(1L, "주력 언어 숙련도", 85, "high"),
+				new PortfolioAiDTO.AnalyzeResponse.KpiScoreItem(2L, "프레임워크 이해도", 70, "medium")
 			);
 			given(portfolioAiClient.analyzePortfolio("이력서 내용"))
-				.willReturn(new PortfolioAiDto.AnalyzeResponse(scores));
+				.willReturn(new PortfolioAiDTO.AnalyzeResponse(scores));
 
 			// when
 			processor.process(userId, portfolioId, "trace-id");
