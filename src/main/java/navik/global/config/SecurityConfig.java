@@ -17,6 +17,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.AuthErrorCode;
 import navik.global.auth.handler.OAuth2SuccessHandler;
@@ -25,6 +26,7 @@ import navik.global.auth.jwt.JwtTokenProvider;
 import navik.global.auth.service.CustomOAuth2UserService;
 import navik.global.enums.SecurityPermitPath;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @Profile("!ci")
@@ -57,8 +59,8 @@ public class SecurityConfig {
 				// 개발환경 전용
 				.requestMatchers("/dev/**").permitAll()
 
-				// 모니터링 접근 제한
-				.requestMatchers("/actuator/prometheus").access(new WebExpressionAuthorizationManager(
+				// 모니터링 메트릭 접근 제한
+				.requestMatchers("/actuator/**").access(new WebExpressionAuthorizationManager(
 					makeAllowedIpExpression(allowedIp)
 				))
 
@@ -95,7 +97,7 @@ public class SecurityConfig {
 			return "denyAll";
 		}
 		if ("localhost".equalsIgnoreCase(allowedIp)) {
-			return "hasIpAddress('127.0.0.1')";
+			return "hasIpAddress('127.0.0.1') or hasIpAddress('::1') or hasIpAddress('0:0:0:0:0:0:0:1')";
 		}
 		return "hasIpAddress('" + allowedIp + "')";
 	}

@@ -95,5 +95,5 @@ management:
   endpoints:
     web:
       exposure:
-        include: "prometheus"   # prometheus만 공개
+        include: "prometheus"
         allowed-ip: ${ALLOWED_IP}
