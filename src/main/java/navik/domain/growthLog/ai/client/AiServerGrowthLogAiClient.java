@@ -23,9 +23,6 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 	private final WebClient aiWebClient;
 	private final AiServerProperties props;
 
-	private static final String EVALUATE_USER_INPUT_PATH =
-		"/v1/growth-logs/evaluate/user-input";
-
 	@Override
 	public GrowthLogEvaluationResult evaluateUserInput(
 		Long userId,
@@ -34,7 +31,7 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 
 		try {
 			return aiWebClient.post()
-				.uri(EVALUATE_USER_INPUT_PATH)
+				.uri(props.evaluateUserInputPath())
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
 				.bodyValue(
@@ -42,7 +39,7 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 				)
 				.retrieve()
 				.bodyToMono(GrowthLogEvaluationResult.class)
-				.timeout(Duration.ofSeconds(10))
+				.timeout(Duration.ofSeconds(props.timeoutSeconds()))
 				.block();
 		} catch (Exception e) {
 			throw new GeneralExceptionHandler(
