@@ -26,7 +26,7 @@ import navik.domain.growthLog.service.command.GrowthLogEvaluationCoreService;
 import navik.domain.growthLog.service.command.GrowthLogPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
-class GrowthLogEvaluationWorkerProcessorTest {
+public class GrowthLogEvaluationWorkerProcessorTest {
 
 	@Mock
 	GrowthLogRepository growthLogRepository;
@@ -62,10 +62,12 @@ class GrowthLogEvaluationWorkerProcessorTest {
 
 			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
 			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
-				"제목", "내용",
-				List.of(new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(100L, 3))
+				"제목",
+				"내용",
+				List.of(new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(100L, 3)),
+				List.of()
 			);
-			var evaluated = new Evaluated(normalized, normalized.kpis(), 3);
+			var evaluated = new Evaluated(normalized, 3);
 
 			given(core.buildContext(eq(userId), eq("입력 내용"))).willReturn(context);
 			given(core.evaluate(eq(userId), eq(context))).willReturn(evaluated);
@@ -77,7 +79,7 @@ class GrowthLogEvaluationWorkerProcessorTest {
 			assertThat(result).isEqualTo(ProcessResult.COMPLETED);
 
 			verify(persistence).completeGrowthLogAfterProcessing(
-				eq(userId), eq(growthLogId), eq(normalized), eq(3), any()
+				eq(userId), eq(growthLogId), eq(normalized), eq(3)
 			);
 			verify(growthLogRepository).clearProcessingTokenIfMatch(
 				userId, growthLogId, token, GrowthLogStatus.COMPLETED
@@ -100,8 +102,10 @@ class GrowthLogEvaluationWorkerProcessorTest {
 				.willReturn(1);
 
 			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
-			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of());
-			var evaluated = new Evaluated(normalized, List.of(), 0);
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
+				"제목", "내용", List.of(), List.of()
+			);
+			var evaluated = new Evaluated(normalized, 0);
 
 			given(core.buildContext(eq(userId), eq("(내용 없음)"))).willReturn(context);
 			given(core.evaluate(eq(userId), eq(context))).willReturn(evaluated);
@@ -130,9 +134,7 @@ class GrowthLogEvaluationWorkerProcessorTest {
 			assertThat(result).isEqualTo(ProcessResult.SKIP_NOT_FOUND);
 
 			verify(growthLogRepository, never()).acquireApplyLock(anyLong(), anyLong(), anyString());
-			verify(persistence, never()).completeGrowthLogAfterProcessing(
-				anyLong(), anyLong(), any(), anyInt(), any()
-			);
+			verify(persistence, never()).completeGrowthLogAfterProcessing(anyLong(), anyLong(), any(), anyInt());
 		}
 
 		@Test
@@ -239,9 +241,7 @@ class GrowthLogEvaluationWorkerProcessorTest {
 			assertThat(result).isEqualTo(ProcessResult.SKIP_ALREADY_APPLYING);
 
 			verify(core, never()).buildContext(anyLong(), anyString());
-			verify(persistence, never()).completeGrowthLogAfterProcessing(
-				anyLong(), anyLong(), any(), anyInt(), any()
-			);
+			verify(persistence, never()).completeGrowthLogAfterProcessing(anyLong(), anyLong(), any(), anyInt());
 		}
 
 		@Test
@@ -265,8 +265,8 @@ class GrowthLogEvaluationWorkerProcessorTest {
 				new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(101L, 5),
 				new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(102L, -2)
 			);
-			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", kpis);
-			var evaluated = new Evaluated(normalized, kpis, 6);  // 3 + 5 + (-2) = 6
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", kpis, List.of());
+			var evaluated = new Evaluated(normalized, 6); // 3 + 5 + (-2) = 6
 
 			given(core.buildContext(eq(userId), anyString())).willReturn(context);
 			given(core.evaluate(eq(userId), eq(context))).willReturn(evaluated);
@@ -276,7 +276,7 @@ class GrowthLogEvaluationWorkerProcessorTest {
 
 			// then
 			verify(persistence).completeGrowthLogAfterProcessing(
-				eq(userId), eq(growthLogId), eq(normalized), eq(6), any()
+				eq(userId), eq(growthLogId), eq(normalized), eq(6)
 			);
 		}
 	}
