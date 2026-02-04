@@ -97,3 +97,11 @@ management:
       exposure:
         include: "prometheus"
         allowed-ip: ${ALLOWED_IP}
+
+logging:
+  file:
+    name: ./logs/navik.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 7
