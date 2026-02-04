@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.ability.service.command.AbilityCommandService;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.GrowthLogEvaluationResult;
 import navik.domain.growthLog.entity.GrowthLog;
@@ -24,6 +25,7 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class GrowthLogPersistenceService {
 
 	private final UserRepository userRepository;
@@ -54,7 +56,7 @@ public class GrowthLogPersistenceService {
 		Long id = growthLogRepository.save(growthLog).getId();
 
 		applyKpiScoreDeltas(userId, kpis);
-		abilityCommandService.saveAbilities(userId, abilities);
+		saveAbilitiesSafely(userId, id, abilities);
 
 		return id;
 	}
@@ -108,10 +110,10 @@ public class GrowthLogPersistenceService {
 		}
 
 		applyEvaluationResult(growthLog, userId, normalized, totalDelta, kpis);
-		abilityCommandService.saveAbilities(userId, abilities);
+		saveAbilitiesSafely(userId, growthLogId, abilities);
+
 	}
 
-	@Transactional
 	public void completeGrowthLogAfterProcessing(
 		Long userId,
 		Long growthLogId,
@@ -129,7 +131,8 @@ public class GrowthLogPersistenceService {
 		}
 
 		applyEvaluationResult(growthLog, userId, normalized, totalDelta, kpis);
-		abilityCommandService.saveAbilities(userId, abilities);
+		saveAbilitiesSafely(userId, growthLogId, abilities);
+
 	}
 
 	private GrowthLog newUserInputLog(
@@ -183,5 +186,16 @@ public class GrowthLogPersistenceService {
 		growthLog.applyEvaluation(normalized.title(), normalized.content(), totalDelta);
 		attachKpiLinks(growthLog, kpis);
 		applyKpiScoreDeltas(userId, kpis);
+	}
+
+	private void saveAbilitiesSafely(Long userId, Long growthLogId,
+		List<GrowthLogEvaluationResult.AbilityResult> abilities) {
+
+		try {
+			abilityCommandService.saveAbilities(userId, abilities);
+		} catch (Exception e) {
+			log.warn("Ability 저장 실패로 스킵 (growthLog는 유지). userId={}, growthLogId={}, abilitiesSize={}",
+				userId, growthLogId, (abilities == null ? 0 : abilities.size()), e);
+		}
 	}
 }
