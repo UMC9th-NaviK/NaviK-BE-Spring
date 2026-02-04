@@ -2,6 +2,7 @@ package navik.domain.study.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,6 +12,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -45,9 +47,6 @@ public class Study extends BaseEntity implements Notifiable {
 	@Column(name = "description", nullable = false)
 	private String description; // 스터디 소개
 
-	@Column(name = "gathering_period", nullable = false)
-	private Integer gatheringPeriod; // 모이는 기간
-
 	@Column(name = "participation_method", nullable = false)
 	private String participationMethod; // 참여 방법
 
@@ -70,6 +69,9 @@ public class Study extends BaseEntity implements Notifiable {
 
 	@OneToMany(mappedBy = "study", fetch = FetchType.LAZY)
 	private List<StudyUser> studyUsers;
+
+	@Column(name = "week_time", nullable = false)
+	private Integer weekTime; // 1주일에 몇 회
 
 	@Override
 	public NotificationType getNotificationType() {

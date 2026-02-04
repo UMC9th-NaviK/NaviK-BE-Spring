@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum TagType {
 
-	HIGH_TAGGING("강점태깅"),
-	LOW_TAGGING("약점태깅");
+	STRENGTH("강점태깅"),
+	IMPROVEMENT("약점태깅");
 
 	private final String label;
 }
