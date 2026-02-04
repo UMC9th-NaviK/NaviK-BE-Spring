@@ -141,6 +141,11 @@ public class RedisStreamGrowthLogEvaluationWorker {
 			String recordId = msg.getId().getValue();
 			Map<Object, Object> body = msg.getValue();
 
+			if (body.containsKey("init")) {
+				ack(recordId);
+				continue;
+			}
+
 			Long userId = parseLong(body.get("userId"));
 			Long growthLogId = parseLong(body.get("growthLogId"));
 			String traceId = String.valueOf(body.getOrDefault("traceId", ""));
