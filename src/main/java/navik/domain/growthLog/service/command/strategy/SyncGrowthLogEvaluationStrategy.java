@@ -39,9 +39,7 @@ public class SyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStrat
 			Long id = growthLogPersistenceService.saveUserInputLog(
 				userId,
 				evaluated.normalized(),
-				evaluated.totalDelta(),
-				evaluated.kpis(),
-				evaluated.abilities()
+				evaluated.totalDelta()
 			);
 
 			return new GrowthLogResponseDTO.CreateResult(id, GrowthLogStatus.COMPLETED);
@@ -87,9 +85,7 @@ public class SyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStrat
 				userId,
 				growthLogId,
 				evaluated.normalized(),
-				evaluated.totalDelta(),
-				evaluated.kpis(),
-				evaluated.abilities()
+				evaluated.totalDelta()
 			);
 
 			return new GrowthLogResponseDTO.RetryResult(growthLogId, GrowthLogStatus.COMPLETED);

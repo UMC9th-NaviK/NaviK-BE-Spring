@@ -22,6 +22,9 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 @RequiredArgsConstructor
 public class GrowthLogEvaluationApplyService {
 
+	private static final int EMBEDDING_DIM = 1536;
+	private static final int CONTENT_LOG_MAX = 30;
+
 	private final GrowthLogRepository growthLogRepository;
 	private final GrowthLogPersistenceService persistence;
 
@@ -84,16 +87,11 @@ public class GrowthLogEvaluationApplyService {
 				abilities
 			);
 
-		List<GrowthLogEvaluationResult.KpiDelta> kpis =
-			normalized.kpis(); // 동일 리스트 재사용
-
 		persistence.completeGrowthLogAfterProcessing(
 			userId,
 			growthLogId,
 			normalized,
-			totalDelta,
-			kpis,
-			abilities
+			totalDelta
 		);
 
 		growthLogRepository.clearProcessingTokenIfMatch(userId, growthLogId, token, GrowthLogStatus.COMPLETED);
@@ -102,25 +100,36 @@ public class GrowthLogEvaluationApplyService {
 	private List<GrowthLogEvaluationResult.AbilityResult> convertAbilities(
 		List<GrowthLogInternalApplyEvaluationRequest.AbilityDelta> abilities
 	) {
-		if (abilities == null || abilities.isEmpty()) {
+		if (abilities == null || abilities.isEmpty())
 			return List.of();
-		}
 
 		return abilities.stream()
 			.filter(a -> {
-				if (a == null || a.content() == null || a.content().isBlank()) {
-					log.warn("Invalid ability content filtered: {}", a);
+				if (a == null) {
+					log.warn("Invalid ability filtered: null");
 					return false;
 				}
-				if (a.embedding() == null || a.embedding().length != 1536) {
+				String content = a.content();
+				if (content == null || content.isBlank()) {
+					log.warn("Invalid ability content filtered: blank");
+					return false;
+				}
+				float[] emb = a.embedding();
+				if (emb == null || emb.length != EMBEDDING_DIM) {
 					log.warn("Invalid ability embedding dimension filtered: content={}, dimension={}",
-						a.content(),
-						a.embedding() == null ? "null" : a.embedding().length);
+						abbreviate(content.trim()),
+						emb == null ? "null" : emb.length
+					);
 					return false;
 				}
 				return true;
 			})
 			.map(a -> new GrowthLogEvaluationResult.AbilityResult(a.content().trim(), a.embedding()))
 			.toList();
+	}
+
+	private String abbreviate(String s) {
+		return (s.length() <= CONTENT_LOG_MAX) ? s : s.substring(0,
+			CONTENT_LOG_MAX) + "...";
 	}
 }

@@ -22,10 +22,10 @@ import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
-@Service
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
+@Service
 public class GrowthLogPersistenceService {
 
 	private final UserRepository userRepository;
@@ -37,9 +37,7 @@ public class GrowthLogPersistenceService {
 	public Long saveUserInputLog(
 		Long userId,
 		GrowthLogEvaluationResult normalized,
-		int totalDelta,
-		List<GrowthLogEvaluationResult.KpiDelta> kpis,
-		List<GrowthLogEvaluationResult.AbilityResult> abilities
+		int totalDelta
 	) {
 		User user = userRepository.getReferenceById(userId);
 
@@ -51,12 +49,12 @@ public class GrowthLogPersistenceService {
 			GrowthLogStatus.COMPLETED
 		);
 
-		attachKpiLinks(growthLog, kpis);
+		attachKpiLinks(growthLog, normalized.kpis());
 
 		Long id = growthLogRepository.save(growthLog).getId();
 
-		applyKpiScoreDeltas(userId, kpis);
-		saveAbilitiesSafely(userId, id, abilities);
+		applyKpiScoreDeltas(userId, normalized.kpis());
+		saveAbilitiesSafely(userId, id, normalized.abilities());
 
 		return id;
 	}
@@ -97,9 +95,7 @@ public class GrowthLogPersistenceService {
 		Long userId,
 		Long growthLogId,
 		GrowthLogEvaluationResult normalized,
-		int totalDelta,
-		List<GrowthLogEvaluationResult.KpiDelta> kpis,
-		List<GrowthLogEvaluationResult.AbilityResult> abilities
+		int totalDelta
 	) {
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
 			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
@@ -109,8 +105,8 @@ public class GrowthLogPersistenceService {
 			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 
-		applyEvaluationResult(growthLog, userId, normalized, totalDelta, kpis);
-		saveAbilitiesSafely(userId, growthLogId, abilities);
+		applyEvaluationResult(growthLog, userId, normalized, totalDelta);
+		saveAbilitiesSafely(userId, growthLogId, normalized.abilities());
 
 	}
 
@@ -118,9 +114,7 @@ public class GrowthLogPersistenceService {
 		Long userId,
 		Long growthLogId,
 		GrowthLogEvaluationResult normalized,
-		int totalDelta,
-		List<GrowthLogEvaluationResult.KpiDelta> kpis,
-		List<GrowthLogEvaluationResult.AbilityResult> abilities
+		int totalDelta
 	) {
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
 			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
@@ -130,8 +124,8 @@ public class GrowthLogPersistenceService {
 			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 
-		applyEvaluationResult(growthLog, userId, normalized, totalDelta, kpis);
-		saveAbilitiesSafely(userId, growthLogId, abilities);
+		applyEvaluationResult(growthLog, userId, normalized, totalDelta);
+		saveAbilitiesSafely(userId, growthLogId, normalized.abilities());
 
 	}
 
@@ -179,13 +173,12 @@ public class GrowthLogPersistenceService {
 		GrowthLog growthLog,
 		Long userId,
 		GrowthLogEvaluationResult normalized,
-		int totalDelta,
-		List<GrowthLogEvaluationResult.KpiDelta> kpis
+		int totalDelta
 	) {
 		growthLog.clearKpiLinks();
 		growthLog.applyEvaluation(normalized.title(), normalized.content(), totalDelta);
-		attachKpiLinks(growthLog, kpis);
-		applyKpiScoreDeltas(userId, kpis);
+		attachKpiLinks(growthLog, normalized.kpis());
+		applyKpiScoreDeltas(userId, normalized.kpis());
 	}
 
 	private void saveAbilitiesSafely(Long userId, Long growthLogId,

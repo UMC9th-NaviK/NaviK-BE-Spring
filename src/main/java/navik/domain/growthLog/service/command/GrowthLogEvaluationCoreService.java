@@ -32,6 +32,9 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 @RequiredArgsConstructor
 public class GrowthLogEvaluationCoreService {
 
+	private static final int EMBEDDING_DIM = 1536;
+	private static final int CONTENT_LOG_MAX = 30;
+
 	private final GrowthLogRepository growthLogRepository;
 	private final GrowthLogKpiLinkRepository growthLogKpiLinkRepository;
 	private final KpiCardRepository kpiCardRepository;
@@ -91,18 +94,21 @@ public class GrowthLogEvaluationCoreService {
 	public Evaluated evaluate(Long userId, GrowthLogEvaluationContext context) {
 		GrowthLogEvaluationResult aiResult = growthLogAiClient.evaluateUserInput(userId, context);
 
-		GrowthLogEvaluationResult normalized = normalize(aiResult);
+		GrowthLogEvaluationResult base = normalize(aiResult);
 
-		List<GrowthLogEvaluationResult.KpiDelta> kpis = mergeSameKpi(normalized.kpis());
+		List<GrowthLogEvaluationResult.KpiDelta> kpis = mergeSameKpi(base.kpis());
 		validateKpisExist(kpis);
+
+		List<GrowthLogEvaluationResult.AbilityResult> abilities = normalizeAbilities(base.abilities());
 
 		int totalDelta = kpis.stream()
 			.mapToInt(GrowthLogEvaluationResult.KpiDelta::delta)
 			.sum();
 
-		List<GrowthLogEvaluationResult.AbilityResult> abilities = normalizeAbilities(normalized.abilities());
+		GrowthLogEvaluationResult normalized =
+			new GrowthLogEvaluationResult(base.title(), base.content(), kpis, abilities);
 
-		return new Evaluated(normalized, kpis, totalDelta, abilities);
+		return new Evaluated(normalized, totalDelta);
 	}
 
 	private GrowthLogEvaluationResult normalize(GrowthLogEvaluationResult r) {
@@ -132,20 +138,50 @@ public class GrowthLogEvaluationCoreService {
 
 		return abilities.stream()
 			.filter(a -> {
-				if (a == null || a.content() == null || a.content().isBlank()) {
-					log.warn("Invalid ability content filtered: {}", a);
+				if (a == null) {
+					log.warn("Invalid ability filtered: null");
 					return false;
 				}
-				if (a.embedding() == null || a.embedding().length != 1536) {
-					log.warn("Invalid ability embedding dimension filtered: content={}, dimension={}",
-						a.content(),
-						a.embedding() == null ? "null" : a.embedding().length);
+
+				String content = a.content();
+				if (content == null || content.isBlank()) {
+					log.warn("Invalid ability content filtered: blank");
 					return false;
 				}
+
+				float[] embedding = a.embedding();
+				if (embedding == null || embedding.length != EMBEDDING_DIM) {
+					log.warn(
+						"Invalid ability embedding dimension filtered: content={}, dimension={}",
+						abbreviate(content.trim()),
+						embedding == null ? "null" : embedding.length
+					);
+					return false;
+				}
+
+				// (선택) NaN / Infinity 방어
+				for (float v : embedding) {
+					if (!Float.isFinite(v)) {
+						log.warn(
+							"Invalid ability embedding value filtered: content={}",
+							abbreviate(content.trim())
+						);
+						return false;
+					}
+				}
+
 				return true;
 			})
-			.map(a -> new GrowthLogEvaluationResult.AbilityResult(a.content().trim(), a.embedding()))
+			.map(a -> new GrowthLogEvaluationResult.AbilityResult(
+				a.content().trim(),
+				a.embedding()
+			))
 			.toList();
+	}
+
+	private String abbreviate(String s) {
+		return (s.length() <= GrowthLogEvaluationCoreService.CONTENT_LOG_MAX) ? s : s.substring(0,
+			GrowthLogEvaluationCoreService.CONTENT_LOG_MAX) + "...";
 	}
 
 	private List<GrowthLogEvaluationResult.KpiDelta> mergeSameKpi(List<GrowthLogEvaluationResult.KpiDelta> kpis) {

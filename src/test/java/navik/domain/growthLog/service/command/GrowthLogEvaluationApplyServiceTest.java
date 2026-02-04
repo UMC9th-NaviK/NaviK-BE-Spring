@@ -210,7 +210,7 @@ class GrowthLogEvaluationApplyServiceTest {
 
 			// then
 			verify(persistence).completeGrowthLogAfterProcessing(
-				eq(userId), eq(growthLogId), any(), eq(3), any(), any()
+				eq(userId), eq(growthLogId), any(), eq(3)
 			);
 			verify(growthLogRepository).clearProcessingTokenIfMatch(
 				userId, growthLogId, token, GrowthLogStatus.COMPLETED
@@ -240,7 +240,7 @@ class GrowthLogEvaluationApplyServiceTest {
 			// then
 			verify(growthLogRepository, never()).acquireApplyLock(anyLong(), anyLong(), anyString());
 			verify(persistence, never()).completeGrowthLogAfterProcessing(
-				anyLong(), anyLong(), any(), anyInt(), any(), any()
+				anyLong(), anyLong(), any(), anyInt()
 			);
 		}
 
@@ -268,7 +268,7 @@ class GrowthLogEvaluationApplyServiceTest {
 
 			// then
 			verify(persistence, never()).completeGrowthLogAfterProcessing(
-				anyLong(), anyLong(), any(), anyInt(), any(), any()
+				anyLong(), anyLong(), any(), anyInt()
 			);
 		}
 
@@ -351,7 +351,7 @@ class GrowthLogEvaluationApplyServiceTest {
 
 			// then
 			verify(persistence).completeGrowthLogAfterProcessing(
-				eq(userId), eq(growthLogId), any(), eq(6), any(), any()
+				eq(userId), eq(growthLogId), any(), eq(6)
 			);
 		}
 	}
