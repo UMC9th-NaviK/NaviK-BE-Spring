@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DataSourceConfig {
 
 	@Bean
-	public BeanPostProcessor dataSourceBeanPostProcessor(MeterRegistry registry) {
+	public static BeanPostProcessor dataSourceBeanPostProcessor(MeterRegistry registry) {
 		return new BeanPostProcessor() {
 			@Override
 			public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
@@ -41,7 +41,7 @@ public class DataSourceConfig {
 		};
 	}
 
-	private String getCurrentUri() {
+	private static String getCurrentUri() {
 		try {
 			ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
 			if (attributes != null) {
