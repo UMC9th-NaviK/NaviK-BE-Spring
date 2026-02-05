@@ -15,6 +15,8 @@ public class CommentDTO {
 	private Long commentId;
 	private Long userId;
 	private Long parentCommentId;
+	private String profileImageUrl;
+	private Integer level;
 	private String nickname;
 	private String commentContent;
 	private LocalDateTime createdAt;
