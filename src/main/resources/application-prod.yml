@@ -97,6 +97,10 @@ management:
       exposure:
         include: "prometheus"
         allowed-ip: ${ALLOWED_IP}
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
 
 logging:
   file:
