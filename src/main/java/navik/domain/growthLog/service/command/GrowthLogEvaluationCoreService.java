@@ -17,6 +17,7 @@ import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO.PastKpiDelta;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.GrowthLogEvaluationResult;
 import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.entity.GrowthLogKpiLink;
+import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.repository.GrowthLogKpiLinkRepository;
 import navik.domain.growthLog.repository.GrowthLogRepository;
@@ -54,7 +55,8 @@ public class GrowthLogEvaluationCoreService {
 			.map(this::buildResumeText)
 			.orElse("포트폴리오 정보 없음");
 
-		List<GrowthLog> recentLogs = growthLogRepository.findTop20ByUserIdOrderByCreatedAtDesc(userId);
+		List<GrowthLog> recentLogs = growthLogRepository.findTop20ByUserIdAndStatusOrderByCreatedAtDesc(userId,
+			GrowthLogStatus.COMPLETED);
 
 		List<PastGrowthLog> recentGrowthLogs = recentLogs.stream()
 			.map(gl -> new PastGrowthLog(
