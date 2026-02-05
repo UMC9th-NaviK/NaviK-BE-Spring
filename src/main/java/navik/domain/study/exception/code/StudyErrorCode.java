@@ -13,6 +13,9 @@ public enum StudyErrorCode implements BaseCode {
 	STUDY_ALREADY_APPLIED(HttpStatus.BAD_REQUEST, "STUDY_400_1", "이미 신청한 스터디입니다"),
 	STUDY_MEMBER_FULL(HttpStatus.BAD_REQUEST, "STUDY_400_2", "모집 인원이 모두 찼습니다"),
 	INVALID_ATTEND_STATUS(HttpStatus.BAD_REQUEST, "STUDY_400_3", "잘못된 참여 상태 값입니다"),
+	INVALID_RECRUITMENT_STATUS(HttpStatus.BAD_REQUEST, "STUDY_400_4", "잘못된 모집 상태 값입니다"),
+	INVALID_STUDY_ROLE(HttpStatus.BAD_REQUEST, "STUDY_400_5", "잘못된 스터디 역할 값입니다"),
+	INVALID_SYNERGY_TYPE(HttpStatus.BAD_REQUEST, "STUDY_400_6", "유효하지 않은 시너지 타입입니다."),
 
 	NOT_STUDY_LEADER(HttpStatus.FORBIDDEN, "STUDY_403_1", "스터디장만 접근 권한이 있습니다"),
 

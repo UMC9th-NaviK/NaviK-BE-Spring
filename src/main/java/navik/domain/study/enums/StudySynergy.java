@@ -23,6 +23,6 @@ public enum StudySynergy {
 		return Arrays.stream(values())
 			.filter(type -> type.name().equalsIgnoreCase(value))
 			.findAny()
-			.orElseThrow(() -> new GeneralExceptionHandler(StudyErrorCode.INVALID_ATTEND_STATUS));
+			.orElseThrow(() -> new GeneralExceptionHandler(StudyErrorCode.INVALID_SYNERGY_TYPE));
 	}
 }
