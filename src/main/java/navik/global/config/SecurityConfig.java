@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -59,7 +60,9 @@ public class SecurityConfig {
 				.requestMatchers("/dev/**").permitAll()
 
 				// 모니터링 메트릭 접근 제한
-				.requestMatchers("/actuator/**").tus
+				.requestMatchers("/actuator/**").access(new WebExpressionAuthorizationManager(
+					makeAllowedIpExpression(allowedIp)
+				))
 
 				// 그 외 모든 요청은 인증 필요
 				.anyRequest().authenticated())
