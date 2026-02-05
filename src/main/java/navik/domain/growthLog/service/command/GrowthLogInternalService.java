@@ -17,6 +17,8 @@ import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.kpi.entity.KpiCard;
 import navik.domain.kpi.repository.KpiCardRepository;
+import navik.domain.users.entity.User;
+import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Service
@@ -26,21 +28,23 @@ public class GrowthLogInternalService {
 
 	private final GrowthLogRepository growthLogRepository;
 	private final KpiCardRepository kpiCardRepository;
+	private final UserRepository userRepository;
 
 	private static final String FEEDBACK_TITLE = "스터디 피드백";
 	private static final String PORTFOLIO_TITLE_FORMAT = "포트폴리오 분석 결과 (%d점)";
 	private static final String PORTFOLIO_CONTENT_FORMAT =
 		"포트폴리오 분석을 통해 KPI 점수가 초기 설정되었습니다. (점수: %d점)";
 
-	public Long createFeedback(GrowthLogInternalCreateRequest req) {
-		return createInternal(req, GrowthType.FEEDBACK, this::feedbackTitleContent);
+	public Long createFeedback(Long userId, GrowthLogInternalCreateRequest req) {
+		return createInternal(userId, req, GrowthType.FEEDBACK, this::feedbackTitleContent);
 	}
 
-	public Long createPortfolio(GrowthLogInternalCreateRequest req) {
-		return createInternal(req, GrowthType.PORTFOLIO, this::portfolioTitleContent);
+	public Long createPortfolio(Long userId, GrowthLogInternalCreateRequest req) {
+		return createInternal(userId, req, GrowthType.PORTFOLIO, this::portfolioTitleContent);
 	}
 
 	private Long createInternal(
+		Long userId,
 		GrowthLogInternalCreateRequest req,
 		GrowthType type,
 		TitleContentPolicy policy
@@ -58,7 +62,7 @@ public class GrowthLogInternalService {
 		Map<Long, KpiCard> kpiCardMap = findKpiCardsAsMap(ids);
 		TitleContent tc = policy.make(totalDelta, req.content());
 
-		GrowthLog growthLog = buildGrowthLog(type, totalDelta, tc);
+		GrowthLog growthLog = buildGrowthLog(userId, type, totalDelta, tc);
 		attachKpiLinks(growthLog, mergedDeltas, kpiCardMap);
 
 		return growthLogRepository.save(growthLog).getId();
@@ -84,8 +88,11 @@ public class GrowthLogInternalService {
 		return merged;
 	}
 
-	private GrowthLog buildGrowthLog(GrowthType type, int totalDelta, TitleContent tc) {
+	private GrowthLog buildGrowthLog(Long userId, GrowthType type, int totalDelta, TitleContent tc) {
+		User userRef = userRepository.getReferenceById(userId);
+
 		return GrowthLog.builder()
+			.user(userRef)
 			.type(type)
 			.title(tc.title())
 			.content(tc.content())

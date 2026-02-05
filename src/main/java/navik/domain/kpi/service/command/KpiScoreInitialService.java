@@ -55,7 +55,7 @@ public class KpiScoreInitialService {
 			kpiScoreRepository.saveAll(result.toCreate());
 		}
 
-		createPortfolioGrowthLogIfNeeded(result.kpiDeltasForLog());
+		createPortfolioGrowthLogIfNeeded(userId, result.kpiDeltasForLog());
 
 		return new KpiScoreResponseDTO.Initialize(
 			result.created(),
@@ -142,10 +142,10 @@ public class KpiScoreInitialService {
 		return new KpiScoreInitializeResult(created, updated, toCreate, resultItems, kpiDeltasForLog);
 	}
 
-	private void createPortfolioGrowthLogIfNeeded(List<GrowthLogInternalCreateRequest.KpiDelta> deltas) {
+	private void createPortfolioGrowthLogIfNeeded(Long userId, List<GrowthLogInternalCreateRequest.KpiDelta> deltas) {
 		if (deltas.isEmpty()) {
 			return;
 		}
-		growthLogInternalService.createPortfolio(new GrowthLogInternalCreateRequest(deltas, null));
+		growthLogInternalService.createPortfolio(userId, new GrowthLogInternalCreateRequest(deltas, null));
 	}
 }
