@@ -28,7 +28,10 @@ public interface StudyControllerDocs {
 		enumClass = StudyErrorCode.class,
 		includes = {"USER_NOT_FOUND"}
 	)
-	ApiResponse<Long> createStudy(StudyCreateDTO.CreateDTO request, @AuthUser Long userId);
+	ApiResponse<Long> createStudy(
+		@RequestBody @Valid StudyCreateDTO.CreateDTO request,
+		@AuthUser Long userId
+	);
 
 	@Operation(summary = "나의 스터디 목록 조회 API", description = "커서 기반 페이징으로 나의 스터디를 조회합니다.")
 	@Parameters({
@@ -40,8 +43,12 @@ public interface StudyControllerDocs {
 		enumClass = StudyErrorCode.class,
 		includes = {"USER_NOT_FOUND"}
 	)
-	ApiResponse<CursorResponseDto<StudyDTO.MyStudyDTO>> getMyStudies(StudyRole role, Long cursor, int size,
-		@AuthUser Long userId);
+	ApiResponse<CursorResponseDto<StudyDTO.MyStudyDTO>> getMyStudies(
+		@RequestParam(required = false) StudyRole role, // 리더/멤버 탭 구분
+		@RequestParam(value = "cursor", required = false) Long cursor,
+		@RequestParam(value = "size", defaultValue = "10") int size,
+		@AuthUser Long userId
+	);
 
 	@Operation(summary = "직무별 KPI 카드 목록 조회 API", description = "스터디 생성 시 특정 직무를 선택했을 때 해당되는 KPI 카드 리스트를 조회합니다. 커서 기반 페이징(무한 스크롤)을 지원합니다.")
 	@Parameters({
@@ -68,8 +75,11 @@ public interface StudyControllerDocs {
 		enumClass = StudyErrorCode.class,
 		includes = {"USER_NOT_FOUND"}
 	)
-	ApiResponse<CursorResponseDto<StudyRecommendDTO>> getRecommendedStudies(Long cursor, int size,
-		@AuthUser Long userId);
+	ApiResponse<CursorResponseDto<StudyRecommendDTO>> getRecommendedStudies(
+		@RequestParam(value = "cursor", required = false) Long cursor,
+		@RequestParam(value = "size", defaultValue = "10") int size,
+		@AuthUser Long userId
+	);
 
 	@Operation(summary = "스터디 신청하기 API", description = "사용자가 특정 스터디에 참여 신청을 합니다.")
 	@ApiErrorCodes(
