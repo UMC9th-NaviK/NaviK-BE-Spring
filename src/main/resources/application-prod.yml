@@ -100,9 +100,11 @@ management:
   metrics:
     distribution:
       percentiles-histogram:
-        http:
-          server:
-            requests: true
+        http.server.requests: true
+  enable:
+    http:
+      server:
+        requests: true
 
 logging:
   file:
