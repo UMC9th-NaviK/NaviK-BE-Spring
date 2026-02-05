@@ -46,8 +46,7 @@ public class DataSourceConfig {
 			ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
 			if (attributes != null) {
 				HttpServletRequest request = attributes.getRequest();
-				String pattern = (String)request.getAttribute(
-					HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+				String pattern = (String)request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
 				return (pattern != null) ? pattern : request.getRequestURI();
 			}
 		} catch (Exception e) {
