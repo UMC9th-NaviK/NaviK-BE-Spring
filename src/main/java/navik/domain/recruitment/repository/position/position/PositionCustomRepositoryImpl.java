@@ -81,7 +81,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 		 * 	   but, 유사성 없어도 어쨌든 전체 검색을 위한 창이므로 recruitment를 남기기 위해 where 필터링은 X
 		 */
 		NumberExpression<Double> similaritySum = new CaseBuilder()
-			.when(similarityQuery.gt(0.4))
+			.when(similarityQuery.gt(0.42))
 			.then(similarityQuery)
 			.otherwise(0.0)
 			.sum();

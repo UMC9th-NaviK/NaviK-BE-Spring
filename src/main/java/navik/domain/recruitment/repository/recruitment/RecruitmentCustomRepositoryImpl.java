@@ -68,7 +68,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 				experienceTypeSatisfy(experienceType),
 				majorTypeSatisfy(majorTypes),
 				endDateSatisfy(),
-				similarityQuery.goe(0.4)
+				similarityQuery.goe(0.42)
 			)
 			.filter(Objects::nonNull)
 			.reduce(BooleanExpression::and)
@@ -115,7 +115,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 		BooleanExpression where = Stream.of(
 				jobSatisfy(job),
 				endDateSatisfy(),
-				similarityQuery.goe(0.4)
+				similarityQuery.goe(0.42)
 			)
 			.reduce(BooleanExpression::and)
 			.filter(Objects::nonNull)
