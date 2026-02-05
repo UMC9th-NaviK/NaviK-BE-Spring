@@ -6,8 +6,10 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.growthLog.ai.AiServerProperties;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO.GrowthLogEvaluationContext;
@@ -18,6 +20,7 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 @Component
 @Profile("prod")
 @RequiredArgsConstructor
+@Slf4j
 public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 
 	private final WebClient aiWebClient;
@@ -41,10 +44,9 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 				.bodyToMono(GrowthLogEvaluationResult.class)
 				.timeout(Duration.ofSeconds(props.timeoutSeconds() != null ? props.timeoutSeconds() : 10))
 				.block();
-		} catch (Exception e) {
-			throw new GeneralExceptionHandler(
-				GrowthLogErrorCode.AI_EVALUATION_FAILED
-			);
+		} catch (WebClientResponseException e) {
+			log.error("[AI] status={}, body={}", e.getStatusCode(), e.getResponseBodyAsString(), e);
+			throw new GeneralExceptionHandler(GrowthLogErrorCode.AI_EVALUATION_FAILED);
 		}
 	}
 
