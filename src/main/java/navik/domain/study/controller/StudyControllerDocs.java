@@ -81,7 +81,7 @@ public interface StudyControllerDocs {
 			"STUDY_MEMBER_FULL"
 		}
 	)
-	ApiResponse<String> applyStudy(@PathVariable Long studyId, Long userId);
+	ApiResponse<String> applyStudy(@PathVariable Long studyId, @AuthUser Long userId);
 
 	@Operation(summary = "스터디 신청 현황 목록 조회 API", description = "스터디장이 해당 스터디의 신청자 목록을 조회합니다.")
 	@Parameters({
