@@ -6,6 +6,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -23,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DataSourceConfig {
 
 	@Bean
-	public static BeanPostProcessor dataSourceBeanPostProcessor(MeterRegistry registry) {
+	public static BeanPostProcessor dataSourceBeanPostProcessor(@Lazy MeterRegistry registry) {
 		return new BeanPostProcessor() {
 			@Override
 			public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
