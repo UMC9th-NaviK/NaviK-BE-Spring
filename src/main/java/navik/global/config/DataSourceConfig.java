@@ -9,12 +9,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.HandlerMapping;
 
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Configuration
 @Profile("prod")
 public class DataSourceConfig {
@@ -43,10 +46,13 @@ public class DataSourceConfig {
 			ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
 			if (attributes != null) {
 				HttpServletRequest request = attributes.getRequest();
-				return request.getRequestURI();
+				String pattern = (String)request.getAttribute(
+					HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+				return (pattern != null) ? pattern : request.getRequestURI();
 			}
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			log.error("DataSourceConfig - getCurrentUri() 예외", e);
+			return "UNKNOWN";
 		}
 		return "UNKNOWN";
 	}
