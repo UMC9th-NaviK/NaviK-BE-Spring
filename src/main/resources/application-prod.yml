@@ -98,13 +98,14 @@ management:
         include: "prometheus"
         allowed-ip: ${ALLOWED_IP}
   metrics:
-    distribution:
-      percentiles-histogram:
-        "http.server.requests": true
     enable:
+      all: true
       http:
         server:
           requests: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
 
 logging:
   file:
