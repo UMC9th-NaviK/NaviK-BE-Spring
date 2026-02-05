@@ -34,4 +34,4 @@ ai:
   server:
     base-url: ${AI_SERVER_BASE_URL:http://localhost:8081}
     evaluate-user-input-path: ${AI_SERVER_EVALUATE_PATH:/v1/growth-logs/evaluate/user-input}
-    timeout-seconds: ${AI_SERVER_TIMEOUT:10}
+    timeout-seconds: ${AI_SERVER_TIMEOUT:60}
