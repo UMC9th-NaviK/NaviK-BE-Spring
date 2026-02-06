@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.domain.growthLog.notion.dto.NotionOAuthResponse;
 import navik.domain.growthLog.notion.service.NotionOAuthService;
-import navik.domain.growthLog.notion.exception.code.NotionErrorCode;
+import navik.global.apiPayload.code.status.NotionErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import navik.global.auth.annotation.AuthUser;
 
