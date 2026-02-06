@@ -91,11 +91,11 @@ public class PositionQueryService {
 		String decoded = new String(Base64.getDecoder().decode(cursor));
 		Matcher matcher = CURSOR_PATTERN.matcher(decoded);
 		if (matcher.find()) {
-			Double similarity = Double.parseDouble(matcher.group(1));
-			Long matchCount = Long.parseLong(matcher.group(2));
+			Double similarityAvg = Double.parseDouble(matcher.group(2));
+			Long matchCount = Long.parseLong(matcher.group(1));
 			Long id = Long.parseLong(matcher.group(3));
 			return PositionRequestDTO.CursorRequest.builder()
-				.lastSimilarity(similarity)
+				.lastSimilarity(similarityAvg)
 				.lastMatchCount(matchCount)
 				.lastId(id)
 				.build();
