@@ -244,4 +244,50 @@ public interface GoalControllerDocs {
 	ApiResponse<Void> deleteGoal(
 		@Parameter(hidden = true) @AuthUser Long userId,
 		@Parameter(description = "삭제할 목표 ID", example = "1", required = true) @PathVariable Long goalId);
+
+	@Operation(summary = "진행 중인 목표 조회", description = """
+		진행 중(IN_PROGRESS) 상태의 목표 목록을 조회합니다.
+		- 마감일이 가까운 순서로 정렬됩니다.
+		""")
+	@ApiResponses({
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "진행 중인 목표 조회 성공 예시", value = """
+				{
+				  "isSuccess": true,
+				  "code": "COMMON200",
+				  "message": "성공입니다.",
+				  "result": [
+				    {
+				      "goalId": 1,
+				      "content": "스프링 부트 마스터하기",
+				      "status": "IN_PROGRESS"
+				    },
+				    {
+				      "goalId": 3,
+				      "content": "JPA 최적화 공부하기",
+				      "status": "IN_PROGRESS"
+				    }
+				  ],
+				  "timestamp": "2026-01-20T14:30:00"
+				}
+				"""))),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "인증 실패", summary = "토큰이 없거나 유효하지 않은 경우", value = """
+				{
+				  "isSuccess": false,
+				  "code": "AUTH_401_01",
+				  "message": "인증되지 않은 사용자입니다.",
+				  "result": null,
+				  "timestamp": "2026-01-20T14:30:00"
+				}
+				"""))),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "온보딩 미완료", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "PENDING 사용자 접근", summary = "온보딩을 완료하지 않은 PENDING 상태의 사용자가 접근한 경우", value = """
+				{
+				  "isSuccess": false,
+				  "code": "AUTH_403_02",
+				  "message": "온보딩이 완료되지 않았습니다.",
+				  "result": null,
+				  "timestamp": "2026-01-20T14:30:00"
+				}
+				""")))})
+	ApiResponse<GoalResponseDTO.InProgressDTO> getInProgressGoals(
+		@Parameter(hidden = true) @AuthUser Long userId);
 }
