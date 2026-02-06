@@ -1,6 +1,8 @@
 package navik.domain.portfolio.service;
 
 import org.springframework.context.ApplicationEventPublisher;
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +15,8 @@ import navik.domain.portfolio.entity.PortfolioStatus;
 import navik.domain.portfolio.event.PortfolioAnalysisEvent;
 import navik.domain.portfolio.exception.code.PortfolioErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.domain.portfolio.message.PortfolioAnalysisMessage;
+import navik.domain.portfolio.message.PortfolioAnalysisPublisher;
 import navik.domain.portfolio.repository.PortfolioRepository;
 import navik.domain.portfolio.service.extractor.resolver.PortfolioTextExtractorResolver;
 import navik.domain.users.entity.User;
@@ -33,12 +37,12 @@ public class PortfolioCommandService {
 		User user = userQueryService.getUser(userId);
 
 		String content = portfolioTextExtractorResolver.resolve(request.inputType())
-			.extractText(request);
+			.extractText(request); // 이력서는 반드시 텍스트로 변환
 
 		Portfolio portfolio = Portfolio.builder()
 			.inputType(request.inputType())
 			.content(content)
-			.fileUrl(request.fileUrl())
+			.fileUrl(request.fileUrl()) // 파일이 아닌경우 null
 			.user(user)
 			.build();
 

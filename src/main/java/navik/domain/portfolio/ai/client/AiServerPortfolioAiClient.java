@@ -39,7 +39,7 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 
 			return response.text();
 		} catch (Exception e) {
-			throw  new GeneralExceptionHandler(GeneralErrorCode.EXTERNAL_API_ERROR);
+			throw new GeneralExceptionHandler(GeneralErrorCode.EXTERNAL_API_ERROR);
 		}
 	}
 

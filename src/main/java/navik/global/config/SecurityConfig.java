@@ -1,5 +1,6 @@
 package navik.global.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -9,11 +10,14 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.AuthErrorCode;
 import navik.global.auth.handler.OAuth2SuccessHandler;
@@ -22,6 +26,7 @@ import navik.global.auth.jwt.JwtTokenProvider;
 import navik.global.auth.service.CustomOAuth2UserService;
 import navik.global.enums.SecurityPermitPath;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @Profile("!ci")
@@ -31,6 +36,10 @@ public class SecurityConfig {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final OAuth2SuccessHandler oAuth2SuccessHandler;
+	private final CorsConfigurationSource corsConfigurationSource;
+
+	@Value("${management.endpoints.web.exposure.allowed-ip:localhost}")
+	private String allowedIp;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -40,14 +49,20 @@ public class SecurityConfig {
 			.httpBasic(AbstractHttpConfigurer::disable)
 			.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.cors(cors -> cors.configurationSource(corsConfigurationSource))
 
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(SecurityPermitPath.STATIC.getPaths()).permitAll()
 				.requestMatchers(SecurityPermitPath.SWAGGER.getPaths()).permitAll()
 				.requestMatchers(SecurityPermitPath.AUTH.getPaths()).permitAll()
 				.requestMatchers(SecurityPermitPath.S3.getPaths()).permitAll()
-				// 5. 개발환경 전용
+				// 개발환경 전용
 				.requestMatchers("/dev/**").permitAll()
+
+				// 모니터링 메트릭 접근 제한
+				.requestMatchers("/actuator/**").access(new WebExpressionAuthorizationManager(
+					makeAllowedIpExpression(allowedIp)
+				))
 
 				// 그 외 모든 요청은 인증 필요
 				.anyRequest().authenticated())
@@ -75,5 +90,15 @@ public class SecurityConfig {
 				UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
+	}
+
+	private String makeAllowedIpExpression(String allowedIp) {
+		if (allowedIp == null || allowedIp.isBlank()) {
+			return "denyAll";
+		}
+		if ("localhost".equalsIgnoreCase(allowedIp)) {
+			return "hasIpAddress('127.0.0.1') or hasIpAddress('::1') or hasIpAddress('0:0:0:0:0:0:0:1')";
+		}
+		return "hasIpAddress('" + allowedIp + "')";
 	}
 }
