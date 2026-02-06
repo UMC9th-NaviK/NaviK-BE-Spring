@@ -20,6 +20,12 @@ public enum KpiCardErrorCode implements BaseCode {
 		HttpStatus.BAD_REQUEST,
 		"KPI_CARD_400_01",
 		"유효하지 않은 KPI 카드 타입입니다."
+	),
+
+	KPI_CARD_NOT_INITIALIZED(
+		HttpStatus.INTERNAL_SERVER_ERROR,
+		"KPI_CARD_500_01",
+		"해당 직무에 KPI 카드가 등록되지 않았습니다."
 	);
 
 	private final HttpStatus httpStatus;

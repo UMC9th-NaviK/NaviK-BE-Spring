@@ -3,6 +3,7 @@ package navik.domain.kpi.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,7 +16,7 @@ import navik.domain.kpi.repository.projection.KpiCardGridItemView;
 public interface KpiCardRepository extends JpaRepository<KpiCard, Long> {
 
 	@Query("""
-		select c.id as id, c.name as name
+		select c.id as id, c.name as name, c.imageUrl as imageUrl
 		from KpiCard c
 		where c.job.id = :jobId
 		order by c.id asc
@@ -23,9 +24,15 @@ public interface KpiCardRepository extends JpaRepository<KpiCard, Long> {
 	List<KpiCardGridItemView> findGridByJobId(@Param("jobId") Long jobId);
 
 	Optional<KpiCard> findById(Long id);
-	
+
 	long countByIdIn(List<Long> ids);
 
 	@Query("select c from KpiCard c left join fetch c.job where c.id = :kpiCardId")
 	Optional<KpiCard> findByIdWithJob(@Param("kpiCardId") Long kpiCardId);
+
+	@Query("select k.id from KpiCard k")
+	List<Long> findTop5Ids(Pageable pageable);
+
+	@Query("select c from KpiCard c where c.job.id = :jobId")
+	List<KpiCard> findAllByJobId(@Param("jobId") Long jobId);
 }

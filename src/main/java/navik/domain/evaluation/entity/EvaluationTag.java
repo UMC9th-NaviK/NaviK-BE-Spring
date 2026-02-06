@@ -31,11 +31,14 @@ public class EvaluationTag extends BaseEntity {
 
 	@Column(name = "tag", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private Tag tag; // 태그가 속한 대분류를 의미
+	private Tag tag; // 협업, 커뮤니케이션 등등
 
 	@Column(name = "tag_type", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private TagType tagType; // CSV 파일 사용해서 매핑 예정
+	private TagType tagType; // 강점, 약점
+
+	@Column(name = "category_name", nullable = false)
+	private String categoryName;
 
 	@Column(name = "tag_content", nullable = false)
 	private String tagContent;

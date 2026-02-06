@@ -15,7 +15,7 @@ import jakarta.annotation.PostConstruct;
 @EnableJpaAuditing
 @EnableScheduling
 public class NavikApplication {
-	
+
 	public static void main(String[] args) {
 		SpringApplication.run(NavikApplication.class, args);
 	}

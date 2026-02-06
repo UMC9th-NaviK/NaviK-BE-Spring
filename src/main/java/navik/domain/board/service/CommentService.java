@@ -83,9 +83,14 @@ public class CommentService {
 		// 댓글 등록
 		commentRepository.save(comment);
 
-		return CommentConverter.toResponse(comment.getId());
+		return CommentConverter.toResponse(comment);
 	}
 
+	/**
+	 * 대댓글 생성
+	 * @param parameter
+	 * @return
+	 */
 	@Transactional
 	public ReplyDTO.Response createReply(ReplyDTO.Parameter parameter) {
 		// 작성자 조회
@@ -105,7 +110,7 @@ public class CommentService {
 		// 대댓글 등록
 		commentRepository.save(reply);
 
-		return ReplyConverter.toResponse(reply.getId());
+		return ReplyConverter.toResponse(reply);
 	}
 
 	/**

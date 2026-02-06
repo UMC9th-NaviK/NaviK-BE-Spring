@@ -27,5 +27,9 @@ public class ReplyDTO {
 	@Getter
 	public static class Response {
 		private Long commentId;
+		private String profileImageUrl;
+		private Integer level;
+		private String nickname;
+		private Boolean isEntryLevel;
 	}
 }

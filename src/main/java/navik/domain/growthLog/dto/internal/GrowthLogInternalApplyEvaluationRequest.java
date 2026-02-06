@@ -16,6 +16,9 @@ public record GrowthLogInternalApplyEvaluationRequest(
 
 	@NotNull List<@Valid KpiDelta> kpis
 ) {
-	public record KpiDelta(@NotNull Long kpiCardId, @NotNull Integer delta) {
+	public record KpiDelta(
+		@NotNull Long kpiCardId,
+		@NotNull Integer delta) {
 	}
+
 }

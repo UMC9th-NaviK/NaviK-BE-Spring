@@ -1,20 +1,21 @@
 package navik.domain.growthLog.service.command;
 
-import java.util.List;
+import static navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.*;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.growthLog.dto.internal.GrowthLogInternalApplyEvaluationRequest;
 import navik.domain.growthLog.dto.internal.GrowthLogInternalProcessingStartRequest;
-import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO;
 import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GrowthLogEvaluationApplyService {
@@ -70,26 +71,23 @@ public class GrowthLogEvaluationApplyService {
 		// totalDelta는 Spring에서 재계산
 		int totalDelta = req.kpis().stream().mapToInt(GrowthLogInternalApplyEvaluationRequest.KpiDelta::delta).sum();
 
-		GrowthLogAiResponseDTO.GrowthLogEvaluationResult normalized =
-			new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
+		GrowthLogEvaluationResult normalized =
+			new GrowthLogEvaluationResult(
 				req.title(),
 				req.content(),
 				req.kpis().stream()
-					.map(k -> new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(k.kpiCardId(), k.delta()))
+					.map(k -> new GrowthLogEvaluationResult.KpiDelta(k.kpiCardId(), k.delta()))
 					.toList()
 			);
-
-		List<GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta> kpis =
-			normalized.kpis(); // 동일 리스트 재사용
 
 		persistence.completeGrowthLogAfterProcessing(
 			userId,
 			growthLogId,
 			normalized,
-			totalDelta,
-			kpis
+			totalDelta
 		);
 
 		growthLogRepository.clearProcessingTokenIfMatch(userId, growthLogId, token, GrowthLogStatus.COMPLETED);
 	}
+
 }

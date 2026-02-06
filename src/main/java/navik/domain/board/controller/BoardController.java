@@ -25,6 +25,7 @@ import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDto;
+import navik.global.swagger.SwaggerPageable;
 
 @RestController
 @RequestMapping("/v1/boards")
@@ -41,6 +42,7 @@ public class BoardController implements BoardControllerDocs {
 	 * @return
 	 */
 	@Override
+	@SwaggerPageable
 	@GetMapping // 전체
 	public ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> getBoards(
 		@RequestParam(value = "cursor", required = false) Long lastId,
@@ -58,6 +60,7 @@ public class BoardController implements BoardControllerDocs {
 	 * @return
 	 */
 	@Override
+	@SwaggerPageable
 	@GetMapping("/jobs") // 전체
 	public ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> getBoardsByJob(
 		@RequestParam(name = "jobName") String jobName,
@@ -76,6 +79,7 @@ public class BoardController implements BoardControllerDocs {
 	 * @return
 	 */
 	@GetMapping("/hot")
+	@SwaggerPageable
 	public ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> getHotBoards(
 		@RequestParam(value = "cursor", required = false) String cursor,
 		@PageableDefault(size = 10) Pageable pageable
@@ -98,6 +102,7 @@ public class BoardController implements BoardControllerDocs {
 	 * @return
 	 */
 	@Override
+	@SwaggerPageable
 	@GetMapping("/search")
 	public ApiResponse<CursorResponseDto<BoardResponseDTO.BoardDTO>> searchBoards(
 		@RequestParam String keyword,

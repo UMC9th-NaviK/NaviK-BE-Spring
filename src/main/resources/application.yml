@@ -29,7 +29,19 @@ navik:
       claim:
         min-idle-ms: ${GROWTH_LOG_WORKER_CLAIM_MIN_IDLE_MS:60000}
         batch-size: ${GROWTH_LOG_WORKER_CLAIM_BATCH_SIZE:10}
+  portfolio:
+    analysis:
+      worker:
+        enabled: ${PORTFOLIO_ANALYSIS_WORKER_ENABLED:true}
+        poll-ms: ${PORTFOLIO_ANALYSIS_WORKER_POLL_MS:1000}
+        batch-size: ${PORTFOLIO_ANALYSIS_WORKER_BATCH_SIZE:10}
+        block-ms: ${PORTFOLIO_ANALYSIS_WORKER_BLOCK_MS:2000}
+        claim:
+          min-idle-ms: ${PORTFOLIO_ANALYSIS_WORKER_CLAIM_MIN_IDLE_MS:60000}
+          batch-size: ${PORTFOLIO_ANALYSIS_WORKER_CLAIM_BATCH_SIZE:10}
 
 ai:
   server:
     base-url: ${AI_SERVER_BASE_URL:http://localhost:8081}
+    evaluate-user-input-path: ${AI_SERVER_EVALUATE_PATH:/v1/growth-logs/evaluate/user-input}
+    timeout-seconds: ${AI_SERVER_TIMEOUT:60}

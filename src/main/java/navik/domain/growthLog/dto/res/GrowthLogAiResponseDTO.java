@@ -14,5 +14,11 @@ public class GrowthLogAiResponseDTO {
 			Integer delta
 		) {
 		}
+
+		public record AbilityResult(
+			String content,
+			float[] embedding
+		) {
+		}
 	}
 }

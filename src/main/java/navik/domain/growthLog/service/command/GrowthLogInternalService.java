@@ -17,6 +17,8 @@ import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.kpi.entity.KpiCard;
 import navik.domain.kpi.repository.KpiCardRepository;
+import navik.domain.users.entity.User;
+import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Service
@@ -26,6 +28,7 @@ public class GrowthLogInternalService {
 
 	private final GrowthLogRepository growthLogRepository;
 	private final KpiCardRepository kpiCardRepository;
+	private final UserRepository userRepository;
 
 	private static final String FEEDBACK_TITLE = "스터디 피드백";
 	private static final String PORTFOLIO_TITLE_FORMAT = "포트폴리오 분석 결과 (%d점)";
@@ -55,10 +58,11 @@ public class GrowthLogInternalService {
 		int totalDelta = mergedDeltas.values().stream().mapToInt(Integer::intValue).sum();
 		List<Long> ids = new ArrayList<>(mergedDeltas.keySet());
 
+		User userRef = userRepository.getReferenceById(req.userId());
 		Map<Long, KpiCard> kpiCardMap = findKpiCardsAsMap(ids);
 		TitleContent tc = policy.make(totalDelta, req.content());
 
-		GrowthLog growthLog = buildGrowthLog(type, totalDelta, tc);
+		GrowthLog growthLog = buildGrowthLog(userRef, type, totalDelta, tc);
 		attachKpiLinks(growthLog, mergedDeltas, kpiCardMap);
 
 		return growthLogRepository.save(growthLog).getId();
@@ -84,8 +88,9 @@ public class GrowthLogInternalService {
 		return merged;
 	}
 
-	private GrowthLog buildGrowthLog(GrowthType type, int totalDelta, TitleContent tc) {
+	private GrowthLog buildGrowthLog(User user, GrowthType type, int totalDelta, TitleContent tc) {
 		return GrowthLog.builder()
+			.user(user)
 			.type(type)
 			.title(tc.title())
 			.content(tc.content())
