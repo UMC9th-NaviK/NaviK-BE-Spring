@@ -10,4 +10,6 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
 
 	Optional<Portfolio> findTopByUserIdOrderByCreatedAtDesc(Long userId);
 
+	Optional<Portfolio> findByIdAndUserId(Long id, Long userId);
+
 }

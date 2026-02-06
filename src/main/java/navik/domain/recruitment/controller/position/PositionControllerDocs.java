@@ -6,9 +6,11 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.recruitment.dto.position.PositionRequestDTO;
 import navik.domain.recruitment.dto.position.PositionResponseDTO;
+import navik.domain.recruitment.exception.code.RecruitmentErrorCode;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDto;
+import navik.global.swagger.ApiErrorCodes;
 
 @Tag(name = "Position", description = "채용 공고 중 포지션 관련 API")
 public interface PositionControllerDocs {
@@ -85,17 +87,18 @@ public interface PositionControllerDocs {
 		- size 기본값: 10
 		- `hasNext`가 false면 마지막 페이지입니다.
 		""")
-	@io.swagger.v3.oas.annotations.responses.ApiResponses(
-		{
-			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "COMMON_200 - 성공입니다."),
-			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "RECRUITMENT_404_01 - 존재하지 않는 지역 유형입니다."),
-			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "RECRUITMENT_404_02 - 존재하지 않는 회사 규모입니다."),
-			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "RECRUITMENT_404_03 - 존재하지 않는 고용 형태입니다."),
-			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "RECRUITMENT_404_04 - 존재하지 않는 경력 유형입니다."),
-			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "RECRUITMENT_404_05 - 존재하지 않는 업종 유형입니다."),
-			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "RECRUITMENT_404_06 - 존재하지 않는 직무 유형입니다."),
-			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "RECRUITMENT_404_07 - 존재하지 않는 전공 유형입니다.")
-		})
+	@ApiErrorCodes(
+		enumClass = RecruitmentErrorCode.class,
+		includes = {
+			"AREA_TYPE_NOT_FOUND",
+			"COMPANY_SIZE_NOT_FOUND",
+			"EMPLOYMENT_TYPE_NOT_FOUND",
+			"EXPERIENCE_TYPE_NOT_FOUND",
+			"INDUSTRY_TYPE_NOT_FOUND",
+			"JOB_TYPE_NOT_FOUND",
+			"MAJOR_TYPE_NOT_FOUND"
+		}
+	)
 	ApiResponse<CursorResponseDto<PositionResponseDTO.RecommendedPosition>> getPositions(
 		@AuthUser Long userId,
 		@RequestBody PositionRequestDTO.SearchCondition searchCondition,

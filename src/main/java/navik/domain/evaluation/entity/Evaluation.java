@@ -43,7 +43,7 @@ public class Evaluation extends BaseEntity {
 	private User evaluatee;
 
 	@Column(name = "score", nullable = false)
-	private float score;
+	private Double score;
 
 	@Column(name = "content", nullable = false)
 	private String content;
