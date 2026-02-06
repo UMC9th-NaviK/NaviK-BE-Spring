@@ -68,6 +68,10 @@ public interface EvaluationControllerDocs {
 		@Parameter(name = "size", description = "한 번에 가져올 데이터 개수", example = "10"),
 		@Parameter(name = "userId", hidden = true)
 	})
+	@ApiErrorCodes(
+		enumClass = EvaluationErrorCode.class,
+		includes = {"USER_NOT_FOUND"}
+	)
 	ApiResponse<CursorResponseDto<EvaluationMyDTO.MyStudyEvaluationPreviewDTO>> getMyStudyEvaluation(
 		@AuthUser Long userId,
 		@RequestParam(required = false) Long cursor,
@@ -79,5 +83,12 @@ public interface EvaluationControllerDocs {
 		@Parameter(name = "studyId", description = "조회할 스터디의 ID (Path Variable)", example = "1"),
 		@Parameter(name = "userId", hidden = true)
 	})
-	ApiResponse<EvaluationMyDTO.MyStudyEvaluationDetailDTO> getMyStudyDetail(Long userId, Long studyId);
+	@ApiErrorCodes(
+		enumClass = EvaluationErrorCode.class,
+		includes = {"STUDY_NOT_FOUND", "USER_NOT_FOUND"}
+	)
+	ApiResponse<EvaluationMyDTO.MyStudyEvaluationDetailDTO> getMyStudyDetail(
+		@AuthUser Long userId,
+		@PathVariable Long studyId
+	);
 }
