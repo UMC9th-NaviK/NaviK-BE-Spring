@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.growthLog.dto.req.GrowthLogRequestDTO;
 import navik.domain.growthLog.dto.res.GrowthLogResponseDTO;
@@ -32,7 +31,6 @@ public interface GrowthLogControllerDocs {
 			- AI 평가 실패: FAILED로 저장되며, 생성 자체는 성공(201)으로 반환됩니다.
 			"""
 	)
-	@SecurityRequirement(name = "bearerAuth")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "생성 성공"),
 	})
@@ -50,7 +48,6 @@ public interface GrowthLogControllerDocs {
 			- 제한: 동일 로그에 대해 재시도 횟수 제한이 적용됩니다.
 			"""
 	)
-	@SecurityRequirement(name = "bearerAuth")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "재시도 처리 결과 반환"),
 	})
@@ -64,7 +61,6 @@ public interface GrowthLogControllerDocs {
 		summary = "월별 성장 로그 목록 조회",
 		description = "특정 월에 작성한 성장 로그 목록(요약)을 페이징하여 조회합니다."
 	)
-	@SecurityRequirement(name = "bearerAuth")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200",
@@ -136,7 +132,6 @@ public interface GrowthLogControllerDocs {
 		summary = "성장 로그 상세 조회",
 		description = "성장 로그 단건의 상세 정보를 조회합니다."
 	)
-	@SecurityRequirement(name = "bearerAuth")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200",
@@ -192,7 +187,6 @@ public interface GrowthLogControllerDocs {
 			- label 포맷: DAY/WEEK=yyyy-MM-dd, MONTH=yyyy-MM
 			"""
 	)
-	@SecurityRequirement(name = "bearerAuth")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공")
 	})

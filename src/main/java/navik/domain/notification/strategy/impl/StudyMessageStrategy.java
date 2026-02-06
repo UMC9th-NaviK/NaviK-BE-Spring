@@ -17,7 +17,7 @@ public class StudyMessageStrategy implements NotificationMessageStrategy {
 	}
 
 	@Override
-	public String createDeadlineMessage(User user, Notifiable target, long daysLeft) {
+	public String createMessage(User user, Notifiable target, long daysLeft) {
 		Study study = (Study)target;
 		return String.format("[%s] 스터디가 종료되었습니다. 평가를 남기고 성장 기록을 확인해보세요!", study.getTitle());
 	}
