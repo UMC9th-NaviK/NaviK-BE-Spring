@@ -10,11 +10,13 @@ public class BoardResponseDTO {
 	@Getter
 	@Builder
 	public static class BoardDTO {
-		// 프로필사진, 레벨
 		private Long boardId;
 		private Long userId;
-		private String jobType;
+		private String jobName;
 		private String nickname;
+		private String profileImageUrl;
+		private Integer level;
+		private Boolean isEntryLevel;
 		private String articleTitle;
 		private String articleContent;
 		private int likeCount;

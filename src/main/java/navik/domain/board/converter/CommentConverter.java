@@ -26,9 +26,13 @@ public class CommentConverter {
 	}
 
 	// 저장된 결과를 응답 DTO로 변환
-	public static CommentCreateDTO.Response toResponse(Long commentId) {
+	public static CommentCreateDTO.Response toResponse(Comment comment) {
 		return CommentCreateDTO.Response.builder()
-			.commentId(commentId)
+			.commentId(comment.getId())
+			.profileImageUrl(comment.getUser().getProfileImageUrl())
+			.level(comment.getUser().getLevel())
+			.nickname(comment.getUser().getNickname())
+			.isEntryLevel(comment.getUser().getIsEntryLevel())
 			.build();
 	}
 

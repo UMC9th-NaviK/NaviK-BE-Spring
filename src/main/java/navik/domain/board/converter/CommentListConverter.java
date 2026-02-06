@@ -78,6 +78,8 @@ public class CommentListConverter {
 			.commentId(comment.getId())
 			.userId(comment.getUser().getId())
 			.parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
+			.profileImageUrl(comment.getUser().getProfileImageUrl())
+			.level(comment.getUser().getLevel())
 			.content(displayContent)
 			.isEntryLevel(comment.getUser().getIsEntryLevel())
 			.jobName(comment.getUser().getJob().getName())

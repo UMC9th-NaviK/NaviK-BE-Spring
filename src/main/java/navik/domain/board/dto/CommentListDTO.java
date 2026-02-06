@@ -27,6 +27,8 @@ public class CommentListDTO {
 		private Long parentCommentId;
 		private String content;
 		private String nickname;
+		private String profileImageUrl;
+		private Integer level;
 		private Boolean isMyComment;
 		private Boolean isEntryLevel;
 		private String jobName;
