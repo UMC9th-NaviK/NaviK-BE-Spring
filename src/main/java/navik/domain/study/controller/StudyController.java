@@ -23,6 +23,7 @@ import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDto;
+import navik.global.swagger.SwaggerPageable;
 
 @RestController
 @RequestMapping("/v1/studies")
@@ -54,6 +55,7 @@ public class StudyController implements StudyControllerDocs {
 	 * @param userId
 	 * @return
 	 */
+	@SwaggerPageable
 	@GetMapping("/my")
 	public ApiResponse<CursorResponseDto<StudyDTO.MyStudyDTO>> getMyStudies(
 		@RequestParam(required = false) StudyRole role, // 리더/멤버 탭 구분
@@ -72,6 +74,7 @@ public class StudyController implements StudyControllerDocs {
 	 * @param size
 	 * @return
 	 */
+	@SwaggerPageable
 	@GetMapping("/kpi-cards")
 	public ApiResponse<CursorResponseDto<StudyKpiCardDTO.StudyKpiCardNameDTO>> getKpiCards(
 		@RequestParam String jobName,
@@ -91,6 +94,7 @@ public class StudyController implements StudyControllerDocs {
 	 * @param userId
 	 * @return
 	 */
+	@SwaggerPageable
 	@GetMapping("/recommendation")
 	public ApiResponse<CursorResponseDto<StudyRecommendDTO>> getRecommendedStudies(
 		@RequestParam(value = "cursor", required = false) Long cursor,
@@ -102,7 +106,7 @@ public class StudyController implements StudyControllerDocs {
 	}
 
 	/**
-	 * 스터디 신청하 버튼 클릭
+	 * 스터디 신청하기 버튼 클릭
 	 * @param studyId
 	 * @param userId
 	 * @return
@@ -123,6 +127,7 @@ public class StudyController implements StudyControllerDocs {
 	 * @param size
 	 * @return
 	 */
+	@SwaggerPageable
 	@GetMapping("/{studyId}/applicants")
 	public ApiResponse<CursorResponseDto<StudyApplicationDTO.ApplicationPreviewDTO>> getApplicants(
 		@PathVariable Long studyId,
@@ -142,10 +147,11 @@ public class StudyController implements StudyControllerDocs {
 	 */
 	@PatchMapping("/applicants/{studyUserId}")
 	public ApiResponse<String> processApply(
+		@AuthUser Long userId,
 		@PathVariable Long studyUserId,
 		@RequestBody @Valid StudyApplicationDTO.ProcessApplicationDTO request
 	) {
-		studyCommandService.resolveApplication(studyUserId, request.getAccept());
+		studyCommandService.resolveApplication(userId, studyUserId, request.getAccept());
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK);
 	}
 }

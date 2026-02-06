@@ -1,10 +1,12 @@
 package navik.domain.growthLog.converter;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 import navik.domain.growthLog.dto.res.GrowthLogResponseDTO;
 import navik.domain.growthLog.entity.GrowthLog;
 import navik.global.dto.PageResponseDto;
+import navik.global.dto.SliceResponseDto;
 
 public class GrowthLogConverter {
 
@@ -39,6 +41,18 @@ public class GrowthLogConverter {
 					l.getDelta()
 				))
 				.toList()
+		);
+	}
+
+	public static SliceResponseDto<GrowthLogResponseDTO.ListItem> toSliceResponse(Slice<GrowthLog> slice) {
+		return SliceResponseDto.of(
+			slice.map(gl -> new GrowthLogResponseDTO.ListItem(
+				gl.getId(),
+				gl.getTitle(),
+				gl.getContent(),
+				gl.getTotalDelta(),
+				gl.getCreatedAt()
+			))
 		);
 	}
 }

@@ -25,9 +25,13 @@ public class ReplyConverter {
 			.build();
 	}
 
-	public static ReplyDTO.Response toResponse(Long commentId) {
+	public static ReplyDTO.Response toResponse(Comment reply) {
 		return ReplyDTO.Response.builder()
-			.commentId(commentId)
+			.commentId(reply.getId())
+			.profileImageUrl(reply.getUser().getProfileImageUrl())
+			.level(reply.getUser().getLevel())
+			.nickname(reply.getUser().getNickname())
+			.isEntryLevel(reply.getUser().getIsEntryLevel())
 			.build();
 	}
 }

@@ -15,7 +15,10 @@ public enum SecurityPermitPath {
 	AUTH("/v1/auth/**", "/oauth2/**", "/login/oauth2/**"),
 
 	// 4. S3 관련
-	S3("/v1/s3/**");
+	S3("/v1/s3/**"),
+
+	// 5. 개발 환경
+	DEV("/dev/**");
 
 	private final String[] paths;
 

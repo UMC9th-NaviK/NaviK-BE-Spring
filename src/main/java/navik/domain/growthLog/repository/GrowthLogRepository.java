@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -28,27 +28,16 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 		select gl
 		  from GrowthLog gl
 		 where gl.user.id = :userId
+		   and gl.status = :status
 		   and gl.createdAt >= :start
 		   and gl.createdAt < :end
+		   and (:type is null or gl.type = :type)
+		 order by gl.createdAt asc, gl.id asc
 		""")
-	Page<GrowthLog> findMonthly(
-		@Param("userId") Long userId,
-		@Param("start") LocalDateTime start,
-		@Param("end") LocalDateTime end,
-		Pageable pageable
-	);
-
-	@Query("""
-		select gl
-		  from GrowthLog gl
-		 where gl.user.id = :userId
-		   and gl.type = :type
-		   and gl.createdAt >= :start
-		   and gl.createdAt < :end
-		""")
-	Page<GrowthLog> findMonthlyByType(
+	Slice<GrowthLog> findMonthlySlice(
 		@Param("userId") Long userId,
 		@Param("type") GrowthType type,
+		@Param("status") GrowthLogStatus status,
 		@Param("start") LocalDateTime start,
 		@Param("end") LocalDateTime end,
 		Pageable pageable

@@ -103,7 +103,7 @@ public class StudyCommandService {
 	 * @param accept
 	 */
 	@Transactional
-	public void resolveApplication(Long studyUserId, boolean accept) {
+	public void resolveApplication(Long userId, Long studyUserId, boolean accept) {
 		StudyUser applicant = studyUserRepository.findById(studyUserId).orElseThrow();
 
 		if (accept) {

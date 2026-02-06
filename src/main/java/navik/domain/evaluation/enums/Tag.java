@@ -1,7 +1,13 @@
 package navik.domain.evaluation.enums;
 
+import java.util.Arrays;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import navik.domain.evaluation.exception.code.EvaluationErrorCode;
+import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
 @Getter
 @RequiredArgsConstructor
@@ -15,4 +21,12 @@ public enum Tag {
 	LEADERSHIP("리더쉽&조직화");
 
 	private final String label;
+
+	@JsonCreator
+	public static Tag deserialize(String value) {
+		return Arrays.stream(values())
+			.filter(type -> type.name().equalsIgnoreCase(value))
+			.findAny()
+			.orElseThrow(() -> new GeneralExceptionHandler(EvaluationErrorCode.TAG_NOT_FOUND));
+	}
 }

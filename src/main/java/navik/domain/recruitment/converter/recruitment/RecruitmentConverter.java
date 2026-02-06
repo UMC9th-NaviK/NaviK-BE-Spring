@@ -19,8 +19,7 @@ public class RecruitmentConverter {
 		RecommendedRecruitmentProjection recommendedRecruitmentProjection) {
 
 		Recruitment recruitment = recommendedRecruitmentProjection.getRecruitment();
-		Double matchScore = recommendedRecruitmentProjection.getMatchScore();
-		Long matchCount = recommendedRecruitmentProjection.getMatchCount();
+		Double matchScoreAvg = recommendedRecruitmentProjection.getMatchScoreAvg();
 
 		List<Position> positions = recruitment.getPositions();
 		Position position = positions.getFirst();
@@ -56,7 +55,7 @@ public class RecruitmentConverter {
 					.map(EmploymentType::getLabel)
 					.orElse("기타")
 			)
-			.isRecommend((matchScore / matchCount) >= 0.45)    // 평균 매칭 강도가 0.45면 'Navik이 추천해요' (합산 = 매칭 개수 * 평균 강도)
+			.isRecommend(matchScoreAvg >= 0.5)    // 평균 매칭 강도가 0.5면 'Navik이 추천해요'
 			.aiSummary(recruitment.getSummary())
 			.build();
 	}

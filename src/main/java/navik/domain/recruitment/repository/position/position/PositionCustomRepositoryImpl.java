@@ -76,17 +76,22 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 			abilityEmbedding.embedding
 		);
 
-		/*
-		 * 2. 최대한 나에게 적합한 공고 추천을 위해 유사도가 0.3 이상만 summation
-		 * 	   but, 유사성 없어도 어쨌든 전체 검색을 위한 창이므로 recruitment를 남기기 위해 where 필터링은 X
-		 */
-		NumberExpression<Double> similaritySum = new CaseBuilder()
-			.when(similarityQuery.gt(0.3))
-			.then(similarityQuery)
-			.otherwise(0.0)
-			.sum();
+		// 2. 유효 매칭 카운트
+		NumberExpression<Long> matchCount = new CaseBuilder()
+			.when(similarityQuery.goe(0.42))
+			.then(positionKpi.id)
+			.otherwise((Long)null)
+			.countDistinct();
 
-		// 3. 조건 설정
+		// 3. 매칭 평균 유사도
+		NumberExpression<Double> similarityAvg = new CaseBuilder()
+			.when(similarityQuery.goe(0.42))
+			.then(similarityQuery)
+			.otherwise((Double)null)
+			.avg()
+			.coalesce(0.0);
+
+		// 4. 조건 설정
 		BooleanExpression where = Stream.of(
 				jobIn(jobs),
 				experienceTypeIn(searchCondition.getExperienceTypes()),
@@ -101,26 +106,26 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 			.reduce(BooleanExpression::and)
 			.orElse(null);
 
-		// 4. 조회
+		// 5. 조회
 		List<RecommendedPositionProjection> result = jpaQueryFactory
 			.select(new QRecommendedPositionProjection(
 				position,
-				similaritySum,
-				positionKpi.count()
+				similarityAvg,
+				matchCount
 			))
 			.from(position)
 			.join(position.recruitment, recruitment)
 			.join(position.positionKpis, positionKpi)
 			.join(positionKpi.positionKpiEmbedding, positionKpiEmbedding)
-			.join(ability).on(ability.user.eq(user))
-			.join(ability.abilityEmbedding, abilityEmbedding)
+			.leftJoin(ability).on(ability.user.eq(user))
+			.leftJoin(ability.abilityEmbedding, abilityEmbedding)
 			.where(where)
 			.groupBy(position)
-			.having(cursorExpression(cursorRequest, similaritySum, positionKpi.count()))
+			.having(cursorExpression(cursorRequest, matchCount, similarityAvg))
 			.orderBy(
-				similaritySum.desc(),
-				positionKpi.count().desc(),
-				position.id.asc()
+				matchCount.desc(),     // 매칭 개수
+				similarityAvg.desc(),  // 평균 매칭 유사도
+				recruitment.id.asc()   // PK
 			)
 			.limit(pageable.getPageSize() + 1)
 			.fetch();
@@ -267,33 +272,34 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 
 	/**
 	 * 커서에 대한 Where절을 생성합니다.
-	 * 	 1순위: 유사도 합산 Desc
-	 * 	 2순위: 매칭 개수 Desc
+	 * 	 1순위: 매칭 개수 Desc
+	 * 	 2순위: 유사도 평균 Desc
 	 * 	 3순위: PK Asc
 	 */
 	private BooleanExpression cursorExpression(PositionRequestDTO.CursorRequest cursorRequest,
-		NumberExpression<Double> scoreSum,
-		NumberExpression<Long> matchCount) {
+		NumberExpression<Long> matchCount,
+		NumberExpression<Double> similarityAvg) {
 		if (cursorRequest == null || cursorRequest.getLastId() == null
 			|| cursorRequest.getLastSimilarity() == null || cursorRequest.getLastMatchCount() == null)
 			return null;
 
-		Double lastScore = cursorRequest.getLastSimilarity();
 		Long lastCount = cursorRequest.getLastMatchCount();
+		Double lastAvg = cursorRequest.getLastSimilarity();
 		Long lastId = cursorRequest.getLastId();
 
-		// Case 1 : 유사도 합산이 다름
-		BooleanExpression scoreCondition = scoreSum.lt(lastScore);
+		// 매칭 개수가 작음
+		BooleanExpression condition1 = matchCount.lt(lastCount);
 
-		// Case 2 : 유사도 합산이 같은데, 매칭 개수가 다름
-		BooleanExpression countCondition = scoreSum.eq(lastScore).and(matchCount.lt(lastCount));
+		// 매칭 개수는 같은데, 평균이 작음
+		BooleanExpression condition2 = matchCount.eq(lastCount)
+			.and(similarityAvg.lt(lastAvg));
 
-		// Case 3 : 유사도 합산도 같고, 매칭 개수도 같음
-		BooleanExpression idCondition = scoreSum.eq(lastScore)
-			.and(matchCount.eq(lastCount))
+		// 매칭 개수와 평균이 같고, PK가 큼
+		BooleanExpression condition3 = matchCount.eq(lastCount)
+			.and(similarityAvg.eq(lastAvg))
 			.and(position.id.gt(lastId));
 
-		return scoreCondition.or(countCondition).or(idCondition);
+		return condition1.or(condition2).or(condition3);
 	}
 
 	/**
