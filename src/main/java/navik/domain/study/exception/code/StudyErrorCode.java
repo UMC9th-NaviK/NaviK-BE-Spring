@@ -23,4 +23,8 @@ public enum StudyErrorCode implements BaseCode {
 	STUDY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY_404_1", "존재하지 않는 스터디입니다"),
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY_404_2", "존재하지 않는 사용자입니다"),
 	STUDY_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY_404_3", "해당 스터디 신청 내역을 찾을 수 없습니다");
+
+	private final HttpStatus httpStatus;
+	private final String code;
+	private final String message;
 }
