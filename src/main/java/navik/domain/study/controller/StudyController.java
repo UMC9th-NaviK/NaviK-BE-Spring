@@ -147,10 +147,11 @@ public class StudyController implements StudyControllerDocs {
 	 */
 	@PatchMapping("/applicants/{studyUserId}")
 	public ApiResponse<String> processApply(
+		@AuthUser Long userId,
 		@PathVariable Long studyUserId,
 		@RequestBody @Valid StudyApplicationDTO.ProcessApplicationDTO request
 	) {
-		studyCommandService.resolveApplication(studyUserId, request.getAccept());
+		studyCommandService.resolveApplication(userId, studyUserId, request.getAccept());
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK);
 	}
 }

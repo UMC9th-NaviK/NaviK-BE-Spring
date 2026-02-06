@@ -60,7 +60,9 @@ public interface EvaluationControllerDocs {
 	@Parameters({
 		@Parameter(name = "userId", hidden = true)
 	})
-	ApiResponse<EvaluationMyDTO> getMyEvaluation(Long userId);
+	ApiResponse<EvaluationMyDTO> getMyEvaluation(
+		@AuthUser Long userId
+	);
 
 	@Operation(summary = "스터디 평가 목록 조회 API", description = "참여한 스터디 리스트를 커서 기반 페이징으로 조회합니다.")
 	@Parameters({

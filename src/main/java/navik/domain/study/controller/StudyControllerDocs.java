@@ -56,10 +56,6 @@ public interface StudyControllerDocs {
 		@Parameter(name = "cursor", description = "마지막으로 조회된 KPI 카드의 ID.", example = "10"),
 		@Parameter(name = "size", description = "한 번에 조회할 카드 개수", example = "10")
 	})
-	@ApiErrorCodes(
-		enumClass = StudyErrorCode.class,
-		includes = {"USER_NOT_FOUND"}
-	)
 	ApiResponse<CursorResponseDto<StudyKpiCardDTO.StudyKpiCardNameDTO>> getKpiCards(
 		@RequestParam String jobName,
 		@RequestParam(value = "cursor", required = false) Long cursor,
@@ -96,7 +92,7 @@ public interface StudyControllerDocs {
 	@Operation(summary = "스터디 신청 현황 목록 조회 API", description = "스터디장이 해당 스터디의 신청자 목록을 조회합니다.")
 	@Parameters({
 		@Parameter(name = "cursor", description = "마지막으로 조회된 스터디 ID", example = "100"),
-		@Parameter(name = "size", description = "한 번에 조회할 스터디 개수", example = "10")
+		@Parameter(name = "size", description = "한 번에 조회할 신청자 수", example = "10")
 	})
 	@ApiErrorCodes(
 		enumClass = StudyErrorCode.class,
@@ -121,6 +117,7 @@ public interface StudyControllerDocs {
 		}
 	)
 	ApiResponse<String> processApply(
+		@AuthUser Long userId,
 		@PathVariable Long studyUserId,
 		@RequestBody @Valid StudyApplicationDTO.ProcessApplicationDTO request
 	);
