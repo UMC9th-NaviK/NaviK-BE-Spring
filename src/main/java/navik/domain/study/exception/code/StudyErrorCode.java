@@ -8,6 +8,7 @@ import navik.global.apiPayload.code.status.BaseCode;
 
 @Getter
 @AllArgsConstructor
+
 public enum StudyErrorCode implements BaseCode {
 
 	STUDY_ALREADY_APPLIED(HttpStatus.BAD_REQUEST, "STUDY_400_1", "이미 신청한 스터디입니다"),
