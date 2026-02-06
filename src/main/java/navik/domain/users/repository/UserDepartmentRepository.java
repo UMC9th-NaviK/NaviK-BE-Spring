@@ -12,4 +12,6 @@ public interface UserDepartmentRepository extends JpaRepository<UserDepartment, 
 
 	@Query("SELECT ud.department.name FROM UserDepartment ud WHERE ud.user.id = :userId")
 	List<String> findDepartmentNamesByUserId(@Param("userId") Long userId);
+
+	void deleteAllByUserId(Long userId);
 }

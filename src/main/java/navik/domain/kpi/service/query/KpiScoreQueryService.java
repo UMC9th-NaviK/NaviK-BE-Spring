@@ -30,7 +30,8 @@ public class KpiScoreQueryService {
 		return kpiScoreRepository.findTopByUserIdWithCard(userId, PageRequest.of(0, 3)).stream()
 			.map(ks -> new KpiCardResponseDTO.GridItem(
 				ks.getKpiCard().getId(),
-				ks.getKpiCard().getName()
+				ks.getKpiCard().getName(),
+				ks.getKpiCard().getImageUrl()
 			))
 			.toList();
 	}
@@ -40,7 +41,8 @@ public class KpiScoreQueryService {
 		return kpiScoreRepository.findBottomByUserIdWithCard(userId, PageRequest.of(0, 3)).stream()
 			.map(ks -> new KpiCardResponseDTO.GridItem(
 				ks.getKpiCard().getId(),
-				ks.getKpiCard().getName()
+				ks.getKpiCard().getName(),
+				ks.getKpiCard().getImageUrl()
 			))
 			.toList();
 	}

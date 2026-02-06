@@ -11,10 +11,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.job.dto.JobResponseDTO;
 import navik.domain.users.exception.code.JobErrorCode;
 import navik.global.swagger.ApiErrorCodes;
 
+@Tag(name = "Job", description = "직무 관련 API")
 public interface JobControllerDocs {
 
 	@Operation(
