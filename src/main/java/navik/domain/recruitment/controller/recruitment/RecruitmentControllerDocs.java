@@ -6,9 +6,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import navik.domain.kpi.exception.code.KpiCardErrorCode;
 import navik.domain.recruitment.dto.recruitment.RecruitmentResponseDTO;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
+import navik.global.swagger.ApiErrorCodes;
 
 @Tag(name = "Recruitment", description = "채용 공고 관련 API")
 public interface RecruitmentControllerDocs {
@@ -19,10 +21,13 @@ public interface RecruitmentControllerDocs {
 	ApiResponse<List<RecruitmentResponseDTO.RecommendedPost>> getRecommendedPosts(@AuthUser Long userId);
 
 	@io.swagger.v3.oas.annotations.responses.ApiResponses(
-		{
-			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "OK"),
-			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "KPI_CARD_NOT_FOUND")
-		})
+		value = {@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "OK")})
+	@ApiErrorCodes(
+		enumClass = KpiCardErrorCode.class,
+		includes = {
+			"KPI_CARD_NOT_FOUND"
+		}
+	)
 	@Operation(summary = "KPI 관련 채용 공고 조회", description = "KPI 카드와 관련된 채용 공고 최대 5건을 조회합니다.")
 	ApiResponse<List<RecruitmentResponseDTO.RecommendedPost>> getRecommendedPostsByCard(
 		@PathVariable Long kpiCardId

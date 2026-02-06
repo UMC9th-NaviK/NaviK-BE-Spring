@@ -13,14 +13,15 @@ public class CorsConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(List.of(
-			"http://localhost:3000",
-			"http://localhost:8080",
-			"https://api.navik.kro.kr"
-		));  // 프론트 실배포 추가
+		config.setAllowedOrigins(
+			List.of(
+				"http://localhost:5173",
+				"http://localhost:8080",
+				"https://api.navik.kro.kr",
+				"https://www.navik.kr"));
 		config.setAllowCredentials(true);  // 쿠키 전송 허용
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-		config.setAllowedHeaders(List.of("*"));
+		config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", config);

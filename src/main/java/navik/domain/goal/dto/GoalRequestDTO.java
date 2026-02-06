@@ -16,6 +16,8 @@ public class GoalRequestDTO {
 	@Getter
 	public static class CreateDTO {
 		@NotNull
+		private String title;
+		@NotNull
 		private String content;
 		@NotNull
 		private LocalDate endDate;

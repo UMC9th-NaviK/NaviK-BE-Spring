@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import navik.domain.users.dto.UserRequestDTO;
@@ -21,7 +20,6 @@ import navik.global.auth.annotation.AuthUser;
 public interface UserControllerDocs {
 
 	@Operation(summary = "사용자 조회", description = "특정 사용자의 기본 정보(이름, 이메일, 역할, 소셜 타입)를 조회합니다.")
-	@SecurityRequirement(name = "bearerAuth")
 	@ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "사용자 조회 성공 예시", value = """
 			{
@@ -64,7 +62,6 @@ public interface UserControllerDocs {
 		- 성공 시 사용자 상태가 `ACTIVE`로 변경됩니다.
 		- 온보딩 완료 후 `/v1/auth/refresh`를 호출하여 ACTIVE 상태의 새 액세스 토큰을 발급받아야 합니다.
 		""")
-	@SecurityRequirement(name = "bearerAuth")
 	@ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "등록 성공", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "온보딩 등록 성공 예시", value = """
 			{
@@ -121,7 +118,6 @@ public interface UserControllerDocs {
 		@RequestBody @Valid UserRequestDTO.BasicInfoDto req);
 
 	@Operation(summary = "닉네임 중복 확인", description = "입력받은 닉네임이 DB에 이미 존재하는지 확인합니다. 사용 가능하면 `false`(중복 아님), 이미 존재하면 `true`(중복)를 반환합니다.")
-	@SecurityRequirement(name = "bearerAuth")
 	@ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "확인 성공", content = @Content(mediaType = "application/json", examples = {
 			@ExampleObject(name = "사용 가능한 닉네임", summary = "중복되지 않는 닉네임인 경우", value = """
@@ -160,7 +156,6 @@ public interface UserControllerDocs {
 		@Parameter(description = "중복 확인할 닉네임", example = "길동이", required = true) @RequestParam String nickname);
 
 	@Operation(summary = "마이 페이지", description = "로그인한 사용자의 전체 정보를 조회합니다. 프로필 이미지, 이름, 닉네임, 직무, 신입/경력 여부, 학력, 학과 목록을 포함합니다.")
-	@SecurityRequirement(name = "bearerAuth")
 	@ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "마이 페이지 조회 성공 예시", value = """
 			{
@@ -209,7 +204,6 @@ public interface UserControllerDocs {
 	ApiResponse<UserResponseDTO.MyPageDTO> getMyInfo(@Parameter(hidden = true) @AuthUser Long userId);
 
 	@Operation(summary = "프로필 조회", description = "로그인한 사용자의 프로필 요약 정보(프로필 이미지, 닉네임, 직무, 신입/경력 여부)를 조회합니다.")
-	@SecurityRequirement(name = "bearerAuth")
 	@ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "프로필 조회 성공 예시", value = """
 			{

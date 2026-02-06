@@ -1,9 +1,9 @@
 package navik.global.apiPayload.code.status;
 
+import org.springframework.http.HttpStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor

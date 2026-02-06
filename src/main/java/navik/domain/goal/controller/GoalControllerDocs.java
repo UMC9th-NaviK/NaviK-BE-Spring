@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import navik.domain.goal.dto.GoalRequestDTO;
@@ -35,7 +34,6 @@ public interface GoalControllerDocs {
 		- size 기본값: 10
 		- `hasNext`가 false면 마지막 페이지입니다
 		""")
-	@SecurityRequirement(name = "bearerAuth")
 	@ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "내 목표 조회 성공 예시", value = """
 				{
@@ -99,7 +97,6 @@ public interface GoalControllerDocs {
 		사용자의 새로운 목표를 생성합니다.
 		- 처음 생성 시 상태는 기본적으로 `NONE`(미정)으로 설정됩니다.
 		""")
-	@SecurityRequirement(name = "bearerAuth")
 	@ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "생성 성공", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "목표 설정 성공 예시", value = """
 				{
@@ -147,7 +144,6 @@ public interface GoalControllerDocs {
 		@RequestBody @Valid GoalRequestDTO.CreateDTO req);
 
 	@Operation(summary = "목표 상태 변경", description = "목표의 진행 상태를 변경합니다.")
-	@SecurityRequirement(name = "bearerAuth")
 	@ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "변경 성공", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "목표 상태 변경 성공 예시", value = """
 				{
@@ -206,7 +202,6 @@ public interface GoalControllerDocs {
 		@Parameter(description = "변경할 상태", example = "COMPLETED") @RequestParam GoalStatus status);
 
 	@Operation(summary = "목표 삭제", description = "목표를 삭제합니다.")
-	@SecurityRequirement(name = "bearerAuth")
 	@ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "삭제 성공"),
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "인증 실패", summary = "토큰이 없거나 유효하지 않은 경우", value = """

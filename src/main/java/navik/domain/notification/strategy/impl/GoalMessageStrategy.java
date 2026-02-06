@@ -17,7 +17,7 @@ public class GoalMessageStrategy implements NotificationMessageStrategy {
 	}
 
 	@Override
-	public String createDeadlineMessage(User user, Notifiable target, long daysLeft) {
+	public String createMessage(User user, Notifiable target, long daysLeft) {
 		Goal goal = (Goal)target;
 		return String.format("'%s' 마감까지 D-%d일 남았습니다.", goal.getContent(), daysLeft);
 	}

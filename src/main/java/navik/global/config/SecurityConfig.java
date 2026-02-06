@@ -1,5 +1,6 @@
 package navik.global.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -9,20 +10,24 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.AuthErrorCode;
 import navik.global.auth.handler.OAuth2SuccessHandler;
 import navik.global.auth.jwt.JwtAuthenticationFilter;
 import navik.global.auth.jwt.JwtTokenProvider;
+import navik.global.auth.jwt.UserStatusFilter;
 import navik.global.auth.service.CustomOAuth2UserService;
 import navik.global.enums.SecurityPermitPath;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @Profile("!ci")
@@ -34,49 +39,66 @@ public class SecurityConfig {
 	private final OAuth2SuccessHandler oAuth2SuccessHandler;
 	private final CorsConfigurationSource corsConfigurationSource;
 
+	@Value("${management.endpoints.web.exposure.allowed-ip:localhost}")
+	private String allowedIp;
+
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http
-			.csrf(AbstractHttpConfigurer::disable)
+		http.csrf(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
 			.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.cors(cors -> cors.configurationSource(corsConfigurationSource))
 
-			.authorizeHttpRequests(auth -> auth
-				.requestMatchers(SecurityPermitPath.STATIC.getPaths()).permitAll()
-				.requestMatchers(SecurityPermitPath.SWAGGER.getPaths()).permitAll()
-				.requestMatchers(SecurityPermitPath.AUTH.getPaths()).permitAll()
-				.requestMatchers(SecurityPermitPath.S3.getPaths()).permitAll()
-				// 5. 개발환경 전용
-				.requestMatchers("/dev/**").permitAll()
-
+			.authorizeHttpRequests(auth -> auth.requestMatchers(SecurityPermitPath.STATIC.getPaths())
+				.permitAll()
+				.requestMatchers(SecurityPermitPath.SWAGGER.getPaths())
+				.permitAll()
+				.requestMatchers(SecurityPermitPath.AUTH.getPaths())
+				.permitAll()
+				.requestMatchers(SecurityPermitPath.S3.getPaths())
+				.permitAll()
+				.requestMatchers(SecurityPermitPath.DEV.getPaths())
+				.permitAll()
+				.requestMatchers("/actuator/**").access(new WebExpressionAuthorizationManager(
+					makeAllowedIpExpression(allowedIp)
+				))
 				// 그 외 모든 요청은 인증 필요
-				.anyRequest().authenticated())
+				.anyRequest()
+				.authenticated())
 
 			// 인증되지 않은 사용자의 접근 시 401 JSON 응답 반환
 			// (토큰이 없는 상태에서 인증 필요 엔드포인트 접근)
-			.exceptionHandling(exception -> exception
-				.authenticationEntryPoint((request, response, authException) -> {
-					response.setContentType("application/json;charset=UTF-8");
-					response.setStatus(AuthErrorCode.UNAUTHORIZED.getHttpStatus().value());
+			.exceptionHandling(exception -> exception.authenticationEntryPoint((request, response, authException) -> {
+				response.setContentType("application/json;charset=UTF-8");
+				response.setStatus(AuthErrorCode.UNAUTHORIZED.getHttpStatus().value());
 
-					ApiResponse.Body<?> errorBody = ApiResponse.createFailureBody(AuthErrorCode.UNAUTHORIZED);
+				ApiResponse.Body<?> errorBody = ApiResponse.createFailureBody(AuthErrorCode.UNAUTHORIZED);
 
-					ObjectMapper objectMapper = new ObjectMapper();
-					objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
-					response.getWriter().write(objectMapper.writeValueAsString(errorBody));
-				}))
+				ObjectMapper objectMapper = new ObjectMapper();
+				objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+				response.getWriter().write(objectMapper.writeValueAsString(errorBody));
+			}))
 
-			.oauth2Login(oauth2 -> oauth2
-				.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+			.oauth2Login(oauth2 -> oauth2.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
 				.successHandler(oAuth2SuccessHandler))
 
 			// JWT 필터 배치
-			.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
-				UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+			// 온보딩 미완료(PENDING) 사용자 접근 제어
+			.addFilterAfter(new UserStatusFilter(), JwtAuthenticationFilter.class);
 
 		return http.build();
+	}
+
+	private String makeAllowedIpExpression(String allowedIp) {
+		if (allowedIp == null || allowedIp.isBlank()) {
+			return "denyAll";
+		}
+		if ("localhost".equalsIgnoreCase(allowedIp)) {
+			return "hasIpAddress('127.0.0.1') or hasIpAddress('::1') or hasIpAddress('0:0:0:0:0:0:0:1')";
+		}
+		return "hasIpAddress('" + allowedIp + "')";
 	}
 }
