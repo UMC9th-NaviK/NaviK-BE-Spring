@@ -3,8 +3,6 @@ package navik.domain.growthLog.controller.docs;
 import java.time.YearMonth;
 import java.util.List;
 
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -18,7 +16,7 @@ import navik.domain.growthLog.enums.AggregateUnit;
 import navik.domain.growthLog.enums.GrowthType;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.PageResponseDto;
+import navik.global.dto.SliceResponseDto;
 
 @Tag(name = "Growth Log", description = "성장 로그 API")
 public interface GrowthLogControllerDocs {
@@ -59,7 +57,9 @@ public interface GrowthLogControllerDocs {
 
 	@Operation(
 		summary = "월별 성장 로그 목록 조회",
-		description = "특정 월에 작성한 성장 로그 목록(요약)을 페이징하여 조회합니다."
+		description = "특정 월에 작성한 성장 로그 목록(요약)을 무한 스크롤 방식(Slice)으로 조회합니다. "
+			+ "정렬은 오래된 → 최신(createdAt ASC, id ASC)으로 고정되며, "
+			+ "평가 완료(COMPLETED) 상태의 로그만 반환됩니다."
 	)
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -77,11 +77,11 @@ public interface GrowthLogControllerDocs {
 						  "result": {
 							"content": [
 							  {
-								"growthLogId": 3,
-								"title": "와이어프레임 작성",
-								"content": "UI 흐름 명확",
-								"totalDelta": 2,
-								"createdAt": "2025-11-23T15:00:00"
+								"growthLogId": 1,
+								"title": "DB 스터디 2회차 참여",
+								"content": "피드백: 1:N 관계 표현, 정규화 잘함",
+								"totalDelta": 5,
+								"createdAt": "2025-11-11T10:00:00"
 							  },
 							  {
 								"growthLogId": 2,
@@ -91,19 +91,15 @@ public interface GrowthLogControllerDocs {
 								"createdAt": "2025-11-11T22:30:00"
 							  },
 							  {
-								"growthLogId": 1,
-								"title": "DB 스터디 2회차 참여",
-								"content": "피드백: 1:N 관계 표현, 정규화 잘함",
-								"totalDelta": 5,
-								"createdAt": "2025-11-11T10:00:00"
+								"growthLogId": 3,
+								"title": "와이어프레임 작성",
+								"content": "UI 흐름 명확",
+								"totalDelta": 2,
+								"createdAt": "2025-11-23T15:00:00"
 							  }
 							],
-							"pageNumber": 0,
 							"pageSize": 10,
-							"totalPages": 1,
-							"totalElements": 3,
-							"last": true,
-							"nextCursor": null
+							"hasNext": false
 						  },
 						  "timestamp": "2026-01-19T01:17:28"
 						}
@@ -112,7 +108,7 @@ public interface GrowthLogControllerDocs {
 			)
 		)
 	})
-	ApiResponse<PageResponseDto<GrowthLogResponseDTO.ListItem>> getMonthlyGrowthLogs(
+	ApiResponse<SliceResponseDto<GrowthLogResponseDTO.ListItem>> getMonthlyGrowthLogs(
 		@Parameter(hidden = true) @AuthUser Long userId,
 
 		@Parameter(
@@ -125,7 +121,19 @@ public interface GrowthLogControllerDocs {
 		@Parameter(description = "성장 로그 타입", required = false)
 		@RequestParam(required = false) GrowthType type,
 
-		@ParameterObject Pageable pageable
+		@Parameter(
+			description = "페이지 크기 (무한 스크롤용). 정렬은 오래된→최신(createdAt ASC, id ASC)으로 고정됩니다.",
+			example = "20",
+			required = false
+		)
+		@RequestParam(defaultValue = "20") int size,
+
+		@Parameter(
+			description = "페이지 번호 (0부터 시작). 무한 스크롤에서는 보통 증가시키며 호출합니다.",
+			example = "0",
+			required = false
+		)
+		@RequestParam(defaultValue = "0") int page
 	);
 
 	@Operation(
