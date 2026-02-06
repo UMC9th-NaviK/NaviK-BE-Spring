@@ -7,5 +7,5 @@ import navik.domain.users.entity.User;
 public interface NotificationMessageStrategy {
 	NotificationType getNotificationType();
 
-	String createDeadlineMessage(User user, Notifiable target, long daysLeft);
+	String createMessage(User user, Notifiable target, long daysLeft);
 }
