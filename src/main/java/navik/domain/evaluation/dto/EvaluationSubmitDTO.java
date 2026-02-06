@@ -14,7 +14,7 @@ public record EvaluationSubmitDTO(
 	@NotNull
 	@DecimalMin(value = "1.0")
 	@DecimalMax(value = "5.0")
-	Float score,
+	Double score,
 
 	@Size(min = 5, max = 5, message = "이런 점이 뛰어나요 태그 5개를 선택해야 합니다.")
 	List<Long> strengthTagIds,
