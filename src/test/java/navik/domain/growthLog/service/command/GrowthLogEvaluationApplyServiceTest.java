@@ -15,7 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import navik.domain.ability.normalizer.AbilityNormalizer;
 import navik.domain.growthLog.dto.internal.GrowthLogInternalApplyEvaluationRequest;
 import navik.domain.growthLog.dto.internal.GrowthLogInternalProcessingStartRequest;
 import navik.domain.growthLog.entity.GrowthLog;
@@ -34,9 +33,6 @@ class GrowthLogEvaluationApplyServiceTest {
 
 	@InjectMocks
 	GrowthLogEvaluationApplyService service;
-
-	@Mock
-	AbilityNormalizer abilityNormalizer;
 
 	@Nested
 	@DisplayName("startProcessing()")
@@ -205,9 +201,7 @@ class GrowthLogEvaluationApplyServiceTest {
 				token,
 				"제목",
 				"내용",
-				List.of(new GrowthLogInternalApplyEvaluationRequest.KpiDelta(100L, 3)),
-				List.of()
-			);
+				List.of(new GrowthLogInternalApplyEvaluationRequest.KpiDelta(100L, 3)));
 
 			// when
 			service.applyResult(growthLogId, req);
@@ -235,7 +229,7 @@ class GrowthLogEvaluationApplyServiceTest {
 				.willReturn(Optional.of(growthLog));
 
 			var req = new GrowthLogInternalApplyEvaluationRequest(
-				userId, "trace-id", token, "제목", "내용", List.of(), List.of()
+				userId, "trace-id", token, "제목", "내용", List.of()
 			);
 
 			// when
@@ -264,7 +258,7 @@ class GrowthLogEvaluationApplyServiceTest {
 				.willReturn(0);
 
 			var req = new GrowthLogInternalApplyEvaluationRequest(
-				userId, "trace-id", token, "제목", "내용", List.of(), List.of()
+				userId, "trace-id", token, "제목", "내용", List.of()
 			);
 
 			// when
@@ -293,7 +287,7 @@ class GrowthLogEvaluationApplyServiceTest {
 				.willReturn(1);
 
 			var req = new GrowthLogInternalApplyEvaluationRequest(
-				userId, "trace-id", token, "제목", "내용", List.of(), List.of()  // abilities 추가
+				userId, "trace-id", token, "제목", "내용", List.of()  // abilities 추가
 			);
 
 			// when & then
@@ -313,7 +307,7 @@ class GrowthLogEvaluationApplyServiceTest {
 				.willReturn(Optional.empty());
 
 			var req = new GrowthLogInternalApplyEvaluationRequest(
-				userId, "trace-id", token, "제목", "내용", List.of(), List.of()  // abilities 추가
+				userId, "trace-id", token, "제목", "내용", List.of()
 			);
 
 			// when & then
@@ -346,8 +340,7 @@ class GrowthLogEvaluationApplyServiceTest {
 					new GrowthLogInternalApplyEvaluationRequest.KpiDelta(100L, 3),
 					new GrowthLogInternalApplyEvaluationRequest.KpiDelta(101L, 5),
 					new GrowthLogInternalApplyEvaluationRequest.KpiDelta(102L, -2)
-				),
-				List.of()
+				)
 			);
 
 			// when

@@ -61,8 +61,7 @@ class SyncGrowthLogEvaluationStrategyTest {
 			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
 				"제목",
 				"내용",
-				List.of(new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(100L, 3)),
-				List.of()
+				List.of(new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(100L, 3))
 			);
 			var evaluated = new Evaluated(normalized, 3);
 
@@ -91,7 +90,7 @@ class SyncGrowthLogEvaluationStrategyTest {
 			Long userId = 1L;
 
 			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
-			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of(), List.of());
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of());
 			var evaluated = new Evaluated(normalized, 0);
 
 			given(core.buildContext(eq(userId), eq("(내용 없음)"))).willReturn(context);
@@ -160,7 +159,7 @@ class SyncGrowthLogEvaluationStrategyTest {
 			String input = "입력";
 
 			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
-			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of(), List.of());
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of());
 			var evaluated = new Evaluated(normalized, 0);
 
 			given(core.buildContext(eq(userId), eq(input))).willReturn(context);
@@ -200,7 +199,7 @@ class SyncGrowthLogEvaluationStrategyTest {
 			)).willReturn(1);
 
 			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
-			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of(), List.of());
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of());
 			var evaluated = new Evaluated(normalized, 0);
 
 			given(core.buildContext(eq(userId), eq("원본 내용"))).willReturn(context);
@@ -340,7 +339,7 @@ class SyncGrowthLogEvaluationStrategyTest {
 			)).willReturn(1);
 
 			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
-			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of(), List.of());
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", List.of());
 			var evaluated = new Evaluated(normalized, 0);
 
 			given(core.buildContext(eq(userId), eq("(내용 없음)"))).willReturn(context);
