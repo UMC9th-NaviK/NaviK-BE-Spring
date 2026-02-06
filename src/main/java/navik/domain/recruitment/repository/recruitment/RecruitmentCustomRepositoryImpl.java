@@ -10,7 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -61,25 +63,40 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			abilityEmbedding.embedding
 		);
 
-		// 2. 조건 설정
+		// 2. 유효 매칭 카운트
+		NumberExpression<Long> matchCount = new CaseBuilder()
+			.when(similarityQuery.goe(0.42))
+			.then(positionKpi.id)
+			.otherwise((Long)null)
+			.countDistinct();
+
+		// 3. 매칭 평균 유사도
+		NumberExpression<Double> similarityAvg = new CaseBuilder()
+			.when(similarityQuery.goe(0.42))
+			.then(similarityQuery)
+			.otherwise((Double)null)
+			.avg()
+			.coalesce(0.0);
+
+		// 4. 조건 설정
 		BooleanExpression where = Stream.of(
 				jobSatisfy(job),
 				educationLevelSatisfy(educationLevel),
 				experienceTypeSatisfy(experienceType),
 				majorTypeSatisfy(majorTypes),
 				endDateSatisfy(),
-				similarityQuery.goe(0.3)
+				similarityQuery.goe(0.42)
 			)
 			.filter(Objects::nonNull)
 			.reduce(BooleanExpression::and)
 			.orElse(null);
 
-		// 3. 조회
+		// 5. 조회
 		return jpaQueryFactory
 			.select(new QRecommendedRecruitmentProjection(
 				recruitment,
-				similarityQuery.sum(),
-				positionKpi.count()
+				similarityAvg,
+				matchCount
 			))
 			.from(recruitment)
 			.join(recruitment.positions, position)                         // Recruitment -> Position
@@ -89,11 +106,11 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			.join(ability.abilityEmbedding, abilityEmbedding)              // Ability -> Embedding
 			.where(where)
 			.groupBy(recruitment)
-			.having(positionKpi.count().goe(3))  // 매칭되는 KPI는 최소 3개 이상
+			.having(matchCount.goe(3))  // 매칭되는 KPI는 최소 3개 이상
 			.orderBy(
-				similarityQuery.sum().desc(),  // 1순위: 유사도 합산
-				positionKpi.count().desc(),    // 2순위: 매칭 개수
-				recruitment.id.asc()           // 3순위: PK
+				matchCount.desc(),     // 매칭 개수
+				similarityAvg.desc(),  // 평균 매칭 유사도
+				recruitment.id.asc()   // PK
 			)
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
@@ -111,21 +128,37 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			kpiCard.getKpiCardEmbedding().getEmbedding()
 		);
 
-		// 2. 조건 설정
+		// 2. 유효 매칭 카운트
+		NumberExpression<Long> matchCount = new CaseBuilder()
+			.when(similarityQuery.goe(0.42))
+			.then(positionKpi.id)
+			.otherwise((Long)null)
+			.countDistinct();
+
+		// 3. 매칭 평균 유사도
+		NumberExpression<Double> similarityAvg = new CaseBuilder()
+			.when(similarityQuery.goe(0.42))
+			.then(similarityQuery)
+			.otherwise((Double)null)
+			.avg()
+			.coalesce(0.0);
+
+		// 4. 조건 설정
 		BooleanExpression where = Stream.of(
 				jobSatisfy(job),
-				similarityQuery.goe(0.3)    // 카드에 fit한 공고 노출을 위해 유사도 0.3 이상만 집계
+				endDateSatisfy(),
+				similarityQuery.goe(0.42)
 			)
-			.reduce(BooleanExpression::and)
 			.filter(Objects::nonNull)
+			.reduce(BooleanExpression::and)
 			.orElse(null);
 
-		// 3. 조회
+		// 5. 조회
 		return jpaQueryFactory
 			.select(new QRecommendedRecruitmentProjection(
 				recruitment,
-				similarityQuery.sum(),
-				positionKpi.count()
+				similarityAvg,
+				matchCount
 			))
 			.from(recruitment)
 			.join(recruitment.positions, position)                        // Recruitment -> Position
@@ -133,11 +166,10 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			.join(positionKpi.positionKpiEmbedding, positionKpiEmbedding) // KPI -> KPI Embedding
 			.where(where)
 			.groupBy(recruitment)
-			.having(positionKpi.count().goe(3))  // 매칭되는 KPI는 최소 3개 이상
 			.orderBy(
-				similarityQuery.sum().desc(),   // 1순위: 유사도 합산
-				positionKpi.count().desc(),     // 2순위: 매칭 개수
-				recruitment.id.asc()            // 3순위: PK
+				matchCount.desc(),     // 매칭 개수
+				similarityAvg.desc(),  // 평균 매칭 유사도
+				recruitment.id.asc()   // PK
 			)
 			.limit(5)  // 유사도 합 상위 5개
 			.fetch();
