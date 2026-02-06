@@ -277,14 +277,14 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	 * 	 3순위: PK Asc
 	 */
 	private BooleanExpression cursorExpression(PositionRequestDTO.CursorRequest cursorRequest,
-		NumberExpression<Double> similarityAvg,
-		NumberExpression<Long> matchCount) {
+		NumberExpression<Long> matchCount,
+		NumberExpression<Double> similarityAvg) {
 		if (cursorRequest == null || cursorRequest.getLastId() == null
 			|| cursorRequest.getLastSimilarity() == null || cursorRequest.getLastMatchCount() == null)
 			return null;
 
-		Double lastAvg = cursorRequest.getLastSimilarity();
 		Long lastCount = cursorRequest.getLastMatchCount();
+		Double lastAvg = cursorRequest.getLastSimilarity();
 		Long lastId = cursorRequest.getLastId();
 
 		// 매칭 개수가 작음
