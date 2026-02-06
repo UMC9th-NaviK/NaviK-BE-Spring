@@ -146,6 +146,6 @@ public class KpiScoreInitialService {
 		if (deltas.isEmpty()) {
 			return;
 		}
-		growthLogInternalService.createPortfolio(userId, new GrowthLogInternalCreateRequest(deltas, null));
+		growthLogInternalService.createPortfolio(new GrowthLogInternalCreateRequest(userId, deltas, null));
 	}
 }

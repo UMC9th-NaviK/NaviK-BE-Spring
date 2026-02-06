@@ -35,16 +35,15 @@ public class GrowthLogInternalService {
 	private static final String PORTFOLIO_CONTENT_FORMAT =
 		"포트폴리오 분석을 통해 KPI 점수가 초기 설정되었습니다. (점수: %d점)";
 
-	public Long createFeedback(Long userId, GrowthLogInternalCreateRequest req) {
-		return createInternal(userId, req, GrowthType.FEEDBACK, this::feedbackTitleContent);
+	public Long createFeedback(GrowthLogInternalCreateRequest req) {
+		return createInternal(req, GrowthType.FEEDBACK, this::feedbackTitleContent);
 	}
 
-	public Long createPortfolio(Long userId, GrowthLogInternalCreateRequest req) {
-		return createInternal(userId, req, GrowthType.PORTFOLIO, this::portfolioTitleContent);
+	public Long createPortfolio(GrowthLogInternalCreateRequest req) {
+		return createInternal(req, GrowthType.PORTFOLIO, this::portfolioTitleContent);
 	}
 
 	private Long createInternal(
-		Long userId,
 		GrowthLogInternalCreateRequest req,
 		GrowthType type,
 		TitleContentPolicy policy
@@ -59,10 +58,11 @@ public class GrowthLogInternalService {
 		int totalDelta = mergedDeltas.values().stream().mapToInt(Integer::intValue).sum();
 		List<Long> ids = new ArrayList<>(mergedDeltas.keySet());
 
+		User userRef = userRepository.getReferenceById(req.userId());
 		Map<Long, KpiCard> kpiCardMap = findKpiCardsAsMap(ids);
 		TitleContent tc = policy.make(totalDelta, req.content());
 
-		GrowthLog growthLog = buildGrowthLog(userId, type, totalDelta, tc);
+		GrowthLog growthLog = buildGrowthLog(userRef, type, totalDelta, tc);
 		attachKpiLinks(growthLog, mergedDeltas, kpiCardMap);
 
 		return growthLogRepository.save(growthLog).getId();
@@ -88,11 +88,9 @@ public class GrowthLogInternalService {
 		return merged;
 	}
 
-	private GrowthLog buildGrowthLog(Long userId, GrowthType type, int totalDelta, TitleContent tc) {
-		User userRef = userRepository.getReferenceById(userId);
-
+	private GrowthLog buildGrowthLog(User user, GrowthType type, int totalDelta, TitleContent tc) {
 		return GrowthLog.builder()
-			.user(userRef)
+			.user(user)
 			.type(type)
 			.title(tc.title())
 			.content(tc.content())

@@ -19,4 +19,15 @@ public class AiWebClientConfig {
 
 		return builder.build();
 	}
+
+	@Bean
+	public WebClient ocrWebClient(AiServerProperties props) {
+		WebClient.Builder builder = WebClient.builder();
+
+		if (props.ocrBaseUrl() != null && !props.ocrBaseUrl().isBlank()) {
+			builder.baseUrl(props.ocrBaseUrl());
+		}
+
+		return builder.build();
+	}
 }
