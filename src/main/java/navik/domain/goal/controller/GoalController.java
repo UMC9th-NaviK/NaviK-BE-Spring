@@ -41,6 +41,12 @@ public class GoalController implements GoalControllerDocs {
 	}
 
 	@Override
+	@GetMapping("/in-progress")
+	public ApiResponse<GoalResponseDTO.InProgressDTO> getInProgressGoals(@AuthUser Long userId) {
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, goalQueryService.getInProgressGoals(userId));
+	}
+
+	@Override
 	@PostMapping
 	public ApiResponse<GoalResponseDTO.InfoDTO> createGoal(
 		@AuthUser Long userId,
