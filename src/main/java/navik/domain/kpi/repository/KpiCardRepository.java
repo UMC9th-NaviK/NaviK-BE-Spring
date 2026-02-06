@@ -32,4 +32,7 @@ public interface KpiCardRepository extends JpaRepository<KpiCard, Long> {
 
 	@Query("select k.id from KpiCard k")
 	List<Long> findTop5Ids(Pageable pageable);
+
+	@Query("select c from KpiCard c where c.job.id = :jobId")
+	List<KpiCard> findAllByJobId(@Param("jobId") Long jobId);
 }
