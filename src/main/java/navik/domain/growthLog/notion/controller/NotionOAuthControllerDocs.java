@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.growthLog.notion.dto.NotionOAuthResponse;
 import navik.global.apiPayload.ApiResponse.Body;
@@ -18,7 +17,6 @@ import navik.global.apiPayload.ApiResponse.Body;
 public interface NotionOAuthControllerDocs {
 
 	@Operation(summary = "Notion OAuth 인증 시작", description = "사용자를 Notion 인증 페이지로 리다이렉트합니다.")
-	@SecurityRequirement(name = "bearerAuth")
 	@ApiResponses({
 		@ApiResponse(
 			responseCode = "302",
@@ -45,7 +43,7 @@ public interface NotionOAuthControllerDocs {
 			)
 		)
 	})
-	ResponseEntity<Void> authorize(
+    navik.global.apiPayload.ApiResponse<Void> authorize(
 		@Parameter(hidden = true) Long userId
 	);
 
@@ -163,7 +161,7 @@ public interface NotionOAuthControllerDocs {
 			)
 		)
 	})
-	ResponseEntity<NotionOAuthResponse.CallbackResponse> callback(
+    navik.global.apiPayload.ApiResponse<NotionOAuthResponse.CallbackResponse> callback(
 		@Parameter(description = "Authorization Code (Notion에서 전달)") String code,
 		@Parameter(description = "사용자 ID (인증 시작 시 전달한 state 값)") String state,
 		@Parameter(description = "에러 코드 (사용자가 거부한 경우)") String error

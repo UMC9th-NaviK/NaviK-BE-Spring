@@ -2,8 +2,8 @@ package navik.domain.growthLog.notion.controller;
 
 import java.net.URI;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import navik.global.apiPayload.ApiResponse;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.domain.growthLog.notion.dto.NotionOAuthResponse;
 import navik.domain.growthLog.notion.service.NotionOAuthService;
+import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.apiPayload.code.status.NotionErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import navik.global.auth.annotation.AuthUser;
@@ -32,14 +33,15 @@ public class NotionOAuthController implements NotionOAuthControllerDocs {
 	 * @param userId 사용자 식별자
 	 */
 	@GetMapping("/authorize")
-	public ResponseEntity<Void> authorize(@AuthUser Long userId) {
+	public ApiResponse<Void> authorize(@AuthUser Long userId) {
 		log.info("Notion OAuth 인증 시작: userId={}", userId);
 
 		String authorizationUrl = oAuthService.buildAuthorizationUrl(userId);
 
-		return ResponseEntity.status(HttpStatus.FOUND)
-				.location(URI.create(authorizationUrl))
-				.build();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setLocation(URI.create(authorizationUrl));
+
+		return ApiResponse.onSuccess(headers, GeneralSuccessCode._REDIRECT, null);
 	}
 
 	/**
@@ -51,7 +53,7 @@ public class NotionOAuthController implements NotionOAuthControllerDocs {
 	 * @param error 에러 코드 (사용자가 거부한 경우)
 	 */
 	@GetMapping("/callback")
-	public ResponseEntity<NotionOAuthResponse.CallbackResponse> callback(
+	public ApiResponse<NotionOAuthResponse.CallbackResponse> callback(
 			@RequestParam(value = "code", required = false) String code,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "error", required = false) String error) {
@@ -86,12 +88,14 @@ public class NotionOAuthController implements NotionOAuthControllerDocs {
 		log.info("Notion 연동 완료: userId={}, workspace={}, workspaceId={}",
 				userId, tokenResponse.workspaceName(), tokenResponse.workspaceId());
 
-		return ResponseEntity.ok(new NotionOAuthResponse.CallbackResponse(
-				true,
-				"Notion 연동이 완료되었습니다!",
-				String.valueOf(userId),
-				tokenResponse.workspaceName(),
-				tokenResponse.workspaceId()));
+		return ApiResponse.onSuccess(
+				GeneralSuccessCode._OK,
+				new NotionOAuthResponse.CallbackResponse(
+						true,
+						"Notion 연동이 완료되었습니다!",
+						String.valueOf(userId),
+						tokenResponse.workspaceName(),
+						tokenResponse.workspaceId()));
 	}
 
 	// /**
