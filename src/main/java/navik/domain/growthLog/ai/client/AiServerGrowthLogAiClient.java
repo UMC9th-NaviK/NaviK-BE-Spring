@@ -6,8 +6,10 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.growthLog.ai.AiServerProperties;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO.GrowthLogEvaluationContext;
@@ -18,13 +20,11 @@ import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 @Component
 @Profile("prod")
 @RequiredArgsConstructor
+@Slf4j
 public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 
 	private final WebClient aiWebClient;
 	private final AiServerProperties props;
-
-	private static final String EVALUATE_USER_INPUT_PATH =
-		"/v1/growth-logs/evaluate/user-input";
 
 	@Override
 	public GrowthLogEvaluationResult evaluateUserInput(
@@ -34,7 +34,7 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 
 		try {
 			return aiWebClient.post()
-				.uri(EVALUATE_USER_INPUT_PATH)
+				.uri(props.evaluateUserInputPath())
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
 				.bodyValue(
@@ -42,12 +42,11 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 				)
 				.retrieve()
 				.bodyToMono(GrowthLogEvaluationResult.class)
-				.timeout(Duration.ofSeconds(10))
+				.timeout(Duration.ofSeconds(props.timeoutSeconds() != null ? props.timeoutSeconds() : 10))
 				.block();
-		} catch (Exception e) {
-			throw new GeneralExceptionHandler(
-				GrowthLogErrorCode.AI_EVALUATION_FAILED
-			);
+		} catch (WebClientResponseException e) {
+			log.error("[AI] status={}, body={}", e.getStatusCode(), e.getResponseBodyAsString(), e);
+			throw new GeneralExceptionHandler(GrowthLogErrorCode.AI_EVALUATION_FAILED);
 		}
 	}
 

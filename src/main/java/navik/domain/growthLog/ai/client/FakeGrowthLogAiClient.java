@@ -26,16 +26,14 @@ public class FakeGrowthLogAiClient implements GrowthLogAiClient {
 		List<Long> kpiCardIds =
 			kpiCardRepository.findTop5Ids(PageRequest.of(0, 5));
 
-		// context에서 KPI 정보 활용해서 더미 응답 생성
 		List<GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta> kpiDeltas =
 			kpiCardIds.stream()
 				.map(id -> new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(
 					id,
-					10 // 테스트용 고정 delta
+					10
 				))
 				.toList();
 
-		// KPI가 없으면 빈 리스트 유지
 		if (kpiDeltas.isEmpty() && !context.recentKpiDeltas().isEmpty()) {
 			kpiDeltas = List.of(
 				new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(
@@ -48,8 +46,7 @@ public class FakeGrowthLogAiClient implements GrowthLogAiClient {
 		return new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
 			"[Fake] " + truncate(context.newContent(), 20),
 			"AI 서버 연동 전 더미 응답입니다. 입력: " + truncate(context.newContent(), 50),
-			kpiDeltas
-		);
+			kpiDeltas);
 	}
 
 	private String truncate(String s, int maxLen) {

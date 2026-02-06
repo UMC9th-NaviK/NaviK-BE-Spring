@@ -7,5 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 @ConfigurationProperties(prefix = "ai.server")
 public record AiServerProperties(@NotBlank(message = "AI_SERVER_BASE_URL 환경 변수를 설정해주세요")
 								 String baseUrl,
+								 String evaluateUserInputPath,
+								 Integer timeoutSeconds,
 								 String ocrBaseUrl) {
 }

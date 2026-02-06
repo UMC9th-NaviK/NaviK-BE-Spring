@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.GrowthLogEvaluationResult;
 import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.entity.GrowthLogKpiLink;
@@ -20,9 +21,10 @@ import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
-@Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
+@Service
 public class GrowthLogPersistenceService {
 
 	private final UserRepository userRepository;
@@ -33,8 +35,7 @@ public class GrowthLogPersistenceService {
 	public Long saveUserInputLog(
 		Long userId,
 		GrowthLogEvaluationResult normalized,
-		int totalDelta,
-		List<GrowthLogEvaluationResult.KpiDelta> kpis
+		int totalDelta
 	) {
 		User user = userRepository.getReferenceById(userId);
 
@@ -46,11 +47,11 @@ public class GrowthLogPersistenceService {
 			GrowthLogStatus.COMPLETED
 		);
 
-		attachKpiLinks(growthLog, kpis);
+		attachKpiLinks(growthLog, normalized.kpis());
 
 		Long id = growthLogRepository.save(growthLog).getId();
 
-		applyKpiScoreDeltas(userId, kpis);
+		applyKpiScoreDeltas(userId, normalized.kpis());
 
 		return id;
 	}
@@ -91,8 +92,7 @@ public class GrowthLogPersistenceService {
 		Long userId,
 		Long growthLogId,
 		GrowthLogEvaluationResult normalized,
-		int totalDelta,
-		List<GrowthLogEvaluationResult.KpiDelta> kpis
+		int totalDelta
 	) {
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
 			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
@@ -102,17 +102,15 @@ public class GrowthLogPersistenceService {
 			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 
-		applyEvaluationResult(growthLog, userId, normalized, totalDelta, kpis);
+		applyEvaluationResult(growthLog, userId, normalized, totalDelta);
 
 	}
 
-	@Transactional
 	public void completeGrowthLogAfterProcessing(
 		Long userId,
 		Long growthLogId,
 		GrowthLogEvaluationResult normalized,
-		int totalDelta,
-		List<GrowthLogEvaluationResult.KpiDelta> kpis
+		int totalDelta
 	) {
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
 			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
@@ -122,7 +120,8 @@ public class GrowthLogPersistenceService {
 			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 
-		applyEvaluationResult(growthLog, userId, normalized, totalDelta, kpis);
+		applyEvaluationResult(growthLog, userId, normalized, totalDelta);
+
 	}
 
 	private GrowthLog newUserInputLog(
@@ -169,12 +168,12 @@ public class GrowthLogPersistenceService {
 		GrowthLog growthLog,
 		Long userId,
 		GrowthLogEvaluationResult normalized,
-		int totalDelta,
-		List<GrowthLogEvaluationResult.KpiDelta> kpis
+		int totalDelta
 	) {
 		growthLog.clearKpiLinks();
 		growthLog.applyEvaluation(normalized.title(), normalized.content(), totalDelta);
-		attachKpiLinks(growthLog, kpis);
-		applyKpiScoreDeltas(userId, kpis);
+		attachKpiLinks(growthLog, normalized.kpis());
+		applyKpiScoreDeltas(userId, normalized.kpis());
 	}
+
 }

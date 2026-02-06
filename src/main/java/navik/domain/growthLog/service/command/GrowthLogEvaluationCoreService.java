@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.growthLog.ai.client.GrowthLogAiClient;
 import navik.domain.growthLog.dto.internal.Evaluated;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO.GrowthLogEvaluationContext;
@@ -15,6 +16,7 @@ import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO.PastKpiDelta;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.GrowthLogEvaluationResult;
 import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.entity.GrowthLogKpiLink;
+import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.repository.GrowthLogKpiLinkRepository;
 import navik.domain.growthLog.repository.GrowthLogRepository;
@@ -26,6 +28,7 @@ import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GrowthLogEvaluationCoreService {
@@ -50,7 +53,8 @@ public class GrowthLogEvaluationCoreService {
 			.map(this::buildResumeText)
 			.orElse("포트폴리오 정보 없음");
 
-		List<GrowthLog> recentLogs = growthLogRepository.findTop20ByUserIdOrderByCreatedAtDesc(userId);
+		List<GrowthLog> recentLogs = growthLogRepository.findTop20ByUserIdAndStatusOrderByCreatedAtDesc(userId,
+			GrowthLogStatus.COMPLETED);
 
 		List<PastGrowthLog> recentGrowthLogs = recentLogs.stream()
 			.map(gl -> new PastGrowthLog(
@@ -89,16 +93,19 @@ public class GrowthLogEvaluationCoreService {
 	public Evaluated evaluate(Long userId, GrowthLogEvaluationContext context) {
 		GrowthLogEvaluationResult aiResult = growthLogAiClient.evaluateUserInput(userId, context);
 
-		GrowthLogEvaluationResult normalized = normalize(aiResult);
+		GrowthLogEvaluationResult base = normalize(aiResult);
 
-		List<GrowthLogEvaluationResult.KpiDelta> kpis = mergeSameKpi(normalized.kpis());
+		List<GrowthLogEvaluationResult.KpiDelta> kpis = mergeSameKpi(base.kpis());
 		validateKpisExist(kpis);
 
 		int totalDelta = kpis.stream()
 			.mapToInt(GrowthLogEvaluationResult.KpiDelta::delta)
 			.sum();
 
-		return new Evaluated(normalized, kpis, totalDelta);
+		GrowthLogEvaluationResult normalized =
+			new GrowthLogEvaluationResult(base.title(), base.content(), kpis);
+
+		return new Evaluated(normalized, totalDelta);
 	}
 
 	private GrowthLogEvaluationResult normalize(GrowthLogEvaluationResult r) {

@@ -201,15 +201,14 @@ class GrowthLogEvaluationApplyServiceTest {
 				token,
 				"제목",
 				"내용",
-				List.of(new GrowthLogInternalApplyEvaluationRequest.KpiDelta(100L, 3))
-			);
+				List.of(new GrowthLogInternalApplyEvaluationRequest.KpiDelta(100L, 3)));
 
 			// when
 			service.applyResult(growthLogId, req);
 
 			// then
 			verify(persistence).completeGrowthLogAfterProcessing(
-				eq(userId), eq(growthLogId), any(), eq(3), any()
+				eq(userId), eq(growthLogId), any(), eq(3)
 			);
 			verify(growthLogRepository).clearProcessingTokenIfMatch(
 				userId, growthLogId, token, GrowthLogStatus.COMPLETED
@@ -239,7 +238,7 @@ class GrowthLogEvaluationApplyServiceTest {
 			// then
 			verify(growthLogRepository, never()).acquireApplyLock(anyLong(), anyLong(), anyString());
 			verify(persistence, never()).completeGrowthLogAfterProcessing(
-				anyLong(), anyLong(), any(), anyInt(), any()
+				anyLong(), anyLong(), any(), anyInt()
 			);
 		}
 
@@ -267,7 +266,7 @@ class GrowthLogEvaluationApplyServiceTest {
 
 			// then
 			verify(persistence, never()).completeGrowthLogAfterProcessing(
-				anyLong(), anyLong(), any(), anyInt(), any()
+				anyLong(), anyLong(), any(), anyInt()
 			);
 		}
 
@@ -288,7 +287,7 @@ class GrowthLogEvaluationApplyServiceTest {
 				.willReturn(1);
 
 			var req = new GrowthLogInternalApplyEvaluationRequest(
-				userId, "trace-id", token, "제목", "내용", List.of()
+				userId, "trace-id", token, "제목", "내용", List.of()  // abilities 추가
 			);
 
 			// when & then
@@ -349,7 +348,7 @@ class GrowthLogEvaluationApplyServiceTest {
 
 			// then
 			verify(persistence).completeGrowthLogAfterProcessing(
-				eq(userId), eq(growthLogId), any(), eq(6), any()  // 3 + 5 + (-2) = 6
+				eq(userId), eq(growthLogId), any(), eq(6)
 			);
 		}
 	}
