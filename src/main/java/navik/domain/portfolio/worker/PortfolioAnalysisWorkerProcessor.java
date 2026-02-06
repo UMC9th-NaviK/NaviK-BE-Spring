@@ -36,15 +36,29 @@ public class PortfolioAnalysisWorkerProcessor {
 			portfolio.updateStatus(PortfolioStatus.PROCESSING);
 		}
 
-		String resumeText = portfolio.getContent();
-		if (resumeText == null || resumeText.isBlank()) {
-			log.warn("[PortfolioAnalysis] skip (empty content). traceId={}, portfolioId={}", traceId, portfolioId);
-			portfolio.updateStatus(PortfolioStatus.FAILED);
-			return false;
-		}
+		// 2) AI 서버 분석 요청 (추가 정보 유무에 따라 분기)
+		PortfolioAiDTO.AnalyzeResponse result;
 
-		// 2) AI 서버 분석 요청
-		PortfolioAiDTO.AnalyzeResponse result = portfolioAiClient.analyzePortfolio(resumeText);
+		if (hasAdditionalInfo(portfolio)) {
+			// Fallback 요청 (추가 정보 있음)
+			result = portfolioAiClient.analyzeWithFallback(
+				"backend",
+				portfolio.getQB1(),
+				portfolio.getQB2(),
+				portfolio.getQB3(),
+				portfolio.getQB4(),
+				portfolio.getQB5()
+			);
+		} else {
+			// 일반 분석 요청
+			String resumeText = portfolio.getContent();
+			if (resumeText == null || resumeText.isBlank()) {
+				log.warn("[PortfolioAnalysis] skip (empty content). traceId={}, portfolioId={}", traceId, portfolioId);
+				portfolio.updateStatus(PortfolioStatus.FAILED);
+				return false;
+			}
+			result = portfolioAiClient.analyzePortfolio(resumeText);
+		}
 
 		if (result == null || result.scores() == null || result.scores().isEmpty()) {
 			log.warn("[PortfolioAnalysis] skip (empty AI response). traceId={}, portfolioId={}", traceId, portfolioId);
@@ -65,5 +79,13 @@ public class PortfolioAnalysisWorkerProcessor {
 			portfolioId, result.scores().size());
 
 		return true;
+	}
+
+	private boolean hasAdditionalInfo(Portfolio portfolio) {
+		return portfolio.getQB1() != null
+			&& portfolio.getQB2() != null
+			&& portfolio.getQB3() != null
+			&& portfolio.getQB4() != null
+			&& portfolio.getQB5() != null;
 	}
 }

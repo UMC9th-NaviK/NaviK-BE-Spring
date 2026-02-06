@@ -1,5 +1,6 @@
 package navik.domain.portfolio.service;
 
+import org.springframework.context.ApplicationEventPublisher;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -10,6 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import navik.domain.portfolio.dto.PortfolioRequestDto;
 import navik.domain.portfolio.dto.PortfolioResponseDto;
 import navik.domain.portfolio.entity.Portfolio;
+import navik.domain.portfolio.entity.PortfolioStatus;
+import navik.domain.portfolio.event.PortfolioAnalysisEvent;
+import navik.domain.portfolio.exception.code.PortfolioErrorCode;
+import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import navik.domain.portfolio.message.PortfolioAnalysisMessage;
 import navik.domain.portfolio.message.PortfolioAnalysisPublisher;
 import navik.domain.portfolio.repository.PortfolioRepository;
@@ -26,7 +31,7 @@ public class PortfolioCommandService {
 	private final PortfolioRepository portfolioRepository;
 	private final UserQueryService userQueryService;
 	private final PortfolioTextExtractorResolver portfolioTextExtractorResolver;
-	private final PortfolioAnalysisPublisher portfolioAnalysisPublisher;
+	private final ApplicationEventPublisher eventPublisher;
 
 	public PortfolioResponseDto.Created createPortfolio(Long userId, PortfolioRequestDto.Create request) {
 		User user = userQueryService.getUser(userId);
@@ -43,17 +48,38 @@ public class PortfolioCommandService {
 
 		portfolioRepository.save(portfolio);
 
-		publishAnalysisMessage(userId, portfolio.getId()); //todo: portfolio 커밋 후 실행되도록
+		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolio.getId()));
 
 		return new PortfolioResponseDto.Created(portfolio.getId(), request.inputType());
 	}
 
-	private void publishAnalysisMessage(Long userId, Long portfolioId) {
-		try {
-			String traceId = UUID.randomUUID().toString();
-			portfolioAnalysisPublisher.publish(new PortfolioAnalysisMessage(userId, portfolioId, traceId));
-		} catch (Exception e) {
-			log.error("[PortfolioCommandService] 분석 메시지 발행 실패. userId={}, portfolioId={}", userId, portfolioId, e);
+	public PortfolioResponseDto.AdditionalInfoSubmitted submitAdditionalInfo(
+		Long userId,
+		Long portfolioId,
+		PortfolioRequestDto.AdditionalInfo request
+	) {
+		Portfolio portfolio = portfolioRepository.findById(portfolioId)
+			.orElseThrow(() -> new GeneralExceptionHandler(PortfolioErrorCode.PORTFOLIO_NOT_FOUND));
+
+		if (!portfolio.getUser().getId().equals(userId)) {
+			throw new GeneralExceptionHandler(PortfolioErrorCode.PORTFOLIO_NOT_OWNED);
 		}
+
+		if (portfolio.getStatus() != PortfolioStatus.FAILED) {
+			throw new GeneralExceptionHandler(PortfolioErrorCode.INVALID_PORTFOLIO_STATUS);
+		}
+
+		portfolio.updateAdditionalInfo(
+			request.qB1(),
+			request.qB2(),
+			request.qB3(),
+			request.qB4(),
+			request.qB5()
+		);
+		portfolioRepository.save(portfolio);
+
+		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolioId));
+
+		return new PortfolioResponseDto.AdditionalInfoSubmitted(portfolioId);
 	}
 }

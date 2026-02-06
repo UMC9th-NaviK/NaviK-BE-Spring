@@ -1,5 +1,6 @@
 package navik.domain.portfolio.controller;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,5 +29,15 @@ public class PortfolioController implements PortfolioControllerDocs {
 
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED,
 			portfolioCommandService.createPortfolio(userId, request));
+	}
+
+	@PostMapping("/{portfolioId}/additional-info")
+	public ApiResponse<PortfolioResponseDto.AdditionalInfoSubmitted> submitAdditionalInfo(
+		@AuthUser Long userId,
+		@PathVariable Long portfolioId,
+		@RequestBody @Valid PortfolioRequestDto.AdditionalInfo request) {
+
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK,
+			portfolioCommandService.submitAdditionalInfo(userId, portfolioId, request));
 	}
 }
