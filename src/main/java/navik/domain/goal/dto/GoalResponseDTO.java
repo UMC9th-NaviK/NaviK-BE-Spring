@@ -1,6 +1,7 @@
 package navik.domain.goal.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -32,6 +33,8 @@ public class GoalResponseDTO {
 		@NotNull
 		private Long goalId;
 		@NotNull
+		private String title;
+		@NotNull
 		private String content;
 		@NotNull
 		private LocalDate endDate;
@@ -39,4 +42,14 @@ public class GoalResponseDTO {
 		private GoalStatus status;
 	}
 
+	@Builder
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@Getter
+	public static class InProgressDTO {
+		@NotNull
+		private List<InfoDTO> inProgressGoals;
+		@NotNull
+		private Long totalCount;
+	}
 }

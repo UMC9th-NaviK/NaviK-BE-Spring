@@ -47,4 +47,10 @@ public interface GoalControllerDocs {
 		value = {@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "DELETED")
 		})
 	ApiResponse<Void> deleteGoal(@AuthUser Long userId, Long goalId);
+
+	@Operation(summary = "완료할 목표 조회", description = "진행 중인 목표 최대 3건 및 전체 개수를 조회합니다.")
+	@io.swagger.v3.oas.annotations.responses.ApiResponses(
+		value = {@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "OK")
+		})
+	ApiResponse<GoalResponseDTO.InProgressDTO> getInProgressGoals(@AuthUser Long userId);
 }

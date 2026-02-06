@@ -64,7 +64,6 @@ public class RecruitmentPendingScheduler implements InitializingBean {
 
 		// 2. 로그 출력
 		if (pendingSummary == null || pendingSummary.getTotalPendingMessages() == 0) {
-			log.info("[RecruitmentPendingScheduler] 미처리된 채용 공고는 없습니다.");
 			return;
 		}
 		log.info("[RecruitmentPendingScheduler] 미처리된 채용 공고가 총 {}건 존재합니다.", pendingSummary.getTotalPendingMessages());

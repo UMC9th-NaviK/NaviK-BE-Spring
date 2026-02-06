@@ -97,4 +97,18 @@ public class User extends BaseEntity {
 		this.isEntryLevel = isEntryLevel;
 		this.userStatus = UserStatus.ACTIVE;
 	}
+
+	public void updateProfileImageUrl(String profileImageUrl) {
+		this.profileImageUrl = profileImageUrl;
+	}
+
+	public void updateMyInfo(String nickname, Boolean isEntryLevel, EducationLevel educationLevel) {
+		if (nickname != null) this.nickname = nickname;
+		if (isEntryLevel != null) this.isEntryLevel = isEntryLevel;
+		if (educationLevel != null) this.educationLevel = educationLevel;
+	}
+
+	public void updateProfileImage(String profileImageUrl) {
+		this.profileImageUrl = profileImageUrl;
+	}
 }
