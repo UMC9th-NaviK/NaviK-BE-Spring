@@ -73,4 +73,3 @@ out/
 ### QueryDSL ###
 src/main/generated/
 
-/Dockerfile
