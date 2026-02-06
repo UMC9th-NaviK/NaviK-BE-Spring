@@ -47,6 +47,10 @@ public class Portfolio extends BaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false)
-	private PortfolioStatus status;
+	@Builder.Default
+	private PortfolioStatus status = PortfolioStatus.PENDING;
 
+	public void updateStatus(PortfolioStatus status) {
+		this.status = status;
+	}
 }

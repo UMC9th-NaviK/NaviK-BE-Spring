@@ -8,6 +8,9 @@ import jakarta.validation.constraints.NotNull;
 
 public record GrowthLogInternalCreateRequest(
 
+	@NotNull(message = "userId는 필수입니다.")
+	Long userId,
+
 	@NotEmpty(message = "KPI 변경 목록은 비어 있을 수 없습니다.")
 	List<@Valid KpiDelta> kpis,
 
