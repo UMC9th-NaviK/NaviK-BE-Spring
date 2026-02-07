@@ -10,9 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import navik.global.apiPayload.exception.code.AuthErrorCode;
 import navik.global.apiPayload.exception.exception.GeneralException;
 import navik.global.auth.dto.TokenDTO;
+import navik.global.auth.exception.code.AuthErrorCode;
 import navik.global.auth.jwt.JwtTokenProvider;
 import navik.global.auth.redis.RefreshToken;
 import navik.global.auth.repository.RefreshTokenRepository;

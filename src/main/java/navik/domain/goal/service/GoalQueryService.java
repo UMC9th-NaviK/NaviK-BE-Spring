@@ -13,9 +13,9 @@ import navik.domain.goal.dto.GoalResponseDTO;
 import navik.domain.goal.entity.Goal;
 import navik.domain.goal.entity.GoalStatus;
 import navik.domain.goal.repository.GoalRepository;
-import navik.global.apiPayload.exception.code.AuthErrorCode;
 import navik.global.apiPayload.exception.code.GeneralErrorCode;
 import navik.global.apiPayload.exception.exception.GeneralException;
+import navik.global.auth.exception.code.AuthErrorCode;
 import navik.global.dto.CursorResponseDTO;
 
 @Service

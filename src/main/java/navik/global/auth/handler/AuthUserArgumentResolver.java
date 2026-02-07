@@ -11,10 +11,10 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import navik.global.apiPayload.exception.code.AuthErrorCode;
 import navik.global.apiPayload.exception.exception.GeneralException;
 import navik.global.auth.JwtUserDetails;
 import navik.global.auth.annotation.AuthUser;
+import navik.global.auth.exception.code.AuthErrorCode;
 
 @Component
 public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {

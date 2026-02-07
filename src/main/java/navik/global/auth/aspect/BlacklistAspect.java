@@ -11,8 +11,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import navik.global.apiPayload.exception.code.AuthErrorCode;
 import navik.global.apiPayload.exception.exception.GeneralException;
+import navik.global.auth.exception.code.AuthErrorCode;
 
 @Slf4j
 @Aspect

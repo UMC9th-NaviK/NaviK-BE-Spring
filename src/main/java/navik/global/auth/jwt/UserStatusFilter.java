@@ -16,8 +16,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.exception.code.AuthErrorCode;
 import navik.global.auth.JwtUserDetails;
+import navik.global.auth.exception.code.AuthErrorCode;
 
 public class UserStatusFilter extends OncePerRequestFilter {
 
