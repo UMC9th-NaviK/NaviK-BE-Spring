@@ -1,9 +1,5 @@
 package navik.domain.growthLog.notion.controller;
 
-import java.net.URI;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.domain.growthLog.notion.dto.NotionOAuthResponse;
 import navik.domain.growthLog.notion.service.NotionOAuthService;
+import navik.global.apiPayload.ApiResponse;
+import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.apiPayload.code.status.NotionErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import navik.global.auth.annotation.AuthUser;
@@ -26,24 +24,19 @@ public class NotionOAuthController implements NotionOAuthControllerDocs {
 	private final NotionOAuthService oAuthService;
 
 	/**
-	 * STEP 1: Notion OAuth 인증 시작
-	 * 사용자를 Notion 인증 페이지로 리다이렉트
+	 * STEP 1: Notion OAuth 인증 URL 반환
+	 * 프론트엔드에서 이 URL로 사용자를 이동시킴
 	 *
 	 * @param userId 사용자 식별자
 	 */
 	@GetMapping("/authorize")
-	public ResponseEntity<Void> authorize(@AuthUser Long userId) {
-		log.info("Notion OAuth 인증 시작: userId={}", userId);
-
-		String authorizationUrl = oAuthService.buildAuthorizationUrl(userId);
-
-		return ResponseEntity.status(HttpStatus.FOUND)
-				.location(URI.create(authorizationUrl))
-				.build();
+	public ApiResponse<NotionOAuthResponse.AuthorizeResponse> authorize(@AuthUser Long userId) {
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK,
+			new NotionOAuthResponse.AuthorizeResponse(oAuthService.buildAuthorizationUrl(userId)));
 	}
 
 	/**
-	 * STEP 4-5: Notion에서 콜백 수신 및 토큰 교환
+	 * STEP 2: Notion에서 콜백 수신 및 토큰 교환
 	 * Authorization Code를 Access Token으로 교환 후 저장
 	 *
 	 * @param code  Authorization Code (Notion에서 전달)
@@ -51,10 +44,10 @@ public class NotionOAuthController implements NotionOAuthControllerDocs {
 	 * @param error 에러 코드 (사용자가 거부한 경우)
 	 */
 	@GetMapping("/callback")
-	public ResponseEntity<NotionOAuthResponse.CallbackResponse> callback(
-			@RequestParam(value = "code", required = false) String code,
-			@RequestParam(value = "state", required = false) String state,
-			@RequestParam(value = "error", required = false) String error) {
+	public ApiResponse<NotionOAuthResponse.CallbackResponse> callback(
+		@RequestParam(value = "code", required = false) String code,
+		@RequestParam(value = "state", required = false) String state,
+		@RequestParam(value = "error", required = false) String error) {
 		// 사용자가 권한 부여를 거부한 경우
 		if (error != null) {
 			log.warn("Notion OAuth 거부됨: error={}, userId={}", error, state);
@@ -83,15 +76,12 @@ public class NotionOAuthController implements NotionOAuthControllerDocs {
 		// 토큰 저장 (TokenResponse 전체 전달)
 		oAuthService.saveToken(userId, tokenResponse);
 
-		log.info("Notion 연동 완료: userId={}, workspace={}, workspaceId={}",
-				userId, tokenResponse.workspaceName(), tokenResponse.workspaceId());
+		log.info("Notion 연동 완료: userId={}, workspace={}, workspaceId={}", userId, tokenResponse.workspaceName(),
+			tokenResponse.workspaceId());
 
-		return ResponseEntity.ok(new NotionOAuthResponse.CallbackResponse(
-				true,
-				"Notion 연동이 완료되었습니다!",
-				String.valueOf(userId),
-				tokenResponse.workspaceName(),
-				tokenResponse.workspaceId()));
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK,
+			new NotionOAuthResponse.CallbackResponse(true, "Notion 연동이 완료되었습니다!", String.valueOf(userId),
+				tokenResponse.workspaceName(), tokenResponse.workspaceId()));
 	}
 
 	// /**

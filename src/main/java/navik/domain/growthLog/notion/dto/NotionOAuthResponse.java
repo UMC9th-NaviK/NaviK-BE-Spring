@@ -34,6 +34,11 @@ public class NotionOAuthResponse {
 	) {
 	}
 
+	public record AuthorizeResponse(
+		String authorizationUrl
+	) {
+	}
+
 	public record CallbackResponse(
 		boolean success,
 		String message,

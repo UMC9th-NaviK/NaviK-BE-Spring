@@ -16,11 +16,29 @@ import navik.global.apiPayload.ApiResponse.Body;
 @Tag(name = "Notion OAuth", description = "Notion 연동 OAuth 관련 API")
 public interface NotionOAuthControllerDocs {
 
-	@Operation(summary = "Notion OAuth 인증 시작", description = "사용자를 Notion 인증 페이지로 리다이렉트합니다.")
+	@Operation(summary = "Notion OAuth 인증 URL 조회", description = "Notion OAuth 인증 URL을 반환합니다. 프론트엔드에서 이 URL로 사용자를 이동시킵니다.")
 	@ApiResponses({
 		@ApiResponse(
-			responseCode = "302",
-			description = "Notion 인증 페이지로 리다이렉트"
+			responseCode = "200",
+			description = "인증 URL 반환 성공",
+			content = @Content(
+				mediaType = "application/json",
+				schema = @Schema(implementation = Body.class),
+				examples = @ExampleObject(
+					name = "인증 URL 반환 성공 예시",
+					value = """
+						{
+						  "isSuccess": true,
+						  "code": "COMMON200",
+						  "message": "성공입니다.",
+						  "result": {
+						    "authorizationUrl": "https://api.notion.com/v1/oauth/authorize?client_id=...&redirect_uri=...&response_type=code&owner=user&state=user-1"
+						  },
+						  "timestamp": "2025-02-05T12:00:00"
+						}
+						"""
+				)
+			)
 		),
 		@ApiResponse(
 			responseCode = "401",
@@ -43,7 +61,7 @@ public interface NotionOAuthControllerDocs {
 			)
 		)
 	})
-    navik.global.apiPayload.ApiResponse<Void> authorize(
+    navik.global.apiPayload.ApiResponse<NotionOAuthResponse.AuthorizeResponse> authorize(
 		@Parameter(hidden = true) Long userId
 	);
 
