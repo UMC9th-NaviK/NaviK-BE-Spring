@@ -9,12 +9,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import navik.domain.notification.entity.Notifiable;
 import navik.domain.notification.entity.Notification;
+import navik.domain.notification.exception.code.NotificationErrorCode;
 import navik.domain.notification.repository.NotificationRepository;
 import navik.domain.notification.strategy.NotificationMessageStrategy;
 import navik.domain.notification.strategy.NotificationMessageStrategyFactory;
 import navik.domain.users.entity.User;
 import navik.domain.users.service.UserQueryService;
-import navik.global.apiPayload.exception.code.NotificationErrorCode;
 import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import navik.domain.notification.entity.NotificationType;
-import navik.global.apiPayload.exception.code.NotificationErrorCode;
+import navik.domain.notification.exception.code.NotificationErrorCode;
 import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Component
