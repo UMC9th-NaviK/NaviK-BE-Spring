@@ -1,4 +1,4 @@
-package navik.domain.board.dto;
+package navik.domain.board.dto.boardLike;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

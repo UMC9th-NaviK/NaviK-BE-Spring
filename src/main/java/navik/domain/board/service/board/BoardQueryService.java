@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.board.converter.BoardConverter;
-import navik.domain.board.dto.BoardResponseDTO;
+import navik.domain.board.dto.board.BoardResponseDTO;
 import navik.domain.board.entity.Board;
 import navik.domain.board.repository.board.BoardRepository;
 import navik.domain.board.repository.boardLike.BoardLikeRepository;

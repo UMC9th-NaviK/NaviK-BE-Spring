@@ -1,4 +1,4 @@
-package navik.domain.board.dto;
+package navik.domain.board.dto.comment;
 
 import java.time.LocalDateTime;
 import java.util.List;

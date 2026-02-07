@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import navik.domain.board.dto.BoardResponseDTO;
+import navik.domain.board.dto.board.BoardResponseDTO;
 import navik.domain.board.entity.Board;
 
 public class BoardConverter {

@@ -1,4 +1,4 @@
-package navik.domain.board.dto;
+package navik.domain.board.dto.comment;
 
 import lombok.Builder;
 import lombok.Getter;

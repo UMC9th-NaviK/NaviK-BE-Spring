@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
-import navik.domain.board.dto.CommentListDTO;
+import navik.domain.board.dto.comment.CommentListDTO;
 import navik.domain.board.entity.Comment;
 import navik.global.dto.CursorResponseDTO;
 

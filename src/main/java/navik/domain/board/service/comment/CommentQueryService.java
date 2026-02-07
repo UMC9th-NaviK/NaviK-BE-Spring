@@ -6,8 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.board.converter.CommentListConverter;
-import navik.domain.board.dto.CommentCountDTO;
-import navik.domain.board.dto.CommentListDTO;
+import navik.domain.board.dto.comment.CommentCountDTO;
+import navik.domain.board.dto.comment.CommentListDTO;
 import navik.domain.board.entity.Comment;
 import navik.domain.board.repository.board.BoardRepository;
 import navik.domain.board.repository.comment.CommentRepository;

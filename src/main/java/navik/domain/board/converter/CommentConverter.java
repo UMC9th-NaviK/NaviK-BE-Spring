@@ -1,7 +1,7 @@
 package navik.domain.board.converter;
 
-import navik.domain.board.dto.CommentCreateDTO;
-import navik.domain.board.dto.CommentDeleteDTO;
+import navik.domain.board.dto.comment.CommentCreateDTO;
+import navik.domain.board.dto.comment.CommentDeleteDTO;
 import navik.domain.board.entity.Board;
 import navik.domain.board.entity.Comment;
 import navik.domain.users.entity.User;

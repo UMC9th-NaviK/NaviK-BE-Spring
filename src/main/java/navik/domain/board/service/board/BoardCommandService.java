@@ -4,8 +4,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import navik.domain.board.dto.BoardCreateDTO;
-import navik.domain.board.dto.BoardUpdateDTO;
+import navik.domain.board.dto.board.BoardCreateDTO;
+import navik.domain.board.dto.board.BoardUpdateDTO;
 import navik.domain.board.entity.Board;
 import navik.domain.board.repository.board.BoardRepository;
 import navik.domain.users.entity.User;

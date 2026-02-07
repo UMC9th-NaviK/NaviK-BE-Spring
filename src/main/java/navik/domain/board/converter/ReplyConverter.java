@@ -1,6 +1,6 @@
 package navik.domain.board.converter;
 
-import navik.domain.board.dto.ReplyDTO;
+import navik.domain.board.dto.comment.ReplyDTO;
 import navik.domain.board.entity.Board;
 import navik.domain.board.entity.Comment;
 import navik.domain.users.entity.User;

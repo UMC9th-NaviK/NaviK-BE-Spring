@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import navik.domain.board.dto.BoardCreateDTO;
-import navik.domain.board.dto.BoardLikeDTO;
-import navik.domain.board.dto.BoardResponseDTO;
-import navik.domain.board.dto.BoardUpdateDTO;
+import navik.domain.board.dto.board.BoardCreateDTO;
+import navik.domain.board.dto.board.BoardResponseDTO;
+import navik.domain.board.dto.board.BoardUpdateDTO;
+import navik.domain.board.dto.boardLike.BoardLikeDTO;
 import navik.domain.board.service.board.BoardCommandService;
 import navik.domain.board.service.board.BoardQueryService;
 import navik.domain.board.service.boardLike.BoardLikeCommandService;
