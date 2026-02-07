@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import navik.global.apiPayload.code.status.AuthErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import navik.global.auth.JwtUserDetails;
-import navik.global.auth.dto.TokenDto;
+import navik.global.auth.dto.TokenDTO;
 
 @Slf4j
 @Component
@@ -76,7 +76,7 @@ public class JwtTokenProvider {
 			.compact();
 	}
 
-	public TokenDto generateTokenDto(Authentication authentication, long accessTokenValidityInSeconds,
+	public TokenDTO generateTokenDto(Authentication authentication, long accessTokenValidityInSeconds,
 		long refreshTokenValidityInSeconds) {
 		String accessToken = generateAccessToken(authentication, accessTokenValidityInSeconds);
 		String refreshToken = generateRefreshToken(authentication, refreshTokenValidityInSeconds);
@@ -84,7 +84,7 @@ public class JwtTokenProvider {
 		long now = (new Date()).getTime();
 		Date accessTokenExpiresIn = new Date(now + accessTokenValidityInSeconds * 1000);
 
-		return TokenDto.builder()
+		return TokenDTO.builder()
 			.grantType(BEARER_TYPE)
 			.accessToken(accessToken)
 			.accessTokenExpiresIn(accessTokenExpiresIn.getTime())
