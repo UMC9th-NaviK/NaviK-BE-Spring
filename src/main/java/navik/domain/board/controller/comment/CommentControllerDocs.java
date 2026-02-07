@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import navik.domain.board.dto.comment.CommentCountDTO;
 import navik.domain.board.dto.comment.CommentCreateDTO;
 import navik.domain.board.dto.comment.CommentListDTO;
 import navik.domain.board.dto.comment.ReplyDTO;
@@ -74,4 +75,10 @@ public interface CommentControllerDocs {
 		@PathVariable Long commentId,
 		@AuthUser Long userId
 	);
+
+	@Operation(summary = "댓글 수 조회", description = "특정 게시글의 전체 댓글 수를 조회합니다.")
+	@Parameters({
+		@Parameter(name = "boardId", description = "댓글 수를 조회할 게시글의 ID입니다.", example = "1")
+	})
+	ApiResponse<CommentCountDTO> getCount(@PathVariable Long boardId);
 }
