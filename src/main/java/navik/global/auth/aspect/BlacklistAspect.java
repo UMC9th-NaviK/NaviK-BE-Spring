@@ -11,8 +11,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import navik.global.apiPayload.code.status.AuthErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
+import navik.global.auth.exception.code.AuthErrorCode;
 
 @Slf4j
 @Aspect
@@ -35,7 +35,7 @@ public class BlacklistAspect {
 			String isLogout = redisTemplate.opsForValue().get("blacklist:" + accessToken);
 
 			if (StringUtils.hasText(isLogout)) {
-				throw new GeneralExceptionHandler(AuthErrorCode.AUTH_TOKEN_INVALID);
+				throw new GeneralException(AuthErrorCode.AUTH_TOKEN_INVALID);
 			}
 		}
 	}

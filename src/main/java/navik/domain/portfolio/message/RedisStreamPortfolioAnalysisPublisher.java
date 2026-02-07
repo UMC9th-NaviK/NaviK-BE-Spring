@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.domain.portfolio.exception.code.PortfolioRedisErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Slf4j
 @Component
@@ -33,7 +33,7 @@ public class RedisStreamPortfolioAnalysisPublisher implements PortfolioAnalysisP
 
 		// 발행 실패시
 		if (recordId == null) {
-			throw new GeneralExceptionHandler(PortfolioRedisErrorCode.STREAM_PUBLISH_FAILED);
+			throw new GeneralException(PortfolioRedisErrorCode.STREAM_PUBLISH_FAILED);
 		}
 
 		log.info("[PortfolioAnalysis] published. traceId={}, userId={}, portfolioId={}", message.traceId(),

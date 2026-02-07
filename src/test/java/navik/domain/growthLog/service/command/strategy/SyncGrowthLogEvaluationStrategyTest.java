@@ -26,7 +26,7 @@ import navik.domain.growthLog.enums.GrowthType;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.growthLog.service.command.GrowthLogEvaluationCoreService;
 import navik.domain.growthLog.service.command.GrowthLogPersistenceService;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @ExtendWith(MockitoExtension.class)
 class SyncGrowthLogEvaluationStrategyTest {
@@ -229,7 +229,7 @@ class SyncGrowthLogEvaluationStrategyTest {
 
 			// when & then
 			assertThatThrownBy(() -> strategy.retry(userId, growthLogId))
-				.isInstanceOf(GeneralExceptionHandler.class);
+				.isInstanceOf(GeneralException.class);
 		}
 
 		@Test
@@ -246,7 +246,7 @@ class SyncGrowthLogEvaluationStrategyTest {
 
 			// when & then
 			assertThatThrownBy(() -> strategy.retry(userId, growthLogId))
-				.isInstanceOf(GeneralExceptionHandler.class);
+				.isInstanceOf(GeneralException.class);
 		}
 
 		@Test
@@ -264,7 +264,7 @@ class SyncGrowthLogEvaluationStrategyTest {
 
 			// when & then
 			assertThatThrownBy(() -> strategy.retry(userId, growthLogId))
-				.isInstanceOf(GeneralExceptionHandler.class);
+				.isInstanceOf(GeneralException.class);
 		}
 
 		@Test
@@ -285,7 +285,7 @@ class SyncGrowthLogEvaluationStrategyTest {
 
 			// when & then
 			assertThatThrownBy(() -> strategy.retry(userId, growthLogId))
-				.isInstanceOf(GeneralExceptionHandler.class);
+				.isInstanceOf(GeneralException.class);
 		}
 
 		@Test

@@ -72,3 +72,6 @@ out/
 
 ### QueryDSL ###
 src/main/generated/
+
+### Log ###
+logs

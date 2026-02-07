@@ -20,8 +20,8 @@ import navik.domain.study.repository.StudyRepository;
 import navik.domain.study.repository.StudyUserRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @RequiredArgsConstructor
@@ -42,11 +42,11 @@ public class StudyCommandService {
 	public Long createStudy(StudyCreateDTO.CreateDTO request, Long userId) {
 		// 1. 로그한 유저 정보 조회
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
 
 		// 2. 선택한 KPI 카드 존재 여부 확인
 		KpiCard kpiCard = kpiCardRepository.findById(request.getKpiId())
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.KPI_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.KPI_NOT_FOUND));
 
 		// 3. 스터디 방 엔티티 생성 및 저장
 		Study study = StudyConverter.toStudy(request);
@@ -82,9 +82,9 @@ public class StudyCommandService {
 	public void studyApply(Long userId, Long studyId) {
 
 		Study study = studyRepository.findById(studyId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.STUDY_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.STUDY_NOT_FOUND));
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
 
 		StudyUser application = StudyUser.builder()
 			.study(study)

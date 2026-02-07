@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import navik.domain.recruitment.exception.code.RecruitmentErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Getter
 @RequiredArgsConstructor
@@ -25,6 +25,6 @@ public enum EmploymentType {
 		return Arrays.stream(values())
 			.filter(type -> type.name().equalsIgnoreCase(employmentType))
 			.findAny()
-			.orElseThrow(() -> new GeneralExceptionHandler(RecruitmentErrorCode.EMPLOYMENT_TYPE_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(RecruitmentErrorCode.EMPLOYMENT_TYPE_NOT_FOUND));
 	}
 }

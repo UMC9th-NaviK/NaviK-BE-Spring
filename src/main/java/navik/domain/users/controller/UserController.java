@@ -19,7 +19,7 @@ import navik.domain.users.dto.UserResponseDTO;
 import navik.domain.users.service.UserCommandService;
 import navik.domain.users.service.UserQueryService;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
 
 @RestController
@@ -36,13 +36,13 @@ public class UserController implements UserControllerDocs {
 	}
 
 	@PostMapping("/me/basic-info")
-	public ApiResponse<UserResponseDTO.BasicInfoDto> register(@AuthUser Long userId,
-		@RequestBody @Valid UserRequestDTO.BasicInfoDto req) {
+	public ApiResponse<UserResponseDTO.BasicInfoDTO> register(@AuthUser Long userId,
+		@RequestBody @Valid UserRequestDTO.BasicInfoDTO req) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userCommandService.updateBasicInfo(userId, req));
 	}
 
 	@GetMapping("/check-nickname")
-	public ApiResponse<UserResponseDTO.NicknameCheckDto> checkNicknameDuplication(@RequestParam String nickname) {
+	public ApiResponse<UserResponseDTO.NicknameCheckDTO> checkNicknameDuplication(@RequestParam String nickname) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.isNicknameDuplicated(nickname));
 	}
 
@@ -58,15 +58,14 @@ public class UserController implements UserControllerDocs {
 
 	@PatchMapping("/my-page")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void updateMyInfo(@AuthUser Long userId, @Valid @RequestBody UserRequestDTO.MyInfoDto req) {
+	public void updateMyInfo(@AuthUser Long userId, @Valid @RequestBody UserRequestDTO.MyInfoDTO req) {
 		userCommandService.updateMyInfo(userId, req);
 	}
 
 	@PutMapping("/profile-image")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void updateProfileImage(@AuthUser Long userId, @RequestBody String imageUrl){
+	public void updateProfileImage(@AuthUser Long userId, @RequestBody String imageUrl) {
 		userCommandService.updateProfileImage(userId, imageUrl);
 	}
-
 
 }

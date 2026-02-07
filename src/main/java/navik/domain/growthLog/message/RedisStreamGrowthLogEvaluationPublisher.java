@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.growthLog.exception.code.GrowthLogRedisErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Component
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class RedisStreamGrowthLogEvaluationPublisher implements GrowthLogEvaluat
 			.add(MapRecord.create(STREAM_KEY, fields));
 
 		if (recordId == null) {
-			throw new GeneralExceptionHandler(GrowthLogRedisErrorCode.STREAM_PUBLISH_FAILED);
+			throw new GeneralException(GrowthLogRedisErrorCode.STREAM_PUBLISH_FAILED);
 		}
 	}
 }

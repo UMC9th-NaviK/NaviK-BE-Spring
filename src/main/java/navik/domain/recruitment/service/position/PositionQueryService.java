@@ -21,9 +21,9 @@ import navik.domain.recruitment.repository.position.position.PositionRepository;
 import navik.domain.recruitment.repository.position.position.projection.RecommendedPositionProjection;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
-import navik.global.dto.CursorResponseDto;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
+import navik.global.dto.CursorResponseDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class PositionQueryService {
 	 * 최대 8가지 검색 필터를 적용하여 사용자에게 적합한 추천 공고를 조회합니다.
 	 * 커서 기반 페이징을 사용합니다.
 	 */
-	public CursorResponseDto<PositionResponseDTO.RecommendedPosition> getPositions(
+	public CursorResponseDTO<PositionResponseDTO.RecommendedPosition> getPositions(
 		Long userId,
 		PositionRequestDTO.SearchCondition searchCondition,
 		String cursor,
@@ -49,7 +49,7 @@ public class PositionQueryService {
 
 		// 1. 유저 및 전공 검색
 		User user = userRepository.findByIdWithUserDepartmentAndDepartment(userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
 
 		// 2. 직무 검색
 		List<String> jobNames = searchCondition.getJobTypes().stream()
@@ -74,7 +74,7 @@ public class PositionQueryService {
 			: null;
 
 		// 6. DTO 반환
-		return CursorResponseDto.of(
+		return CursorResponseDTO.of(
 			result.map(projection -> PositionConverter.toRecommendedPosition(user, projection, searchCondition)),
 			nextCursor
 		);

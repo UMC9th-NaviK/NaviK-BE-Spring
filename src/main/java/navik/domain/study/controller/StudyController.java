@@ -20,9 +20,9 @@ import navik.domain.study.enums.StudyRole;
 import navik.domain.study.service.StudyCommandService;
 import navik.domain.study.service.StudyQueryService;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 import navik.global.swagger.SwaggerPageable;
 
 @RestController
@@ -57,13 +57,13 @@ public class StudyController implements StudyControllerDocs {
 	 */
 	@SwaggerPageable
 	@GetMapping("/my")
-	public ApiResponse<CursorResponseDto<StudyDTO.MyStudyDTO>> getMyStudies(
+	public ApiResponse<CursorResponseDTO<StudyDTO.MyStudyDTO>> getMyStudies(
 		@RequestParam(required = false) StudyRole role, // 리더/멤버 탭 구분
 		@RequestParam(value = "cursor", required = false) Long cursor,
 		@RequestParam(value = "size", defaultValue = "10") int size,
 		@AuthUser Long userId
 	) {
-		CursorResponseDto<StudyDTO.MyStudyDTO> response = studyQueryService.getMyStudyList(userId, role, cursor, size);
+		CursorResponseDTO<StudyDTO.MyStudyDTO> response = studyQueryService.getMyStudyList(userId, role, cursor, size);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 
@@ -76,12 +76,12 @@ public class StudyController implements StudyControllerDocs {
 	 */
 	@SwaggerPageable
 	@GetMapping("/kpi-cards")
-	public ApiResponse<CursorResponseDto<StudyKpiCardDTO.StudyKpiCardNameDTO>> getKpiCards(
+	public ApiResponse<CursorResponseDTO<StudyKpiCardDTO.StudyKpiCardNameDTO>> getKpiCards(
 		@RequestParam String jobName,
 		@RequestParam(value = "cursor", required = false) Long cursor,
 		@RequestParam(value = "size", defaultValue = "10") int size
 	) {
-		CursorResponseDto<StudyKpiCardDTO.StudyKpiCardNameDTO> response =
+		CursorResponseDTO<StudyKpiCardDTO.StudyKpiCardNameDTO> response =
 			studyQueryService.getKpiCardListByJob(jobName, cursor, size);
 
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
@@ -96,12 +96,12 @@ public class StudyController implements StudyControllerDocs {
 	 */
 	@SwaggerPageable
 	@GetMapping("/recommendation")
-	public ApiResponse<CursorResponseDto<StudyRecommendDTO>> getRecommendedStudies(
+	public ApiResponse<CursorResponseDTO<StudyRecommendDTO>> getRecommendedStudies(
 		@RequestParam(value = "cursor", required = false) Long cursor,
 		@RequestParam(value = "size", defaultValue = "10") int size,
 		@AuthUser Long userId
 	) {
-		CursorResponseDto<StudyRecommendDTO> response = studyQueryService.getRecommendedStudyList(userId, cursor, size);
+		CursorResponseDTO<StudyRecommendDTO> response = studyQueryService.getRecommendedStudyList(userId, cursor, size);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 
@@ -129,12 +129,12 @@ public class StudyController implements StudyControllerDocs {
 	 */
 	@SwaggerPageable
 	@GetMapping("/{studyId}/applicants")
-	public ApiResponse<CursorResponseDto<StudyApplicationDTO.ApplicationPreviewDTO>> getApplicants(
+	public ApiResponse<CursorResponseDTO<StudyApplicationDTO.ApplicationPreviewDTO>> getApplicants(
 		@PathVariable Long studyId,
 		@RequestParam(value = "cursor", required = false) Long cursor,
 		@RequestParam(value = "size", defaultValue = "10") int size
 	) {
-		CursorResponseDto<StudyApplicationDTO.ApplicationPreviewDTO> response = studyQueryService.getApplicantList(
+		CursorResponseDTO<StudyApplicationDTO.ApplicationPreviewDTO> response = studyQueryService.getApplicantList(
 			studyId, cursor, size);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}

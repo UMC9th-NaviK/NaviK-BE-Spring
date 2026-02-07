@@ -13,10 +13,10 @@ import navik.domain.goal.dto.GoalResponseDTO;
 import navik.domain.goal.entity.Goal;
 import navik.domain.goal.entity.GoalStatus;
 import navik.domain.goal.repository.GoalRepository;
-import navik.global.apiPayload.code.status.AuthErrorCode;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
-import navik.global.dto.CursorResponseDto;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
+import navik.global.auth.exception.code.AuthErrorCode;
+import navik.global.dto.CursorResponseDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -27,20 +27,20 @@ public class GoalQueryService {
 
 	public Goal getGoal(Long goalId) {
 		return goalRepository.findById(goalId).orElseThrow(
-			() -> new GeneralExceptionHandler(GeneralErrorCode.ENTITY_NOT_FOUND));
+			() -> new GeneralException(GeneralErrorCode.ENTITY_NOT_FOUND));
 	}
 
 	public Goal getAuthorizedGoal(Long userId, Long goalId) {
 		Goal goal = getGoal(goalId);
 
 		if (!goal.getUser().getId().equals(userId)) {
-			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_FORBIDDEN);
+			throw new GeneralException(AuthErrorCode.AUTH_FORBIDDEN);
 		}
 
 		return goal;
 	}
 
-	public CursorResponseDto<GoalResponseDTO.PreviewDTO> getGoals(Long userId, Long cursor, Integer size,
+	public CursorResponseDTO<GoalResponseDTO.PreviewDTO> getGoals(Long userId, Long cursor, Integer size,
 		String sortBy) {
 		PageRequest pageRequest = PageRequest.of(0, size);
 
@@ -53,7 +53,7 @@ public class GoalQueryService {
 				goalRepository.findByUserIdOrderByEndDateAscIdAsc(userId, pageRequest)
 				: goalRepository.findByUserIdAndIdLessThanOrderByEndDateAscIdAsc(userId, cursor, pageRequest);
 
-			default -> throw new GeneralExceptionHandler(GeneralErrorCode.INVALID_SORT_OPTION);
+			default -> throw new GeneralException(GeneralErrorCode.INVALID_SORT_OPTION);
 		};
 
 		Slice<GoalResponseDTO.PreviewDTO> previewSlice = goalSlice.map(GoalConverter::toPreviewDto);
@@ -61,7 +61,7 @@ public class GoalQueryService {
 		Long nextCursor =
 			goalSlice.hasNext() ? goalSlice.getContent().get(goalSlice.getContent().size() - 1).getId() : null;
 
-		return new CursorResponseDto<>(previewSlice, String.valueOf(nextCursor));
+		return new CursorResponseDTO<>(previewSlice, String.valueOf(nextCursor));
 	}
 
 	public GoalResponseDTO.InProgressDTO getInProgressGoals(Long userId) {

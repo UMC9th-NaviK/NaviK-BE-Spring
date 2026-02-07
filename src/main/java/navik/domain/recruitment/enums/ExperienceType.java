@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import navik.domain.recruitment.exception.code.RecruitmentErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Getter
 @RequiredArgsConstructor
@@ -24,6 +24,6 @@ public enum ExperienceType {
 		return Arrays.stream(values())
 			.filter(type -> type.name().equalsIgnoreCase(experienceType))
 			.findAny()
-			.orElseThrow(() -> new GeneralExceptionHandler(RecruitmentErrorCode.EXPERIENCE_TYPE_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(RecruitmentErrorCode.EXPERIENCE_TYPE_NOT_FOUND));
 	}
 }

@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import navik.domain.portfolio.dto.PortfolioRequestDto;
-import navik.domain.portfolio.dto.PortfolioResponseDto;
+import navik.domain.portfolio.dto.PortfolioRequestDTO;
+import navik.domain.portfolio.dto.PortfolioResponseDTO;
 import navik.domain.portfolio.service.PortfolioCommandService;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
 
 @RestController
@@ -23,19 +23,19 @@ public class PortfolioController implements PortfolioControllerDocs {
 	private final PortfolioCommandService portfolioCommandService;
 
 	@PostMapping
-	public ApiResponse<PortfolioResponseDto.Created> registerPortfolio(
+	public ApiResponse<PortfolioResponseDTO.Created> registerPortfolio(
 		@AuthUser Long userId,
-		@RequestBody @Valid PortfolioRequestDto.Create request) {
+		@RequestBody @Valid PortfolioRequestDTO.Create request) {
 
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED,
 			portfolioCommandService.createPortfolio(userId, request));
 	}
 
 	@PostMapping("/{portfolioId}/additional-info")
-	public ApiResponse<PortfolioResponseDto.AdditionalInfoSubmitted> submitAdditionalInfo(
+	public ApiResponse<PortfolioResponseDTO.AdditionalInfoSubmitted> submitAdditionalInfo(
 		@AuthUser Long userId,
 		@PathVariable Long portfolioId,
-		@RequestBody @Valid PortfolioRequestDto.AdditionalInfo request) {
+		@RequestBody @Valid PortfolioRequestDTO.AdditionalInfo request) {
 
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK,
 			portfolioCommandService.submitAdditionalInfo(userId, portfolioId, request));

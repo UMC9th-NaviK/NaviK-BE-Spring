@@ -5,16 +5,16 @@ import org.springframework.data.domain.Slice;
 
 import navik.domain.growthLog.dto.res.GrowthLogResponseDTO;
 import navik.domain.growthLog.entity.GrowthLog;
-import navik.global.dto.PageResponseDto;
-import navik.global.dto.SliceResponseDto;
+import navik.global.dto.PageResponseDTO;
+import navik.global.dto.SliceResponseDTO;
 
 public class GrowthLogConverter {
 
 	private GrowthLogConverter() {
 	}
 
-	public static PageResponseDto<GrowthLogResponseDTO.ListItem> toPageResponse(Page<GrowthLog> page) {
-		return PageResponseDto.of(
+	public static PageResponseDTO<GrowthLogResponseDTO.ListItem> toPageResponse(Page<GrowthLog> page) {
+		return PageResponseDTO.of(
 			page.map(gl -> new GrowthLogResponseDTO.ListItem(
 				gl.getId(),
 				gl.getTitle(),
@@ -44,8 +44,8 @@ public class GrowthLogConverter {
 		);
 	}
 
-	public static SliceResponseDto<GrowthLogResponseDTO.ListItem> toSliceResponse(Slice<GrowthLog> slice) {
-		return SliceResponseDto.of(
+	public static SliceResponseDTO<GrowthLogResponseDTO.ListItem> toSliceResponse(Slice<GrowthLog> slice) {
+		return SliceResponseDTO.of(
 			slice.map(gl -> new GrowthLogResponseDTO.ListItem(
 				gl.getId(),
 				gl.getTitle(),

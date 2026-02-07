@@ -13,9 +13,9 @@ import navik.domain.recruitment.dto.position.PositionRequestDTO;
 import navik.domain.recruitment.dto.position.PositionResponseDTO;
 import navik.domain.recruitment.service.position.PositionQueryService;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,14 +29,14 @@ public class PositionController implements PositionControllerDocs {
 	 */
 	@Override
 	@PostMapping
-	public ApiResponse<CursorResponseDto<PositionResponseDTO.RecommendedPosition>> getPositions(
+	public ApiResponse<CursorResponseDTO<PositionResponseDTO.RecommendedPosition>> getPositions(
 		@AuthUser Long userId,
 		@RequestBody PositionRequestDTO.SearchCondition searchCondition,
 		@RequestParam(required = false) String cursor,
 		@RequestParam(defaultValue = "10") Integer size
 	) {
 		Pageable pageable = PageRequest.of(0, size);
-		CursorResponseDto<PositionResponseDTO.RecommendedPosition> result = positionQueryService.getPositions(userId,
+		CursorResponseDTO<PositionResponseDTO.RecommendedPosition> result = positionQueryService.getPositions(userId,
 			searchCondition, cursor, pageable);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
 	}

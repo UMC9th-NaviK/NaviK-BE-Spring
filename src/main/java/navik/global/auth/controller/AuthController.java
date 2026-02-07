@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
-import navik.global.auth.dto.TokenDto;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
+import navik.global.auth.dto.TokenDTO;
 import navik.global.auth.service.AuthService;
 
 @RestController
@@ -25,7 +25,7 @@ public class AuthController implements AuthControllerDocs {
 	public ApiResponse<String> reissue(@CookieValue("refresh_token") String refreshToken,
 		HttpServletResponse response) {
 
-		TokenDto tokenDto = authService.reissue(refreshToken);
+		TokenDTO tokenDto = authService.reissue(refreshToken);
 
 		// Refresh Token Cookie 설정
 		ResponseCookie cookie = authService.createRefreshTokenCookie(tokenDto.getRefreshToken());

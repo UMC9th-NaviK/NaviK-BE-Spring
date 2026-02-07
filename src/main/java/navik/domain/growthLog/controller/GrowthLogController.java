@@ -30,9 +30,9 @@ import navik.domain.growthLog.service.command.GrowthLogEvaluationService;
 import navik.domain.growthLog.service.query.GrowthLogAggregateService;
 import navik.domain.growthLog.service.query.GrowthLogQueryService;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.SliceResponseDto;
+import navik.global.dto.SliceResponseDTO;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,7 +69,7 @@ public class GrowthLogController implements GrowthLogControllerDocs {
 	// 요약 보기
 	@Override
 	@GetMapping("/monthly")
-	public ApiResponse<SliceResponseDto<GrowthLogResponseDTO.ListItem>> getMonthlyGrowthLogs(
+	public ApiResponse<SliceResponseDTO<GrowthLogResponseDTO.ListItem>> getMonthlyGrowthLogs(
 		@AuthUser Long userId,
 		@RequestParam YearMonth yearMonth,
 		@RequestParam(required = false) GrowthType type,

@@ -12,8 +12,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
-import navik.global.auth.dto.TokenDto;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
+import navik.global.auth.dto.TokenDTO;
 import navik.global.auth.service.AuthService;
 
 @RestController
@@ -31,7 +31,7 @@ public class AuthDevController implements AuthDevControllerDocs {
 		@RequestParam @PositiveOrZero Long refreshTokenValidityInSeconds,
 		HttpServletResponse response) {
 
-		TokenDto tokenDto = authService.createDevToken(userId, accessTokenValidityInSeconds,
+		TokenDTO tokenDto = authService.createDevToken(userId, accessTokenValidityInSeconds,
 			refreshTokenValidityInSeconds);
 
 		// Refresh Token Cookie 설정

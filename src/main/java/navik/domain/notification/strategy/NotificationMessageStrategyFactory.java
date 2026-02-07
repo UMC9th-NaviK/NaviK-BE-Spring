@@ -6,11 +6,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.nimbusds.oauth2.sdk.GeneralException;
-
 import navik.domain.notification.entity.NotificationType;
-import navik.global.apiPayload.code.status.NotificationErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.domain.notification.exception.code.NotificationErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Component
 public class NotificationMessageStrategyFactory {
@@ -25,7 +23,7 @@ public class NotificationMessageStrategyFactory {
 	public NotificationMessageStrategy getStrategy(NotificationType type) {
 		NotificationMessageStrategy strategy = strategyMap.get(type);
 		if (strategy == null) {
-			throw new GeneralExceptionHandler(NotificationErrorCode.UNSUPPORTED_NOTIFICATION_TYPE);
+			throw new GeneralException(NotificationErrorCode.UNSUPPORTED_NOTIFICATION_TYPE);
 		}
 		return strategy;
 	}

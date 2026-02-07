@@ -12,7 +12,7 @@ import navik.domain.job.controller.docs.JobControllerDocs;
 import navik.domain.job.dto.JobResponseDTO;
 import navik.domain.job.service.JobQueryService;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 
 @RestController
 @RequiredArgsConstructor

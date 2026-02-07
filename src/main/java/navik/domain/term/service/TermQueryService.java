@@ -10,8 +10,8 @@ import navik.domain.term.dto.TermResponseDTO;
 import navik.domain.term.entity.Term;
 import navik.domain.term.repository.TermRepository;
 import navik.domain.term.repository.projection.TermInfoView;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +24,7 @@ public class TermQueryService {
 		TermInfoView termInfoView = termRepository.getTermInfo(termId);
 
 		if (termInfoView == null) {
-			throw new GeneralExceptionHandler(GeneralErrorCode.ENTITY_NOT_FOUND);
+			throw new GeneralException(GeneralErrorCode.ENTITY_NOT_FOUND);
 		}
 		return new TermResponseDTO.TermInfo(
 			termInfoView.getId(),

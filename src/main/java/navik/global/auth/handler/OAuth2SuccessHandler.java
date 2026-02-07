@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import navik.global.auth.dto.TokenDto;
+import navik.global.auth.dto.TokenDTO;
 import navik.global.auth.jwt.JwtTokenProvider;
 import navik.global.auth.redis.RefreshToken;
 import navik.global.auth.repository.RefreshTokenRepository;
@@ -40,7 +40,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		Authentication authentication) throws IOException, ServletException {
 
 		// 1. 토큰 생성
-		TokenDto tokenDto = jwtTokenProvider.generateTokenDto(authentication, accessTokenValidityInSeconds,
+		TokenDTO tokenDto = jwtTokenProvider.generateTokenDto(authentication, accessTokenValidityInSeconds,
 			refreshTokenValidityInSeconds);
 
 		// 2. Refresh Token 저장
@@ -53,7 +53,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		getRedirectStrategy().sendRedirect(request, response, redirectUrl);
 	}
 
-	private void saveRefreshToken(Authentication authentication, TokenDto tokenDto) {
+	private void saveRefreshToken(Authentication authentication, TokenDTO tokenDto) {
 
 		RefreshToken refreshToken = RefreshToken.builder()
 			.id(authentication.getName()) // 사용자 ID (PK)
@@ -63,7 +63,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		refreshTokenRepository.save(refreshToken);
 	}
 
-	private void setRefreshTokenCookie(HttpServletResponse response, TokenDto tokenDto) {
+	private void setRefreshTokenCookie(HttpServletResponse response, TokenDTO tokenDto) {
 
 		ResponseCookie cookie = ResponseCookie.from("refresh_token", tokenDto.getRefreshToken())
 			.httpOnly(true)

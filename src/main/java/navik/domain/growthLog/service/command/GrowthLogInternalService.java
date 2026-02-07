@@ -19,7 +19,7 @@ import navik.domain.kpi.entity.KpiCard;
 import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +52,7 @@ public class GrowthLogInternalService {
 
 		if (mergedDeltas.isEmpty()) {
 			// 모든 delta가 0으로 합산되어 반영할 변화가 없음
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_REQUEST);
+			throw new GeneralException(GrowthLogErrorCode.INVALID_REQUEST);
 		}
 
 		int totalDelta = mergedDeltas.values().stream().mapToInt(Integer::intValue).sum();
@@ -106,7 +106,7 @@ public class GrowthLogInternalService {
 		for (var entry : mergedDeltas.entrySet()) {
 			KpiCard kpiCard = kpiCardMap.get(entry.getKey());
 			if (kpiCard == null) {
-				throw new GeneralExceptionHandler(GrowthLogErrorCode.KPI_CARD_NOT_FOUND);
+				throw new GeneralException(GrowthLogErrorCode.KPI_CARD_NOT_FOUND);
 			}
 
 			growthLog.addKpiLink(
@@ -121,7 +121,7 @@ public class GrowthLogInternalService {
 	private Map<Long, KpiCard> findKpiCardsAsMap(List<Long> ids) {
 		List<KpiCard> cards = kpiCardRepository.findAllById(ids);
 		if (cards.size() != ids.size()) {
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.KPI_CARD_NOT_FOUND);
+			throw new GeneralException(GrowthLogErrorCode.KPI_CARD_NOT_FOUND);
 		}
 		return cards.stream()
 			.collect(Collectors.toMap(KpiCard::getId, c -> c, (a, b) -> a));

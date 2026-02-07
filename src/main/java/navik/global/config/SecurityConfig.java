@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.AuthErrorCode;
+import navik.global.auth.exception.code.AuthErrorCode;
 import navik.global.auth.handler.OAuth2SuccessHandler;
 import navik.global.auth.jwt.JwtAuthenticationFilter;
 import navik.global.auth.jwt.JwtTokenProvider;

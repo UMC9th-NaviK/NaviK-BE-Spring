@@ -12,8 +12,8 @@ import navik.domain.notification.dto.NotificationResponseDTO;
 import navik.domain.notification.repository.NotificationRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class NotificationQueryService {
 	public List<NotificationResponseDTO.Notification> getRecentNotifications(Long userId) {
 
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
 
 		LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
 

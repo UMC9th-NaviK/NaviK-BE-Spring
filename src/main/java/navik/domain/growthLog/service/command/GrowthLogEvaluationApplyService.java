@@ -13,7 +13,7 @@ import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.repository.GrowthLogRepository;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Slf4j
 @Service
@@ -29,7 +29,7 @@ public class GrowthLogEvaluationApplyService {
 		String token = req.processingToken();
 
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
 
 		if (growthLog.getStatus() == GrowthLogStatus.PROCESSING
 			&& java.util.Objects.equals(token, growthLog.getProcessingToken()))
@@ -43,7 +43,7 @@ public class GrowthLogEvaluationApplyService {
 		);
 
 		if (updated == 0) {
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
+			throw new GeneralException(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 	}
 
@@ -53,7 +53,7 @@ public class GrowthLogEvaluationApplyService {
 		String token = req.processingToken();
 
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
 
 		// 멱등
 		if (growthLog.getStatus() == GrowthLogStatus.COMPLETED)
@@ -65,7 +65,7 @@ public class GrowthLogEvaluationApplyService {
 		}
 
 		if (!token.equals(growthLog.getProcessingToken())) {
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.PROCESSING_TOKEN_MISMATCH);
+			throw new GeneralException(GrowthLogErrorCode.PROCESSING_TOKEN_MISMATCH);
 		}
 
 		// totalDelta는 Spring에서 재계산

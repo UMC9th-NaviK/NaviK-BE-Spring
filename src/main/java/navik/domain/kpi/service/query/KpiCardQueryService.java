@@ -15,7 +15,7 @@ import navik.domain.kpi.exception.code.KpiCardErrorCode;
 import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.users.exception.code.JobErrorCode;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class KpiCardQueryService {
 	// 유저 직무 기반 KPI 카드 조회
 	public List<GridItem> getAllCardsByUser(Long userId) {
 		Long jobId = userRepository.findJobIdByUserId(userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(JobErrorCode.JOB_NOT_ASSIGNED));
+			.orElseThrow(() -> new GeneralException(JobErrorCode.JOB_NOT_ASSIGNED));
 
 		return kpiCardRepository.findGridByJobId(jobId).stream()
 			.map(v -> new KpiCardResponseDTO.GridItem(v.getId(), v.getName(), v.getImageUrl()))
@@ -40,7 +40,7 @@ public class KpiCardQueryService {
 	public List<GridItem> getAllCardsByJob(Long jobId) {
 
 		jobRepository.findById(jobId)
-			.orElseThrow(() -> new GeneralExceptionHandler(JobErrorCode.JOB_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(JobErrorCode.JOB_NOT_FOUND));
 
 		return kpiCardRepository.findGridByJobId(jobId).stream()
 			.map(v -> new KpiCardResponseDTO.GridItem(v.getId(), v.getName(), v.getImageUrl()))
@@ -51,7 +51,7 @@ public class KpiCardQueryService {
 	public KpiCardResponseDTO.Detail getCardDetail(Long cardId, KpiCardType type) {
 
 		KpiCard card = kpiCardRepository.findById(cardId)
-			.orElseThrow(() -> new GeneralExceptionHandler(KpiCardErrorCode.KPI_CARD_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(KpiCardErrorCode.KPI_CARD_NOT_FOUND));
 
 		return new KpiCardResponseDTO.Detail(
 			card.getId(),
@@ -64,7 +64,7 @@ public class KpiCardQueryService {
 	// KPI 카드 전체 상세 내용 반환
 	public KpiCardResponseDTO.AllDetail getCardAllDetail(Long cardId) {
 		KpiCard card = kpiCardRepository.findById(cardId)
-			.orElseThrow(() -> new GeneralExceptionHandler(KpiCardErrorCode.KPI_CARD_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(KpiCardErrorCode.KPI_CARD_NOT_FOUND));
 
 		return new KpiCardResponseDTO.AllDetail(
 			card.getId(),

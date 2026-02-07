@@ -10,7 +10,7 @@ import navik.domain.job.dto.JobResponseDTO;
 import navik.domain.job.entity.Job;
 import navik.domain.job.repository.JobRepository;
 import navik.domain.users.exception.code.JobErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,7 +32,7 @@ public class JobQueryService {
 	public JobResponseDTO.JobItem getJob(Long jobId) {
 
 		Job job = jobRepository.findById(jobId)
-			.orElseThrow(() -> new GeneralExceptionHandler(JobErrorCode.JOB_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(JobErrorCode.JOB_NOT_FOUND));
 
 		return new JobResponseDTO.JobItem(job.getId(), job.getName(), job.getDescription());
 	}

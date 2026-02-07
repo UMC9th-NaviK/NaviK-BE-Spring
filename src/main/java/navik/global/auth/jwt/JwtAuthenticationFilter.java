@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 			filterChain.doFilter(request, response);
 
-		} catch (GeneralExceptionHandler e) {
+		} catch (GeneralException e) {
 			log.error("JWT 인증 실패: {}", e.getMessage());
 
 			// JWT 검증 실패 시 직접 JSON 에러 응답 반환

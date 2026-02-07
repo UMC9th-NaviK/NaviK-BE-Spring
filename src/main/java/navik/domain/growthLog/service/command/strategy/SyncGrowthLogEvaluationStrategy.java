@@ -15,7 +15,7 @@ import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.growthLog.service.command.GrowthLogEvaluationCoreService;
 import navik.domain.growthLog.service.command.GrowthLogPersistenceService;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @RequiredArgsConstructor
@@ -54,15 +54,15 @@ public class SyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStrat
 	public GrowthLogResponseDTO.RetryResult retry(Long userId, Long growthLogId) {
 
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
 
 		if (growthLog.getType() != GrowthType.USER_INPUT) {
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_TYPE);
+			throw new GeneralException(GrowthLogErrorCode.INVALID_GROWTH_LOG_TYPE);
 		}
 
 		String key = "growthLogRetry:" + userId + ":" + growthLogId;
 		if (!retryRateLimiter.tryAcquire(key, 3)) {
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_RETRY_LIMIT_EXCEEDED);
+			throw new GeneralException(GrowthLogErrorCode.GROWTH_LOG_RETRY_LIMIT_EXCEEDED);
 		}
 
 		// 동시 재시도 차단: FAILED -> PENDING 원자적 전환
@@ -74,7 +74,7 @@ public class SyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStrat
 		);
 
 		if (acquired == 0) {
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
+			throw new GeneralException(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 
 		try {

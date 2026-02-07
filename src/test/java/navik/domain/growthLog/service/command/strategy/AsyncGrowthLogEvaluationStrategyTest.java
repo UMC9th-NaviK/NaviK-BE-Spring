@@ -23,7 +23,7 @@ import navik.domain.growthLog.message.GrowthLogEvaluationMessage;
 import navik.domain.growthLog.message.GrowthLogEvaluationPublisher;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.growthLog.service.command.GrowthLogPersistenceService;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @ExtendWith(MockitoExtension.class)
 class AsyncGrowthLogEvaluationStrategyTest {
@@ -111,7 +111,7 @@ class AsyncGrowthLogEvaluationStrategyTest {
 
 			// when & then
 			assertThatThrownBy(() -> strategy.create(userId, new GrowthLogRequestDTO.CreateUserInput(input)))
-				.isInstanceOf(GeneralExceptionHandler.class);
+				.isInstanceOf(GeneralException.class);
 
 			verify(publisher, never()).publish(any());
 		}
@@ -136,7 +136,7 @@ class AsyncGrowthLogEvaluationStrategyTest {
 
 			// when & then
 			assertThatThrownBy(() -> strategy.create(userId, new GrowthLogRequestDTO.CreateUserInput(input)))
-				.isInstanceOf(GeneralExceptionHandler.class);
+				.isInstanceOf(GeneralException.class);
 
 			verify(publisher, never()).publish(any());
 		}
@@ -163,7 +163,7 @@ class AsyncGrowthLogEvaluationStrategyTest {
 
 			// when & then
 			assertThatThrownBy(() -> strategy.create(userId, new GrowthLogRequestDTO.CreateUserInput(input)))
-				.isInstanceOf(GeneralExceptionHandler.class);
+				.isInstanceOf(GeneralException.class);
 
 			// PROCESSING -> FAILED 롤백 확인
 			verify(growthLogRepository).updateStatusIfMatch(
@@ -219,7 +219,7 @@ class AsyncGrowthLogEvaluationStrategyTest {
 
 			// when & then
 			assertThatThrownBy(() -> strategy.retry(userId, growthLogId))
-				.isInstanceOf(GeneralExceptionHandler.class);
+				.isInstanceOf(GeneralException.class);
 		}
 
 		@Test
@@ -236,7 +236,7 @@ class AsyncGrowthLogEvaluationStrategyTest {
 
 			// when & then
 			assertThatThrownBy(() -> strategy.retry(userId, growthLogId))
-				.isInstanceOf(GeneralExceptionHandler.class);
+				.isInstanceOf(GeneralException.class);
 		}
 
 		@Test
@@ -254,7 +254,7 @@ class AsyncGrowthLogEvaluationStrategyTest {
 
 			// when & then
 			assertThatThrownBy(() -> strategy.retry(userId, growthLogId))
-				.isInstanceOf(GeneralExceptionHandler.class);
+				.isInstanceOf(GeneralException.class);
 		}
 
 		@Test
@@ -275,7 +275,7 @@ class AsyncGrowthLogEvaluationStrategyTest {
 
 			// when & then
 			assertThatThrownBy(() -> strategy.retry(userId, growthLogId))
-				.isInstanceOf(GeneralExceptionHandler.class);
+				.isInstanceOf(GeneralException.class);
 		}
 
 		@Test
@@ -306,7 +306,7 @@ class AsyncGrowthLogEvaluationStrategyTest {
 
 			// when & then
 			assertThatThrownBy(() -> strategy.retry(userId, growthLogId))
-				.isInstanceOf(GeneralExceptionHandler.class);
+				.isInstanceOf(GeneralException.class);
 
 			// PROCESSING -> FAILED 롤백 확인
 			verify(growthLogRepository).updateStatusIfMatch(

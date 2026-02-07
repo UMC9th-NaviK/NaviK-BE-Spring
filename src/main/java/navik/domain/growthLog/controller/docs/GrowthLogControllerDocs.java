@@ -16,7 +16,7 @@ import navik.domain.growthLog.enums.AggregateUnit;
 import navik.domain.growthLog.enums.GrowthType;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.SliceResponseDto;
+import navik.global.dto.SliceResponseDTO;
 
 @Tag(name = "Growth Log", description = "성장 로그 API")
 public interface GrowthLogControllerDocs {
@@ -108,7 +108,7 @@ public interface GrowthLogControllerDocs {
 			)
 		)
 	})
-	ApiResponse<SliceResponseDto<GrowthLogResponseDTO.ListItem>> getMonthlyGrowthLogs(
+	ApiResponse<SliceResponseDTO<GrowthLogResponseDTO.ListItem>> getMonthlyGrowthLogs(
 		@Parameter(hidden = true) @AuthUser Long userId,
 
 		@Parameter(

@@ -30,9 +30,9 @@ import navik.domain.study.repository.StudyRepository;
 import navik.domain.study.repository.StudyUserRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
-import navik.global.dto.CursorResponseDto;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
+import navik.global.dto.CursorResponseDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -65,16 +65,16 @@ public class EvaluationQueryService {
 	@Transactional
 	public void submitEvaluation(Long evaluatorId, Long studyId, EvaluationSubmitDTO req) {
 		Study study = studyRepository.findById(studyId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.STUDY_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.STUDY_NOT_FOUND));
 		User evaluator = userRepository.findById(evaluatorId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
 		User evaluatee = userRepository.findById(req.targetUserId())
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
 
 		// 이미 해당 스터디원에 대한 평가를 진행했으면 오류발생
 		if (evaluationRepository.existsByStudyIdAndEvaluatorIdAndEvaluateeId(studyId, evaluatorId,
 			req.targetUserId())) {
-			throw new GeneralExceptionHandler(GeneralErrorCode.EVALUATION_ALREADY_EXISTS);
+			throw new GeneralException(GeneralErrorCode.EVALUATION_ALREADY_EXISTS);
 		}
 
 		// 1. 메인 평가 내용 저장
@@ -137,7 +137,7 @@ public class EvaluationQueryService {
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public CursorResponseDto<EvaluationMyDTO.MyStudyEvaluationPreviewDTO> getMyEvaluations(Long userId, Long cursor,
+	public CursorResponseDTO<EvaluationMyDTO.MyStudyEvaluationPreviewDTO> getMyEvaluations(Long userId, Long cursor,
 		int pageSize) {
 		Pageable pageable = PageRequest.of(0, pageSize + 1);
 
@@ -163,7 +163,7 @@ public class EvaluationQueryService {
 	public EvaluationMyDTO.MyStudyEvaluationDetailDTO getMyEvaluationDetails(Long userId, Long studyId) {
 		// 스터디 참여했는지 확인
 		StudyUser studyUser = studyUserRepository.findByUserIdAndStudyId(userId, studyId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
 
 		Study study = studyUser.getStudy();
 

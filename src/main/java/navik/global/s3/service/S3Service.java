@@ -1,21 +1,20 @@
 package navik.global.s3.service;
 
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
-import navik.global.s3.S3PathType;
-import navik.global.s3.dto.S3Dto;
-import lombok.RequiredArgsConstructor;
+import java.time.Duration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import lombok.RequiredArgsConstructor;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
+import navik.global.s3.S3PathType;
+import navik.global.s3.dto.S3DTO;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
-
-import java.time.Duration;
 
 /**
  * Amazon S3 관련 비즈니스 로직을 처리하는 서비스 클래스입니다.
@@ -39,13 +38,13 @@ public class S3Service {
 	 * @param extension 파일 확장자 (.pdf, .png 등)
 	 * @return Presigned URL과 파일 키를 포함하는 응답 객체
 	 */
-	public S3Dto.PreSignedUrlResponse getPreSignedUrl(S3PathType pathType, Long id, String extension) {
+	public S3DTO.PreSignedUrlResponse getPreSignedUrl(S3PathType pathType, Long id, String extension) {
 
-        if(id == null || extension == null){
-            throw new GeneralExceptionHandler(GeneralErrorCode.INVALID_INPUT_VALUE);
-        }
+		if (id == null || extension == null) {
+			throw new GeneralException(GeneralErrorCode.INVALID_INPUT_VALUE);
+		}
 
-        String key = pathType.generateKey(id, extension);
+		String key = pathType.generateKey(id, extension);
 
 		PutObjectRequest objectRequest = PutObjectRequest.builder()
 			.bucket(bucket)
@@ -59,7 +58,7 @@ public class S3Service {
 
 		PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
 
-		return S3Dto.PreSignedUrlResponse.builder()
+		return S3DTO.PreSignedUrlResponse.builder()
 			.preSignedUrl(presignedRequest.url().toString())
 			.key(key)
 			.build();

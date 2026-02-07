@@ -23,10 +23,10 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
-import navik.global.apiPayload.code.status.AuthErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 import navik.global.auth.JwtUserDetails;
-import navik.global.auth.dto.TokenDto;
+import navik.global.auth.dto.TokenDTO;
+import navik.global.auth.exception.code.AuthErrorCode;
 
 @Slf4j
 @Component
@@ -76,7 +76,7 @@ public class JwtTokenProvider {
 			.compact();
 	}
 
-	public TokenDto generateTokenDto(Authentication authentication, long accessTokenValidityInSeconds,
+	public TokenDTO generateTokenDto(Authentication authentication, long accessTokenValidityInSeconds,
 		long refreshTokenValidityInSeconds) {
 		String accessToken = generateAccessToken(authentication, accessTokenValidityInSeconds);
 		String refreshToken = generateRefreshToken(authentication, refreshTokenValidityInSeconds);
@@ -84,7 +84,7 @@ public class JwtTokenProvider {
 		long now = (new Date()).getTime();
 		Date accessTokenExpiresIn = new Date(now + accessTokenValidityInSeconds * 1000);
 
-		return TokenDto.builder()
+		return TokenDTO.builder()
 			.grantType(BEARER_TYPE)
 			.accessToken(accessToken)
 			.accessTokenExpiresIn(accessTokenExpiresIn.getTime())
@@ -97,7 +97,7 @@ public class JwtTokenProvider {
 		Claims claims = parseClaims(accessToken);
 
 		if (claims.get(AUTHORITIES_KEY) == null) {
-			throw new GeneralExceptionHandler(AuthErrorCode.TOKEN_NOT_FOUND);
+			throw new GeneralException(AuthErrorCode.TOKEN_NOT_FOUND);
 		}
 
 		Collection<? extends GrantedAuthority> authorities = Arrays
@@ -123,17 +123,17 @@ public class JwtTokenProvider {
 				.parseSignedClaims(token);
 		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
 			log.error("잘못된 JWT 서명입니다.", e);
-			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_TOKEN_INVALID);
+			throw new GeneralException(AuthErrorCode.AUTH_TOKEN_INVALID);
 		} catch (ExpiredJwtException e) {
 			log.warn("만료된 JWT 토큰입니다.", e);
-			throw new GeneralExceptionHandler(
+			throw new GeneralException(
 				isAccessToken ? AuthErrorCode.AUTH_TOKEN_EXPIRED : AuthErrorCode.REFRESH_TOKEN_EXPIRED);
 		} catch (UnsupportedJwtException e) {
 			log.error("지원되지 않는 JWT 토큰입니다.", e);
-			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_TOKEN_INVALID);
+			throw new GeneralException(AuthErrorCode.AUTH_TOKEN_INVALID);
 		} catch (IllegalArgumentException e) {
 			log.error("JWT 토큰이 잘못되었습니다.", e);
-			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_TOKEN_INVALID);
+			throw new GeneralException(AuthErrorCode.AUTH_TOKEN_INVALID);
 		}
 	}
 

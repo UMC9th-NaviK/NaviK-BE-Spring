@@ -27,8 +27,8 @@ import navik.domain.study.exception.code.StudyErrorCode;
 import navik.domain.study.repository.StudyRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Slf4j
 @Component
@@ -47,7 +47,7 @@ public class NotificationFacadeService {
 
 		// 1. 유저 정보 획득
 		User user = userRepository.findByIdWithUserDepartmentAndDepartment(userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
 
 		List<String> departments = user.getUserDepartments().stream()
 			.map(userDepartment -> userDepartment.getDepartment().getName())
@@ -93,7 +93,7 @@ public class NotificationFacadeService {
 		// 1. 추천 공고 엔티티 검색
 		RecommendedRecruitment recommendedRecruitment = recommendedRecruitmentRepository.findByIdWithUserAndRecruitment(
 				recommendedRecruitmentNotificationId)
-			.orElseThrow(() -> new GeneralExceptionHandler(
+			.orElseThrow(() -> new GeneralException(
 				RecommendedRecruitmentErrorCode.RECOMMENDED_RECRUITMENT_NOT_FOUND));
 
 		// 2. D-DAY 날짜
@@ -127,7 +127,7 @@ public class NotificationFacadeService {
 
 		// 1. 스터디 검색
 		Study study = studyRepository.findByIdWithStudyUser(studyId)
-			.orElseThrow(() -> new GeneralExceptionHandler(StudyErrorCode.STUDY_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(StudyErrorCode.STUDY_NOT_FOUND));
 
 		// 2. 스터디 활성화 상태 유저만 알림
 		study.getStudyUsers().forEach(

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import navik.domain.study.exception.code.StudyErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Getter
 @RequiredArgsConstructor
@@ -23,6 +23,6 @@ public enum StudySynergy {
 		return Arrays.stream(values())
 			.filter(type -> type.name().equalsIgnoreCase(value))
 			.findAny()
-			.orElseThrow(() -> new GeneralExceptionHandler(StudyErrorCode.INVALID_SYNERGY_TYPE));
+			.orElseThrow(() -> new GeneralException(StudyErrorCode.INVALID_SYNERGY_TYPE));
 	}
 }
