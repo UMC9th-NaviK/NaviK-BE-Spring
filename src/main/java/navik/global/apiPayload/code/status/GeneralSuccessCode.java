@@ -15,7 +15,8 @@ public enum GeneralSuccessCode implements BaseCode {
 	_OK(HttpStatus.OK, "COMMON200", "성공입니다."),
 	_CREATED(HttpStatus.CREATED, "COMMON201", "요청 성공 및 리소스 생성됨"),
 	_DELETED(HttpStatus.NO_CONTENT, "COMMON204", "삭제가 완료되었습니다."),
-    _REDIRECT(HttpStatus.SEE_OTHER, "COMMON303", "요청이 성공적으로 처리되어 다른 리소스로 이동합니다.");
+    _REDIRECT(HttpStatus.SEE_OTHER, "COMMON303", "요청이 성공적으로 처리되어 다른 리소스로 이동합니다."),
+	_FOUND_REDIRECT(HttpStatus.FOUND, "COMMON302", "요청이 성공적으로 처리되어 다른 리소스로 이동합니다.");
 
 	/**
 	 * HTTP 상태 코드

@@ -10,7 +10,8 @@ public record NotionOAuthProperties(
 	public record OAuth(
 		String clientId,
 		String clientSecret,
-		String redirectUri
+		String redirectUri,
+		String frontendRedirectUri
 	) {
 	}
 }
