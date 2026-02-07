@@ -19,7 +19,7 @@ import navik.domain.users.dto.UserResponseDTO;
 import navik.domain.users.service.UserCommandService;
 import navik.domain.users.service.UserQueryService;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
 
 @RestController
@@ -64,9 +64,8 @@ public class UserController implements UserControllerDocs {
 
 	@PutMapping("/profile-image")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void updateProfileImage(@AuthUser Long userId, @RequestBody String imageUrl){
+	public void updateProfileImage(@AuthUser Long userId, @RequestBody String imageUrl) {
 		userCommandService.updateProfileImage(userId, imageUrl);
 	}
-
 
 }

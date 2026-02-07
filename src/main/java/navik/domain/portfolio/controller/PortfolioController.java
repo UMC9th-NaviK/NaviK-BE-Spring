@@ -12,7 +12,7 @@ import navik.domain.portfolio.dto.PortfolioRequestDto;
 import navik.domain.portfolio.dto.PortfolioResponseDto;
 import navik.domain.portfolio.service.PortfolioCommandService;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
 
 @RestController

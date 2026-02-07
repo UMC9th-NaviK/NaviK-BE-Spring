@@ -20,7 +20,7 @@ import navik.domain.growthLog.dto.internal.GrowthLogInternalProcessingStartReque
 import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.repository.GrowthLogRepository;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @ExtendWith(MockitoExtension.class)
 class GrowthLogEvaluationApplyServiceTest {
@@ -131,7 +131,7 @@ class GrowthLogEvaluationApplyServiceTest {
 			assertThatThrownBy(() ->
 				service.startProcessing(growthLogId,
 					new GrowthLogInternalProcessingStartRequest(userId, "trace-id", token))
-			).isInstanceOf(GeneralExceptionHandler.class);
+			).isInstanceOf(GeneralException.class);
 		}
 
 		@Test
@@ -149,7 +149,7 @@ class GrowthLogEvaluationApplyServiceTest {
 			assertThatThrownBy(() ->
 				service.startProcessing(growthLogId,
 					new GrowthLogInternalProcessingStartRequest(userId, "trace-id", token))
-			).isInstanceOf(GeneralExceptionHandler.class);
+			).isInstanceOf(GeneralException.class);
 		}
 
 		@Test
@@ -172,7 +172,7 @@ class GrowthLogEvaluationApplyServiceTest {
 			assertThatThrownBy(() ->
 				service.startProcessing(growthLogId,
 					new GrowthLogInternalProcessingStartRequest(userId, "trace-id", token))
-			).isInstanceOf(GeneralExceptionHandler.class);
+			).isInstanceOf(GeneralException.class);
 		}
 	}
 
@@ -292,7 +292,7 @@ class GrowthLogEvaluationApplyServiceTest {
 
 			// when & then
 			assertThatThrownBy(() -> service.applyResult(growthLogId, req))
-				.isInstanceOf(GeneralExceptionHandler.class);
+				.isInstanceOf(GeneralException.class);
 		}
 
 		@Test
@@ -312,7 +312,7 @@ class GrowthLogEvaluationApplyServiceTest {
 
 			// when & then
 			assertThatThrownBy(() -> service.applyResult(growthLogId, req))
-				.isInstanceOf(GeneralExceptionHandler.class);
+				.isInstanceOf(GeneralException.class);
 		}
 
 		@Test

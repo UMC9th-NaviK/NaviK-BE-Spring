@@ -21,7 +21,7 @@ import navik.domain.growthLog.message.GrowthLogEvaluationMessage;
 import navik.domain.growthLog.message.GrowthLogEvaluationPublisher;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.growthLog.service.command.GrowthLogPersistenceService;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @RequiredArgsConstructor
@@ -55,15 +55,15 @@ public class AsyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStra
 	public GrowthLogResponseDTO.RetryResult retry(Long userId, Long growthLogId) {
 
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
 
 		if (growthLog.getType() != GrowthType.USER_INPUT) {
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_TYPE);
+			throw new GeneralException(GrowthLogErrorCode.INVALID_GROWTH_LOG_TYPE);
 		}
 
 		String key = "growthLogRetry:" + userId + ":" + growthLogId;
 		if (!retryRateLimiter.tryAcquire(key, 3)) {
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_RETRY_LIMIT_EXCEEDED);
+			throw new GeneralException(GrowthLogErrorCode.GROWTH_LOG_RETRY_LIMIT_EXCEEDED);
 		}
 
 		// FAILED -> PENDING 원자 전환
@@ -75,7 +75,7 @@ public class AsyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStra
 
 		if (acquired == 0) {
 			// 이미 PENDING/COMPLETED 등으로 바뀌었거나, 동시성으로 선점됨
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
+			throw new GeneralException(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 
 		// enqueue (실패 시 FAILED 보상 + 에러코드 통일)
@@ -97,7 +97,7 @@ public class AsyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStra
 			// 1) processingToken 저장
 			int tokenSet = growthLogRepository.overwriteProcessingToken(userId, growthLogId, processingToken);
 			if (tokenSet == 0) {
-				throw new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND);
+				throw new GeneralException(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND);
 			}
 
 			// 2) PENDING -> PROCESSING 전환 (token 조건 포함)
@@ -110,7 +110,7 @@ public class AsyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStra
 			);
 
 			if (moved == 0) {
-				throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
+				throw new GeneralException(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 			}
 
 			currentStatus = GrowthLogStatus.PROCESSING;
@@ -137,7 +137,7 @@ public class AsyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStra
 				);
 			}
 
-			throw new GeneralExceptionHandler(GrowthLogRedisErrorCode.STREAM_PUBLISH_FAILED);
+			throw new GeneralException(GrowthLogRedisErrorCode.STREAM_PUBLISH_FAILED);
 		}
 	}
 

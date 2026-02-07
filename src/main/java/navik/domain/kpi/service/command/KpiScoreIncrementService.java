@@ -9,7 +9,7 @@ import navik.domain.kpi.dto.res.KpiScoreResponseDTO;
 import navik.domain.kpi.entity.KpiScore;
 import navik.domain.kpi.exception.code.KpiScoreErrorCode;
 import navik.domain.kpi.repository.KpiScoreRepository;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @RequiredArgsConstructor
@@ -25,11 +25,11 @@ public class KpiScoreIncrementService {
 
 		int updatedRows = kpiScoreRepository.incrementScore(userId, kpiCardId, delta);
 		if (updatedRows == 0) {
-			throw new GeneralExceptionHandler(KpiScoreErrorCode.KPI_SCORE_NOT_FOUND);
+			throw new GeneralException(KpiScoreErrorCode.KPI_SCORE_NOT_FOUND);
 		}
 
 		KpiScore score = kpiScoreRepository.findByUserIdAndKpiCard_Id(userId, kpiCardId)
-			.orElseThrow(() -> new GeneralExceptionHandler(KpiScoreErrorCode.KPI_SCORE_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(KpiScoreErrorCode.KPI_SCORE_NOT_FOUND));
 
 		return new KpiScoreResponseDTO.Increment(kpiCardId, score.getScore());
 	}
@@ -37,7 +37,7 @@ public class KpiScoreIncrementService {
 	public void incrementInternal(Long userId, Long kpiCardId, int delta) {
 		int updatedRows = kpiScoreRepository.incrementScore(userId, kpiCardId, delta);
 		if (updatedRows == 0) {
-			throw new GeneralExceptionHandler(KpiScoreErrorCode.KPI_SCORE_NOT_FOUND);
+			throw new GeneralException(KpiScoreErrorCode.KPI_SCORE_NOT_FOUND);
 		}
 	}
 }

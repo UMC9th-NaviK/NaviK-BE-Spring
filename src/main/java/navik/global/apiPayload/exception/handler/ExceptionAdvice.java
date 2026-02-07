@@ -1,4 +1,4 @@
-package navik.global.apiPayload.exception;
+package navik.global.apiPayload.exception.handler;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -22,9 +22,9 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.BaseCode;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.BaseCode;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 /**
  * @RestControllerAdvice 어노테이션을 사용하여 모든 @RestController 에서 발생하는 예외를 전역적으로 처리하는 클래스입니다.
@@ -112,14 +112,14 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 	}
 
 	/**
-	 * 비즈니스 로직 실행 중 발생하는 커스텀 예외 {@link GeneralExceptionHandler}을 처리합니다.
+	 * 비즈니스 로직 실행 중 발생하는 커스텀 예외 {@link GeneralException}을 처리합니다.
 	 *
-	 * @param generalException 발생한 {@link GeneralExceptionHandler}
+	 * @param generalException 발생한 {@link GeneralException}
 	 * @param request          현재 요청 객체
 	 * @return 에러 응답 {@link ApiResponse}
 	 */
-	@ExceptionHandler(value = GeneralExceptionHandler.class)
-	public ApiResponse<Object> onThrowException(GeneralExceptionHandler generalException, HttpServletRequest request) {
+	@ExceptionHandler(value = GeneralException.class)
+	public ApiResponse<Object> onThrowException(GeneralException generalException, HttpServletRequest request) {
 		BaseCode code = generalException.getCode();
 		log.warn("GeneralException: {} - {}", code.getCode(), code.getMessage());
 		return ApiResponse.onFailure(code, null);

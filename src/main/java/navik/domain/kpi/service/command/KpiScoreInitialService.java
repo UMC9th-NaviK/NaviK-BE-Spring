@@ -23,7 +23,7 @@ import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.kpi.repository.KpiScoreRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @RequiredArgsConstructor
@@ -77,7 +77,7 @@ public class KpiScoreInitialService {
 
 	private void validateNoDuplicateCardIds(List<Long> cardIds) {
 		if (cardIds.stream().distinct().count() != cardIds.size()) {
-			throw new GeneralExceptionHandler(KpiScoreErrorCode.DUPLICATED_KPI_CARD_ID);
+			throw new GeneralException(KpiScoreErrorCode.DUPLICATED_KPI_CARD_ID);
 		}
 	}
 
@@ -85,7 +85,7 @@ public class KpiScoreInitialService {
 		List<KpiCard> cards = kpiCardRepository.findAllById(cardIds);
 
 		if (cards.size() != cardIds.stream().distinct().count()) {
-			throw new GeneralExceptionHandler(KpiCardErrorCode.KPI_CARD_NOT_FOUND);
+			throw new GeneralException(KpiCardErrorCode.KPI_CARD_NOT_FOUND);
 		}
 
 		return cards.stream()
@@ -154,7 +154,7 @@ public class KpiScoreInitialService {
 		List<KpiCard> allCards = kpiCardRepository.findAllByJobId(jobId);
 
 		if (allCards.isEmpty()) {
-			throw new GeneralExceptionHandler(KpiCardErrorCode.KPI_CARD_NOT_INITIALIZED);
+			throw new GeneralException(KpiCardErrorCode.KPI_CARD_NOT_INITIALIZED);
 		}
 
 		// 이미 KpiScore가 존재하는 카드 ID 수집

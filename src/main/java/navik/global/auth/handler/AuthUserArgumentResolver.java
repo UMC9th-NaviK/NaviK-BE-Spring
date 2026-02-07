@@ -11,8 +11,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import navik.global.apiPayload.code.status.AuthErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.AuthErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 import navik.global.auth.JwtUserDetails;
 import navik.global.auth.annotation.AuthUser;
 
@@ -33,14 +33,14 @@ public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
 		// 인증 정보가 없거나 익명 사용자인 경우 예외 발생
 		if (authentication == null || authentication instanceof AnonymousAuthenticationToken
 			|| !authentication.isAuthenticated()) {
-			throw new GeneralExceptionHandler(AuthErrorCode.UNAUTHORIZED);
+			throw new GeneralException(AuthErrorCode.UNAUTHORIZED);
 		}
 
 		Object principal = authentication.getPrincipal();
 
 		// Principal이 UserDetails 타입인지 확인
 		if (!(principal instanceof UserDetails)) {
-			throw new GeneralExceptionHandler(AuthErrorCode.UNAUTHORIZED);
+			throw new GeneralException(AuthErrorCode.UNAUTHORIZED);
 		}
 
 		return ((JwtUserDetails)principal).getUserId();

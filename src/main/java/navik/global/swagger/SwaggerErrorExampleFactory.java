@@ -3,7 +3,7 @@ package navik.global.swagger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import navik.global.apiPayload.code.status.BaseCode;
+import navik.global.apiPayload.exception.code.BaseCode;
 
 public class SwaggerErrorExampleFactory {
 

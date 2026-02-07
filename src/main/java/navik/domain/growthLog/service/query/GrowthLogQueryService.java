@@ -14,7 +14,7 @@ import navik.domain.growthLog.enums.GrowthLogStatus;
 import navik.domain.growthLog.enums.GrowthType;
 import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.repository.GrowthLogRepository;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +44,6 @@ public class GrowthLogQueryService {
 
 	public GrowthLog getDetail(Long userId, Long growthLogId) {
 		return growthLogRepository.findDetailByIdAndUserId(growthLogId, userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
 	}
 }

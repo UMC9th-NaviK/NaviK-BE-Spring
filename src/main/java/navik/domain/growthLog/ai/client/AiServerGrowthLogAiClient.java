@@ -15,7 +15,7 @@ import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO.GrowthLogEvaluationContext;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.GrowthLogEvaluationResult;
 import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Component
 @Profile("prod")
@@ -46,7 +46,7 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 				.block();
 		} catch (WebClientResponseException e) {
 			log.error("[AI] status={}, body={}", e.getStatusCode(), e.getResponseBodyAsString(), e);
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.AI_EVALUATION_FAILED);
+			throw new GeneralException(GrowthLogErrorCode.AI_EVALUATION_FAILED);
 		}
 	}
 

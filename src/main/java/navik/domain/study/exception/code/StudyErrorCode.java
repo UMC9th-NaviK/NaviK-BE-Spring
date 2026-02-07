@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import navik.global.apiPayload.code.status.BaseCode;
+import navik.global.apiPayload.exception.code.BaseCode;
 
 @Getter
 @AllArgsConstructor

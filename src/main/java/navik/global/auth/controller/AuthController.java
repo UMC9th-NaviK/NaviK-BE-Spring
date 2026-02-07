@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.dto.TokenDTO;
 import navik.global.auth.service.AuthService;
 

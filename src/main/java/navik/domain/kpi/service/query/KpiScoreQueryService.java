@@ -15,7 +15,7 @@ import navik.domain.kpi.dto.res.KpiCardResponseDTO;
 import navik.domain.kpi.dto.res.KpiScoreResponseDTO;
 import navik.domain.kpi.exception.code.KpiScoreErrorCode;
 import navik.domain.kpi.repository.KpiScoreRepository;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Transactional(readOnly = true)
 @Service
@@ -55,7 +55,7 @@ public class KpiScoreQueryService {
 		var view = kpiScoreRepository.findMyPercentile(userId, kpiCardId);
 
 		if (view == null) {
-			throw new GeneralExceptionHandler(KpiScoreErrorCode.KPI_SCORE_NOT_FOUND);
+			throw new GeneralException(KpiScoreErrorCode.KPI_SCORE_NOT_FOUND);
 		}
 
 		return new KpiScoreResponseDTO.Percentile(

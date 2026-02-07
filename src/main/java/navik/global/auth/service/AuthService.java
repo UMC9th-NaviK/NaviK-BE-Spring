@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import navik.global.apiPayload.code.status.AuthErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.AuthErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 import navik.global.auth.dto.TokenDTO;
 import navik.global.auth.jwt.JwtTokenProvider;
 import navik.global.auth.redis.RefreshToken;
@@ -42,11 +42,11 @@ public class AuthService {
 
 		// 3. Redis 에서 id(userId) 를 기반으로 저장된 Refresh Token 값을 가져옴
 		RefreshToken redisRefreshToken = refreshTokenRepository.findById(userIdStr)
-			.orElseThrow(() -> new GeneralExceptionHandler(AuthErrorCode.INVALID_REFRESH_TOKEN));
+			.orElseThrow(() -> new GeneralException(AuthErrorCode.INVALID_REFRESH_TOKEN));
 
 		// 4. Refresh Token 일치하는지 검사
 		if (!redisRefreshToken.getToken().equals(refreshToken)) {
-			throw new GeneralExceptionHandler(AuthErrorCode.REFRESH_TOKEN_MISMATCH);
+			throw new GeneralException(AuthErrorCode.REFRESH_TOKEN_MISMATCH);
 		}
 
 		// 5. Refresh Token & AccessToken

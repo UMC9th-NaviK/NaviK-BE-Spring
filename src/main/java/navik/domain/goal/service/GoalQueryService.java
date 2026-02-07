@@ -13,9 +13,9 @@ import navik.domain.goal.dto.GoalResponseDTO;
 import navik.domain.goal.entity.Goal;
 import navik.domain.goal.entity.GoalStatus;
 import navik.domain.goal.repository.GoalRepository;
-import navik.global.apiPayload.code.status.AuthErrorCode;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.AuthErrorCode;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 import navik.global.dto.CursorResponseDTO;
 
 @Service
@@ -27,14 +27,14 @@ public class GoalQueryService {
 
 	public Goal getGoal(Long goalId) {
 		return goalRepository.findById(goalId).orElseThrow(
-			() -> new GeneralExceptionHandler(GeneralErrorCode.ENTITY_NOT_FOUND));
+			() -> new GeneralException(GeneralErrorCode.ENTITY_NOT_FOUND));
 	}
 
 	public Goal getAuthorizedGoal(Long userId, Long goalId) {
 		Goal goal = getGoal(goalId);
 
 		if (!goal.getUser().getId().equals(userId)) {
-			throw new GeneralExceptionHandler(AuthErrorCode.AUTH_FORBIDDEN);
+			throw new GeneralException(AuthErrorCode.AUTH_FORBIDDEN);
 		}
 
 		return goal;
@@ -53,7 +53,7 @@ public class GoalQueryService {
 				goalRepository.findByUserIdOrderByEndDateAscIdAsc(userId, pageRequest)
 				: goalRepository.findByUserIdAndIdLessThanOrderByEndDateAscIdAsc(userId, cursor, pageRequest);
 
-			default -> throw new GeneralExceptionHandler(GeneralErrorCode.INVALID_SORT_OPTION);
+			default -> throw new GeneralException(GeneralErrorCode.INVALID_SORT_OPTION);
 		};
 
 		Slice<GoalResponseDTO.PreviewDTO> previewSlice = goalSlice.map(GoalConverter::toPreviewDto);

@@ -18,8 +18,8 @@ import navik.domain.board.repository.BoardLikeRepository;
 import navik.domain.board.repository.BoardRepository;
 import navik.domain.board.repository.CommentRepository;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 import navik.global.dto.CursorResponseDTO;
 
 @Service
@@ -179,7 +179,7 @@ public class BoardQueryService {
 	@Transactional
 	public BoardResponseDTO.BoardDTO getBoardDetail(Long boardId) {
 		Board board = boardRepository.findById(boardId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.BOARD_NOT_FOUND));
 
 		board.incrementArticleViews(); // 조회수 증가
 		boardRepository.save(board); // 변경된 조회수 저장

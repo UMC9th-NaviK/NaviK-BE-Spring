@@ -15,7 +15,7 @@ import navik.domain.evaluation.dto.EvaluationStudyUserDTO;
 import navik.domain.evaluation.dto.EvaluationSubmitDTO;
 import navik.domain.evaluation.service.EvaluationQueryService;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDTO;
 

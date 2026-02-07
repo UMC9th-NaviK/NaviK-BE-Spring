@@ -20,8 +20,8 @@ import navik.domain.recruitment.repository.recruitment.RecruitmentRepository;
 import navik.domain.recruitment.repository.recruitment.projection.RecommendedRecruitmentProjection;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Slf4j
 @Service
@@ -41,7 +41,7 @@ public class RecruitmentQueryService {
 
 		// 1. 유저 검색
 		User user = userRepository.findByIdWithUserDepartmentAndDepartment(userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
 
 		// 2. 전공 검색
 		List<String> departments = user.getUserDepartments().stream()
@@ -84,7 +84,7 @@ public class RecruitmentQueryService {
 
 		// 1. 카드 검색
 		KpiCard kpiCard = kpiCardRepository.findByIdWithJob(kpiCardId)
-			.orElseThrow(() -> new GeneralExceptionHandler(KpiCardErrorCode.KPI_CARD_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(KpiCardErrorCode.KPI_CARD_NOT_FOUND));
 
 		// 2. 검색
 		List<RecommendedRecruitmentProjection> results = recruitmentRepository.findRecommendedPostsByCard(

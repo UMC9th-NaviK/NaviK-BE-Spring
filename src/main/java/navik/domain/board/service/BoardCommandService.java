@@ -10,8 +10,8 @@ import navik.domain.board.entity.Board;
 import navik.domain.board.repository.BoardRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +28,7 @@ public class BoardCommandService {
 	@Transactional
 	public Long createBoard(Long userId, BoardCreateDTO request) {
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
 		Board board = Board.builder()
 			.user(user)
 			.articleTitle(request.getArticleTitle())
@@ -50,10 +50,10 @@ public class BoardCommandService {
 	@Transactional
 	public Long updateBoard(Long boardId, Long userId, BoardUpdateDTO request) {
 		Board board = boardRepository.findById(boardId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.BOARD_NOT_FOUND));
 
 		if (!board.getUser().getId().equals(userId)) {
-			throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_BOARD_NOT_WRITER);
+			throw new GeneralException(GeneralErrorCode.AUTH_BOARD_NOT_WRITER);
 		}
 
 		board.updateBoard(request.getArticleTitle(), request.getArticleContent());
@@ -68,10 +68,10 @@ public class BoardCommandService {
 	@Transactional
 	public void deleteBoard(Long boardId, Long userId) {
 		Board board = boardRepository.findById(boardId) // 게시글 찾을 수 없음
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.BOARD_NOT_FOUND));
 
 		if (!board.getUser().getId().equals(userId)) { // 게시글 작성자가 아님
-			throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_BOARD_NOT_WRITER);
+			throw new GeneralException(GeneralErrorCode.AUTH_BOARD_NOT_WRITER);
 		}
 		boardRepository.delete(board);
 	}

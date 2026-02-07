@@ -19,7 +19,7 @@ import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.kpi.service.command.KpiScoreIncrementService;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @RequiredArgsConstructor
 @Transactional
@@ -95,11 +95,11 @@ public class GrowthLogPersistenceService {
 		int totalDelta
 	) {
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
 
 		// 선점된 PENDING만 반영 가능
 		if (growthLog.getStatus() != GrowthLogStatus.PENDING) {
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
+			throw new GeneralException(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 
 		applyEvaluationResult(growthLog, userId, normalized, totalDelta);
@@ -113,11 +113,11 @@ public class GrowthLogPersistenceService {
 		int totalDelta
 	) {
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
 
 		// 방어: 최소한 PROCESSING만 허용
 		if (growthLog.getStatus() != GrowthLogStatus.PROCESSING) {
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
+			throw new GeneralException(GrowthLogErrorCode.INVALID_GROWTH_LOG_STATUS);
 		}
 
 		applyEvaluationResult(growthLog, userId, normalized, totalDelta);

@@ -20,8 +20,8 @@ import navik.domain.board.repository.CommentRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 import navik.domain.users.service.UserQueryService;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 import navik.global.dto.CursorResponseDTO;
 
 @Service
@@ -75,7 +75,7 @@ public class CommentService {
 
 		// 게시글 조회
 		Board board = boardRepository.findById(parameter.getBoardId())
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.BOARD_NOT_FOUND));
 
 		// 댓글 생성
 		Comment comment = CommentConverter.toComment(user, board, parameter.getContent());
@@ -98,11 +98,11 @@ public class CommentService {
 
 		// 게시글 조회
 		Board board = boardRepository.findById(parameter.getBoardId())
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.BOARD_NOT_FOUND));
 
 		// 부모 댓글 조회
 		Comment parentComment = commentRepository.findById(parameter.getCommentId())
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.COMMENT_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.COMMENT_NOT_FOUND));
 
 		// 대댓글 작성
 		Comment reply = ReplyConverter.toComment(user, board, parentComment, parameter.getContent());
@@ -124,11 +124,11 @@ public class CommentService {
 
 		// 댓글 조회
 		Comment comment = commentRepository.findById(parameter.getCommentId())
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.COMMENT_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.COMMENT_NOT_FOUND));
 
 		// 댓글 작성자가 맞는지 확인
 		if (!comment.getUser().equals(user)) {
-			throw new GeneralExceptionHandler(GeneralErrorCode.AUTH_COMMENT_NOT_WRITER);
+			throw new GeneralException(GeneralErrorCode.AUTH_COMMENT_NOT_WRITER);
 		}
 
 		// 댓글 상태값 변경

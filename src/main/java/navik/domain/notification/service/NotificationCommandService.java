@@ -14,8 +14,8 @@ import navik.domain.notification.strategy.NotificationMessageStrategy;
 import navik.domain.notification.strategy.NotificationMessageStrategyFactory;
 import navik.domain.users.entity.User;
 import navik.domain.users.service.UserQueryService;
-import navik.global.apiPayload.code.status.NotificationErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.NotificationErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @Transactional
@@ -57,7 +57,7 @@ public class NotificationCommandService {
 	public void deleteNotification(Long notificationId) {
 
 		Notification notification = notificationRepository.findById(notificationId)
-			.orElseThrow(() -> new GeneralExceptionHandler(NotificationErrorCode.NOTIFICATION_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(NotificationErrorCode.NOTIFICATION_NOT_FOUND));
 
 		notificationRepository.delete(notification);
 	}
@@ -67,10 +67,10 @@ public class NotificationCommandService {
 		User user = userQueryService.getUser(userId);
 
 		Notification notification = notificationRepository.findById(notificationId)
-			.orElseThrow(() -> new GeneralExceptionHandler(NotificationErrorCode.NOTIFICATION_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(NotificationErrorCode.NOTIFICATION_NOT_FOUND));
 
 		if (!notification.getUser().equals(user))
-			throw new GeneralExceptionHandler(NotificationErrorCode.NOTIFICATION_NOT_OWNER);
+			throw new GeneralException(NotificationErrorCode.NOTIFICATION_NOT_OWNER);
 
 		notification.setIsRead();
 	}

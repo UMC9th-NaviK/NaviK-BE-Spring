@@ -25,8 +25,8 @@ import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.repository.PortfolioRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Slf4j
 @Service
@@ -43,7 +43,7 @@ public class GrowthLogEvaluationCoreService {
 	public GrowthLogEvaluationContext buildContext(Long userId, String inputContent) {
 
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
 
 		Integer userLevel = user.getLevel();
 		Long jobId = user.getJob() != null ? user.getJob().getId() : null;
@@ -110,7 +110,7 @@ public class GrowthLogEvaluationCoreService {
 
 	private GrowthLogEvaluationResult normalize(GrowthLogEvaluationResult r) {
 		if (r == null) {
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.AI_EVALUATION_FAILED);
+			throw new GeneralException(GrowthLogErrorCode.AI_EVALUATION_FAILED);
 		}
 
 		String title = (r.title() == null) ? "" : r.title().trim();
@@ -148,7 +148,7 @@ public class GrowthLogEvaluationCoreService {
 
 		long count = kpiCardRepository.countByIdIn(ids);
 		if (count != ids.size()) {
-			throw new GeneralExceptionHandler(GrowthLogErrorCode.KPI_CARD_NOT_FOUND);
+			throw new GeneralException(GrowthLogErrorCode.KPI_CARD_NOT_FOUND);
 		}
 	}
 

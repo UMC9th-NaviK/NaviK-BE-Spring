@@ -7,8 +7,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 import navik.global.s3.S3PathType;
 import navik.global.s3.dto.S3DTO;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -41,7 +41,7 @@ public class S3Service {
 	public S3DTO.PreSignedUrlResponse getPreSignedUrl(S3PathType pathType, Long id, String extension) {
 
 		if (id == null || extension == null) {
-			throw new GeneralExceptionHandler(GeneralErrorCode.INVALID_INPUT_VALUE);
+			throw new GeneralException(GeneralErrorCode.INVALID_INPUT_VALUE);
 		}
 
 		String key = pathType.generateKey(id, extension);

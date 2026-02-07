@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import navik.domain.evaluation.exception.code.EvaluationErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Getter
 @RequiredArgsConstructor
@@ -23,6 +23,6 @@ public enum TagType {
 		return Arrays.stream(values())
 			.filter(type -> type.name().equalsIgnoreCase(value))
 			.findAny()
-			.orElseThrow(() -> new GeneralExceptionHandler(EvaluationErrorCode.INVALID_TAG_TYPE));
+			.orElseThrow(() -> new GeneralException(EvaluationErrorCode.INVALID_TAG_TYPE));
 	}
 }

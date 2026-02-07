@@ -9,8 +9,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.domain.portfolio.dto.PortfolioAiDTO;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Slf4j
 @Component
@@ -39,7 +39,7 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 
 			return response.text();
 		} catch (Exception e) {
-			throw new GeneralExceptionHandler(GeneralErrorCode.EXTERNAL_API_ERROR);
+			throw new GeneralException(GeneralErrorCode.EXTERNAL_API_ERROR);
 		}
 	}
 
@@ -56,7 +56,7 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 				.timeout(Duration.ofSeconds(30))
 				.block();
 		} catch (Exception e) {
-			throw new GeneralExceptionHandler(GeneralErrorCode.EXTERNAL_API_ERROR);
+			throw new GeneralException(GeneralErrorCode.EXTERNAL_API_ERROR);
 		}
 	}
 
@@ -80,7 +80,7 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 				.timeout(Duration.ofSeconds(30))
 				.block();
 		} catch (Exception e) {
-			throw new GeneralExceptionHandler(GeneralErrorCode.EXTERNAL_API_ERROR);
+			throw new GeneralException(GeneralErrorCode.EXTERNAL_API_ERROR);
 		}
 	}
 }

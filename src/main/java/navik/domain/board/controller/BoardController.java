@@ -22,7 +22,7 @@ import navik.domain.board.service.BoardCommandService;
 import navik.domain.board.service.BoardLikeService;
 import navik.domain.board.service.BoardQueryService;
 import navik.global.apiPayload.ApiResponse;
-import navik.global.apiPayload.code.status.GeneralSuccessCode;
+import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDTO;
 import navik.global.swagger.SwaggerPageable;

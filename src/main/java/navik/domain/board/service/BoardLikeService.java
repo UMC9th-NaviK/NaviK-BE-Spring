@@ -15,8 +15,8 @@ import navik.domain.board.repository.BoardRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 import navik.domain.users.service.UserQueryService;
-import navik.global.apiPayload.code.status.GeneralErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +32,7 @@ public class BoardLikeService {
 		User user = userQueryService.getUser(parameter.getUserId());
 		// 2. 게시글 조회
 		Board board = boardRepository.findById(parameter.getBoardId())
-			.orElseThrow(() -> new GeneralExceptionHandler(GeneralErrorCode.BOARD_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.BOARD_NOT_FOUND));
 
 		// 3. 이미 좋아요 눌렀는지 확인
 		Optional<BoardLike> boardLikeOpt = boardLikeRepository.findByBoardAndUser(board, user);

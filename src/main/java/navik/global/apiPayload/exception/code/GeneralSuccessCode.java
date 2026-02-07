@@ -1,4 +1,4 @@
-package navik.global.apiPayload.code.status;
+package navik.global.apiPayload.exception.code;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
