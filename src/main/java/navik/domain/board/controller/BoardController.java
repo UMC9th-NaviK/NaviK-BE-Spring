@@ -18,9 +18,9 @@ import navik.domain.board.dto.BoardCreateDTO;
 import navik.domain.board.dto.BoardLikeDTO;
 import navik.domain.board.dto.BoardResponseDTO;
 import navik.domain.board.dto.BoardUpdateDTO;
-import navik.domain.board.service.BoardCommandService;
-import navik.domain.board.service.BoardLikeService;
-import navik.domain.board.service.BoardQueryService;
+import navik.domain.board.service.board.BoardCommandService;
+import navik.domain.board.service.board.BoardQueryService;
+import navik.domain.board.service.boardLike.BoardLikeCommandService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
@@ -32,7 +32,7 @@ import navik.global.swagger.SwaggerPageable;
 @RequiredArgsConstructor
 public class BoardController implements BoardControllerDocs {
 	private final BoardQueryService boardQueryService;
-	private final BoardLikeService boardLikeService;
+	private final BoardLikeCommandService boardLikeCommandService;
 	private final BoardCommandService boardCommandService;
 
 	/**
@@ -189,7 +189,7 @@ public class BoardController implements BoardControllerDocs {
 			.userId(userId)
 			.build();
 
-		BoardLikeDTO.Response response = boardLikeService.toggleBoardLike(parameter);
+		BoardLikeDTO.Response response = boardLikeCommandService.toggleBoardLike(parameter);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 }

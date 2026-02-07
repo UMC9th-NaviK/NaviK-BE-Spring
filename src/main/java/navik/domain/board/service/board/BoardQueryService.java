@@ -1,4 +1,4 @@
-package navik.domain.board.service;
+package navik.domain.board.service.board;
 
 import java.util.Collections;
 import java.util.List;

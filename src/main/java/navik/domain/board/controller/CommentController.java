@@ -19,7 +19,8 @@ import navik.domain.board.dto.CommentCountDTO;
 import navik.domain.board.dto.CommentCreateDTO;
 import navik.domain.board.dto.CommentListDTO;
 import navik.domain.board.dto.ReplyDTO;
-import navik.domain.board.service.CommentService;
+import navik.domain.board.service.comment.CommentCommandService;
+import navik.domain.board.service.comment.CommentQueryService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
@@ -28,9 +29,9 @@ import navik.global.dto.CursorResponseDTO;
 @RestController
 @RequestMapping("/v1/boards")
 @RequiredArgsConstructor
-
 public class CommentController implements CommentControllerDocs {
-	private final CommentService commentService;
+	private final CommentCommandService commentCommandService;
+	private final CommentQueryService commentQueryService;
 
 	/**
 	 * 댓글 목록 조회
@@ -46,7 +47,7 @@ public class CommentController implements CommentControllerDocs {
 		@PageableDefault(size = 10) Pageable pageable
 	) {
 		CommentListDTO.Parameter parameter = CommentListConverter.toParameter(userId, boardId, pageable);
-		CursorResponseDTO<CommentListDTO.ResponseComment> response = commentService.getCommentList(parameter);
+		CursorResponseDTO<CommentListDTO.ResponseComment> response = commentQueryService.getCommentList(parameter);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 
@@ -64,7 +65,7 @@ public class CommentController implements CommentControllerDocs {
 		@AuthUser Long userId
 	) {
 		CommentCreateDTO.Parameter parameter = CommentConverter.toParameter(userId, boardId, request);
-		CommentCreateDTO.Response response = commentService.createComment(parameter);
+		CommentCreateDTO.Response response = commentCommandService.createComment(parameter);
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, response);
 	}
 
@@ -85,7 +86,7 @@ public class CommentController implements CommentControllerDocs {
 	) {
 		ReplyDTO.Parameter parameter = ReplyConverter.toParameter(userId, boardId, commentId, request);
 
-		ReplyDTO.Response response = commentService.createReply(parameter);
+		ReplyDTO.Response response = commentCommandService.createReply(parameter);
 
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, response);
 	}
@@ -103,7 +104,7 @@ public class CommentController implements CommentControllerDocs {
 		@PathVariable Long commentId,
 		@AuthUser Long userId
 	) {
-		commentService.deleteComment(CommentConverter.toDeleteParameter(userId, boardId, commentId));
+		commentCommandService.deleteComment(CommentConverter.toDeleteParameter(userId, boardId, commentId));
 		return ApiResponse.onSuccess(GeneralSuccessCode._DELETED);
 	}
 
@@ -114,6 +115,6 @@ public class CommentController implements CommentControllerDocs {
 	 */
 	@GetMapping("/{boardId}/comments/count")
 	public ApiResponse<CommentCountDTO> getCount(@PathVariable Long boardId) {
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK, commentService.getCommentCount(boardId));
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, commentQueryService.getCommentCount(boardId));
 	}
 }

@@ -1,4 +1,4 @@
-package navik.domain.board.service;
+package navik.domain.board.service.boardLike;
 
 import java.util.Optional;
 
@@ -20,7 +20,7 @@ import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @RequiredArgsConstructor
-public class BoardLikeService {
+public class BoardLikeCommandService {
 	private final UserRepository userRepository;
 	private final BoardRepository boardRepository;
 	private final BoardLikeRepository boardLikeRepository;
