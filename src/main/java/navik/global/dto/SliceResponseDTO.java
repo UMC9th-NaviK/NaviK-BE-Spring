@@ -7,7 +7,7 @@ import org.springframework.data.domain.Slice;
 import lombok.Getter;
 
 @Getter
-public class SliceResponseDto<T> {
+public class SliceResponseDTO<T> {
 
 	/**
 	 * 데이터 리스트
@@ -24,13 +24,13 @@ public class SliceResponseDto<T> {
 	 */
 	private final boolean hasNext;
 
-	public SliceResponseDto(Slice<T> slice) {
+	public SliceResponseDTO(Slice<T> slice) {
 		this.content = slice.getContent();
 		this.pageSize = slice.getSize();
 		this.hasNext = slice.hasNext();
 	}
 
-	public static <T> SliceResponseDto<T> of(Slice<T> slice) {
-		return new SliceResponseDto<>(slice);
+	public static <T> SliceResponseDTO<T> of(Slice<T> slice) {
+		return new SliceResponseDTO<>(slice);
 	}
 }
