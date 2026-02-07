@@ -1,4 +1,4 @@
-package navik.domain.board.repository;
+package navik.domain.board.repository.boardLike;
 
 import java.util.List;
 import java.util.Optional;

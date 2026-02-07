@@ -1,4 +1,4 @@
-package navik.domain.board.repository;
+package navik.domain.board.repository.board;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

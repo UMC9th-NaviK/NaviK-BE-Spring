@@ -1,4 +1,4 @@
-package navik.domain.board.repository;
+package navik.domain.board.repository.comment;
 
 import java.util.List;
 

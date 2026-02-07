@@ -1,4 +1,4 @@
-package navik.domain.board.repository;
+package navik.domain.board.repository.comment;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
