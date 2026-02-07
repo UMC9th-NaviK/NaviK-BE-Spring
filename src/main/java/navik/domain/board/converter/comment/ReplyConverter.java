@@ -1,4 +1,4 @@
-package navik.domain.board.converter;
+package navik.domain.board.converter.comment;
 
 import navik.domain.board.dto.comment.ReplyDTO;
 import navik.domain.board.entity.Board;

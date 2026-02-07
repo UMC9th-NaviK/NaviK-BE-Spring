@@ -1,4 +1,4 @@
-package navik.domain.board.converter;
+package navik.domain.board.converter.board;
 
 import java.util.List;
 import java.util.Map;

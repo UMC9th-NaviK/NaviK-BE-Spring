@@ -1,4 +1,4 @@
-package navik.domain.board.controller;
+package navik.domain.board.controller.comment;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import navik.domain.board.converter.CommentConverter;
-import navik.domain.board.converter.CommentListConverter;
-import navik.domain.board.converter.ReplyConverter;
+import navik.domain.board.converter.comment.CommentConverter;
+import navik.domain.board.converter.comment.CommentListConverter;
+import navik.domain.board.converter.comment.ReplyConverter;
 import navik.domain.board.dto.comment.CommentCountDTO;
 import navik.domain.board.dto.comment.CommentCreateDTO;
 import navik.domain.board.dto.comment.CommentListDTO;

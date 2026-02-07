@@ -1,4 +1,4 @@
-package navik.domain.board.converter;
+package navik.domain.board.converter.comment;
 
 import navik.domain.board.dto.comment.CommentCreateDTO;
 import navik.domain.board.dto.comment.CommentDeleteDTO;

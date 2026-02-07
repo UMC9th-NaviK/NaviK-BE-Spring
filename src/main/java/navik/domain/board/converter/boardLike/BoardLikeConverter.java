@@ -1,4 +1,4 @@
-package navik.domain.board.converter;
+package navik.domain.board.converter.boardLike;
 
 import navik.domain.board.dto.boardLike.BoardLikeDTO;
 import navik.domain.board.entity.Board;

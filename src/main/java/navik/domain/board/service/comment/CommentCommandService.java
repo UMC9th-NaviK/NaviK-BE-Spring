@@ -4,8 +4,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import navik.domain.board.converter.CommentConverter;
-import navik.domain.board.converter.ReplyConverter;
+import navik.domain.board.converter.comment.CommentConverter;
+import navik.domain.board.converter.comment.ReplyConverter;
 import navik.domain.board.dto.comment.CommentCreateDTO;
 import navik.domain.board.dto.comment.CommentDeleteDTO;
 import navik.domain.board.dto.comment.ReplyDTO;

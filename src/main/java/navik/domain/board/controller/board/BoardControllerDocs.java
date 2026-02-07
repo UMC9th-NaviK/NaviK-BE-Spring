@@ -1,4 +1,4 @@
-package navik.domain.board.controller;
+package navik.domain.board.controller.board;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
