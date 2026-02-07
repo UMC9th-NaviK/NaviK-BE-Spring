@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.growthLog.notion.dto.NotionOAuthResponse;
 import navik.global.apiPayload.ApiResponse.Body;
+import navik.global.auth.annotation.AuthUser;
 
 @Tag(name = "Notion OAuth", description = "Notion 연동 OAuth 관련 API")
 public interface NotionOAuthControllerDocs {
@@ -37,7 +38,7 @@ public interface NotionOAuthControllerDocs {
 			}
 			""")))})
 	navik.global.apiPayload.ApiResponse<NotionOAuthResponse.AuthorizeResponse> authorize(
-		@Parameter(hidden = true) Long userId);
+		@Parameter(hidden = true) @AuthUser Long userId);
 
 	@Operation(summary = "(프론트 사용 X) Notion OAuth 콜백", description = "Notion에서 Authorization Code를 수신하고 Access Token으로 교환 후 저장합니다. 처리 완료 후 프론트엔드로 302 리다이렉트합니다. (Notion 리다이렉트용 - 인증 불필요, 프론트 사용x)")
 	navik.global.apiPayload.ApiResponse<Void> callback(
