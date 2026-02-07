@@ -39,7 +39,7 @@ public interface NotionOAuthControllerDocs {
 	navik.global.apiPayload.ApiResponse<NotionOAuthResponse.AuthorizeResponse> authorize(
 		@Parameter(hidden = true) Long userId);
 
-	@Operation(summary = "Notion OAuth 콜백", description = "Notion에서 Authorization Code를 수신하고 Access Token으로 교환 후 저장합니다. 처리 완료 후 프론트엔드로 302 리다이렉트합니다. (Notion 리다이렉트용 - 인증 불필요, 프론트 사용x)")
+	@Operation(summary = "(프론트 사용 X) Notion OAuth 콜백", description = "Notion에서 Authorization Code를 수신하고 Access Token으로 교환 후 저장합니다. 처리 완료 후 프론트엔드로 302 리다이렉트합니다. (Notion 리다이렉트용 - 인증 불필요, 프론트 사용x)")
 	navik.global.apiPayload.ApiResponse<Void> callback(
 		@Parameter(description = "Authorization Code (Notion에서 전달)") String code,
 		@Parameter(description = "사용자 ID (인증 시작 시 전달한 state 값)") String state,
