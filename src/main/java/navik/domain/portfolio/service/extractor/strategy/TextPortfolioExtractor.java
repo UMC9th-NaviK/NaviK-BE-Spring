@@ -2,8 +2,7 @@ package navik.domain.portfolio.service.extractor.strategy;
 
 import org.springframework.stereotype.Component;
 
-import lombok.RequiredArgsConstructor;
-import navik.domain.portfolio.dto.PortfolioRequestDto;
+import navik.domain.portfolio.dto.PortfolioRequestDTO;
 import navik.domain.portfolio.entity.InputType;
 
 @Component
@@ -14,7 +13,7 @@ public class TextPortfolioExtractor implements PortfolioTextExtractor {
 	}
 
 	@Override
-	public String extractText(PortfolioRequestDto.Create request) {
+	public String extractText(PortfolioRequestDTO.Create request) {
 		return request.content();
 	}
 }

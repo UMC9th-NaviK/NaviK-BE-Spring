@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import navik.domain.portfolio.dto.PortfolioRequestDto;
+import navik.domain.portfolio.dto.PortfolioRequestDTO;
 import navik.domain.portfolio.dto.PortfolioResponseDto;
 import navik.domain.portfolio.service.PortfolioCommandService;
 import navik.global.apiPayload.ApiResponse;
@@ -25,7 +25,7 @@ public class PortfolioController implements PortfolioControllerDocs {
 	@PostMapping
 	public ApiResponse<PortfolioResponseDto.Created> registerPortfolio(
 		@AuthUser Long userId,
-		@RequestBody @Valid PortfolioRequestDto.Create request) {
+		@RequestBody @Valid PortfolioRequestDTO.Create request) {
 
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED,
 			portfolioCommandService.createPortfolio(userId, request));
@@ -35,7 +35,7 @@ public class PortfolioController implements PortfolioControllerDocs {
 	public ApiResponse<PortfolioResponseDto.AdditionalInfoSubmitted> submitAdditionalInfo(
 		@AuthUser Long userId,
 		@PathVariable Long portfolioId,
-		@RequestBody @Valid PortfolioRequestDto.AdditionalInfo request) {
+		@RequestBody @Valid PortfolioRequestDTO.AdditionalInfo request) {
 
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK,
 			portfolioCommandService.submitAdditionalInfo(userId, portfolioId, request));

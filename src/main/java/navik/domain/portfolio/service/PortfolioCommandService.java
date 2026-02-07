@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import navik.domain.portfolio.dto.PortfolioRequestDto;
+import navik.domain.portfolio.dto.PortfolioRequestDTO;
 import navik.domain.portfolio.dto.PortfolioResponseDto;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.entity.PortfolioStatus;
@@ -29,7 +29,7 @@ public class PortfolioCommandService {
 	private final PortfolioTextExtractorResolver portfolioTextExtractorResolver;
 	private final ApplicationEventPublisher eventPublisher;
 
-	public PortfolioResponseDto.Created createPortfolio(Long userId, PortfolioRequestDto.Create request) {
+	public PortfolioResponseDto.Created createPortfolio(Long userId, PortfolioRequestDTO.Create request) {
 		User user = userQueryService.getUser(userId);
 
 		String content = portfolioTextExtractorResolver.resolve(request.inputType())
@@ -52,7 +52,7 @@ public class PortfolioCommandService {
 	public PortfolioResponseDto.AdditionalInfoSubmitted submitAdditionalInfo(
 		Long userId,
 		Long portfolioId,
-		PortfolioRequestDto.AdditionalInfo request
+		PortfolioRequestDTO.AdditionalInfo request
 	) {
 		Portfolio portfolio = portfolioRepository.findById(portfolioId)
 			.orElseThrow(() -> new GeneralException(PortfolioErrorCode.PORTFOLIO_NOT_FOUND));

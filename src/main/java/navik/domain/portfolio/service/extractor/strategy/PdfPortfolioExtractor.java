@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.portfolio.ai.client.PortfolioAiClient;
-import navik.domain.portfolio.dto.PortfolioRequestDto;
+import navik.domain.portfolio.dto.PortfolioRequestDTO;
 import navik.domain.portfolio.entity.InputType;
 
 @Component
@@ -19,7 +19,7 @@ public class PdfPortfolioExtractor implements PortfolioTextExtractor {
 	}
 
 	@Override
-	public String extractText(PortfolioRequestDto.Create request) {
+	public String extractText(PortfolioRequestDTO.Create request) {
 		return portfolioAiClient.extractTextFromPdf(request.fileUrl());
 	}
 }
