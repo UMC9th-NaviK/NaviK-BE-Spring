@@ -1,6 +1,10 @@
 package navik.domain.growthLog.ai.client;
 
+import static navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.*;
+import static navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.GrowthLogEvaluationResult.*;
+
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
@@ -8,27 +12,27 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO;
-import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO;
 import navik.domain.kpi.repository.KpiCardRepository;
 
 @Component
-@Profile("!prod")
+@Profile("prod")
 @RequiredArgsConstructor
 public class FakeGrowthLogAiClient implements GrowthLogAiClient {
 
 	private final KpiCardRepository kpiCardRepository;
+	private final Random random = new Random();
 
 	@Override
-	public GrowthLogAiResponseDTO.GrowthLogEvaluationResult evaluateUserInput(
+	public GrowthLogEvaluationResult evaluateUserInput(
 		Long userId,
 		GrowthLogAiRequestDTO.GrowthLogEvaluationContext context
 	) {
 		List<Long> kpiCardIds =
 			kpiCardRepository.findTop5Ids(PageRequest.of(0, 5));
 
-		List<GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta> kpiDeltas =
+		List<GrowthLogEvaluationResult.KpiDelta> kpiDeltas =
 			kpiCardIds.stream()
-				.map(id -> new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(
+				.map(id -> new GrowthLogEvaluationResult.KpiDelta(
 					id,
 					10
 				))
@@ -36,17 +40,21 @@ public class FakeGrowthLogAiClient implements GrowthLogAiClient {
 
 		if (kpiDeltas.isEmpty() && !context.recentKpiDeltas().isEmpty()) {
 			kpiDeltas = List.of(
-				new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(
+				new GrowthLogEvaluationResult.KpiDelta(
 					context.recentKpiDeltas().get(0).kpiCardId(),
 					1
 				)
 			);
 		}
 
-		return new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
+		List<GrowthLogEvaluationResult.AbilityResult> abilities = generateFakeAbilities(context.newContent());
+
+		return new GrowthLogEvaluationResult(
 			"[Fake] " + truncate(context.newContent(), 20),
-			"AI 서버 연동 전 더미 응답입니다. 입력: " + truncate(context.newContent(), 50),
-			kpiDeltas);
+			truncate(context.newContent(), 50),
+			kpiDeltas,
+			abilities
+		);
 	}
 
 	private String truncate(String s, int maxLen) {
@@ -54,4 +62,26 @@ public class FakeGrowthLogAiClient implements GrowthLogAiClient {
 			return "";
 		return s.length() > maxLen ? s.substring(0, maxLen) + "..." : s;
 	}
+
+	private List<AbilityResult> generateFakeAbilities(String content) {
+		return List.of(
+			new AbilityResult(
+				"[Fake] " + truncate(content, 30) + " 관련 역량",
+				generateFakeEmbedding()
+			),
+			new AbilityResult(
+				"[Fake] 문제 해결 및 분석 능력",
+				generateFakeEmbedding()
+			)
+		);
+	}
+
+	private float[] generateFakeEmbedding() {
+		float[] embedding = new float[1536];
+		for (int i = 0; i < 1536; i++) {
+			embedding[i] = random.nextFloat() * 2 - 1;  // -1 ~ 1 범위
+		}
+		return embedding;
+	}
+
 }
