@@ -115,7 +115,7 @@ public interface UserControllerDocs {
 			}
 			""")))})
 	ApiResponse<UserResponseDTO.BasicInfoDto> register(@Parameter(hidden = true) @AuthUser Long userId,
-		@RequestBody @Valid UserRequestDTO.BasicInfoDto req);
+		@RequestBody @Valid UserRequestDTO.BasicInfoDTO req);
 
 	@Operation(summary = "닉네임 중복 확인", description = "입력받은 닉네임이 DB에 이미 존재하는지 확인합니다. 사용 가능하면 `false`(중복 아님), 이미 존재하면 `true`(중복)를 반환합니다.")
 	@ApiResponses({

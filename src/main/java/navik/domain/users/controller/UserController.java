@@ -37,7 +37,7 @@ public class UserController implements UserControllerDocs {
 
 	@PostMapping("/me/basic-info")
 	public ApiResponse<UserResponseDTO.BasicInfoDto> register(@AuthUser Long userId,
-		@RequestBody @Valid UserRequestDTO.BasicInfoDto req) {
+		@RequestBody @Valid UserRequestDTO.BasicInfoDTO req) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userCommandService.updateBasicInfo(userId, req));
 	}
 
@@ -58,7 +58,7 @@ public class UserController implements UserControllerDocs {
 
 	@PatchMapping("/my-page")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void updateMyInfo(@AuthUser Long userId, @Valid @RequestBody UserRequestDTO.MyInfoDto req) {
+	public void updateMyInfo(@AuthUser Long userId, @Valid @RequestBody UserRequestDTO.MyInfoDTO req) {
 		userCommandService.updateMyInfo(userId, req);
 	}
 

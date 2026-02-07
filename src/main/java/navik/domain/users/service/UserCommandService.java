@@ -24,7 +24,7 @@ public class UserCommandService {
 	private final UserQueryService userQueryService;
 
 	@Transactional
-	public UserResponseDTO.BasicInfoDto updateBasicInfo(Long userId, UserRequestDTO.BasicInfoDto req) {
+	public UserResponseDTO.BasicInfoDto updateBasicInfo(Long userId, UserRequestDTO.BasicInfoDTO req) {
 		User user = userQueryService.getUser(userId);
 		Job job = jobRepository.getReferenceById(req.jobId());
 		user.updateBasicInfo(req.name(), req.nickname(), req.isEntryLevel(), job);
@@ -34,7 +34,7 @@ public class UserCommandService {
 	}
 
 	@Transactional
-	public void updateMyInfo(Long userId, UserRequestDTO.MyInfoDto req) {
+	public void updateMyInfo(Long userId, UserRequestDTO.MyInfoDTO req) {
 		User user = userQueryService.getUser(userId);
 
 		if (req.departmentIds() != null) {
