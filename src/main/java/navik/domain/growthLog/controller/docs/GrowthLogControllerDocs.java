@@ -4,12 +4,16 @@ import java.time.YearMonth;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import navik.domain.growthLog.dto.req.GrowthLogRequestDTO;
 import navik.domain.growthLog.dto.res.GrowthLogResponseDTO;
 import navik.domain.growthLog.enums.AggregateUnit;
@@ -34,7 +38,7 @@ public interface GrowthLogControllerDocs {
 	})
 	ApiResponse<GrowthLogResponseDTO.CreateResult> create(
 		@Parameter(hidden = true) @AuthUser Long userId,
-		GrowthLogRequestDTO.CreateUserInput request
+		@RequestBody @Valid GrowthLogRequestDTO.CreateUserInput request
 	);
 
 	@Operation(
@@ -111,29 +115,17 @@ public interface GrowthLogControllerDocs {
 	ApiResponse<SliceResponseDTO<GrowthLogResponseDTO.ListItem>> getMonthlyGrowthLogs(
 		@Parameter(hidden = true) @AuthUser Long userId,
 
-		@Parameter(
-			description = "조회 연월 (yyyy-MM)",
-			example = "2025-11",
-			required = true
-		)
+		@Parameter(description = "조회 연월 (yyyy-MM)", example = "2025-11", required = true)
 		@RequestParam YearMonth yearMonth,
 
 		@Parameter(description = "성장 로그 타입", required = false)
 		@RequestParam(required = false) GrowthType type,
 
-		@Parameter(
-			description = "페이지 크기 (무한 스크롤용). 정렬은 오래된→최신(createdAt ASC, id ASC)으로 고정됩니다.",
-			example = "20",
-			required = false
-		)
-		@RequestParam(defaultValue = "20") int size,
+		@Parameter(description = "페이지 번호 (0부터 시작). 무한 스크롤에서는 보통 증가시키며 호출합니다.", example = "0")
+		@RequestParam(defaultValue = "0") @Min(0) int page,
 
-		@Parameter(
-			description = "페이지 번호 (0부터 시작). 무한 스크롤에서는 보통 증가시키며 호출합니다.",
-			example = "0",
-			required = false
-		)
-		@RequestParam(defaultValue = "0") int page
+		@Parameter(description = "페이지 크기 (무한 스크롤용).", example = "20")
+		@RequestParam(defaultValue = "20") @Min(1) @Max(100) int size
 	);
 
 	@Operation(

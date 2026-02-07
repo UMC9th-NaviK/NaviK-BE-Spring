@@ -2,11 +2,14 @@ package navik.domain.growthLog.service.command;
 
 import static navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.*;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import navik.domain.ability.normalizer.AbilityNormalizer;
 import navik.domain.growthLog.dto.internal.GrowthLogInternalApplyEvaluationRequest;
 import navik.domain.growthLog.dto.internal.GrowthLogInternalProcessingStartRequest;
 import navik.domain.growthLog.entity.GrowthLog;
@@ -22,6 +25,7 @@ public class GrowthLogEvaluationApplyService {
 
 	private final GrowthLogRepository growthLogRepository;
 	private final GrowthLogPersistenceService persistence;
+	private final AbilityNormalizer abilityNormalizer;
 
 	@Transactional
 	public void startProcessing(Long growthLogId, GrowthLogInternalProcessingStartRequest req) {
@@ -71,13 +75,16 @@ public class GrowthLogEvaluationApplyService {
 		// totalDelta는 Spring에서 재계산
 		int totalDelta = req.kpis().stream().mapToInt(GrowthLogInternalApplyEvaluationRequest.KpiDelta::delta).sum();
 
+		List<GrowthLogEvaluationResult.AbilityResult> abilities = abilityNormalizer.normalize(req.abilities());
+
 		GrowthLogEvaluationResult normalized =
 			new GrowthLogEvaluationResult(
 				req.title(),
 				req.content(),
 				req.kpis().stream()
 					.map(k -> new GrowthLogEvaluationResult.KpiDelta(k.kpiCardId(), k.delta()))
-					.toList()
+					.toList(),
+				abilities
 			);
 
 		persistence.completeGrowthLogAfterProcessing(
