@@ -2,7 +2,6 @@ package navik.domain.users.dto;
 
 import java.util.List;
 
-
 import navik.domain.users.enums.EducationLevel;
 import navik.domain.users.enums.Role;
 
@@ -14,27 +13,31 @@ public class UserResponseDTO {
 		String email,
 		Role role,
 		String socialType
-	) {}
+	) {
+	}
 
-	public record BasicInfoDto(
+	public record BasicInfoDTO(
 		Long id,
 		String name,
 		String nickname,
 		Long jobId,
 		Boolean isEntryLevel
-	) {}
+	) {
+	}
 
-	public record NicknameCheckDto(
+	public record NicknameCheckDTO(
 		String nickname,
 		boolean isDuplicated
-	) {}
+	) {
+	}
 
 	public record ProfileDTO(
 		String profileImageUrl,
 		String nickname,
 		String job,
 		Boolean isEntryLevel
-	) {}
+	) {
+	}
 
 	public record MyPageDTO(
 		String profileImageUrl,
@@ -44,5 +47,6 @@ public class UserResponseDTO {
 		Boolean isEntryLevel,
 		EducationLevel educationLevel,
 		List<String> departmentList
-	) {}
+	) {
+	}
 }

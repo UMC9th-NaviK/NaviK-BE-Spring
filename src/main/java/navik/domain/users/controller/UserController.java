@@ -36,13 +36,13 @@ public class UserController implements UserControllerDocs {
 	}
 
 	@PostMapping("/me/basic-info")
-	public ApiResponse<UserResponseDTO.BasicInfoDto> register(@AuthUser Long userId,
+	public ApiResponse<UserResponseDTO.BasicInfoDTO> register(@AuthUser Long userId,
 		@RequestBody @Valid UserRequestDTO.BasicInfoDTO req) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userCommandService.updateBasicInfo(userId, req));
 	}
 
 	@GetMapping("/check-nickname")
-	public ApiResponse<UserResponseDTO.NicknameCheckDto> checkNicknameDuplication(@RequestParam String nickname) {
+	public ApiResponse<UserResponseDTO.NicknameCheckDTO> checkNicknameDuplication(@RequestParam String nickname) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.isNicknameDuplicated(nickname));
 	}
 

@@ -114,7 +114,7 @@ public interface UserControllerDocs {
 			  "timestamp": "2026-01-20T14:30:00"
 			}
 			""")))})
-	ApiResponse<UserResponseDTO.BasicInfoDto> register(@Parameter(hidden = true) @AuthUser Long userId,
+	ApiResponse<UserResponseDTO.BasicInfoDTO> register(@Parameter(hidden = true) @AuthUser Long userId,
 		@RequestBody @Valid UserRequestDTO.BasicInfoDTO req);
 
 	@Operation(summary = "닉네임 중복 확인", description = "입력받은 닉네임이 DB에 이미 존재하는지 확인합니다. 사용 가능하면 `false`(중복 아님), 이미 존재하면 `true`(중복)를 반환합니다.")
@@ -152,7 +152,7 @@ public interface UserControllerDocs {
 			  "timestamp": "2026-01-20T14:30:00"
 			}
 			""")))})
-	ApiResponse<UserResponseDTO.NicknameCheckDto> checkNicknameDuplication(
+	ApiResponse<UserResponseDTO.NicknameCheckDTO> checkNicknameDuplication(
 		@Parameter(description = "중복 확인할 닉네임", example = "길동이", required = true) @RequestParam String nickname);
 
 	@Operation(summary = "마이 페이지", description = "로그인한 사용자의 전체 정보를 조회합니다. 프로필 이미지, 이름, 닉네임, 직무, 신입/경력 여부, 학력, 학과 목록을 포함합니다.")

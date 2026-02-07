@@ -26,8 +26,8 @@ public class UserQueryService {
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
 	}
 
-	public UserResponseDTO.NicknameCheckDto isNicknameDuplicated(String nickname) {
-		return new UserResponseDTO.NicknameCheckDto(nickname, userRepository.existsByNickname(nickname));
+	public UserResponseDTO.NicknameCheckDTO isNicknameDuplicated(String nickname) {
+		return new UserResponseDTO.NicknameCheckDTO(nickname, userRepository.existsByNickname(nickname));
 	}
 
 	public User getUser(Long userId) {
