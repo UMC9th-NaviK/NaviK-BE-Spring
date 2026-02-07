@@ -77,6 +77,7 @@ public class NotionOAuthController implements NotionOAuthControllerDocs {
 				tokenResponse.workspaceId());
 		} catch (Exception e) {
 			log.error("Notion OAuth 토큰 교환 실패: userId={}", userId, e);
+			return redirectToFrontend(frontendUri, "exchange_failed");
 		}
 
 		return redirectToFrontend(frontendUri, null);
