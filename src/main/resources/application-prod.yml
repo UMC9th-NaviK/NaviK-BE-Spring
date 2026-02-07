@@ -33,7 +33,7 @@ spring:
     refresh-token-validity-in-seconds: 1209600 # 14일
 
   oauth2:
-    redirect-url: http://localhost:5173/oauth2/redirect  # 리액트 로컬이므로 테스트 후 실 주소로 변경 필요
+    redirect-url: http://localhost:3000/oauth2/redirect  # 리액트 로컬이므로 테스트 후 실 주소로 변경 필요
 
   data:
     redis:
@@ -94,25 +94,10 @@ ai:
   server:
     base-url: ${AI_SERVER_BASE_URL}
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "prometheus"
-        allowed-ip: ${ALLOWED_IP:localhost}
-  metrics:
-    distribution:
-      percentiles-histogram:
-        http.server.requests: true
-    enable:
-      http:
-        server:
-          requests: true
-
-logging:
-  file:
-    name: ./logs/navik.log
-  logback:
-    rollingpolicy:
-      max-file-size: 10MB
-      max-history: 7
+notion:
+  api-version: "2022-06-28"
+  oauth:
+    client-id: ${NOTION_OAUTH_CLIENT_ID}
+    client-secret: ${NOTION_OAUTH_CLIENT_SECRET}
+    redirect-uri: ${NOTION_OAUTH_REDIRECT_URI}
+    frontend-redirect-uri: ${NOTION_OAUTH_FRONTEND_REDIRECT_URI}
