@@ -15,7 +15,10 @@ public enum SecurityPermitPath {
 	AUTH("/v1/auth/**", "/oauth2/**", "/login/oauth2/**"),
 
 	// 4. S3 관련
-	S3("/v1/s3/**");
+	S3("/v1/s3/**"),
+
+	// 5. Notion OAuth 콜백 (Notion 리다이렉트로 JWT 없이 호출됨)
+	NOTION_OAUTH_CALLBACK("/api/notion/oauth/callback");
 
 	private final String[] paths;
 

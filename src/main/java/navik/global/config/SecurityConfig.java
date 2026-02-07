@@ -49,6 +49,7 @@ public class SecurityConfig {
 				.requestMatchers(SecurityPermitPath.SWAGGER.getPaths()).permitAll()
 				.requestMatchers(SecurityPermitPath.AUTH.getPaths()).permitAll()
 				.requestMatchers(SecurityPermitPath.S3.getPaths()).permitAll()
+				.requestMatchers(SecurityPermitPath.NOTION_OAUTH_CALLBACK.getPaths()).permitAll()
 				// 5. 개발환경 전용
 				.requestMatchers("/dev/**").permitAll()
 
