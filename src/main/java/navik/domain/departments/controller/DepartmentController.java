@@ -13,7 +13,7 @@ import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/departments")
-public class DepartmentController {
+public class DepartmentController implements DepartmentControllerDocs {
 	private final DepartmentQueryService departmentQueryService;
 
 	@GetMapping

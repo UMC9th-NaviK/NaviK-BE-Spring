@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import navik.domain.growthLog.controller.docs.InternalGrowthLogEvaluationControllerDocs;
 import navik.domain.growthLog.dto.internal.GrowthLogInternalApplyEvaluationRequest;
 import navik.domain.growthLog.dto.internal.GrowthLogInternalProcessingStartRequest;
 import navik.domain.growthLog.service.command.GrowthLogEvaluationApplyService;
@@ -18,7 +19,7 @@ import navik.domain.growthLog.service.command.GrowthLogEvaluationApplyService;
 @RequiredArgsConstructor
 @RequestMapping("/internal/growth-logs")
 @Validated
-public class InternalGrowthLogEvaluationController {
+public class InternalGrowthLogEvaluationController implements InternalGrowthLogEvaluationControllerDocs {
 
 	private final GrowthLogEvaluationApplyService applyService;
 
