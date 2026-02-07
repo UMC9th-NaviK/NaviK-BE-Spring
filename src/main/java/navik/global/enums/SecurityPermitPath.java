@@ -12,7 +12,7 @@ public enum SecurityPermitPath {
 	SWAGGER("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**", "/swagger-resources/**"),
 
 	// 3. 인증/인가 관련 엔드포인트
-	AUTH("/v1/auth/**", "/oauth2/**", "/login/oauth2/**"),
+	AUTH("/v1/auth/**", "/oauth2/**", "/login/oauth2/**", "/api/notion/oauth/**"),
 
 	// 4. S3 관련
 	S3("/v1/s3/**"),
