@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	// JWT 필터를 적용하지 않을 경로 목록
 	private static final List<String> EXCLUDED_PATHS = List.of(
 		"/v1/auth/refresh",
-		"/dev/token"
+		"/dev/token", "/login/oauth2/"
 	);
 
 	private final JwtTokenProvider jwtTokenProvider;
