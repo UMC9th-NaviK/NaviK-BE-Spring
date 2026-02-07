@@ -1,18 +1,19 @@
 package navik.domain.growthLog.notion.controller;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import navik.domain.growthLog.notion.config.NotionOAuthProperties;
 import navik.domain.growthLog.notion.dto.NotionOAuthResponse;
 import navik.domain.growthLog.notion.service.NotionOAuthService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
-import navik.global.apiPayload.code.status.NotionErrorCode;
-import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
 import navik.global.auth.annotation.AuthUser;
 
 @Slf4j
@@ -22,6 +23,7 @@ import navik.global.auth.annotation.AuthUser;
 public class NotionOAuthController implements NotionOAuthControllerDocs {
 
 	private final NotionOAuthService oAuthService;
+	private final NotionOAuthProperties properties;
 
 	/**
 	 * STEP 1: Notion OAuth 인증 URL 반환
@@ -44,44 +46,56 @@ public class NotionOAuthController implements NotionOAuthControllerDocs {
 	 * @param error 에러 코드 (사용자가 거부한 경우)
 	 */
 	@GetMapping("/callback")
-	public ApiResponse<NotionOAuthResponse.CallbackResponse> callback(
-		@RequestParam(value = "code", required = false) String code,
+	public ApiResponse<Void> callback(@RequestParam(value = "code", required = false) String code,
 		@RequestParam(value = "state", required = false) String state,
 		@RequestParam(value = "error", required = false) String error) {
-		// 사용자가 권한 부여를 거부한 경우
+
+		String frontendUri = properties.oauth().frontendRedirectUri();
+
 		if (error != null) {
 			log.warn("Notion OAuth 거부됨: error={}, userId={}", error, state);
-			throw new GeneralExceptionHandler(NotionErrorCode.OAUTH_DENIED);
+			return redirectToFrontend(frontendUri, "denied");
 		}
 
-		// state(userId) 검증
 		if (state == null || state.isBlank()) {
 			log.error("Notion OAuth 콜백 오류: state 누락");
-			throw new GeneralExceptionHandler(NotionErrorCode.OAUTH_STATE_MISSING);
+			return redirectToFrontend(frontendUri, "state_missing");
 		}
-
-		log.info("Notion OAuth 콜백 수신: userId={}", state);
 
 		Long userId;
 		try {
 			userId = Long.parseLong(state.replace("user-", ""));
 		} catch (NumberFormatException e) {
 			log.error("잘못된 userId 형식(숫자 아님): {}", state);
-			throw new GeneralExceptionHandler(NotionErrorCode.OAUTH_INVALID_USER_ID);
+			return redirectToFrontend(frontendUri, "invalid_state");
 		}
 
-		// Authorization Code → Access Token 교환
-		NotionOAuthResponse.TokenResponse tokenResponse = oAuthService.exchangeCodeForToken(code);
+		try {
+			NotionOAuthResponse.TokenResponse tokenResponse = oAuthService.exchangeCodeForToken(code);
+			oAuthService.saveToken(userId, tokenResponse);
+			log.info("Notion 연동 완료: userId={}, workspace={}, workspaceId={}", userId, tokenResponse.workspaceName(),
+				tokenResponse.workspaceId());
+		} catch (Exception e) {
+			log.error("Notion OAuth 토큰 교환 실패: userId={}", userId, e);
+		}
 
-		// 토큰 저장 (TokenResponse 전체 전달)
-		oAuthService.saveToken(userId, tokenResponse);
+		return redirectToFrontend(frontendUri, null);
+	}
 
-		log.info("Notion 연동 완료: userId={}, workspace={}, workspaceId={}", userId, tokenResponse.workspaceName(),
-			tokenResponse.workspaceId());
+	private ApiResponse<Void> redirectToFrontend(String uri, String errorCode) {
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(uri);
 
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK,
-			new NotionOAuthResponse.CallbackResponse(true, "Notion 연동이 완료되었습니다!", String.valueOf(userId),
-				tokenResponse.workspaceName(), tokenResponse.workspaceId()));
+		if (errorCode == null) {
+			builder.queryParam("success", true);
+		} else {
+			builder.queryParam("success", false);
+			builder.queryParam("error", errorCode);
+		}
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setLocation(builder.build().toUri());
+
+		return ApiResponse.onSuccess(headers, GeneralSuccessCode._FOUND_REDIRECT, null);
 	}
 
 	// /**
