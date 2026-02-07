@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.domain.portfolio.dto.PortfolioRequestDTO;
-import navik.domain.portfolio.dto.PortfolioResponseDto;
+import navik.domain.portfolio.dto.PortfolioResponseDTO;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.entity.PortfolioStatus;
 import navik.domain.portfolio.event.PortfolioAnalysisEvent;
@@ -29,7 +29,7 @@ public class PortfolioCommandService {
 	private final PortfolioTextExtractorResolver portfolioTextExtractorResolver;
 	private final ApplicationEventPublisher eventPublisher;
 
-	public PortfolioResponseDto.Created createPortfolio(Long userId, PortfolioRequestDTO.Create request) {
+	public PortfolioResponseDTO.Created createPortfolio(Long userId, PortfolioRequestDTO.Create request) {
 		User user = userQueryService.getUser(userId);
 
 		String content = portfolioTextExtractorResolver.resolve(request.inputType())
@@ -46,10 +46,10 @@ public class PortfolioCommandService {
 
 		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolio.getId()));
 
-		return new PortfolioResponseDto.Created(portfolio.getId(), request.inputType());
+		return new PortfolioResponseDTO.Created(portfolio.getId(), request.inputType());
 	}
 
-	public PortfolioResponseDto.AdditionalInfoSubmitted submitAdditionalInfo(
+	public PortfolioResponseDTO.AdditionalInfoSubmitted submitAdditionalInfo(
 		Long userId,
 		Long portfolioId,
 		PortfolioRequestDTO.AdditionalInfo request
@@ -76,6 +76,6 @@ public class PortfolioCommandService {
 
 		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolioId));
 
-		return new PortfolioResponseDto.AdditionalInfoSubmitted(portfolioId);
+		return new PortfolioResponseDTO.AdditionalInfoSubmitted(portfolioId);
 	}
 }

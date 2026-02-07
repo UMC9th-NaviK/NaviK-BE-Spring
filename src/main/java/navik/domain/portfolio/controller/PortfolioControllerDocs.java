@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import navik.domain.portfolio.dto.PortfolioRequestDTO;
-import navik.domain.portfolio.dto.PortfolioResponseDto;
+import navik.domain.portfolio.dto.PortfolioResponseDTO;
 import navik.global.auth.annotation.AuthUser;
 
 @Tag(name = "Portfolio", description = "포트폴리오 관련 API")
@@ -113,7 +113,7 @@ public interface PortfolioControllerDocs {
 			)
 		)
 	})
-	navik.global.apiPayload.ApiResponse<PortfolioResponseDto.Created> registerPortfolio(
+	navik.global.apiPayload.ApiResponse<PortfolioResponseDTO.Created> registerPortfolio(
 		@Parameter(hidden = true) @AuthUser Long userId,
 		@Valid @io.swagger.v3.oas.annotations.parameters.RequestBody PortfolioRequestDTO.Create request
 	);
@@ -263,7 +263,7 @@ public interface PortfolioControllerDocs {
 			)
 		)
 	})
-	navik.global.apiPayload.ApiResponse<PortfolioResponseDto.AdditionalInfoSubmitted> submitAdditionalInfo(
+	navik.global.apiPayload.ApiResponse<PortfolioResponseDTO.AdditionalInfoSubmitted> submitAdditionalInfo(
 		@Parameter(hidden = true) @AuthUser Long userId,
 		@Parameter(description = "포트폴리오 ID", example = "1", required = true) Long portfolioId,
 		@Valid @io.swagger.v3.oas.annotations.parameters.RequestBody PortfolioRequestDTO.AdditionalInfo request
