@@ -1,6 +1,7 @@
 package navik.domain.kpi.service.command;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -19,7 +20,7 @@ public class LevelManagementHandler {
 	private final KpiScoreRepository kpiScoreRepository;
 
 	@TransactionalEventListener
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void handleLevelUpdate(KpiScoreUpdatedEvent event) {
 		User user = userQueryService.getUser(event.userId());
 
