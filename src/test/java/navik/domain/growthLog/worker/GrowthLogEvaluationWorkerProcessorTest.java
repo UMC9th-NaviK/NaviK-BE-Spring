@@ -64,7 +64,9 @@ public class GrowthLogEvaluationWorkerProcessorTest {
 			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
 				"제목",
 				"내용",
-				List.of(new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(100L, 3)));
+				List.of(new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(100L, 3)),
+				List.of()
+			);
 			var evaluated = new Evaluated(normalized, 3);
 
 			given(core.buildContext(eq(userId), eq("입력 내용"))).willReturn(context);
@@ -101,7 +103,7 @@ public class GrowthLogEvaluationWorkerProcessorTest {
 
 			var context = mock(GrowthLogAiRequestDTO.GrowthLogEvaluationContext.class);
 			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult(
-				"제목", "내용", List.of()
+				"제목", "내용", List.of(), List.of()
 			);
 			var evaluated = new Evaluated(normalized, 0);
 
@@ -263,7 +265,7 @@ public class GrowthLogEvaluationWorkerProcessorTest {
 				new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(101L, 5),
 				new GrowthLogAiResponseDTO.GrowthLogEvaluationResult.KpiDelta(102L, -2)
 			);
-			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", kpis);
+			var normalized = new GrowthLogAiResponseDTO.GrowthLogEvaluationResult("제목", "내용", kpis, List.of());
 			var evaluated = new Evaluated(normalized, 6); // 3 + 5 + (-2) = 6
 
 			given(core.buildContext(eq(userId), anyString())).willReturn(context);
