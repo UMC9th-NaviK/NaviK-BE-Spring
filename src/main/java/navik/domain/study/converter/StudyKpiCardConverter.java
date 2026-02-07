@@ -4,7 +4,7 @@ import java.util.List;
 
 import navik.domain.kpi.entity.KpiCard;
 import navik.domain.study.dto.StudyKpiCardDTO;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 
 public class StudyKpiCardConverter {
 
@@ -15,7 +15,7 @@ public class StudyKpiCardConverter {
 			.build();
 	}
 
-	public static CursorResponseDto<StudyKpiCardDTO.StudyKpiCardNameDTO> toKpiCardNameListDTO(
+	public static CursorResponseDTO<StudyKpiCardDTO.StudyKpiCardNameDTO> toKpiCardNameListDTO(
 		List<KpiCard> kpiCardList,
 		boolean hasNext,
 		String nextCursor
@@ -24,6 +24,6 @@ public class StudyKpiCardConverter {
 			.map(StudyKpiCardConverter::toKpiCardNameDTO)
 			.toList();
 
-		return CursorResponseDto.of(content, hasNext, nextCursor);
+		return CursorResponseDTO.of(content, hasNext, nextCursor);
 	}
 }

@@ -22,7 +22,7 @@ import navik.domain.users.repository.UserRepository;
 import navik.domain.users.service.UserQueryService;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +49,7 @@ public class CommentService {
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public CursorResponseDto<CommentListDTO.ResponseComment> getCommentList(CommentListDTO.Parameter parameter) {
+	public CursorResponseDTO<CommentListDTO.ResponseComment> getCommentList(CommentListDTO.Parameter parameter) {
 		// 1. 게시글 조회
 		Slice<Comment> comments = commentRepository.findByBoardId(
 			parameter.getBoardId(),

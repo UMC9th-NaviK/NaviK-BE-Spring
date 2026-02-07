@@ -20,7 +20,7 @@ import navik.domain.board.repository.CommentRepository;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +37,7 @@ public class BoardQueryService {
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public CursorResponseDto<BoardResponseDTO.BoardDTO> getBoardList(Long lastId, int pageSize) {
+	public CursorResponseDTO<BoardResponseDTO.BoardDTO> getBoardList(Long lastId, int pageSize) {
 		List<Board> boards = boardRepository.findAllByCursor(lastId, pageSize);
 		return processCursorPage(boards, pageSize);
 	}
@@ -50,12 +50,12 @@ public class BoardQueryService {
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public CursorResponseDto<BoardResponseDTO.BoardDTO> getBoardListByJob(String jobName, Long lastId, int pageSize) {
+	public CursorResponseDTO<BoardResponseDTO.BoardDTO> getBoardListByJob(String jobName, Long lastId, int pageSize) {
 		List<Board> boards = boardRepository.findByJobAndCursor(jobName, lastId, pageSize);
 		return processCursorPage(boards, pageSize);
 	}
 
-	private CursorResponseDto<BoardResponseDTO.BoardDTO> processCursorPage(List<Board> boards, int pageSize) {
+	private CursorResponseDTO<BoardResponseDTO.BoardDTO> processCursorPage(List<Board> boards, int pageSize) {
 		List<Long> boardIds = boards.stream().map(Board::getId).collect(Collectors.toList());
 
 		Map<Long, Integer> likeCountMap = getLikeCountMap(boardIds);
@@ -72,7 +72,7 @@ public class BoardQueryService {
 		boolean hasNext = boards.size() >= pageSize;
 		String nextCursor = (hasNext && !boards.isEmpty()) ? boards.get(boards.size() - 1).getId().toString() : null;
 
-		return CursorResponseDto.of(doList, hasNext, nextCursor);
+		return CursorResponseDTO.of(doList, hasNext, nextCursor);
 	}
 
 	/**
@@ -142,13 +142,13 @@ public class BoardQueryService {
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public CursorResponseDto<BoardResponseDTO.BoardDTO> searchBoard(String keyword, Long lastId, int pageSize) {
+	public CursorResponseDTO<BoardResponseDTO.BoardDTO> searchBoard(String keyword, Long lastId, int pageSize) {
 		// 1. 키워드 및 커서 기반 검색 실행
 		List<Board> boards = boardRepository.searchByKeyword(keyword, lastId, pageSize);
 
 		// 2. 검색 결과가 없을 경우 빈 응답 반환
 		if (boards.isEmpty()) {
-			return CursorResponseDto.of(Collections.emptyList(), false, null);
+			return CursorResponseDTO.of(Collections.emptyList(), false, null);
 		}
 
 		List<Long> boardIds = boards.stream().map(Board::getId).toList();
@@ -168,7 +168,7 @@ public class BoardQueryService {
 		boolean hasNext = boards.size() >= pageSize;
 		String nextCursor = hasNext ? boards.get(boards.size() - 1).getId().toString() : null;
 
-		return CursorResponseDto.of(content, hasNext, nextCursor);
+		return CursorResponseDTO.of(content, hasNext, nextCursor);
 	}
 
 	/**

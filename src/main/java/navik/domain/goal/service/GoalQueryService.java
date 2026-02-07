@@ -16,7 +16,7 @@ import navik.domain.goal.repository.GoalRepository;
 import navik.global.apiPayload.code.status.AuthErrorCode;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class GoalQueryService {
 		return goal;
 	}
 
-	public CursorResponseDto<GoalResponseDTO.PreviewDTO> getGoals(Long userId, Long cursor, Integer size,
+	public CursorResponseDTO<GoalResponseDTO.PreviewDTO> getGoals(Long userId, Long cursor, Integer size,
 		String sortBy) {
 		PageRequest pageRequest = PageRequest.of(0, size);
 
@@ -61,7 +61,7 @@ public class GoalQueryService {
 		Long nextCursor =
 			goalSlice.hasNext() ? goalSlice.getContent().get(goalSlice.getContent().size() - 1).getId() : null;
 
-		return new CursorResponseDto<>(previewSlice, String.valueOf(nextCursor));
+		return new CursorResponseDTO<>(previewSlice, String.valueOf(nextCursor));
 	}
 
 	public GoalResponseDTO.InProgressDTO getInProgressGoals(Long userId) {

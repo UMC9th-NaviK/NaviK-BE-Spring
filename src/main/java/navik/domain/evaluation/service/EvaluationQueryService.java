@@ -32,7 +32,7 @@ import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -137,7 +137,7 @@ public class EvaluationQueryService {
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public CursorResponseDto<EvaluationMyDTO.MyStudyEvaluationPreviewDTO> getMyEvaluations(Long userId, Long cursor,
+	public CursorResponseDTO<EvaluationMyDTO.MyStudyEvaluationPreviewDTO> getMyEvaluations(Long userId, Long cursor,
 		int pageSize) {
 		Pageable pageable = PageRequest.of(0, pageSize + 1);
 

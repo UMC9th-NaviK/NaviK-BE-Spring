@@ -9,7 +9,7 @@ import navik.domain.recruitment.dto.position.PositionResponseDTO;
 import navik.domain.recruitment.exception.code.RecruitmentErrorCode;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 import navik.global.swagger.ApiErrorCodes;
 
 @Tag(name = "Position", description = "채용 공고 중 포지션 관련 API")
@@ -99,7 +99,7 @@ public interface PositionControllerDocs {
 			"MAJOR_TYPE_NOT_FOUND"
 		}
 	)
-	ApiResponse<CursorResponseDto<PositionResponseDTO.RecommendedPosition>> getPositions(
+	ApiResponse<CursorResponseDTO<PositionResponseDTO.RecommendedPosition>> getPositions(
 		@AuthUser Long userId,
 		@RequestBody PositionRequestDTO.SearchCondition searchCondition,
 		@Parameter(description = "마지막으로 조회한 커서 Base64 인코딩 값 (nextCursor)") String cursor,

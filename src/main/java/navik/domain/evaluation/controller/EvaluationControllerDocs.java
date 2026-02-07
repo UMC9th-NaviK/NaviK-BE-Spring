@@ -15,7 +15,7 @@ import navik.domain.evaluation.dto.EvaluationSubmitDTO;
 import navik.domain.evaluation.exception.code.EvaluationErrorCode;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 import navik.global.swagger.ApiErrorCodes;
 
 @Tag(name = "Evaluation", description = "스터디 평가 관련 API")
@@ -74,7 +74,7 @@ public interface EvaluationControllerDocs {
 		enumClass = EvaluationErrorCode.class,
 		includes = {"USER_NOT_FOUND"}
 	)
-	ApiResponse<CursorResponseDto<EvaluationMyDTO.MyStudyEvaluationPreviewDTO>> getMyStudyEvaluation(
+	ApiResponse<CursorResponseDTO<EvaluationMyDTO.MyStudyEvaluationPreviewDTO>> getMyStudyEvaluation(
 		@AuthUser Long userId,
 		@RequestParam(required = false) Long cursor,
 		@RequestParam(defaultValue = "10") int size

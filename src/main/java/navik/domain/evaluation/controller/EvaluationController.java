@@ -17,7 +17,7 @@ import navik.domain.evaluation.service.EvaluationQueryService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.code.status.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 
 @RestController
 @RequestMapping("/v1/evaluations")
@@ -79,12 +79,12 @@ public class EvaluationController implements EvaluationControllerDocs {
 	 * @return
 	 */
 	@GetMapping("/studies")
-	public ApiResponse<CursorResponseDto<EvaluationMyDTO.MyStudyEvaluationPreviewDTO>> getMyStudyEvaluation(
+	public ApiResponse<CursorResponseDTO<EvaluationMyDTO.MyStudyEvaluationPreviewDTO>> getMyStudyEvaluation(
 		@AuthUser Long userId,
 		@RequestParam(required = false) Long cursor,
 		@RequestParam(defaultValue = "10") int size
 	) {
-		CursorResponseDto<EvaluationMyDTO.MyStudyEvaluationPreviewDTO> response = evaluationQueryService.getMyEvaluations(
+		CursorResponseDTO<EvaluationMyDTO.MyStudyEvaluationPreviewDTO> response = evaluationQueryService.getMyEvaluations(
 			userId, cursor, size);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}

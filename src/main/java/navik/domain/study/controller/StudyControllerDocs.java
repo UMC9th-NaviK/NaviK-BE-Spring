@@ -18,7 +18,7 @@ import navik.domain.study.enums.StudyRole;
 import navik.domain.study.exception.code.StudyErrorCode;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 import navik.global.swagger.ApiErrorCodes;
 
 @Tag(name = "Study", description = "스터디 관련 API")
@@ -43,7 +43,7 @@ public interface StudyControllerDocs {
 		enumClass = StudyErrorCode.class,
 		includes = {"USER_NOT_FOUND"}
 	)
-	ApiResponse<CursorResponseDto<StudyDTO.MyStudyDTO>> getMyStudies(
+	ApiResponse<CursorResponseDTO<StudyDTO.MyStudyDTO>> getMyStudies(
 		@RequestParam(required = false) StudyRole role, // 리더/멤버 탭 구분
 		@RequestParam(value = "cursor", required = false) Long cursor,
 		@RequestParam(value = "size", defaultValue = "10") int size,
@@ -56,7 +56,7 @@ public interface StudyControllerDocs {
 		@Parameter(name = "cursor", description = "마지막으로 조회된 KPI 카드의 ID.", example = "10"),
 		@Parameter(name = "size", description = "한 번에 조회할 카드 개수", example = "10")
 	})
-	ApiResponse<CursorResponseDto<StudyKpiCardDTO.StudyKpiCardNameDTO>> getKpiCards(
+	ApiResponse<CursorResponseDTO<StudyKpiCardDTO.StudyKpiCardNameDTO>> getKpiCards(
 		@RequestParam String jobName,
 		@RequestParam(value = "cursor", required = false) Long cursor,
 		@RequestParam(value = "size", defaultValue = "10") int size
@@ -71,7 +71,7 @@ public interface StudyControllerDocs {
 		enumClass = StudyErrorCode.class,
 		includes = {"USER_NOT_FOUND"}
 	)
-	ApiResponse<CursorResponseDto<StudyRecommendDTO>> getRecommendedStudies(
+	ApiResponse<CursorResponseDTO<StudyRecommendDTO>> getRecommendedStudies(
 		@RequestParam(value = "cursor", required = false) Long cursor,
 		@RequestParam(value = "size", defaultValue = "10") int size,
 		@AuthUser Long userId
@@ -101,7 +101,7 @@ public interface StudyControllerDocs {
 			"NOT_STUDY_LEADER"
 		}
 	)
-	ApiResponse<CursorResponseDto<StudyApplicationDTO.ApplicationPreviewDTO>> getApplicants(
+	ApiResponse<CursorResponseDTO<StudyApplicationDTO.ApplicationPreviewDTO>> getApplicants(
 		@PathVariable Long studyId,
 		@RequestParam(value = "cursor", required = false) Long cursor,
 		@RequestParam(value = "size", defaultValue = "10") int size

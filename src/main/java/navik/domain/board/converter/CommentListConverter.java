@@ -10,7 +10,7 @@ import org.springframework.data.domain.Slice;
 
 import navik.domain.board.dto.CommentListDTO;
 import navik.domain.board.entity.Comment;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 
 public class CommentListConverter {
 
@@ -24,7 +24,7 @@ public class CommentListConverter {
 	}
 
 	// Slice로 변경 및 파라미터 최적화 진행
-	public static CursorResponseDto<CommentListDTO.ResponseComment> toResponse(
+	public static CursorResponseDTO<CommentListDTO.ResponseComment> toResponse(
 		Slice<Comment> comments,
 		String nextCursor,
 		Long currentUserId
@@ -60,7 +60,7 @@ public class CommentListConverter {
 			}
 		});
 
-		return CursorResponseDto.<CommentListDTO.ResponseComment>builder()
+		return CursorResponseDTO.<CommentListDTO.ResponseComment>builder()
 			.content(rootComments)
 			.nextCursor(nextCursor)
 			.pageSize(rootComments.size())

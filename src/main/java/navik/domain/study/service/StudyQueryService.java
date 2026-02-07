@@ -27,7 +27,7 @@ import navik.domain.study.repository.StudyCustomRepository;
 import navik.domain.study.repository.StudyKpiRepository;
 import navik.domain.study.repository.StudyRepository;
 import navik.domain.study.repository.StudyUserRepository;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -49,13 +49,13 @@ public class StudyQueryService {
 	 */
 	@Transactional(readOnly = true)
 
-	public CursorResponseDto<StudyDTO.MyStudyDTO> getMyStudyList(Long userId, StudyRole role, Long cursor,
+	public CursorResponseDTO<StudyDTO.MyStudyDTO> getMyStudyList(Long userId, StudyRole role, Long cursor,
 		int pageSize) {
 		// 1. 커서 기반 목록 조회 (리포지토리에서 pageSize + 1개를 조회함)
 		List<StudyUser> myStudyUsers = studyCustomRepository.findMyStudyByCursor(userId, role, cursor, pageSize);
 
 		if (myStudyUsers.isEmpty()) {
-			return CursorResponseDto.of(Collections.emptyList(), false, null);
+			return CursorResponseDTO.of(Collections.emptyList(), false, null);
 		}
 
 		// 2. 다음 페이지 존재 여부 확인 및 리스트 정제
@@ -83,7 +83,7 @@ public class StudyQueryService {
 		// 5. 다음 커서값 생성 (실제 응답에 포함된 마지막 항목의 ID 기준)
 		String nextCursor = hasNext ? pagingList.get(pagingList.size() - 1).getId().toString() : null;
 
-		return CursorResponseDto.of(content, hasNext, nextCursor);
+		return CursorResponseDTO.of(content, hasNext, nextCursor);
 	}
 
 	/**
@@ -94,13 +94,13 @@ public class StudyQueryService {
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public CursorResponseDto<StudyKpiCardDTO.StudyKpiCardNameDTO> getKpiCardListByJob(String JobName, Long cursor,
+	public CursorResponseDTO<StudyKpiCardDTO.StudyKpiCardNameDTO> getKpiCardListByJob(String JobName, Long cursor,
 		int pageSize) {
 		// 1. 커서 기반 목록 조회
 		List<KpiCard> kpiCards = studyCustomRepository.findByJobNameWithCursor(JobName, cursor, pageSize);
 
 		if (kpiCards.isEmpty()) {
-			return CursorResponseDto.of(Collections.emptyList(), false, null);
+			return CursorResponseDTO.of(Collections.emptyList(), false, null);
 		}
 
 		// 2. 다음 페이지 존재 여부 확인 및 리스트 정제
@@ -122,7 +122,7 @@ public class StudyQueryService {
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public CursorResponseDto<StudyRecommendDTO> getRecommendedStudyList(Long userId, Long cursor, int pageSize) {
+	public CursorResponseDTO<StudyRecommendDTO> getRecommendedStudyList(Long userId, Long cursor, int pageSize) {
 
 		// 1. 유저의 하위 3개 약점 KPI ID 조회
 		List<Long> weaknessKpiIds = kpiScoreQueryService.getBottom3KpiCards(userId).stream()
@@ -143,7 +143,7 @@ public class StudyQueryService {
 		);
 
 		if (recommendedStudies.isEmpty()) { // 추천할 수 있는 스터디 없는 경우 빈 리스트 반환
-			return CursorResponseDto.of(Collections.emptyList(), false, null);
+			return CursorResponseDTO.of(Collections.emptyList(), false, null);
 		}
 
 		// 4. 정제된 리스트(pagingList)를 바탕으로 ID 추출 및 N+1 방지 조회
@@ -163,7 +163,7 @@ public class StudyQueryService {
 			)).toList();
 
 		String nextCursor = hasNext ? pagingList.get(pagingList.size() - 1).getId().toString() : null;
-		return CursorResponseDto.of(content, hasNext, nextCursor);
+		return CursorResponseDTO.of(content, hasNext, nextCursor);
 	}
 
 	private Map<Long, Integer> getParticipantCountMap(List<Long> studyIds) {
@@ -192,7 +192,7 @@ public class StudyQueryService {
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public CursorResponseDto<StudyApplicationDTO.ApplicationPreviewDTO> getApplicantList(Long studyId, Long cursor,
+	public CursorResponseDTO<StudyApplicationDTO.ApplicationPreviewDTO> getApplicantList(Long studyId, Long cursor,
 		int size) {
 
 		// 1. Repository를 통해 신청자 목록 조회 (다음 페이지 확인을 위해 size + 1개를 가져옴)
@@ -208,7 +208,7 @@ public class StudyQueryService {
 		String nextCursor = hasNext ? pagingList.get(pagingList.size() - 1).getId().toString() : null;
 
 		// 5. DTO로 변환하여 반환
-		return CursorResponseDto.<StudyApplicationDTO.ApplicationPreviewDTO>builder()
+		return CursorResponseDTO.<StudyApplicationDTO.ApplicationPreviewDTO>builder()
 			.content(pagingList.stream()
 				.map(StudyConverter::toApplicantPreviewListDTO)
 				.toList())

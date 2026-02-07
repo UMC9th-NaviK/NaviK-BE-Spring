@@ -11,7 +11,7 @@ import navik.domain.evaluation.entity.Evaluation;
 import navik.domain.study.entity.Study;
 import navik.domain.study.entity.StudyUser;
 import navik.domain.users.entity.User;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 
 @Component
 public class EvaluationConverter {
@@ -58,7 +58,7 @@ public class EvaluationConverter {
 	}
 
 	// 평가된 스터디 목록 조회
-	public static CursorResponseDto<EvaluationMyDTO.MyStudyEvaluationPreviewDTO> toEvaluationStudyList(
+	public static CursorResponseDTO<EvaluationMyDTO.MyStudyEvaluationPreviewDTO> toEvaluationStudyList(
 		List<StudyUser> studyUsers, boolean hasNext, Long cursor
 	) {
 		List<EvaluationMyDTO.MyStudyEvaluationPreviewDTO> content = studyUsers.stream()
@@ -70,7 +70,7 @@ public class EvaluationConverter {
 
 		String nextCursor = (cursor != null) ? String.valueOf(cursor) : null;
 
-		return CursorResponseDto.of(content, hasNext, nextCursor);
+		return CursorResponseDTO.of(content, hasNext, nextCursor);
 	}
 
 	// 평가 상세 조회

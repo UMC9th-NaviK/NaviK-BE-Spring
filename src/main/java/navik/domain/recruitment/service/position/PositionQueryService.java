@@ -23,7 +23,7 @@ import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.code.status.GeneralErrorCode;
 import navik.global.apiPayload.exception.handler.GeneralExceptionHandler;
-import navik.global.dto.CursorResponseDto;
+import navik.global.dto.CursorResponseDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class PositionQueryService {
 	 * 최대 8가지 검색 필터를 적용하여 사용자에게 적합한 추천 공고를 조회합니다.
 	 * 커서 기반 페이징을 사용합니다.
 	 */
-	public CursorResponseDto<PositionResponseDTO.RecommendedPosition> getPositions(
+	public CursorResponseDTO<PositionResponseDTO.RecommendedPosition> getPositions(
 		Long userId,
 		PositionRequestDTO.SearchCondition searchCondition,
 		String cursor,
@@ -74,7 +74,7 @@ public class PositionQueryService {
 			: null;
 
 		// 6. DTO 반환
-		return CursorResponseDto.of(
+		return CursorResponseDTO.of(
 			result.map(projection -> PositionConverter.toRecommendedPosition(user, projection, searchCondition)),
 			nextCursor
 		);
