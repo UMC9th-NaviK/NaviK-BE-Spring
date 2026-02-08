@@ -47,20 +47,6 @@ public class Board extends BaseEntity {
 	@Builder.Default
 	private Integer articleLikes = 0;
 
-	public void incrementArticleViews() {
-		this.articleViews++;
-	}
-
-	public void incrementArticleLikes() {
-		this.articleLikes++;
-	}
-
-	public void decrementArticleLikes() {
-		if (this.articleLikes > 0) {
-			this.articleLikes--;
-		}
-	}
-
 	public void updateBoard(String articleTitle, String articleContent) {
 		this.articleTitle = articleTitle;
 		this.articleContent = articleContent;

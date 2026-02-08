@@ -37,37 +37,35 @@ public class BoardController implements BoardControllerDocs {
 
 	/**
 	 * 게시글 전체 조회
-	 * @param lastId
+	 * @param cursor
 	 * @param pageSize
 	 * @return
 	 */
 	@Override
-	@SwaggerPageable
 	@GetMapping // 전체
 	public ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> getBoards(
-		@RequestParam(value = "cursor", required = false) Long lastId,
+		@RequestParam(value = "cursor", required = false) String cursor,
 		@RequestParam(value = "size", defaultValue = "10") int pageSize
 	) {
-		CursorResponseDTO<BoardResponseDTO.BoardDTO> response = boardQueryService.getBoardList(lastId, pageSize);
+		CursorResponseDTO<BoardResponseDTO.BoardDTO> response = boardQueryService.getBoardList(cursor, pageSize);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 
 	/**
 	 * 게시글 직무별 조회
 	 * @param jobName
-	 * @param lastId
+	 * @param cursor
 	 * @param pageSize
 	 * @return
 	 */
 	@Override
-	@SwaggerPageable
 	@GetMapping("/jobs") // 전체
 	public ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> getBoardsByJob(
 		@RequestParam(name = "jobName") String jobName,
-		@RequestParam(value = "cursor", required = false) Long lastId,
+		@RequestParam(value = "cursor", required = false) String cursor,
 		@RequestParam(value = "size", defaultValue = "10") int pageSize
 	) {
-		CursorResponseDTO<BoardResponseDTO.BoardDTO> response = boardQueryService.getBoardListByJob(jobName, lastId,
+		CursorResponseDTO<BoardResponseDTO.BoardDTO> response = boardQueryService.getBoardListByJob(jobName, cursor,
 			pageSize);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
@@ -97,7 +95,7 @@ public class BoardController implements BoardControllerDocs {
 	/**
 	 * 게시글 검색
 	 * @param keyword
-	 * @param lastId
+	 * @param cursor
 	 * @param size
 	 * @return
 	 */
@@ -106,10 +104,10 @@ public class BoardController implements BoardControllerDocs {
 	@GetMapping("/search")
 	public ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> searchBoards(
 		@RequestParam String keyword,
-		@RequestParam(value = "cursor", required = false) Long lastId,
+		@RequestParam(value = "cursor", required = false) String cursor,
 		@RequestParam(value = "size", defaultValue = "10") int size
 	) {
-		CursorResponseDTO<BoardResponseDTO.BoardDTO> response = boardQueryService.searchBoard(keyword, lastId, size);
+		CursorResponseDTO<BoardResponseDTO.BoardDTO> response = boardQueryService.searchBoard(keyword, cursor, size);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 

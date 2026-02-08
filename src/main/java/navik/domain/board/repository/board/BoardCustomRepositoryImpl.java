@@ -1,5 +1,6 @@
 package navik.domain.board.repository.board;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
@@ -20,7 +21,7 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public List<Board> findAllByCursor(Long lastId, int pageSize) {
+	public List<Board> findAllByCursor(LocalDateTime lastCreatedAt, int pageSize) {
 		QBoard board = QBoard.board;
 		QUser user = QUser.user;
 		QJob job = QJob.job;
@@ -29,14 +30,14 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 			.selectFrom(board)
 			.leftJoin(board.user, user).fetchJoin()
 			.leftJoin(user.job, job).fetchJoin()
-			.where(ltBoardId(lastId))
-			.orderBy(board.id.desc())
+			.where(ltCreatedAt(lastCreatedAt))
+			.orderBy(board.createdAt.desc())
 			.limit(pageSize + 1)
 			.fetch();
 	}
 
 	@Override
-	public List<Board> findByJobAndCursor(String jobName, Long lastId, int pageSize) {
+	public List<Board> findByJobAndCursor(String jobName, LocalDateTime lastCreatedAt, int pageSize) {
 		QBoard board = QBoard.board;
 		QUser user = QUser.user;
 		QJob job = QJob.job;
@@ -47,15 +48,15 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 			.leftJoin(user.job, job).fetchJoin()
 			.where(
 				board.user.job.name.eq(jobName),
-				ltBoardId(lastId)
+				ltCreatedAt(lastCreatedAt)
 			)
-			.orderBy(board.id.desc())
+			.orderBy(board.createdAt.desc())
 			.limit(pageSize + 1)
 			.fetch();
 	}
 
 	@Override
-	public List<Board> findHotBoardsByCursor(Integer lastScore, Long lastId, int pageSize) {
+	public List<Board> findHotBoardsByCursor(Integer lastScore, LocalDateTime lastCreatedAt, int pageSize) {
 		QBoard board = QBoard.board;
 		QUser user = QUser.user;
 		QJob job = QJob.job;
@@ -67,14 +68,14 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 			.selectFrom(board)
 			.leftJoin(board.user, user).fetchJoin()
 			.leftJoin(user.job, job).fetchJoin()
-			.where(cursorCondition(lastScore, lastId, scoreSum))
-			.orderBy(scoreSum.desc(), board.id.desc()) // 점수 높은순 -> 최신순
+			.where(cursorCondition(lastScore, lastCreatedAt, scoreSum))
+			.orderBy(scoreSum.desc(), board.createdAt.desc()) // 점수 높은순 -> 최신순
 			.limit(pageSize + 1)
 			.fetch();
 	}
 
 	@Override
-	public List<Board> searchByKeyword(String keyword, Long lastId, int pageSize) {
+	public List<Board> searchByKeyword(String keyword, LocalDateTime lastCreatedAt, int pageSize) {
 		QBoard board = QBoard.board;
 		QUser user = QUser.user;
 		QJob job = QJob.job;
@@ -84,9 +85,9 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 			.leftJoin(user.job, job).fetchJoin()
 			.where(
 				keywordContains(keyword), // 검색어가 있는지 확인 (제목이나 내용에)
-				ltBoardId(lastId)
+				ltCreatedAt(lastCreatedAt)
 			)
-			.orderBy(board.id.desc())
+			.orderBy(board.createdAt.desc())
 			.limit(pageSize + 1)
 			.fetch();
 	}
@@ -98,19 +99,28 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 			.or(QBoard.board.articleContent.contains(keyword));
 	}
 
-	private BooleanExpression cursorCondition(Integer lastScore, Long lastId, NumberExpression<Integer> scoreSum) {
-		if (lastScore == null || lastId == null) {
+	private BooleanExpression cursorCondition(Integer lastScore, LocalDateTime lastCreatedAt,
+		NumberExpression<Integer> scoreSum) {
+		if (lastScore == null || lastCreatedAt == null) {
 			return null;
 		}
 
 		QBoard board = QBoard.board;
 
-		// 복합 커서 조건: (현재 점수 < 마지막 점수) OR (현재 점수 == 마지막 점수 AND ID < 마지막 ID)
+		// 2. 복합 커서 조건:
+		// (현재 점수 < 마지막 점수) OR
+		// (현재 점수 == 마지막 점수 AND 생성시간 < 마지막 생성시간)
 		return scoreSum.lt(lastScore)
-			.or(scoreSum.eq(lastScore).and(board.id.lt(lastId)));
+			.or(scoreSum.eq(lastScore).and(board.createdAt.lt(lastCreatedAt)));
 	}
 
-	private BooleanExpression ltBoardId(Long lastId) {
-		return lastId == null ? null : QBoard.board.id.lt(lastId);
+	private BooleanExpression ltCreatedAt(LocalDateTime lastCreatedAt) {
+		// 시간이 null이면 첫 페이지이므로 조건을 걸지 않아요.
+		if (lastCreatedAt == null) {
+			return null;
+		}
+
+		// 단순히 마지막으로 본 시간보다 이전(미만)인 데이터만 가져옵니다.
+		return QBoard.board.createdAt.lt(lastCreatedAt);
 	}
 }
