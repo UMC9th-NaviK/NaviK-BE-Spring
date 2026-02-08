@@ -38,33 +38,12 @@ public class PortfolioAnalysisWorkerProcessor {
 		if (portfolio == null) {
 			log.warn("[PortfolioAnalysis] skip (not found). traceId={}, portfolioId={}", traceId, portfolioId);
 			return false;
-		}else{
+		} else {
 			portfolio.updateStatus(PortfolioStatus.PROCESSING);
 		}
 
-		// 2) AI 서버 분석 요청 (추가 정보 유무에 따라 분기)
-		PortfolioAiDTO.AnalyzeResponse result;
-
-		if (isFallBacked) {
-			// Fallback 요청 (추가 정보 있음)
-			result = portfolioAiClient.analyzeWithFallback(
-				getJobId(userId),
-				portfolio.getQB1(),
-				portfolio.getQB2(),
-				portfolio.getQB3(),
-				portfolio.getQB4(),
-				portfolio.getQB5()
-			);
-		} else {
-			// 일반 분석 요청
-			String resumeText = portfolio.getContent();
-			if (resumeText == null || resumeText.isBlank()) {
-				log.warn("[PortfolioAnalysis] skip (empty content). traceId={}, portfolioId={}", traceId, portfolioId);
-				portfolio.updateStatus(PortfolioStatus.FAILED);
-				return false;
-			}
-			result = portfolioAiClient.analyzePortfolio(resumeText,getJobId(userId));
-		}
+		// 2) AI 서버 분석 요청
+		PortfolioAiDTO.AnalyzeResponse result = isFallBacked ? reanalyzePortfolio(userId, portfolio) : analyzePortfolio(userId, portfolioId, traceId, portfolio);
 
 		if (result == null || result.scores() == null || result.scores().isEmpty()) {
 			log.warn("[PortfolioAnalysis] skip (empty AI response). traceId={}, portfolioId={}", traceId, portfolioId);
@@ -89,9 +68,39 @@ public class PortfolioAnalysisWorkerProcessor {
 		return true;
 	}
 
+	private PortfolioAiDTO.AnalyzeResponse reanalyzePortfolio(Long userId, Portfolio portfolio) {
+		PortfolioAiDTO.AnalyzeResponse result;
+		result = portfolioAiClient.analyzeWithFallback(getJobId(userId), portfolio.getQB1(), portfolio.getQB2(),
+			portfolio.getQB3(), portfolio.getQB4(), portfolio.getQB5());
+		return result;
+	}
+
+	private PortfolioAiDTO.AnalyzeResponse analyzePortfolio(Long userId, Long portfolioId, String traceId,
+		Portfolio portfolio) {
+		PortfolioAiDTO.AnalyzeResponse result;
+		String resumeText = portfolio.getContent();
+		if (resumeText == null || resumeText.isBlank()) {
+			log.warn("[PortfolioAnalysis] skip (empty content). traceId={}, portfolioId={}", traceId, portfolioId);
+			portfolio.updateStatus(PortfolioStatus.FAILED);
+			return null;
+		}
+		result = portfolioAiClient.analyzePortfolio(resumeText, getJobId(userId));
+
+		if(checkScoreContainsNoneValueInBasis(result)) {
+			log.warn("[PortfolioAnalysis] Need to try fallback request  (AI response contains none value in basis). traceId={}, portfolioId={}",
+				traceId, portfolioId);
+			portfolio.updateStatus(PortfolioStatus.FAILED);
+		}
+
+		return result;
+	}
+
+	private boolean checkScoreContainsNoneValueInBasis(PortfolioAiDTO.AnalyzeResponse result) {
+		return result.scores().stream().anyMatch(s -> "none".equals(s.basis()));
+	}
+
 	private Long getJobId(Long userId) {
-		return userRepository.findJobIdByUserId(userId).orElseThrow(
-			() -> new GeneralException(JobErrorCode.JOB_NOT_FOUND)
-		);
+		return userRepository.findJobIdByUserId(userId)
+			.orElseThrow(() -> new GeneralException(JobErrorCode.JOB_NOT_FOUND));
 	}
 }
