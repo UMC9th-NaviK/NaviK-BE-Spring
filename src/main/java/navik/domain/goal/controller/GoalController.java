@@ -31,11 +31,22 @@ public class GoalController implements GoalControllerDocs {
 	private final GoalCommandService goalCommandService;
 
 	@Override
+	@GetMapping("/{goalId}")
+	public ApiResponse<GoalResponseDTO.InfoDTO> getGoal(@AuthUser Long userId, @PathVariable Long goalId) {
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, goalQueryService.getGoalInfo(userId, goalId));
+	}
+
+	@Override
+	@PatchMapping("/{goalId}")
+	public ApiResponse<GoalResponseDTO.InfoDTO> updateGoal(@AuthUser Long userId, @PathVariable Long goalId,
+		@RequestBody @Valid GoalRequestDTO.UpdateInfoDTO req) {
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, goalCommandService.updateGoalInfo(userId, goalId, req));
+	}
+
+	@Override
 	@GetMapping("/list")
-	public ApiResponse<CursorResponseDTO<GoalResponseDTO.PreviewDTO>> getGoals(
-		@AuthUser Long userId,
-		@RequestParam(required = false) Long cursor,
-		@RequestParam(defaultValue = "10") Integer size,
+	public ApiResponse<CursorResponseDTO<GoalResponseDTO.PreviewDTO>> getGoals(@AuthUser Long userId,
+		@RequestParam(required = false) Long cursor, @RequestParam(defaultValue = "10") Integer size,
 		@RequestParam String sortBy) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, goalQueryService.getGoals(userId, cursor, size, sortBy));
 	}
@@ -48,17 +59,14 @@ public class GoalController implements GoalControllerDocs {
 
 	@Override
 	@PostMapping
-	public ApiResponse<GoalResponseDTO.InfoDTO> createGoal(
-		@AuthUser Long userId,
+	public ApiResponse<GoalResponseDTO.InfoDTO> createGoal(@AuthUser Long userId,
 		@RequestBody @Valid GoalRequestDTO.CreateDTO req) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, goalCommandService.createGoal(userId, req));
 	}
 
 	@Override
 	@PatchMapping("/{goalId}/status")
-	public ApiResponse<GoalResponseDTO.InfoDTO> updateGoalStatus(
-		@AuthUser Long userId,
-		@PathVariable Long goalId,
+	public ApiResponse<GoalResponseDTO.InfoDTO> updateGoalStatus(@AuthUser Long userId, @PathVariable Long goalId,
 		@RequestParam GoalStatus status) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK,
 			goalCommandService.updateGoalStatus(userId, goalId, status));
@@ -66,9 +74,7 @@ public class GoalController implements GoalControllerDocs {
 
 	@Override
 	@DeleteMapping("/{goalId}")
-	public ApiResponse<Void> deleteGoal(
-		@AuthUser Long userId,
-		@PathVariable Long goalId) {
+	public ApiResponse<Void> deleteGoal(@AuthUser Long userId, @PathVariable Long goalId) {
 		goalCommandService.deleteGoal(userId, goalId);
 		return ApiResponse.onSuccess(GeneralSuccessCode._DELETED, null);
 	}

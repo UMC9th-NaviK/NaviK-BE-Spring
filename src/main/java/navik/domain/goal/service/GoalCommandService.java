@@ -31,6 +31,13 @@ public class GoalCommandService {
 		return GoalConverter.toInfoDto(newGoal);
 	}
 
+	public GoalResponseDTO.InfoDTO updateGoalInfo(Long userId, Long goalId, GoalRequestDTO.UpdateInfoDTO req){
+		Goal goal = goalQueryService.getAuthorizedGoal(userId, goalId);
+		goal.updateInfo(req.getTitle(),req.getContent(),req.getEndDate());
+		goalRepository.save(goal);
+		return GoalConverter.toInfoDto(goal);
+	}
+
 	public GoalResponseDTO.InfoDTO updateGoalStatus(Long userId, Long goalId, GoalStatus status) {
 		Goal goal = goalQueryService.getAuthorizedGoal(userId, goalId);
 
