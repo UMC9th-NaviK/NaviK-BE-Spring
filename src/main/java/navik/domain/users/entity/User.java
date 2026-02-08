@@ -92,7 +92,9 @@ public class User extends BaseEntity {
 
 	public void updateBasicInfo(String name, String nickname, boolean isEntryLevel, Job job) {
 		this.name = name;
-		this.nickname = nickname;
+		if(nickname!=null){
+			this.nickname = nickname;
+		}
 		this.job = job;
 		this.isEntryLevel = isEntryLevel;
 		this.userStatus = UserStatus.ACTIVE;
