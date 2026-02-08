@@ -89,7 +89,8 @@ spring:
 
 ai:
   server:
-    base-url: ${AI_SERVER_BASE_URL:http://localhost:8081}
+    ai-base-url: ${AI_SERVER_BASE_URL:http://localhost:8081}
+    ocr-base-url: ${AI_SERVER_OCR_BASE_URL:http://localhost:8082}
 
 notion:
   api-version: "2022-06-28"
