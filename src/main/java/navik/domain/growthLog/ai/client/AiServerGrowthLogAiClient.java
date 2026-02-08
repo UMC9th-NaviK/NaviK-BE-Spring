@@ -23,7 +23,10 @@ import navik.global.apiPayload.exception.exception.GeneralException;
 @Slf4j
 public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 
-	private final WebClient aiWebClient;
+	private static final String EVALUATE_PATH = "/v1/growth-logs/evaluate/user-input";
+	private static final Integer TIMEOUT_SECONDS = 60;
+
+	private final WebClient ocrWebClient;
 	private final AiServerProperties props;
 
 	@Override
@@ -33,8 +36,8 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 	) {
 
 		try {
-			return aiWebClient.post()
-				.uri(props.evaluateUserInputPath())
+			return ocrWebClient.post()
+				.uri(EVALUATE_PATH)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
 				.bodyValue(
@@ -42,7 +45,7 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 				)
 				.retrieve()
 				.bodyToMono(GrowthLogEvaluationResult.class)
-				.timeout(Duration.ofSeconds(props.timeoutSeconds() != null ? props.timeoutSeconds() : 10))
+				.timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
 				.block();
 		} catch (WebClientResponseException e) {
 			log.error("[AI] status={}, body={}", e.getStatusCode(), e.getResponseBodyAsString(), e);
