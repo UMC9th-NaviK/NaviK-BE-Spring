@@ -1,6 +1,7 @@
 package navik.domain.portfolio.ai.client;
 
 import java.time.Duration;
+import java.util.Map;
 
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -21,8 +22,10 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 	private final WebClient ocrWebClient;
 
 	private static final String OCR_PATH = "/ocr/pdf";
-	private static final String ANALYZE_PATH = "/api/kpi/analyze/backend";
+	private static final String ANALYZE_PATH_PREFIX = "/api/kpi/analyze/";
 	private static final String FALLBACK_PATH_PREFIX = "/api/kpi/fallback/";
+
+	private static final Map<Long, String> JOB_NAME_MAP = Map.of(1L, "pm", 2L, "designer", 3L, "frontend", 4L, "backend");
 
 	@Override
 	public String extractTextFromPdf(String fileUrl) {
@@ -44,10 +47,10 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 	}
 
 	@Override
-	public PortfolioAiDTO.AnalyzeResponse analyzePortfolio(String resumeText) {
+	public PortfolioAiDTO.AnalyzeResponse analyzePortfolio(String resumeText, Long jobId) {
 		try {
 			return aiWebClient.post()
-				.uri(ANALYZE_PATH)
+				.uri(ANALYZE_PATH_PREFIX + JOB_NAME_MAP.get(jobId))
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
 				.bodyValue(new PortfolioAiDTO.AnalyzeRequest(resumeText))
@@ -61,17 +64,11 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 	}
 
 	@Override
-	public PortfolioAiDTO.AnalyzeResponse analyzeWithFallback(
-		String jobName,
-		Integer qB1,
-		Integer qB2,
-		Integer qB3,
-		Integer qB4,
-		Integer qB5
-	) {
+	public PortfolioAiDTO.AnalyzeResponse analyzeWithFallback(Long jobId, Integer qB1, Integer qB2, Integer qB3,
+		Integer qB4, Integer qB5) {
 		try {
 			return aiWebClient.post()
-				.uri(FALLBACK_PATH_PREFIX + jobName)
+				.uri(FALLBACK_PATH_PREFIX + JOB_NAME_MAP.get(jobId))
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
 				.bodyValue(new PortfolioAiDTO.FallbackRequest(qB1, qB2, qB3, qB4, qB5))
