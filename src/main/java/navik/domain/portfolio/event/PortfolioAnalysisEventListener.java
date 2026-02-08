@@ -23,7 +23,7 @@ public class PortfolioAnalysisEventListener {
 		try {
 			String traceId = UUID.randomUUID().toString();
 			portfolioAnalysisPublisher.publish(
-				new PortfolioAnalysisMessage(event.userId(), event.portfolioId(), traceId)
+				new PortfolioAnalysisMessage(event.userId(), event.portfolioId(), traceId, event.isFallBacked())
 			);
 		} catch (Exception e) {
 			log.error("[PortfolioAnalysisEventListener] 분석 메시지 발행 실패. userId={}, portfolioId={}",

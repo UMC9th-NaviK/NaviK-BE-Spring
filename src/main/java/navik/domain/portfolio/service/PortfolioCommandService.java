@@ -44,7 +44,7 @@ public class PortfolioCommandService {
 
 		portfolioRepository.save(portfolio);
 
-		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolio.getId()));
+		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolio.getId(),false));
 
 		return new PortfolioResponseDTO.Created(portfolio.getId(), request.inputType());
 	}
@@ -74,7 +74,7 @@ public class PortfolioCommandService {
 		);
 		portfolioRepository.save(portfolio);
 
-		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolioId));
+		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolioId, true));
 
 		return new PortfolioResponseDTO.AdditionalInfoSubmitted(portfolioId);
 	}

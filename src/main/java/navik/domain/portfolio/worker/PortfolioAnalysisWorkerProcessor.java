@@ -32,7 +32,7 @@ public class PortfolioAnalysisWorkerProcessor {
 	private final ApplicationEventPublisher eventPublisher;
 
 	@Transactional
-	public boolean process(Long userId, Long portfolioId, String traceId) {
+	public boolean process(Long userId, Long portfolioId, String traceId, boolean isFallBacked) {
 		// 1) 포트폴리오 조회
 		Portfolio portfolio = portfolioRepository.findById(portfolioId).orElse(null);
 		if (portfolio == null) {
@@ -45,7 +45,7 @@ public class PortfolioAnalysisWorkerProcessor {
 		// 2) AI 서버 분석 요청 (추가 정보 유무에 따라 분기)
 		PortfolioAiDTO.AnalyzeResponse result;
 
-		if (hasAdditionalInfo(portfolio)) {
+		if (isFallBacked) {
 			// Fallback 요청 (추가 정보 있음)
 			result = portfolioAiClient.analyzeWithFallback(
 				getJobId(userId),
@@ -87,14 +87,6 @@ public class PortfolioAnalysisWorkerProcessor {
 		eventPublisher.publishEvent(new KpiScoreUpdatedEvent(userId));
 
 		return true;
-	}
-
-	private boolean hasAdditionalInfo(Portfolio portfolio) {
-		return portfolio.getQB1() != null
-			&& portfolio.getQB2() != null
-			&& portfolio.getQB3() != null
-			&& portfolio.getQB4() != null
-			&& portfolio.getQB5() != null;
 	}
 
 	private Long getJobId(Long userId) {

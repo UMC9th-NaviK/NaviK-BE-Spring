@@ -127,6 +127,7 @@ public class RedisStreamPortfolioAnalysisWorker {
 			Long userId = parseLong(body.get("userId"));
 			Long portfolioId = parseLong(body.get("portfolioId"));
 			String traceId = String.valueOf(body.getOrDefault("traceId", ""));
+			boolean isFallBacked = Boolean.parseBoolean(String.valueOf(body.getOrDefault("isFallBacked", "false")));
 
 			if (userId == null || portfolioId == null) {
 				log.warn("[PortfolioAnalysisWorker] invalid message. recordId={}, body={}", recordId, body);
@@ -135,7 +136,7 @@ public class RedisStreamPortfolioAnalysisWorker {
 			}
 
 			try {
-				processor.process(userId, portfolioId, traceId);
+				processor.process(userId, portfolioId, traceId, isFallBacked);
 				ack(recordId);
 			} catch (Exception e) {
 				log.error("[PortfolioAnalysisWorker] failed. traceId={}, userId={}, portfolioId={}, recordId={}",
