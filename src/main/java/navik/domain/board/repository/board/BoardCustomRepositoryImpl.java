@@ -30,7 +30,7 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 			.leftJoin(board.user, user).fetchJoin()
 			.leftJoin(user.job, job).fetchJoin()
 			.where(ltBoardId(lastId))
-			.orderBy(board.id.desc())
+			.orderBy(board.createdAt.desc())
 			.limit(pageSize + 1)
 			.fetch();
 	}
@@ -49,7 +49,7 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 				board.user.job.name.eq(jobName),
 				ltBoardId(lastId)
 			)
-			.orderBy(board.id.desc())
+			.orderBy(board.createdAt.desc())
 			.limit(pageSize + 1)
 			.fetch();
 	}
@@ -68,7 +68,7 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 			.leftJoin(board.user, user).fetchJoin()
 			.leftJoin(user.job, job).fetchJoin()
 			.where(cursorCondition(lastScore, lastId, scoreSum))
-			.orderBy(scoreSum.desc(), board.id.desc()) // 점수 높은순 -> 최신순
+			.orderBy(scoreSum.desc(), board.createdAt.desc()) // 점수 높은순 -> 최신순
 			.limit(pageSize + 1)
 			.fetch();
 	}
@@ -86,7 +86,7 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 				keywordContains(keyword), // 검색어가 있는지 확인 (제목이나 내용에)
 				ltBoardId(lastId)
 			)
-			.orderBy(board.id.desc())
+			.orderBy(board.createdAt.desc())
 			.limit(pageSize + 1)
 			.fetch();
 	}
