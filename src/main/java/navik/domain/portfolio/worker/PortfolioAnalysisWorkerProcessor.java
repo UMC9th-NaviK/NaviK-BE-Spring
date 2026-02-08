@@ -89,7 +89,7 @@ public class PortfolioAnalysisWorkerProcessor {
 		if(checkScoreContainsNoneValueInBasis(result)) {
 			log.warn("[PortfolioAnalysis] Need to try fallback request  (AI response contains none value in basis). traceId={}, portfolioId={}",
 				traceId, portfolioId);
-			portfolio.updateStatus(PortfolioStatus.FAILED);
+			portfolio.updateStatus(PortfolioStatus.RETRY_REQUIRED);
 		}
 
 		return result;
