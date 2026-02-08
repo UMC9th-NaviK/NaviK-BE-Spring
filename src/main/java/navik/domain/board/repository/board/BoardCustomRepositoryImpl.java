@@ -56,7 +56,7 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 	}
 
 	@Override
-	public List<Board> findHotBoardsByCursor(Integer lastScore, Long lastId, int pageSize) {
+	public List<Board> findHotBoardsByCursor(Integer lastScore, LocalDateTime lastCreatedAt, int pageSize) {
 		QBoard board = QBoard.board;
 		QUser user = QUser.user;
 		QJob job = QJob.job;
@@ -68,7 +68,7 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 			.selectFrom(board)
 			.leftJoin(board.user, user).fetchJoin()
 			.leftJoin(user.job, job).fetchJoin()
-			.where(cursorCondition(lastScore, lastId, scoreSum))
+			.where(cursorCondition(lastScore, lastCreatedAt, scoreSum))
 			.orderBy(scoreSum.desc(), board.createdAt.desc()) // 점수 높은순 -> 최신순
 			.limit(pageSize + 1)
 			.fetch();
@@ -99,28 +99,19 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 			.or(QBoard.board.articleContent.contains(keyword));
 	}
 
-	private BooleanExpression cursorCondition(Integer lastScore, Long lastId, NumberExpression<Integer> scoreSum) {
-		if (lastScore == null || lastId == null) {
+	private BooleanExpression cursorCondition(Integer lastScore, LocalDateTime lastCreatedAt,
+		NumberExpression<Integer> scoreSum) {
+		if (lastScore == null || lastCreatedAt == null) {
 			return null;
 		}
 
 		QBoard board = QBoard.board;
 
-		// 복합 커서 조건: (현재 점수 < 마지막 점수) OR (현재 점수 == 마지막 점수 AND ID < 마지막 ID)
+		// 2. 복합 커서 조건:
+		// (현재 점수 < 마지막 점수) OR
+		// (현재 점수 == 마지막 점수 AND 생성시간 < 마지막 생성시간)
 		return scoreSum.lt(lastScore)
-			.or(scoreSum.eq(lastScore).and(board.id.lt(lastId)));
-	}
-
-	private BooleanExpression ltCreatedAtAndId(LocalDateTime lastCreatedAt, Long lastId) {
-		if (lastCreatedAt == null || lastId == null) {
-			return null;
-		}
-
-		QBoard board = QBoard.board;
-
-		// 복합 커서 로직: (생성일 < 마지막 생성일) OR (생성일 == 마지막 생성일 AND ID < 마지막 ID)
-		return board.createdAt.lt(lastCreatedAt)
-			.or(board.createdAt.eq(lastCreatedAt).and(board.id.lt(lastId)));
+			.or(scoreSum.eq(lastScore).and(board.createdAt.lt(lastCreatedAt)));
 	}
 
 	private BooleanExpression ltCreatedAt(LocalDateTime lastCreatedAt) {

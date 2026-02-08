@@ -91,15 +91,15 @@ public class BoardQueryService {
 	@Transactional(readOnly = true)
 	public BoardResponseDTO.HotBoardListDTO getHotBoardList(String cursor, Pageable pageable) {
 		Integer lastScore = null;
-		Long lastId = null;
+		LocalDateTime lastCreatedAt = null;
 
 		if (cursor != null && !cursor.isEmpty()) {
 			String[] parts = cursor.split("_");
 			lastScore = Integer.parseInt(parts[0]);
-			lastId = Long.parseLong(parts[1]);
+			lastCreatedAt = LocalDateTime.parse(parts[1]);
 		}
 
-		List<Board> boards = boardRepository.findHotBoardsByCursor(lastScore, lastId, pageable.getPageSize());
+		List<Board> boards = boardRepository.findHotBoardsByCursor(lastScore, lastCreatedAt, pageable.getPageSize());
 		List<Long> boardIds = boards.stream().map(Board::getId).collect(Collectors.toList());
 
 		// 좋아요 Map 생성 로직 제거
@@ -112,7 +112,7 @@ public class BoardQueryService {
 			Board lastBoard = boards.get(boards.size() - 1);
 			// 계산 방식에 따라 엔티티 필드 활용
 			int score = lastBoard.getArticleLikes() + lastBoard.getArticleViews();
-			nextCursor = score + "_" + lastBoard.getId();
+			nextCursor = score + "_" + lastBoard.getCreatedAt().toString();
 		}
 
 		return BoardConverter.toHotBoardListDTO(boards, commentCountMap, nextCursor, hasNext);

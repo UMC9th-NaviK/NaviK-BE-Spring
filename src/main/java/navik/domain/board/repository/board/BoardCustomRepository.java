@@ -13,7 +13,7 @@ public interface BoardCustomRepository {
 
 	List<Board> findByJobAndCursor(String jobName, LocalDateTime lastCreatedAt, int pageSize);
 
-	List<Board> findHotBoardsByCursor(Integer lastScore, Long lastId, int pageSize);
+	List<Board> findHotBoardsByCursor(Integer lastScore, LocalDateTime lastCreatedAt, int pageSize);
 
 	List<Board> searchByKeyword(String keyword, LocalDateTime lastCreatedAt, int size);
 }
