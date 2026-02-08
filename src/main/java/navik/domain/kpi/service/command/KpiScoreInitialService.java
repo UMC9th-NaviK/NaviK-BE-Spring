@@ -38,10 +38,7 @@ public class KpiScoreInitialService {
 
 	private final GrowthLogInternalService growthLogInternalService;
 
-	public KpiScoreResponseDTO.Initialize initializeKpiScores(
-		Long userId,
-		KpiScoreRequestDTO.Initialize request
-	) {
+	public KpiScoreResponseDTO.Initialize initializeKpiScores(Long userId, KpiScoreRequestDTO.Initialize request) {
 		List<KpiScoreRequestDTO.Item> items = request.scores();
 
 		List<Long> cardIds = extractCardIds(items);
@@ -62,17 +59,33 @@ public class KpiScoreInitialService {
 
 		createPortfolioGrowthLogIfNeeded(userId, result.kpiDeltasForLog());
 
-		return new KpiScoreResponseDTO.Initialize(
-			result.created(),
-			result.updated(),
-			result.resultItems()
-		);
+		return new KpiScoreResponseDTO.Initialize(result.created(), result.updated(), result.resultItems());
+	}
+
+	public KpiScoreResponseDTO.Initialize updateZeroScoresOnly(Long userId, KpiScoreRequestDTO.Initialize request) {
+		List<KpiScoreRequestDTO.Item> items = request.scores();
+
+		List<Long> cardIds = extractCardIds(items);
+		validateNoDuplicateCardIds(cardIds);
+
+		User userRef = userRepository.getReferenceById(userId);
+
+		Map<Long, KpiCard> cardMap = loadCardMapOrThrow(cardIds);
+		Map<Long, KpiScore> existingMap = loadExistingScoreMap(userId, cardIds);
+
+		KpiScoreInitializeResult result = upsertZeroScoresOnly(userRef, items, cardMap, existingMap);
+
+		if (!result.toCreate().isEmpty()) {
+			kpiScoreRepository.saveAll(result.toCreate());
+		}
+
+		createPortfolioGrowthLogIfNeeded(userId, result.kpiDeltasForLog());
+
+		return new KpiScoreResponseDTO.Initialize(result.created(), result.updated(), result.resultItems());
 	}
 
 	private List<Long> extractCardIds(List<KpiScoreRequestDTO.Item> items) {
-		return items.stream()
-			.map(KpiScoreRequestDTO.Item::kpiCardId)
-			.toList();
+		return items.stream().map(KpiScoreRequestDTO.Item::kpiCardId).toList();
 	}
 
 	private void validateNoDuplicateCardIds(List<Long> cardIds) {
@@ -88,27 +101,17 @@ public class KpiScoreInitialService {
 			throw new GeneralException(KpiCardErrorCode.KPI_CARD_NOT_FOUND);
 		}
 
-		return cards.stream()
-			.collect(Collectors.toMap(
-				KpiCard::getId,
-				c -> c
-			));
+		return cards.stream().collect(Collectors.toMap(KpiCard::getId, c -> c));
 	}
 
 	private Map<Long, KpiScore> loadExistingScoreMap(Long userId, List<Long> cardIds) {
-		return kpiScoreRepository.findAllByUserIdAndKpiCard_IdIn(userId, cardIds).stream()
-			.collect(Collectors.toMap(
-				s -> s.getKpiCard().getId(),
-				s -> s
-			));
+		return kpiScoreRepository.findAllByUserIdAndKpiCard_IdIn(userId, cardIds)
+			.stream()
+			.collect(Collectors.toMap(s -> s.getKpiCard().getId(), s -> s));
 	}
 
-	private KpiScoreInitializeResult upsertScores(
-		User userRef,
-		List<KpiScoreRequestDTO.Item> items,
-		Map<Long, KpiCard> cardMap,
-		Map<Long, KpiScore> existingMap
-	) {
+	private KpiScoreInitializeResult upsertScores(User userRef, List<KpiScoreRequestDTO.Item> items,
+		Map<Long, KpiCard> cardMap, Map<Long, KpiScore> existingMap) {
 		int created = 0;
 		int updated = 0;
 
@@ -147,6 +150,53 @@ public class KpiScoreInitialService {
 		return new KpiScoreInitializeResult(created, updated, toCreate, resultItems, kpiDeltasForLog);
 	}
 
+	private KpiScoreInitializeResult upsertZeroScoresOnly(User userRef, List<KpiScoreRequestDTO.Item> items,
+		Map<Long, KpiCard> cardMap, Map<Long, KpiScore> existingMap) {
+		int created = 0;
+		int updated = 0;
+
+		List<KpiScore> toCreate = new ArrayList<>();
+		List<KpiScoreResponseDTO.Item> resultItems = new ArrayList<>();
+		List<GrowthLogInternalCreateRequest.KpiDelta> kpiDeltasForLog = new ArrayList<>();
+
+		for (KpiScoreRequestDTO.Item item : items) {
+			Long kpiCardId = item.kpiCardId();
+			Integer score = item.score();
+
+			KpiScore existing = existingMap.get(kpiCardId);
+
+			if (existing != null) {
+				if (existing.getScore() == DEFAULT_SCORE) {
+					existing.updateScore(score);
+					updated++;
+					resultItems.add(new KpiScoreResponseDTO.Item(kpiCardId, score, false));
+
+					if (score != 0) {
+						kpiDeltasForLog.add(new GrowthLogInternalCreateRequest.KpiDelta(kpiCardId, score));
+					}
+				} else {
+					resultItems.add(new KpiScoreResponseDTO.Item(kpiCardId, existing.getScore(), false));
+				}
+			} else {
+				KpiScore newScore = KpiScore.builder()
+					.user(userRef)
+					.kpiCard(cardMap.get(kpiCardId))
+					.score(score)
+					.build();
+
+				toCreate.add(newScore);
+				created++;
+				resultItems.add(new KpiScoreResponseDTO.Item(kpiCardId, score, true));
+
+				if (score != 0) {
+					kpiDeltasForLog.add(new GrowthLogInternalCreateRequest.KpiDelta(kpiCardId, score));
+				}
+			}
+		}
+
+		return new KpiScoreInitializeResult(created, updated, toCreate, resultItems, kpiDeltasForLog);
+	}
+
 	private void ensureAllKpiScoresExist(User user) {
 		Long jobId = user.getJob().getId();
 
@@ -158,22 +208,16 @@ public class KpiScoreInitialService {
 		}
 
 		// 이미 KpiScore가 존재하는 카드 ID 수집
-		Set<Long> existingCardIds = kpiScoreRepository
-			.findAllByUserIdAndKpiCard_IdIn(
-				user.getId(),
-				allCards.stream().map(KpiCard::getId).toList()
-			).stream()
+		Set<Long> existingCardIds = kpiScoreRepository.findAllByUserIdAndKpiCard_IdIn(user.getId(),
+				allCards.stream().map(KpiCard::getId).toList())
+			.stream()
 			.map(s -> s.getKpiCard().getId())
 			.collect(Collectors.toSet());
 
 		// 아직 생성되지 않은 카드만 기본값(0점)으로 생성 = 처음일 경우에는 다 생성
 		List<KpiScore> toCreate = allCards.stream()
 			.filter(card -> !existingCardIds.contains(card.getId()))
-			.map(card -> KpiScore.builder()
-				.user(user)
-				.kpiCard(card)
-				.score(DEFAULT_SCORE)
-				.build())
+			.map(card -> KpiScore.builder().user(user).kpiCard(card).score(DEFAULT_SCORE).build())
 			.toList();
 
 		if (!toCreate.isEmpty()) {
