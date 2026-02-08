@@ -46,7 +46,7 @@ public class PortfolioCommandService {
 
 		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolio.getId(),false));
 
-		return new PortfolioResponseDTO.Created(portfolio.getId(), request.inputType());
+		return new PortfolioResponseDTO.Created(portfolio.getId(), request.inputType(),portfolio.getStatus());
 	}
 
 	public PortfolioResponseDTO.AdditionalInfoSubmitted submitAdditionalInfo(

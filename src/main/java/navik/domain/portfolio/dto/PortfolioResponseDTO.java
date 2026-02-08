@@ -1,12 +1,15 @@
 package navik.domain.portfolio.dto;
 
 import navik.domain.portfolio.entity.InputType;
+import navik.domain.portfolio.entity.PortfolioStatus;
 
 public class PortfolioResponseDTO {
 
 	public record Created(
 		Long id,
-		InputType inputType
+		InputType inputType,
+		PortfolioStatus status
+
 	) {
 	}
 

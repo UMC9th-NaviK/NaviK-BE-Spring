@@ -51,7 +51,8 @@ public interface PortfolioControllerDocs {
 						  "message": "요청이 성공적으로 처리되었습니다.",
 						  "result": {
 						    "id": 1,
-						    "inputType": "TEXT"
+						    "inputType": "TEXT",
+						    "status": "PENDING"
 						  },
 						  "timestamp": "2026-02-05T07:00:00"
 						}
