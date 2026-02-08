@@ -57,6 +57,18 @@ public class Goal extends BaseEntity implements Notifiable {
 		this.status = status;
 	}
 
+	public void updateInfo(String title, String content, LocalDate endDate) {
+		if(title != null){
+			this.title = title;
+		}
+		if(content != null){
+			this.content = content;
+		}
+		if(endDate != null){
+			this.endDate = endDate;
+		}
+	}
+
 	@Override
 	public NotificationType getNotificationType() {
 		return NotificationType.GOAL;
