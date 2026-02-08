@@ -167,11 +167,17 @@ public class BoardQueryService {
 	 */
 	@Transactional
 	public BoardResponseDTO.BoardDTO getBoardDetail(Long boardId) {
+		// 1. 조회 수 증가
+		int updatedRows = boardRepository.incrementArticleViews(boardId);
+
+		if (updatedRows == 0) {
+			throw new GeneralException(GeneralErrorCode.BOARD_NOT_FOUND);
+		}
+
+		// 2. 게시글 상세 정보 조회
+		// 위에서 clearAutomatically = true를 설정했으므로, DB에서 업데이트된 최신 값을 읽어옵니다.
 		Board board = boardRepository.findById(boardId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.BOARD_NOT_FOUND));
-
-		board.incrementArticleViews(); // 조회수 증가
-		boardRepository.save(board); // 변경된 조회수 저장
 
 		return BoardConverter.toBoardDTO(
 			board,

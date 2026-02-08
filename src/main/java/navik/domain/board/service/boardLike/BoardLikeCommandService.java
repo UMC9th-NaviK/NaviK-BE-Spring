@@ -43,19 +43,21 @@ public class BoardLikeCommandService {
 		if (boardLikeOpt.isPresent()) {
 			// 이미 좋아요가 있다면 좋아요 취소
 			boardLikeRepository.delete(boardLikeOpt.get());
-			board.decrementArticleLikes();
+			boardRepository.decrementArticleLikes(board.getId()); // 원자적 쿼리 호출
 			isLiked = false;
 		} else {
 			// 좋아요가 없다면 좋아요 추가
 			BoardLike boardLike = BoardLikeConverter.toEntity(user, board);
 			boardLikeRepository.save(boardLike);
-			board.incrementArticleLikes();
+			boardRepository.incrementArticleLikes(board.getId()); // 원자적 쿼리 호출
 			isLiked = true;
 		}
 
-		// 4. 좋아요 총합 조회
-		int totalLikeCount = board.getArticleLikes();
+		// 4. 최신 좋아요 수 조회
+		// 업데이트 쿼리 실행 후 영속성 컨텍스트가 비워졌으므로, 다시 조회하여 최신 값을 가져옵니다.
+		Board updatedBoard = boardRepository.findById(board.getId())
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.BOARD_NOT_FOUND));
 
-		return BoardLikeConverter.toResponse(board.getId(), totalLikeCount, isLiked);
+		return BoardLikeConverter.toResponse(updatedBoard.getId(), updatedBoard.getArticleLikes(), isLiked);
 	}
 }
