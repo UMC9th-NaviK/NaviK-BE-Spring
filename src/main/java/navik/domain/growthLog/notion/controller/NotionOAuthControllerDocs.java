@@ -31,7 +31,7 @@ public interface NotionOAuthControllerDocs {
 		@ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Body.class), examples = @ExampleObject(name = "인증 토큰 없음", value = """
 			{
 			  "isSuccess": false,
-			  "code": "AUTH4001",
+			  "code": "AUTH_401_01",
 			  "message": "인증되지 않은 사용자입니다.",
 			  "result": null,
 			  "timestamp": "2025-02-05T12:00:00"
