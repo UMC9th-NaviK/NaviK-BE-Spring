@@ -29,11 +29,8 @@ public class GoalRequestDTO {
 	@NoArgsConstructor
 	@Getter
 	public static class UpdateInfoDTO {
-		@NotNull
 		private String title;
-		@NotNull
 		private String content;
-		@NotNull
 		private LocalDate endDate;
 	}
 }
