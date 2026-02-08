@@ -154,7 +154,7 @@ public interface BoardControllerDocs {
 
 	@Operation(summary = "게시글 상세 조회", description = "특정 게시글의 상세 정보를 조회합니다.")
 	@Parameter(name = "boardId", description = "조회할 게시글 ID", example = "1")
-	ApiResponse<BoardResponseDTO.BoardDTO> getBoardDetail(Long boardId);
+	ApiResponse<BoardResponseDTO.BoardDTO> getBoardDetail(@PathVariable Long boardId);
 
 	@Operation(summary = "게시글 작성", description = "새로운 게시글을 작성합니다.")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses(
@@ -168,7 +168,7 @@ public interface BoardControllerDocs {
 		@Parameter(name = "boardId", description = "수정할 게시글 ID", example = "1"),
 		@Parameter(name = "userId", description = "작성자 ID (경로변수)", example = "1")
 	})
-	ApiResponse<Long> updateBoard(Long boardId, BoardUpdateDTO request, @AuthUser Long userId);
+	ApiResponse<Long> updateBoard(@PathVariable Long boardId, BoardUpdateDTO request, @AuthUser Long userId);
 
 	@Operation(summary = "게시글 삭제", description = "게시글을 삭제 합니다.")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses(
@@ -178,7 +178,7 @@ public interface BoardControllerDocs {
 		@Parameter(name = "boardId", description = "삭제할 게시글 ID", example = "1"),
 		@Parameter(name = "userId", description = "작성자 ID (경로변수)", example = "1")
 	})
-	ApiResponse<Object> deleteBoard(Long boardId, @AuthUser Long userId);
+	ApiResponse<Object> deleteBoard(@PathVariable Long boardId, @AuthUser Long userId);
 
 	@Operation(summary = "게시글 좋아요 확인", description = "게시글에 좋아요를 누르거나 취소합니다.")
 	@Parameters({
