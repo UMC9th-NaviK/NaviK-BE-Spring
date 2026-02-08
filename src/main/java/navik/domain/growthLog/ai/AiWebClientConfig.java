@@ -13,8 +13,8 @@ public class AiWebClientConfig {
 	public WebClient aiWebClient(AiServerProperties props) {
 		WebClient.Builder builder = WebClient.builder();
 
-		if (props.baseUrl() != null && !props.baseUrl().isBlank()) {
-			builder.baseUrl(props.baseUrl());
+		if (props.aiBaseUrl() != null && !props.aiBaseUrl().isBlank()) {
+			builder.baseUrl(props.aiBaseUrl());
 		}
 
 		return builder.build();
