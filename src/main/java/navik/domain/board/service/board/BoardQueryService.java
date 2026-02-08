@@ -1,5 +1,6 @@
 package navik.domain.board.service.board;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -32,26 +33,29 @@ public class BoardQueryService {
 
 	/**
 	 * 전체 게시글 조회
-	 * @param lastId
+	 * @param cursor
 	 * @param pageSize
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public CursorResponseDTO<BoardResponseDTO.BoardDTO> getBoardList(Long lastId, int pageSize) {
-		List<Board> boards = boardRepository.findAllByCursor(lastId, pageSize);
+	public CursorResponseDTO<BoardResponseDTO.BoardDTO> getBoardList(String cursor, int pageSize) {
+		LocalDateTime lastCreatedAt = (cursor != null && !cursor.isEmpty()) ? LocalDateTime.parse(cursor) : null;
+		List<Board> boards = boardRepository.findAllByCursor(lastCreatedAt, pageSize);
+
 		return processCursorPage(boards, pageSize);
 	}
 
 	/**
 	 * 직무별 게시글 조회
 	 * @param jobName
-	 * @param lastId
+	 * @param cursor
 	 * @param pageSize
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public CursorResponseDTO<BoardResponseDTO.BoardDTO> getBoardListByJob(String jobName, Long lastId, int pageSize) {
-		List<Board> boards = boardRepository.findByJobAndCursor(jobName, lastId, pageSize);
+	public CursorResponseDTO<BoardResponseDTO.BoardDTO> getBoardListByJob(String jobName, String cursor, int pageSize) {
+		LocalDateTime lastCreatedAt = (cursor != null && !cursor.isEmpty()) ? LocalDateTime.parse(cursor) : null;
+		List<Board> boards = boardRepository.findByJobAndCursor(jobName, lastCreatedAt, pageSize);
 		return processCursorPage(boards, pageSize);
 	}
 
@@ -128,14 +132,16 @@ public class BoardQueryService {
 	/**
 	 * 게시글 검색
 	 * @param keyword
-	 * @param lastId
+	 * @param cursor
 	 * @param pageSize
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public CursorResponseDTO<BoardResponseDTO.BoardDTO> searchBoard(String keyword, Long lastId, int pageSize) {
+	public CursorResponseDTO<BoardResponseDTO.BoardDTO> searchBoard(String keyword, String cursor, int pageSize) {
+		LocalDateTime lastCreatedAt = (cursor != null && !cursor.isEmpty()) ? LocalDateTime.parse(cursor) : null;
+
 		// 1. 키워드 및 커서 기반 검색 실행
-		List<Board> boards = boardRepository.searchByKeyword(keyword, lastId, pageSize);
+		List<Board> boards = boardRepository.searchByKeyword(keyword, lastCreatedAt, pageSize);
 
 		// 2. 검색 결과가 없을 경우 빈 응답 반환
 		if (boards.isEmpty()) {

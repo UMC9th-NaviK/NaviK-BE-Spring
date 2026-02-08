@@ -108,7 +108,7 @@ public interface BoardControllerDocs {
 		@Parameter(name = "size", description = "한 페이지에 가져올 게시글 개수 (기본 10개)", example = "10")
 	})
 	ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> getBoards(
-		@RequestParam(value = "cursor", required = false) Long cursor,
+		@RequestParam(value = "cursor", required = false) String cursor,
 		@RequestParam(value = "size", defaultValue = "10") int pageSize
 	);
 
@@ -123,7 +123,7 @@ public interface BoardControllerDocs {
 	})
 	ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> getBoardsByJob(
 		@RequestParam(name = "jobName") String jobName,
-		@RequestParam(value = "cursor", required = false) Long cursor,
+		@RequestParam(value = "cursor", required = false) String cursor,
 		@RequestParam(value = "size", defaultValue = "10") int pageSize
 	);
 
@@ -148,7 +148,7 @@ public interface BoardControllerDocs {
 	})
 	ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> searchBoards(
 		@RequestParam String keyword,
-		@RequestParam(value = "cursor", required = false) Long cursor,
+		@RequestParam(value = "cursor", required = false) String cursor,
 		@RequestParam(value = "size", defaultValue = "10") int size
 	);
 
