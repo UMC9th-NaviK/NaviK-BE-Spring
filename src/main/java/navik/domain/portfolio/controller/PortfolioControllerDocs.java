@@ -29,6 +29,11 @@ public interface PortfolioControllerDocs {
 			### 비동기 처리 안내
 			- 본 API는 포트폴리오 저장 성공 시 즉시 응답을 반환합니다.
 			- **AI 분석(KPI 도출)**은 백그라운드(Redis Stream)에서 별도로 진행되며, 완료 후 결과가 업데이트됩니다.
+
+			### 분석 결과 상태
+			- **COMPLETED**: 모든 KPI 점수가 정상 반영됨
+			- **RETRY_REQUIRED**: 일부 KPI의 basis가 none으로 판정되어 해당 항목은 0점 처리됨. 추가 정보 제출(submitAdditionalInfo)을 통해 재분석 필요
+			- **FAILED**: 분석 자체가 실패함 (빈 응답 등)
 			"""
 	)
 	@ApiResponses(value = {
@@ -120,14 +125,15 @@ public interface PortfolioControllerDocs {
 	);
 
 	@Operation(
-		summary = "추가 정보 제출 (분석 실패 시)",
+		summary = "추가 정보 제출 (재분석 필요 시)",
 		description = """
-			AI 분석이 실패한 포트폴리오에 대해 추가 정보를 제출하고 재분석을 요청합니다.
-			
+			AI 분석 결과에서 일부 KPI의 basis가 none으로 판정된 포트폴리오에 대해 추가 정보를 제출하고 재분석을 요청합니다.
+
 			### 조건
-			- 포트폴리오 상태가 **FAILED**인 경우에만 호출 가능합니다.
-			- 추가 정보(qB1~qB5)를 입력하면 fallback 분석이 진행됩니다.
-			
+			- 포트폴리오 상태가 **RETRY_REQUIRED**인 경우에만 호출 가능합니다.
+			- 초기 분석에서 basis가 유효한 KPI 점수는 이미 반영되어 있으며, basis="none"인 항목만 0점으로 남아있습니다.
+			- 추가 정보(qB1~qB5)를 입력하면 fallback 분석이 진행되어 0점인 항목만 업데이트됩니다.
+
 			### 비동기 처리 안내
 			- 추가 정보 저장 후 재분석이 비동기로 진행됩니다.
 			"""
@@ -175,12 +181,12 @@ public interface PortfolioControllerDocs {
 					),
 					@ExampleObject(
 						name = "잘못된 포트폴리오 상태",
-						summary = "포트폴리오 상태가 FAILED가 아닌 경우",
+						summary = "포트폴리오 상태가 RETRY_REQUIRED가 아닌 경우",
 						value = """
 							{
 							  "isSuccess": false,
 							  "code": "PORTFOLIO_400_01",
-							  "message": "분석 실패 상태에서만 추가 정보를 입력할 수 있습니다.",
+							  "message": "재분석이 필요한 상태에서만 추가 정보를 입력할 수 있습니다.",
 							  "result": null,
 							  "timestamp": "2026-02-05T07:00:00"
 							}

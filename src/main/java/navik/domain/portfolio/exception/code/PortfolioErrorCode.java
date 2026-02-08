@@ -23,7 +23,7 @@ public enum PortfolioErrorCode implements BaseCode {
 	INVALID_PORTFOLIO_STATUS(
 		HttpStatus.BAD_REQUEST,
 		"PORTFOLIO_400_01",
-		"분석 실패 상태에서만 추가 정보를 입력할 수 있습니다."
+		"재분석이 필요한 상태에서만 추가 정보를 입력할 수 있습니다."
 	);
 
 	private final HttpStatus httpStatus;

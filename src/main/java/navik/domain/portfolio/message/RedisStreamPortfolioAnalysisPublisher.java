@@ -25,8 +25,12 @@ public class RedisStreamPortfolioAnalysisPublisher implements PortfolioAnalysisP
 	public void publish(PortfolioAnalysisMessage message) {
 
 		// 메세지 구성 (최소 식별자 사용)
-		Map<String, String> fields = Map.of("userId", String.valueOf(message.userId()), "portfolioId",
-			String.valueOf(message.portfolioId()), "traceId", message.traceId());
+		Map<String, String> fields = Map.of(
+			"userId", String.valueOf(message.userId()),
+			"portfolioId", String.valueOf(message.portfolioId()),
+			"traceId", message.traceId(),
+			"isFallBacked", String.valueOf(message.isFallBacked())
+		);
 
 		// 레디스 스트림 메시지 발행
 		RecordId recordId = redisTemplate.opsForStream().add(MapRecord.create(STREAM_KEY, fields));
