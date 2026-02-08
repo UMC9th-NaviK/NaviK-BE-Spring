@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.global.apiPayload.exception.exception.GeneralException;
+import navik.global.auth.JwtUserDetails;
+import navik.global.auth.dto.RefreshDTO;
 import navik.global.auth.dto.TokenDTO;
 import navik.global.auth.exception.code.AuthErrorCode;
 import navik.global.auth.jwt.JwtTokenProvider;
@@ -33,7 +35,7 @@ public class AuthService {
 	private long accessTokenValidityInSeconds;
 
 	@Transactional
-	public TokenDTO reissue(String refreshToken) {
+	public RefreshDTO reissue(String refreshToken) {
 		// 1. Refresh Token 검증
 		jwtTokenProvider.validateToken(refreshToken, false);
 
@@ -60,7 +62,7 @@ public class AuthService {
 		redisRefreshToken.updateToken(tokenDto.getRefreshToken());
 		refreshTokenRepository.save(redisRefreshToken);
 
-		return tokenDto;
+		return new RefreshDTO(tokenDto,((JwtUserDetails)userDetails).getStatus());
 	}
 
 	@Transactional
