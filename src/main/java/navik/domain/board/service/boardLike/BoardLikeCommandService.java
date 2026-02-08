@@ -2,6 +2,7 @@ package navik.domain.board.service.boardLike;
 
 import java.util.Optional;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,7 @@ public class BoardLikeCommandService {
 	private final UserQueryService userQueryService;
 
 	@Transactional
+	@CacheEvict(value = "hotBoards", allEntries = true) // 좋아요 누를 때마다 hotBoards 캐시 전체 삭제
 	public BoardLikeDTO.Response toggleBoardLike(BoardLikeDTO.Parameter parameter) {
 		// 1. 작성자 조회
 		User user = userQueryService.getUser(parameter.getUserId());
@@ -52,8 +54,8 @@ public class BoardLikeCommandService {
 		}
 
 		// 4. 좋아요 총합 조회
-		long totalLikeCount = boardLikeRepository.countLikeByBoard(board);
+		int totalLikeCount = board.getArticleLikes();
 
-		return BoardLikeConverter.toResponse(board.getId(), (int)totalLikeCount, isLiked);
+		return BoardLikeConverter.toResponse(board.getId(), totalLikeCount, isLiked);
 	}
 }
