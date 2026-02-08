@@ -1,4 +1,4 @@
-package navik.domain.growthLog.ai;
+package navik.global.config;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
