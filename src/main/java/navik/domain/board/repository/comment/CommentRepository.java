@@ -12,7 +12,6 @@ import navik.domain.board.entity.Comment;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long>, CommentCustomRepository {
-	List<Comment> findByBoardAndIsDeletedFalse(Board board); // 지웠졌는지 확인
 
 	Integer countCommentByBoard(Board board); // 댓글수
 
