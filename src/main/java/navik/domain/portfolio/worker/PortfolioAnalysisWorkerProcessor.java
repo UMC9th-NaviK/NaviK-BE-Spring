@@ -16,6 +16,9 @@ import navik.domain.portfolio.dto.PortfolioAiDTO;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.entity.PortfolioStatus;
 import navik.domain.portfolio.repository.PortfolioRepository;
+import navik.domain.users.exception.code.JobErrorCode;
+import navik.domain.users.repository.UserRepository;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Slf4j
 @Service
@@ -25,11 +28,11 @@ public class PortfolioAnalysisWorkerProcessor {
 	private final PortfolioRepository portfolioRepository;
 	private final PortfolioAiClient portfolioAiClient;
 	private final KpiScoreInitialService kpiScoreInitialService;
+	private final UserRepository userRepository;
 	private final ApplicationEventPublisher eventPublisher;
 
 	@Transactional
 	public boolean process(Long userId, Long portfolioId, String traceId) {
-
 		// 1) 포트폴리오 조회
 		Portfolio portfolio = portfolioRepository.findById(portfolioId).orElse(null);
 		if (portfolio == null) {
@@ -45,7 +48,7 @@ public class PortfolioAnalysisWorkerProcessor {
 		if (hasAdditionalInfo(portfolio)) {
 			// Fallback 요청 (추가 정보 있음)
 			result = portfolioAiClient.analyzeWithFallback(
-				"backend",
+				getJobId(userId),
 				portfolio.getQB1(),
 				portfolio.getQB2(),
 				portfolio.getQB3(),
@@ -60,7 +63,7 @@ public class PortfolioAnalysisWorkerProcessor {
 				portfolio.updateStatus(PortfolioStatus.FAILED);
 				return false;
 			}
-			result = portfolioAiClient.analyzePortfolio(resumeText);
+			result = portfolioAiClient.analyzePortfolio(resumeText,getJobId(userId));
 		}
 
 		if (result == null || result.scores() == null || result.scores().isEmpty()) {
@@ -92,5 +95,11 @@ public class PortfolioAnalysisWorkerProcessor {
 			&& portfolio.getQB3() != null
 			&& portfolio.getQB4() != null
 			&& portfolio.getQB5() != null;
+	}
+
+	private Long getJobId(Long userId) {
+		return userRepository.findJobIdByUserId(userId).orElseThrow(
+			() -> new GeneralException(JobErrorCode.JOB_NOT_FOUND)
+		);
 	}
 }
