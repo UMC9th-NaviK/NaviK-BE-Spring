@@ -11,7 +11,6 @@ public class BoardConverter {
 
 	public static BoardResponseDTO.BoardDTO toBoardDTO(
 		Board board,
-		Integer likeCount,
 		Integer commentCount
 	) {
 		return BoardResponseDTO.BoardDTO.builder()
@@ -24,7 +23,7 @@ public class BoardConverter {
 			.articleTitle(board.getArticleTitle())
 			.articleContent(board.getArticleContent())
 			.isEntryLevel(board.getUser().getIsEntryLevel())
-			.likeCount(likeCount)
+			.likeCount(board.getArticleLikes())
 			.commentCount(commentCount)
 			.viewCount(board.getArticleViews())
 			.createdAt(board.getCreatedAt())
@@ -33,7 +32,6 @@ public class BoardConverter {
 
 	public static BoardResponseDTO.HotBoardListDTO toHotBoardListDTO(
 		List<Board> boards,
-		Map<Long, Integer> likeCountMap,
 		Map<Long, Integer> commentCountMap,
 		String nextCursor,
 		boolean hasNext
@@ -41,7 +39,6 @@ public class BoardConverter {
 		List<BoardResponseDTO.BoardDTO> boardList = boards.stream()
 			.map(board1 -> toBoardDTO(
 				board1,
-				likeCountMap.getOrDefault(board1.getId(), 0),
 				commentCountMap.getOrDefault(board1.getId(), 0)
 			))
 			.collect(Collectors.toList());
