@@ -10,7 +10,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import navik.domain.growthLog.ai.AiServerProperties;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO.GrowthLogEvaluationContext;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.GrowthLogEvaluationResult;
@@ -27,7 +26,6 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 	private static final Integer TIMEOUT_SECONDS = 60;
 
 	private final WebClient ocrWebClient;
-	private final AiServerProperties props;
 
 	@Override
 	public GrowthLogEvaluationResult evaluateUserInput(
