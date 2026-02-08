@@ -42,9 +42,8 @@ navik:
 
 ai:
   server:
-    base-url: ${AI_SERVER_BASE_URL:http://localhost:8081}
-    evaluate-user-input-path: ${AI_SERVER_EVALUATE_PATH:/v1/growth-logs/evaluate/user-input}
-    timeout-seconds: ${AI_SERVER_TIMEOUT:60}
+    ai-base-url: ${AI_SERVER_BASE_URL:http://localhost:8081}
+    ocr-base-url: ${AI_SERVER_OCR_BASE_URL:http://localhost:8082}
 
 springdoc:
   use-fqn: true
