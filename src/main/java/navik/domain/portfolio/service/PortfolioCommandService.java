@@ -61,7 +61,7 @@ public class PortfolioCommandService {
 			throw new GeneralException(PortfolioErrorCode.PORTFOLIO_NOT_OWNED);
 		}
 
-		if (portfolio.getStatus() != PortfolioStatus.FAILED) {
+		if (portfolio.getStatus() != PortfolioStatus.RETRY_REQUIRED) {
 			throw new GeneralException(PortfolioErrorCode.INVALID_PORTFOLIO_STATUS);
 		}
 
