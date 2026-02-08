@@ -30,6 +30,14 @@ public class GoalController implements GoalControllerDocs {
 	private final GoalQueryService goalQueryService;
 	private final GoalCommandService goalCommandService;
 
+	@ GetMapping("/{goalId}")
+	public ApiResponse<GoalResponseDTO.InfoDTO> getGoal(
+		@AuthUser Long userId,
+		@PathVariable Long goalId
+	){
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, goalQueryService.getGoalInfo(userId, goalId));
+	}
+
 	@Override
 	@GetMapping("/list")
 	public ApiResponse<CursorResponseDTO<GoalResponseDTO.PreviewDTO>> getGoals(

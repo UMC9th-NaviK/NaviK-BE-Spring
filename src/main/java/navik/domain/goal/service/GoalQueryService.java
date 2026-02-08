@@ -30,6 +30,10 @@ public class GoalQueryService {
 			() -> new GeneralException(GeneralErrorCode.ENTITY_NOT_FOUND));
 	}
 
+	public GoalResponseDTO.InfoDTO getGoalInfo(Long userId, Long goalId) {
+		return GoalConverter.toInfoDto(getAuthorizedGoal(userId, goalId));
+	}
+
 	public Goal getAuthorizedGoal(Long userId, Long goalId) {
 		Goal goal = getGoal(goalId);
 
