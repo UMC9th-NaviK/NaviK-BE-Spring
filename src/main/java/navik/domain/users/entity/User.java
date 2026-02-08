@@ -113,4 +113,6 @@ public class User extends BaseEntity {
 	public void updateProfileImage(String profileImageUrl) {
 		this.profileImageUrl = profileImageUrl;
 	}
+
+	public void updateLevel(Integer level) {this.level = level;}
 }

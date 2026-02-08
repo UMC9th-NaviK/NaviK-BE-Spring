@@ -30,7 +30,7 @@ public class GoalConverter {
 	public static GoalResponseDTO.PreviewDTO toPreviewDto(Goal goal) {
 		return GoalResponseDTO.PreviewDTO.builder()
 			.goalId(goal.getId())
-			.content(goal.getContent())
+			.title(goal.getTitle())
 			.status(goal.getStatus())
 			.build();
 	}

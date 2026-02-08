@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import navik.domain.portfolio.dto.PortfolioRequestDTO;
 import navik.domain.portfolio.dto.PortfolioResponseDTO;
 import navik.global.auth.annotation.AuthUser;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Portfolio", description = "포트폴리오 관련 API")
 public interface PortfolioControllerDocs {
@@ -265,7 +266,7 @@ public interface PortfolioControllerDocs {
 	})
 	navik.global.apiPayload.ApiResponse<PortfolioResponseDTO.AdditionalInfoSubmitted> submitAdditionalInfo(
 		@Parameter(hidden = true) @AuthUser Long userId,
-		@Parameter(description = "포트폴리오 ID", example = "1", required = true) Long portfolioId,
+		@Parameter(description = "포트폴리오 ID", example = "1", required = true) @PathVariable Long portfolioId,
 		@Valid @io.swagger.v3.oas.annotations.parameters.RequestBody PortfolioRequestDTO.AdditionalInfo request
 	);
 }
