@@ -11,6 +11,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.exception.code.GeneralSuccessCode;
+import navik.global.auth.dto.RefreshDTO;
+import navik.global.auth.dto.RefreshResponseDTO;
 import navik.global.auth.dto.TokenDTO;
 import navik.global.auth.service.AuthService;
 
@@ -22,16 +24,16 @@ public class AuthController implements AuthControllerDocs {
 	private final AuthService authService;
 
 	@PostMapping("/refresh")
-	public ApiResponse<String> reissue(@CookieValue("refresh_token") String refreshToken,
+	public ApiResponse<RefreshResponseDTO> reissue(@CookieValue("refresh_token") String refreshToken,
 		HttpServletResponse response) {
 
-		TokenDTO tokenDto = authService.reissue(refreshToken);
+		RefreshDTO refreshDTO = authService.reissue(refreshToken);
 
 		// Refresh Token Cookie 설정
-		ResponseCookie cookie = authService.createRefreshTokenCookie(tokenDto.getRefreshToken());
+		ResponseCookie cookie = authService.createRefreshTokenCookie(refreshDTO.tokenDTO().getRefreshToken());
 		response.addHeader("Set-Cookie", cookie.toString());
 
-		return ApiResponse.onSuccess(GeneralSuccessCode._OK, tokenDto.getAccessToken());
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, new RefreshResponseDTO(refreshDTO.tokenDTO().getAccessToken(),refreshDTO.status()));
 	}
 
 	@PostMapping("/logout")
