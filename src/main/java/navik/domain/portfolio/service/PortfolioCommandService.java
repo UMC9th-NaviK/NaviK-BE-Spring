@@ -49,18 +49,6 @@ public class PortfolioCommandService {
 		return new PortfolioResponseDTO.Created(portfolio.getId(), request.inputType(), portfolio.getStatus());
 	}
 
-	@Transactional(readOnly = true)
-	public PortfolioResponseDTO.Status getPortfolioStatus(Long userId, Long portfolioId) {
-		Portfolio portfolio = portfolioRepository.findById(portfolioId)
-			.orElseThrow(() -> new GeneralException(PortfolioErrorCode.PORTFOLIO_NOT_FOUND));
-
-		if (!portfolio.getUser().getId().equals(userId)) {
-			throw new GeneralException(PortfolioErrorCode.PORTFOLIO_NOT_OWNED);
-		}
-
-		return new PortfolioResponseDTO.Status(portfolioId, portfolio.getStatus());
-	}
-
 	public PortfolioResponseDTO.AdditionalInfoSubmitted submitAdditionalInfo(Long userId, Long portfolioId,
 		PortfolioRequestDTO.AdditionalInfo request) {
 		Portfolio portfolio = portfolioRepository.findById(portfolioId)

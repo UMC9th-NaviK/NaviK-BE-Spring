@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import navik.domain.portfolio.dto.PortfolioRequestDTO;
 import navik.domain.portfolio.dto.PortfolioResponseDTO;
 import navik.domain.portfolio.service.PortfolioCommandService;
+import navik.domain.portfolio.service.PortfolioQueryService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
@@ -22,6 +23,7 @@ import navik.global.auth.annotation.AuthUser;
 public class PortfolioController implements PortfolioControllerDocs {
 
 	private final PortfolioCommandService portfolioCommandService;
+	private final PortfolioQueryService portfolioQueryService;
 
 	@PostMapping
 	public ApiResponse<PortfolioResponseDTO.Created> registerPortfolio(@AuthUser Long userId,
@@ -36,7 +38,7 @@ public class PortfolioController implements PortfolioControllerDocs {
 		@PathVariable Long portfolioId) {
 
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK,
-			portfolioCommandService.getPortfolioStatus(userId, portfolioId));
+			portfolioQueryService.getPortfolioStatus(userId, portfolioId));
 	}
 
 	@PostMapping("/{portfolioId}/additional-info")
