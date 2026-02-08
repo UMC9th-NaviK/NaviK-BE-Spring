@@ -10,7 +10,7 @@ public class UserRequestDTO {
 
 	public record BasicInfoDTO(
 		@NotBlank String name,
-		@NotBlank String nickname,
+		String nickname,
 		@NotNull Long jobId,
 		@NotNull Boolean isEntryLevel
 	) {

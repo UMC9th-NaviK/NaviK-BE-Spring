@@ -2,12 +2,14 @@ package navik.domain.portfolio.worker;
 
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
+import navik.domain.kpi.event.KpiScoreUpdatedEvent;
 import navik.domain.kpi.service.command.KpiScoreInitialService;
 import navik.domain.portfolio.ai.client.PortfolioAiClient;
 import navik.domain.portfolio.dto.PortfolioAiDTO;
@@ -27,6 +29,7 @@ public class PortfolioAnalysisWorkerProcessor {
 	private final PortfolioAiClient portfolioAiClient;
 	private final KpiScoreInitialService kpiScoreInitialService;
 	private final UserRepository userRepository;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Transactional
 	public boolean process(Long userId, Long portfolioId, String traceId) {
@@ -80,6 +83,8 @@ public class PortfolioAnalysisWorkerProcessor {
 		portfolio.updateStatus(PortfolioStatus.COMPLETED);
 		log.info("[PortfolioAnalysis] completed. traceId={}, userId={}, portfolioId={}, scoreCount={}", traceId, userId,
 			portfolioId, result.scores().size());
+
+		eventPublisher.publishEvent(new KpiScoreUpdatedEvent(userId));
 
 		return true;
 	}

@@ -59,6 +59,7 @@ public interface UserControllerDocs {
 
 	@Operation(summary = "사용자 초기 정보 등록 (온보딩)", description = """
 		사용자 상태가 `PENDING`인 경우, 이름/닉네임/직무/신입 여부를 입력하여 가입을 완료합니다.
+		- 사용자가 닉네임을 입력하지 않은경우(null) 랜덤으로 저장됩니다.(ex.사용자1234)
 		- 성공 시 사용자 상태가 `ACTIVE`로 변경됩니다.
 		- 온보딩 완료 후 `/v1/auth/refresh`를 호출하여 ACTIVE 상태의 새 액세스 토큰을 발급받아야 합니다.
 		""")
@@ -247,4 +248,73 @@ public interface UserControllerDocs {
 			}
 			""")))})
 	ApiResponse<UserResponseDTO.ProfileDTO> getProfile(@Parameter(hidden = true) @AuthUser Long userId);
+
+	@Operation(summary = "마이 페이지 정보 수정", description = """
+		로그인한 사용자의 마이 페이지 정보를 수정합니다.
+		- 닉네임, 신입/경력 여부, 학력, 학과 목록을 선택적으로 수정할 수 있습니다.
+		""")
+	@ApiResponses({
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "수정 성공"),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "인증 실패", summary = "토큰이 없거나 유효하지 않은 경우", value = """
+			{
+			  "isSuccess": false,
+			  "code": "AUTH_401_01",
+			  "message": "인증되지 않은 사용자입니다.",
+			  "result": null,
+			  "timestamp": "2026-01-20T14:30:00"
+			}
+			"""))),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "온보딩 미완료", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "PENDING 사용자 접근", summary = "온보딩을 완료하지 않은 PENDING 상태의 사용자가 접근한 경우", value = """
+			{
+			  "isSuccess": false,
+			  "code": "AUTH_403_02",
+			  "message": "온보딩이 완료되지 않았습니다.",
+			  "result": null,
+			  "timestamp": "2026-01-20T14:30:00"
+			}
+			"""))),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 없음", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "존재하지 않는 사용자", value = """
+			{
+			  "isSuccess": false,
+			  "code": "USER_404",
+			  "message": "존재하지 않는 회원입니다.",
+			  "result": null,
+			  "timestamp": "2026-01-20T14:30:00"
+			}
+			""")))})
+	void updateMyInfo(@Parameter(hidden = true) @AuthUser Long userId,
+		@RequestBody @Valid UserRequestDTO.MyInfoDTO req);
+
+	@Operation(summary = "프로필 이미지 수정", description = "로그인한 사용자의 프로필 이미지 URL을 수정합니다.")
+	@ApiResponses({
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "수정 성공"),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "인증 실패", summary = "토큰이 없거나 유효하지 않은 경우", value = """
+			{
+			  "isSuccess": false,
+			  "code": "AUTH_401_01",
+			  "message": "인증되지 않은 사용자입니다.",
+			  "result": null,
+			  "timestamp": "2026-01-20T14:30:00"
+			}
+			"""))),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "온보딩 미완료", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "PENDING 사용자 접근", summary = "온보딩을 완료하지 않은 PENDING 상태의 사용자가 접근한 경우", value = """
+			{
+			  "isSuccess": false,
+			  "code": "AUTH_403_02",
+			  "message": "온보딩이 완료되지 않았습니다.",
+			  "result": null,
+			  "timestamp": "2026-01-20T14:30:00"
+			}
+			"""))),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 없음", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "존재하지 않는 사용자", value = """
+			{
+			  "isSuccess": false,
+			  "code": "USER_404",
+			  "message": "존재하지 않는 회원입니다.",
+			  "result": null,
+			  "timestamp": "2026-01-20T14:30:00"
+			}
+			""")))})
+	void updateProfileImage(@Parameter(hidden = true) @AuthUser Long userId,
+		@RequestBody String imageUrl);
 }

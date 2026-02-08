@@ -20,7 +20,7 @@ public class GoalResponseDTO {
 		@NotNull
 		private Long goalId;
 		@NotNull
-		private String content;
+		private String title;
 		@NotNull
 		private GoalStatus status;
 	}
