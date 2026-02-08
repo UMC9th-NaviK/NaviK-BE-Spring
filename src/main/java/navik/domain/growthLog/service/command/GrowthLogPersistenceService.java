@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import navik.domain.ability.service.command.AbilityCommandService;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.GrowthLogEvaluationResult;
 import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.entity.GrowthLogKpiLink;
@@ -31,6 +32,7 @@ public class GrowthLogPersistenceService {
 	private final GrowthLogRepository growthLogRepository;
 	private final KpiCardRepository kpiCardRepository;
 	private final KpiScoreIncrementService kpiScoreIncrementService;
+	private final AbilityCommandService abilityCommandService;
 
 	public Long saveUserInputLog(
 		Long userId,
@@ -52,6 +54,7 @@ public class GrowthLogPersistenceService {
 		Long id = growthLogRepository.save(growthLog).getId();
 
 		applyKpiScoreDeltas(userId, normalized.kpis());
+		saveAbilitiesSafely(userId, id, normalized.abilities());
 
 		return id;
 	}
@@ -103,6 +106,7 @@ public class GrowthLogPersistenceService {
 		}
 
 		applyEvaluationResult(growthLog, userId, normalized, totalDelta);
+		saveAbilitiesSafely(userId, growthLogId, normalized.abilities());
 
 	}
 
@@ -121,7 +125,8 @@ public class GrowthLogPersistenceService {
 		}
 
 		applyEvaluationResult(growthLog, userId, normalized, totalDelta);
-
+		saveAbilitiesSafely(userId, growthLogId, normalized.abilities());
+		
 	}
 
 	private GrowthLog newUserInputLog(
@@ -174,6 +179,17 @@ public class GrowthLogPersistenceService {
 		growthLog.applyEvaluation(normalized.title(), normalized.content(), totalDelta);
 		attachKpiLinks(growthLog, normalized.kpis());
 		applyKpiScoreDeltas(userId, normalized.kpis());
+	}
+
+	private void saveAbilitiesSafely(Long userId, Long growthLogId,
+		List<GrowthLogEvaluationResult.AbilityResult> abilities) {
+
+		try {
+			abilityCommandService.saveAbilities(userId, abilities);
+		} catch (RuntimeException e) {
+			log.warn("Ability 저장 실패로 스킵 (growthLog는 유지). userId={}, growthLogId={}, abilitiesSize={}",
+				userId, growthLogId, (abilities == null ? 0 : abilities.size()), e);
+		}
 	}
 
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import navik.domain.ability.normalizer.AbilityNormalizer;
 import navik.domain.growthLog.ai.client.GrowthLogAiClient;
 import navik.domain.growthLog.dto.internal.Evaluated;
 import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO.GrowthLogEvaluationContext;
@@ -39,6 +40,7 @@ public class GrowthLogEvaluationCoreService {
 	private final PortfolioRepository portfolioRepository;
 	private final UserRepository userRepository;
 	private final GrowthLogAiClient growthLogAiClient;
+	private final AbilityNormalizer abilityNormalizer;
 
 	public GrowthLogEvaluationContext buildContext(Long userId, String inputContent) {
 
@@ -98,12 +100,14 @@ public class GrowthLogEvaluationCoreService {
 		List<GrowthLogEvaluationResult.KpiDelta> kpis = mergeSameKpi(base.kpis());
 		validateKpisExist(kpis);
 
+		List<GrowthLogEvaluationResult.AbilityResult> abilities = abilityNormalizer.normalize(base.abilities());
+
 		int totalDelta = kpis.stream()
 			.mapToInt(GrowthLogEvaluationResult.KpiDelta::delta)
 			.sum();
 
 		GrowthLogEvaluationResult normalized =
-			new GrowthLogEvaluationResult(base.title(), base.content(), kpis);
+			new GrowthLogEvaluationResult(base.title(), base.content(), kpis, abilities);
 
 		return new Evaluated(normalized, totalDelta);
 	}
@@ -117,12 +121,14 @@ public class GrowthLogEvaluationCoreService {
 		String content = (r.content() == null) ? "" : r.content().trim();
 		List<GrowthLogEvaluationResult.KpiDelta> kpis = (r.kpis() == null) ? List.of() : r.kpis();
 
+		List<GrowthLogEvaluationResult.AbilityResult> abilities = (r.abilities() == null) ? List.of() : r.abilities();
+
 		if (title.isBlank())
 			title = "사용자 입력 성장 기록";
 		if (content.isBlank())
 			content = "(내용 없음)";
 
-		return new GrowthLogEvaluationResult(title, content, kpis);
+		return new GrowthLogEvaluationResult(title, content, kpis, abilities);
 	}
 
 	private List<GrowthLogEvaluationResult.KpiDelta> mergeSameKpi(List<GrowthLogEvaluationResult.KpiDelta> kpis) {
