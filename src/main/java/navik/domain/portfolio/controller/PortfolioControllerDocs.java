@@ -1,5 +1,7 @@
 package navik.domain.portfolio.controller;
 
+import org.springframework.web.bind.annotation.PathVariable;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,7 +14,6 @@ import jakarta.validation.Valid;
 import navik.domain.portfolio.dto.PortfolioRequestDTO;
 import navik.domain.portfolio.dto.PortfolioResponseDTO;
 import navik.global.auth.annotation.AuthUser;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Portfolio", description = "포트폴리오 관련 API")
 public interface PortfolioControllerDocs {
@@ -29,7 +30,7 @@ public interface PortfolioControllerDocs {
 			### 비동기 처리 안내
 			- 본 API는 포트폴리오 저장 성공 시 즉시 응답을 반환합니다.
 			- **AI 분석(KPI 도출)**은 백그라운드(Redis Stream)에서 별도로 진행되며, 완료 후 결과가 업데이트됩니다.
-
+			
 			### 분석 결과 상태
 			- **COMPLETED**: 모든 KPI 점수가 정상 반영됨
 			- **RETRY_REQUIRED**: 일부 KPI의 basis가 none으로 판정되어 해당 항목은 0점 처리됨. 추가 정보 제출(submitAdditionalInfo)을 통해 재분석 필요
@@ -126,15 +127,113 @@ public interface PortfolioControllerDocs {
 	);
 
 	@Operation(
+		summary = "포트폴리오 분석 상태 조회 (폴링)",
+		description = """
+			포트폴리오의 현재 분석 상태를 조회합니다.
+			프론트엔드에서 분석 완료 여부를 확인하기 위해 폴링으로 사용합니다.
+			
+			### 상태값
+			- **PENDING**: 분석 대기 중
+			- **PROCESSING**: 분석 진행 중
+			- **COMPLETED**: 분석 완료
+			- **RETRY_REQUIRED**: 일부 KPI basis=none, 추가 정보 제출 필요
+			- **FAILED**: 분석 실패
+			"""
+	)
+	@ApiResponses(value = {
+		@ApiResponse(
+			responseCode = "200",
+			description = "상태 조회 성공",
+			content = @Content(
+				schema = @Schema(implementation = navik.global.apiPayload.ApiResponse.Body.class),
+				examples = {
+					@ExampleObject(
+						name = "분석 완료",
+						value = """
+							{
+							  "isSuccess": true,
+							  "code": "COMMON_200",
+							  "message": "요청이 성공적으로 처리되었습니다.",
+							  "result": {
+							    "portfolioId": 1,
+							    "status": "COMPLETED"
+							  },
+							  "timestamp": "2026-02-05T07:00:00"
+							}
+							"""
+					),
+					@ExampleObject(
+						name = "재분석 필요",
+						value = """
+							{
+							  "isSuccess": true,
+							  "code": "COMMON_200",
+							  "message": "요청이 성공적으로 처리되었습니다.",
+							  "result": {
+							    "portfolioId": 1,
+							    "status": "RETRY_REQUIRED"
+							  },
+							  "timestamp": "2026-02-05T07:00:00"
+							}
+							"""
+					)
+				}
+			)
+		),
+		@ApiResponse(
+			responseCode = "403",
+			description = "접근 권한 없음",
+			content = @Content(
+				schema = @Schema(implementation = navik.global.apiPayload.ApiResponse.Body.class),
+				examples = @ExampleObject(
+					name = "포트폴리오 접근 권한 없음",
+					value = """
+						{
+						  "isSuccess": false,
+						  "code": "PORTFOLIO_403_01",
+						  "message": "해당 포트폴리오에 접근 권한이 없습니다.",
+						  "result": null,
+						  "timestamp": "2026-02-05T07:00:00"
+						}
+						"""
+				)
+			)
+		),
+		@ApiResponse(
+			responseCode = "404",
+			description = "포트폴리오 없음",
+			content = @Content(
+				schema = @Schema(implementation = navik.global.apiPayload.ApiResponse.Body.class),
+				examples = @ExampleObject(
+					name = "포트폴리오 없음",
+					value = """
+						{
+						  "isSuccess": false,
+						  "code": "PORTFOLIO_404_01",
+						  "message": "포트폴리오를 찾을 수 없습니다.",
+						  "result": null,
+						  "timestamp": "2026-02-05T07:00:00"
+						}
+						"""
+				)
+			)
+		)
+	})
+	navik.global.apiPayload.ApiResponse<PortfolioResponseDTO.Status> getPortfolioStatus(
+		@Parameter(hidden = true) @AuthUser Long userId,
+		@Parameter(description = "포트폴리오 ID", example = "1", required = true) @PathVariable Long portfolioId
+	);
+
+	@Operation(
 		summary = "추가 정보 제출 (재분석 필요 시)",
 		description = """
 			AI 분석 결과에서 일부 KPI의 basis가 none으로 판정된 포트폴리오에 대해 추가 정보를 제출하고 재분석을 요청합니다.
-
+			
 			### 조건
 			- 포트폴리오 상태가 **RETRY_REQUIRED**인 경우에만 호출 가능합니다.
 			- 초기 분석에서 basis가 유효한 KPI 점수는 이미 반영되어 있으며, basis="none"인 항목만 0점으로 남아있습니다.
 			- 추가 정보(qB1~qB5)를 입력하면 fallback 분석이 진행되어 0점인 항목만 업데이트됩니다.
-
+			
 			### 비동기 처리 안내
 			- 추가 정보 저장 후 재분석이 비동기로 진행됩니다.
 			"""
