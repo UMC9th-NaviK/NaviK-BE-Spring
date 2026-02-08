@@ -44,16 +44,13 @@ public class PortfolioCommandService {
 
 		portfolioRepository.save(portfolio);
 
-		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolio.getId(),false));
+		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolio.getId(), false));
 
-		return new PortfolioResponseDTO.Created(portfolio.getId(), request.inputType());
+		return new PortfolioResponseDTO.Created(portfolio.getId(), request.inputType(), portfolio.getStatus());
 	}
 
-	public PortfolioResponseDTO.AdditionalInfoSubmitted submitAdditionalInfo(
-		Long userId,
-		Long portfolioId,
-		PortfolioRequestDTO.AdditionalInfo request
-	) {
+	public PortfolioResponseDTO.AdditionalInfoSubmitted submitAdditionalInfo(Long userId, Long portfolioId,
+		PortfolioRequestDTO.AdditionalInfo request) {
 		Portfolio portfolio = portfolioRepository.findById(portfolioId)
 			.orElseThrow(() -> new GeneralException(PortfolioErrorCode.PORTFOLIO_NOT_FOUND));
 
@@ -65,13 +62,7 @@ public class PortfolioCommandService {
 			throw new GeneralException(PortfolioErrorCode.INVALID_PORTFOLIO_STATUS);
 		}
 
-		portfolio.updateAdditionalInfo(
-			request.qB1(),
-			request.qB2(),
-			request.qB3(),
-			request.qB4(),
-			request.qB5()
-		);
+		portfolio.updateAdditionalInfo(request.qB1(), request.qB2(), request.qB3(), request.qB4(), request.qB5());
 		portfolioRepository.save(portfolio);
 
 		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolioId, true));
