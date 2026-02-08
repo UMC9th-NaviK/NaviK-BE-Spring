@@ -1,7 +1,5 @@
 package navik.domain.board.controller.board;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -22,89 +20,10 @@ public interface BoardControllerDocs {
 
 	@Operation(
 		summary = "전체 게시글 조회 API",
-		description = """
-			**[5-2 소셜 게시판]**
-			
-			"최신순으로 전체 게시글을 조회합니다. 커서 기반 페이징을 사용합니다."
-			"""
+		description = "**[최신순 조회]** 커서 기반 페이징을 사용하여 전체 게시글을 조회합니다. 커서로는 마지막 게시글의 생성 시간을 사용합니다."
 	)
-	@io.swagger.v3.oas.annotations.responses.ApiResponses({
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "200",
-			description = "조회 성공",
-			content = @io.swagger.v3.oas.annotations.media.Content(
-				mediaType = "application/json",
-				examples = {
-					@io.swagger.v3.oas.annotations.media.ExampleObject(
-						name = "전체 게시글 조회 예시",
-						summary = "전체 게시글 조회용 응답",
-						value = """
-							{
-							    "isSuccess": true,
-							    "code": "COMMON200",
-							    "message": "성공입니다.",
-							    "result": {
-							        "content": [
-							            {
-							                "boardId": 3,
-							                "userId": 1,
-							                "jobName": "PM",
-							                "nickname": "써니",
-							                "profileImageUrl": "p",
-							                "level": 1,
-							                "isEntryLevel": true,
-							                "articleTitle": "이재준",
-							                "articleContent": "이재준추가",
-							                "likeCount": 0,
-							                "commentCount": 0,
-							                "viewCount": 0,
-							                "createdAt": "2026-02-05T17:57:27.362648"
-							            },
-							            {
-							                "boardId": 2,
-							                "userId": 1,
-							                "jobName": "PM",
-							                "nickname": "써니",
-							                "profileImageUrl": "p",
-							                "level": 1,
-							                "isEntryLevel": true,
-							                "articleTitle": "2번",
-							                "articleContent": "2번입니다",
-							                "likeCount": 0,
-							                "commentCount": 0,
-							                "viewCount": 3,
-							                "createdAt": "2026-02-05T17:50:37"
-							            },
-							            {
-							                "boardId": 1,
-							                "userId": 1,
-							                "jobName": "PM",
-							                "nickname": "써니",
-							                "profileImageUrl": "p",
-							                "level": 1,
-							                "isEntryLevel": true,
-							                "articleTitle": "1번",
-							                "articleContent": "1번입니다",
-							                "likeCount": 0,
-							                "commentCount": 0,
-							                "viewCount": 2,
-							                "createdAt": "2026-02-05T17:50:10"
-							            }
-							        ],
-							        "pageSize": 3,
-							        "nextCursor": null,
-							        "hasNext": false
-							    },
-							    "timestamp": "2026-02-05T17:57:31"
-							}
-							"""
-					)
-				}
-			)
-		)
-	})
 	@Parameters({
-		@Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 ID (첫 조회 시 비움)", example = "100"),
+		@Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 생성 시간", example = "2026-02-09T00:00:00"),
 		@Parameter(name = "size", description = "한 페이지에 가져올 게시글 개수 (기본 10개)", example = "10")
 	})
 	ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> getBoards(
@@ -114,11 +33,11 @@ public interface BoardControllerDocs {
 
 	@Operation(
 		summary = "직무별 게시글 조회 API",
-		description = "특정 직무에 해당하는 게시글을 최신순으로 조회합니다. 커서 기반 페이징(ID)을 지원합니다."
+		description = "특정 직무 게시글을 최신순으로 조회합니다. 커서로 생성 시간을 지원합니다."
 	)
 	@Parameters({
 		@Parameter(name = "jobName", description = "조회할 직무의 이름", example = "백엔드"),
-		@Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 ID (첫 조회 시 비움)", example = "90"),
+		@Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 생성 시간 (첫 조회 시 비움)", example = "2026-02-09T00:00:00"),
 		@Parameter(name = "size", description = "한 페이지에 가져올 게시글 개수 (기본 10개)", example = "10")
 	})
 	ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> getBoardsByJob(
@@ -129,29 +48,37 @@ public interface BoardControllerDocs {
 
 	@Operation(
 		summary = "HOT 게시글 조회 API",
-		description = "좋아요와 조회수 합산 점수가 높은 순으로 게시글을 조회합니다. 커서 기반 페이징을 지원합니다."
+		description = "좋아요와 조회수 합산 점수가 높은 순으로 게시글을 조회합니다. '점수_시간' 형태의 복합 커서를 사용합니다."
 	)
 	@Parameters({
-		@Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 '점수_ID' (첫 조회 시에는 비워서 보냅니다)", example = "15_23"),
-		@Parameter(name = "size", description = "한 페이지에 가져올 게시글 개수 (기본 10개)", example = "10")
+		@Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 '점수_시간' (첫 조회 시 비움)", example = "15_2026-02-09T00:00:00"),
+		@Parameter(name = "size", description = "한 페이지에 가져올 게시글 개수", example = "10")
 	})
 	ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> getHotBoards(
 		@RequestParam(value = "cursor", required = false) String cursor,
-		@PageableDefault(size = 10) Pageable pageable
+		@RequestParam(defaultValue = "10") int size
 	);
 
-	@Operation(summary = "게시글 검색 API", description = "제목 또는 내용에 키워드가 포함된 글을 검색합니다.")
+	@Operation(
+		summary = "게시글 검색 API",
+		description = "탭(전체/직무/HOT) 범위 내에서 키워드를 검색합니다. 커서 형식은 탭 종류에 따라 달라집니다."
+	)
 	@Parameters({
 		@Parameter(name = "keyword", description = "검색어", example = "Spring"),
-		@Parameter(name = "cursor", description = "마지막 게시글 ID", example = "100"),
+		@Parameter(name = "type", description = "게시판 종류 (ALL, JOB, HOT)", example = "ALL"),
+		@Parameter(name = "jobName", description = "직무 이름 (type이 JOB일 때 필수)", example = "백엔드"),
+		@Parameter(name = "cursor", description = "마지막 게시글의 커서 (ALL/JOB은 '시간', HOT은 '점수_시간')", example = "2026-02-09T00:00:00"),
 		@Parameter(name = "size", description = "페이지 크기", example = "10")
 	})
 	ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> searchBoards(
 		@RequestParam String keyword,
+		@RequestParam(value = "type", defaultValue = "ALL") String type,
+		@RequestParam(value = "jobName", required = false) String jobName,
 		@RequestParam(value = "cursor", required = false) String cursor,
 		@RequestParam(value = "size", defaultValue = "10") int size
 	);
 
+	// 상세 조회, 작성, 수정, 삭제, 좋아요 API는 기존 ID 기반이므로 유지합니다.
 	@Operation(summary = "게시글 상세 조회", description = "특정 게시글의 상세 정보를 조회합니다.")
 	@Parameter(name = "boardId", description = "조회할 게시글 ID", example = "1")
 	ApiResponse<BoardResponseDTO.BoardDTO> getBoardDetail(Long boardId);
@@ -160,31 +87,18 @@ public interface BoardControllerDocs {
 	@io.swagger.v3.oas.annotations.responses.ApiResponses(
 		value = {@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "CREATED")
 		})
-	@Parameter(name = "userId", description = "작성자 ID (경로변수)", example = "1")
 	ApiResponse<Long> createBoard(BoardCreateDTO request, @AuthUser Long userId);
 
 	@Operation(summary = "게시글 수정", description = "게시글의 제목과 내용을 수정합니다.")
-	@Parameters({
-		@Parameter(name = "boardId", description = "수정할 게시글 ID", example = "1"),
-		@Parameter(name = "userId", description = "작성자 ID (경로변수)", example = "1")
-	})
 	ApiResponse<Long> updateBoard(Long boardId, BoardUpdateDTO request, @AuthUser Long userId);
 
 	@Operation(summary = "게시글 삭제", description = "게시글을 삭제 합니다.")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses(
 		value = {@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "DELETED")
 		})
-	@Parameters({
-		@Parameter(name = "boardId", description = "삭제할 게시글 ID", example = "1"),
-		@Parameter(name = "userId", description = "작성자 ID (경로변수)", example = "1")
-	})
 	ApiResponse<Object> deleteBoard(Long boardId, @AuthUser Long userId);
 
 	@Operation(summary = "게시글 좋아요 확인", description = "게시글에 좋아요를 누르거나 취소합니다.")
-	@Parameters({
-		@Parameter(name = "boardId", description = "게시글 ID", example = "1"),
-		@Parameter(name = "userId", description = "유저 ID", hidden = true)
-	})
 	ApiResponse<BoardLikeDTO.Response> toggleLike(
 		@PathVariable Long boardId,
 		@AuthUser Long userId

@@ -15,5 +15,6 @@ public interface BoardCustomRepository {
 
 	List<Board> findHotBoardsByCursor(Integer lastScore, LocalDateTime lastCreatedAt, int pageSize);
 
-	List<Board> searchByKeyword(String keyword, LocalDateTime lastCreatedAt, int size);
+	List<Board> searchByKeyword(String keyword, String type, String jobName, Integer lastScore,
+		LocalDateTime lastCreatedAt, int size);
 }

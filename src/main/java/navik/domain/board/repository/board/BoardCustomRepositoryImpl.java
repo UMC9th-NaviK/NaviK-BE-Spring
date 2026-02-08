@@ -75,21 +75,34 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
 	}
 
 	@Override
-	public List<Board> searchByKeyword(String keyword, LocalDateTime lastCreatedAt, int pageSize) {
+	public List<Board> searchByKeyword(
+		String keyword, String type, String jobName, Integer lastScore, LocalDateTime lastCreatedAt, int pageSize) {
+
 		QBoard board = QBoard.board;
 		QUser user = QUser.user;
 		QJob job = QJob.job;
+
+		NumberExpression<Integer> scoreSum = board.articleLikes.add(board.articleViews);
+
 		return queryFactory
 			.selectFrom(board)
 			.leftJoin(board.user, user).fetchJoin()
 			.leftJoin(user.job, job).fetchJoin()
 			.where(
 				keywordContains(keyword), // 검색어가 있는지 확인 (제목이나 내용에)
-				ltCreatedAt(lastCreatedAt)
+				filterByJob(type, jobName), // 직무 필터
+				"HOT".equals(type) ? cursorCondition(lastScore, lastCreatedAt, scoreSum) : ltCreatedAt(lastCreatedAt)
 			)
-			.orderBy(board.createdAt.desc())
+			.orderBy(
+				"HOT".equals(type) ? scoreSum.desc() : board.createdAt.desc(),
+				board.createdAt.desc()
+			)
 			.limit(pageSize + 1)
 			.fetch();
+	}
+
+	private BooleanExpression filterByJob(String type, String jobName) {
+		return "JOB".equals(type) ? QBoard.board.user.job.name.eq(jobName) : null;
 	}
 
 	private BooleanExpression keywordContains(String keyword) {

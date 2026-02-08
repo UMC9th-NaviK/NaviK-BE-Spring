@@ -1,7 +1,5 @@
 package navik.domain.board.controller.board;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +23,6 @@ import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDTO;
-import navik.global.swagger.SwaggerPageable;
 
 @RestController
 @RequestMapping("/v1/boards")
@@ -73,16 +70,15 @@ public class BoardController implements BoardControllerDocs {
 	/**
 	 * HOT 게시글 조회
 	 * @param cursor
-	 * @param pageable
+	 * @param size
 	 * @return
 	 */
 	@GetMapping("/hot")
-	@SwaggerPageable
 	public ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> getHotBoards(
 		@RequestParam(value = "cursor", required = false) String cursor,
-		@PageableDefault(size = 10) Pageable pageable
+		@RequestParam(defaultValue = "10") int size
 	) {
-		BoardResponseDTO.HotBoardListDTO response = boardQueryService.getHotBoardList(cursor, pageable);
+		BoardResponseDTO.HotBoardListDTO response = boardQueryService.getHotBoardList(cursor, size);
 		CursorResponseDTO<BoardResponseDTO.BoardDTO> result = CursorResponseDTO.of(
 			response.getBoardList(),
 			response.getHasNext(),
@@ -100,14 +96,16 @@ public class BoardController implements BoardControllerDocs {
 	 * @return
 	 */
 	@Override
-	@SwaggerPageable
 	@GetMapping("/search")
 	public ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> searchBoards(
 		@RequestParam String keyword,
+		@RequestParam(value = "type", defaultValue = "ALL") String type,
+		@RequestParam(value = "jobName", required = false) String jobName,
 		@RequestParam(value = "cursor", required = false) String cursor,
 		@RequestParam(value = "size", defaultValue = "10") int size
 	) {
-		CursorResponseDTO<BoardResponseDTO.BoardDTO> response = boardQueryService.searchBoard(keyword, cursor, size);
+		CursorResponseDTO<BoardResponseDTO.BoardDTO> response = boardQueryService.searchBoard(keyword, type, jobName,
+			cursor, size);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
 	}
 

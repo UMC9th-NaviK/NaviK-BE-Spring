@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,15 +80,15 @@ public class BoardQueryService {
 	/**
 	 * HOT 게시판 게시글 조회
 	 * @param cursor
-	 * @param pageable
+	 * @param pageSize
 	 * @return
 	 */
 	@Cacheable
 		(value = "hotBoards",
-			key = "(#cursor ?: 'none') + '_' + #pageable.pageSize",
+			key = "(#cursor ?: 'none') + '_' + #pageSize",
 			cacheManager = "cacheManager10Sec")
 	@Transactional(readOnly = true)
-	public BoardResponseDTO.HotBoardListDTO getHotBoardList(String cursor, Pageable pageable) {
+	public BoardResponseDTO.HotBoardListDTO getHotBoardList(String cursor, int pageSize) {
 		Integer lastScore = null;
 		LocalDateTime lastCreatedAt = null;
 
@@ -99,13 +98,17 @@ public class BoardQueryService {
 			lastCreatedAt = LocalDateTime.parse(parts[1]);
 		}
 
-		List<Board> boards = boardRepository.findHotBoardsByCursor(lastScore, lastCreatedAt, pageable.getPageSize());
+		List<Board> boards = boardRepository.findHotBoardsByCursor(lastScore, lastCreatedAt, pageSize);
 		List<Long> boardIds = boards.stream().map(Board::getId).collect(Collectors.toList());
 
 		// 좋아요 Map 생성 로직 제거
 		Map<Long, Integer> commentCountMap = getCommentCountMap(boardIds);
 
-		boolean hasNext = boards.size() >= pageable.getPageSize();
+		boolean hasNext = boards.size() > pageSize;
+		if (hasNext) {
+			boards.remove(pageSize);
+		}
+
 		String nextCursor = null;
 
 		if (!boards.isEmpty() && hasNext) {
@@ -129,21 +132,28 @@ public class BoardQueryService {
 			));
 	}
 
-	/**
-	 * 게시글 검색
-	 * @param keyword
-	 * @param cursor
-	 * @param pageSize
-	 * @return
-	 */
 	@Transactional(readOnly = true)
-	public CursorResponseDTO<BoardResponseDTO.BoardDTO> searchBoard(String keyword, String cursor, int pageSize) {
-		LocalDateTime lastCreatedAt = (cursor != null && !cursor.isEmpty()) ? LocalDateTime.parse(cursor) : null;
+	public CursorResponseDTO<BoardResponseDTO.BoardDTO> searchBoard(String keyword, String type, String jobName,
+		String cursor, int pageSize) {
+		Integer lastScore = null;
+		LocalDateTime lastCreatedAt = null;
 
-		// 1. 키워드 및 커서 기반 검색 실행
-		List<Board> boards = boardRepository.searchByKeyword(keyword, lastCreatedAt, pageSize);
+		// 1. 탭 유형에 맞춰 커서 데이터 파싱
+		if (cursor != null && !cursor.isEmpty()) {
+			if ("HOT".equals(type)) {
+				String[] parts = cursor.split("_");
+				lastScore = Integer.parseInt(parts[0]);
+				lastCreatedAt = LocalDateTime.parse(parts[1]);
+			} else {
+				lastCreatedAt = LocalDateTime.parse(cursor);
+			}
+		}
 
-		// 2. 검색 결과가 없을 경우 빈 응답 반환
+		// 2. 필터링된 검색 쿼리 실행
+		List<Board> boards = boardRepository.searchByKeyword(keyword, type, jobName, lastScore, lastCreatedAt,
+			pageSize);
+
+		// 3. 검색 결과가 없을 경우 빈 응답 반환
 		if (boards.isEmpty()) {
 			return CursorResponseDTO.of(Collections.emptyList(), false, null);
 		}
@@ -160,8 +170,24 @@ public class BoardQueryService {
 			.toList();
 
 		// 5. 다음 페이지 여부 및 커서 생성
-		boolean hasNext = boards.size() >= pageSize;
-		String nextCursor = hasNext ? boards.get(boards.size() - 1).getId().toString() : null;
+		boolean hasNext = boards.size() > pageSize;
+		if (hasNext) {
+			boards.remove(pageSize); // 확인용으로 가져온 마지막 데이터 삭제
+		}
+
+		// 6. 탭 유형에 맞춰 다음 커서 생성
+		String nextCursor = null;
+		if (hasNext && !boards.isEmpty()) {
+			Board lastBoard = boards.get(boards.size() - 1);
+			if ("HOT".equals(type)) {
+				// HOT 탭은 "점수_시간"
+				int score = lastBoard.getArticleLikes() + lastBoard.getArticleViews();
+				nextCursor = score + "_" + lastBoard.getCreatedAt().toString();
+			} else {
+				// 일반/직무 탭은 "시간"
+				nextCursor = lastBoard.getCreatedAt().toString();
+			}
+		}
 
 		return CursorResponseDTO.of(content, hasNext, nextCursor);
 	}
