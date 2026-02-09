@@ -10,8 +10,7 @@ import navik.domain.users.entity.UserDepartment;
 
 public interface UserDepartmentRepository extends JpaRepository<UserDepartment, Long> {
 
-	@Query("SELECT ud.department.name FROM UserDepartment ud WHERE ud.user.id = :userId")
-	List<String> findDepartmentNamesByUserId(@Param("userId") Long userId);
-
+	@Query("SELECT ud.department.id FROM UserDepartment ud WHERE ud.user.id = :userId")
+	List<Long> findDepartmentIdsByUserId(Long userId);
 	void deleteAllByUserId(Long userId);
 }

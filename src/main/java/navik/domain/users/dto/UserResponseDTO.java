@@ -46,7 +46,7 @@ public class UserResponseDTO {
 		String job,
 		Boolean isEntryLevel,
 		EducationLevel educationLevel,
-		List<String> departmentList
+		List<Long> departmentList
 	) {
 	}
 }

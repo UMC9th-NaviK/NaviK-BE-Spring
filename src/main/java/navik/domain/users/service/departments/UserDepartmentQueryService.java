@@ -14,7 +14,7 @@ import navik.domain.users.repository.UserDepartmentRepository;
 public class UserDepartmentQueryService {
 	private final UserDepartmentRepository userDepartmentRepository;
 
-	public List<String> getUserDepartments(Long userId){
-		return userDepartmentRepository.findDepartmentNamesByUserId(userId);
+	public List<Long> getUserDepartments(Long userId){
+		return userDepartmentRepository.findDepartmentIdsByUserId(userId);
 	}
 }

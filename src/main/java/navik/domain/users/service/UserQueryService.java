@@ -42,7 +42,7 @@ public class UserQueryService {
 
 	public UserResponseDTO.MyPageDTO getMyPage(Long userId) {
 		User user = getUser(userId);
-		List<String> departmentList = userDepartmentQueryService.getUserDepartments(userId);
+		List<Long> departmentList = userDepartmentQueryService.getUserDepartments(userId);
 
 		return new UserResponseDTO.MyPageDTO(
 			user.getProfileImageUrl(),

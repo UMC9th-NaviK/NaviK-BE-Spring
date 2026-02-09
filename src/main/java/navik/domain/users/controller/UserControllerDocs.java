@@ -170,7 +170,7 @@ public interface UserControllerDocs {
 			    "job": "백엔드 개발자",
 			    "isEntryLevel": true,
 			    "educationLevel": "BACHELOR",
-			    "departmentList": ["컴퓨터공학과", "소프트웨어학과"]
+			    "departmentList": ["1", "2"]
 			  },
 			  "timestamp": "2026-01-20T14:30:00"
 			}
