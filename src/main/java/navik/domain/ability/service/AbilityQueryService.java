@@ -35,6 +35,10 @@ public class AbilityQueryService {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
 
+		if (size <= 0 || size > 100) {
+			throw new GeneralException(GeneralErrorCode.INVALID_INPUT_VALUE);
+		}
+
 		// 2. 커서 디코딩
 		AbilityRequestDTO.CursorRequest cursorRequest = decodeCursor(cursor);
 		LocalDateTime lastCreatedAt = cursorRequest != null ? cursorRequest.getLastCreatedAt() : null;

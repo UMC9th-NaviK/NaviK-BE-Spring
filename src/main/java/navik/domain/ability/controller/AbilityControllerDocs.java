@@ -34,7 +34,7 @@ public interface AbilityControllerDocs {
 				    "code": "COMMON_200",
 				    "message": "성공입니다.",
 				    "result": {
-				        "values": [
+				        "content": [
 				            {
 				                "abilityId": 1,
 				                "content": "Java 및 Spring을 활용한 백엔드 개발 역량"
@@ -48,7 +48,9 @@ public interface AbilityControllerDocs {
 				        "nextCursor": "MjAyNC0wOC0wMVQxMjowMDowMF8y"
 				    }
 				}
-				""")))
+				"""))),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "유저를 찾지 못하였습니다."),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "입력 값이 잘못되었습니다.")
 	})
 	ApiResponse<CursorResponseDTO<AbilityResponseDTO.AbilityDTO>> getAbilities(
 		@AuthUser Long userId,
