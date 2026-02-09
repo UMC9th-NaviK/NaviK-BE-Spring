@@ -2,8 +2,6 @@ package navik.domain.recruitment.service.position;
 
 import java.util.Base64;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -29,8 +27,6 @@ import navik.global.dto.CursorResponseDTO;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PositionQueryService {
-
-	private static final Pattern CURSOR_PATTERN = Pattern.compile("^([\\d\\.]+)_(\\d+)_(\\d+)$");
 
 	private final PositionRepository positionRepository;
 	private final UserRepository userRepository;
@@ -81,25 +77,33 @@ public class PositionQueryService {
 	}
 
 	private String encodeCursor(Double similarity, Long matchCount, Long id) {
-		String original = String.format("%f_%d_%d", similarity, matchCount, id);
+		String original = similarity + "_" + matchCount + "_" + id;
 		return Base64.getEncoder().encodeToString(original.getBytes());
 	}
 
 	private PositionRequestDTO.CursorRequest decodeCursor(String cursor) {
 		if (cursor == null)
 			return null;
-		String decoded = new String(Base64.getDecoder().decode(cursor));
-		Matcher matcher = CURSOR_PATTERN.matcher(decoded);
-		if (matcher.find()) {
-			Double similarityAvg = Double.parseDouble(matcher.group(1));
-			Long matchCount = Long.parseLong(matcher.group(2));
-			Long id = Long.parseLong(matcher.group(3));
+		try {
+			String decoded = new String(Base64.getDecoder().decode(cursor));
+			String[] parts = decoded.split("_");
+
+			if (parts.length != 3) {
+				throw new GeneralException(GeneralErrorCode.INVALID_INPUT_VALUE);
+			}
+
+			Double similarityAvg = Double.parseDouble(parts[0]);
+			Long matchCount = Long.parseLong(parts[1]);
+			Long id = Long.parseLong(parts[2]);
+
 			return PositionRequestDTO.CursorRequest.builder()
 				.lastSimilarity(similarityAvg)
 				.lastMatchCount(matchCount)
 				.lastId(id)
 				.build();
+
+		} catch (Exception e) {
+			throw new GeneralException(GeneralErrorCode.INVALID_INPUT_VALUE);
 		}
-		return null;
 	}
 }
