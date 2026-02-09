@@ -6,8 +6,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import navik.domain.board.dto.board.BoardResponseDTO;
+import navik.domain.ability.dto.AbilityResponseDTO;
 import navik.global.apiPayload.ApiResponse;
+import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDTO;
 
 @Tag(name = "Ability", description = "내 활동 및 이력 API")
@@ -21,7 +22,8 @@ public interface AbilityControllerDocs {
 		@Parameter(name = "cursor", description = "마지막으로 조회한 게시글의 생성 시간", example = "2026-02-09T00:00:00"),
 		@Parameter(name = "size", description = "한 페이지에 가져올 게시글 개수 (기본 10개)", example = "10")
 	})
-	ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> getAbilities(
+	ApiResponse<CursorResponseDTO<AbilityResponseDTO.AbilityDTO>> getAbilities(
+		@AuthUser Long userId,
 		@RequestParam(value = "cursor", required = false) String cursor,
 		@RequestParam(value = "size", defaultValue = "10") int size
 	);
