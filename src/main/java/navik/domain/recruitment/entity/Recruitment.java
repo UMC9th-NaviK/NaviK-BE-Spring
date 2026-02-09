@@ -20,7 +20,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.notification.entity.Notifiable;
-import navik.domain.notification.entity.NotificationType;
+import navik.domain.notification.enums.NotificationType;
 import navik.domain.recruitment.enums.CompanySize;
 import navik.domain.recruitment.enums.IndustryType;
 import navik.global.entity.BaseEntity;

@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import navik.domain.goal.entity.Goal;
 import navik.domain.goal.repository.GoalRepository;
 import navik.domain.notification.config.NotificationConfig;
-import navik.domain.notification.entity.NotificationType;
+import navik.domain.notification.enums.NotificationType;
 import navik.domain.notification.repository.NotificationRepository;
 import navik.domain.notification.repository.RecommendedRecruitmentRepository;
 import navik.domain.notification.service.NotificationCommandService;

@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import navik.domain.notification.enums.NotificationType;
 import navik.domain.users.entity.User;
 import navik.global.entity.BaseEntity;
 

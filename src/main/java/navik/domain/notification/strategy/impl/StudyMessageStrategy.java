@@ -3,7 +3,7 @@ package navik.domain.notification.strategy.impl;
 import org.springframework.stereotype.Component;
 
 import navik.domain.notification.entity.Notifiable;
-import navik.domain.notification.entity.NotificationType;
+import navik.domain.notification.enums.NotificationType;
 import navik.domain.notification.strategy.NotificationMessageStrategy;
 import navik.domain.study.entity.Study;
 import navik.domain.users.entity.User;
