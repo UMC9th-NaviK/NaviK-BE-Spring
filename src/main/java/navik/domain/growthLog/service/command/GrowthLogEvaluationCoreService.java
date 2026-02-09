@@ -24,7 +24,6 @@ import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.repository.PortfolioRepository;
-import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Slf4j
@@ -36,7 +35,6 @@ public class GrowthLogEvaluationCoreService {
 	private final GrowthLogKpiLinkRepository growthLogKpiLinkRepository;
 	private final KpiCardRepository kpiCardRepository;
 	private final PortfolioRepository portfolioRepository;
-	private final UserRepository userRepository;
 	private final GrowthLogAiClient growthLogAiClient;
 	private final AbilityNormalizer abilityNormalizer;
 
