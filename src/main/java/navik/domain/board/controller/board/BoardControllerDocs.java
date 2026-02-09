@@ -81,6 +81,7 @@ public interface BoardControllerDocs {
 	// 상세 조회, 작성, 수정, 삭제, 좋아요 API는 기존 ID 기반이므로 유지합니다.
 	@Operation(summary = "게시글 상세 조회", description = "특정 게시글의 상세 정보를 조회합니다.")
 	@Parameter(name = "boardId", description = "조회할 게시글 ID", example = "1")
+	@Parameter(name = "userId", description = "작성자 ID (경로변수)", example = "1")
 	ApiResponse<BoardResponseDTO.BoardDTO> getBoardDetail(@PathVariable Long boardId);
 
 	@Operation(summary = "게시글 작성", description = "새로운 게시글을 작성합니다.")
