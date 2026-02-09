@@ -17,7 +17,9 @@ import navik.domain.board.entity.Board;
 import navik.domain.board.repository.board.BoardRepository;
 import navik.domain.board.repository.boardLike.BoardLikeRepository;
 import navik.domain.board.repository.comment.CommentRepository;
+import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
+import navik.domain.users.service.UserQueryService;
 import navik.global.apiPayload.exception.code.GeneralErrorCode;
 import navik.global.apiPayload.exception.exception.GeneralException;
 import navik.global.dto.CursorResponseDTO;
@@ -29,6 +31,7 @@ public class BoardQueryService {
 	private final BoardRepository boardRepository;
 	private final BoardLikeRepository boardLikeRepository;
 	private final CommentRepository commentRepository;
+	private final UserQueryService userQueryService;
 
 	/**
 	 * 전체 게시글 조회
@@ -67,7 +70,8 @@ public class BoardQueryService {
 		List<BoardResponseDTO.BoardDTO> doList = boards.stream()
 			.map(board -> BoardConverter.toBoardDTO(
 				board,
-				commentCountMap.getOrDefault(board.getId(), 0)
+				commentCountMap.getOrDefault(board.getId(), 0),
+				false
 			))
 			.collect(Collectors.toList());
 
@@ -166,7 +170,8 @@ public class BoardQueryService {
 		// 4. DTO 변환 및 결과 매핑
 		List<BoardResponseDTO.BoardDTO> content = boards.stream()
 			.map(board -> BoardConverter.toBoardDTO(board,
-				commentCountMap.getOrDefault(board.getId(), 0)))
+				commentCountMap.getOrDefault(board.getId(), 0), false)
+			)
 			.toList();
 
 		// 5. 다음 페이지 여부 및 커서 생성
@@ -198,7 +203,7 @@ public class BoardQueryService {
 	 * @return
 	 */
 	@Transactional
-	public BoardResponseDTO.BoardDTO getBoardDetail(Long boardId) {
+	public BoardResponseDTO.BoardDTO getBoardDetail(Long boardId, Long userId) {
 		// 1. 조회 수 증가
 		int updatedRows = boardRepository.incrementArticleViews(boardId);
 
@@ -211,9 +216,17 @@ public class BoardQueryService {
 		Board board = boardRepository.findById(boardId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.BOARD_NOT_FOUND));
 
+		// 3. 좋아요 여부 확인
+		boolean isLiked = false;
+		if (userId != null) {
+			User user = userQueryService.getUser(userId);
+			isLiked = boardLikeRepository.findByBoardAndUser(board, user).isPresent();
+		}
+
 		return BoardConverter.toBoardDTO(
 			board,
-			commentRepository.countCommentByBoard(board)
+			commentRepository.countCommentByBoard(board),
+			isLiked
 		);
 	}
 }

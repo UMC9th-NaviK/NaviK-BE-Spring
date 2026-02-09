@@ -27,6 +27,7 @@ public class BoardResponseDTO {
 		private int likeCount;
 		private int commentCount;
 		private int viewCount;
+		private Boolean isLiked;
 		@JsonSerialize(using = LocalDateTimeSerializer.class)
 		@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 		private LocalDateTime createdAt;
