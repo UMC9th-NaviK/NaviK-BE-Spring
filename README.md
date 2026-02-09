@@ -149,7 +149,7 @@ src/main/java/navik/
 
 ### 1. Main API 서버 (Public Subnet)
 
-> 주요 역할 : 서비스 사용자의 직접적인 트래픽 처리 -> Public
+> 주요 역할 : 서비스 사용자의 직접적인 트래픽 처리 -> Public Subnet
 
 ---
 
@@ -182,7 +182,8 @@ src/main/java/navik/
 
 ### 2. 채용 공고 크롤링 및 성장 기록 분석 서버 (Private Subnet)
 
-> 주요 역할 : 외부 IO가 필요한 작업 (OpenAI, NaverOCR, 채용 공고 스크래핑) -> 서비스 사용자의 트래픽을 담당하지 않으므로 (Private)
+> 주요 역할 : 외부 IO가 필요한 작업 (OpenAI, NaverOCR, 채용 공고 스크래핑)
+> 서비스 사용자의 트래픽을 담당하지 않고 Server to Server 이므로 (Private)
 
 ---
 
@@ -214,7 +215,8 @@ src/main/java/navik/
 
 ### 3. 이력서 분석 서버 (Private Subnet)
 
-> 주요 역할 : 추후 디밸롭해가며 파일이 늘어나는 경우를 대비, '파일 관련 라이브러리 생태계'가 풍부한 파이썬이 적합하다고 판단 + 외부 IO 작업 (OpenAI) -> Private Subnet
+> 주요 역할 : 파일 유형이 늘어나는 요구사항에 대비, '파일 관련 라이브러리 생태계'가 풍부한 파이썬이 적합하다고 판단
+> 외부 IO 작업만 처리 (OpenAI) -> Private Subnet
 ---
 
 | Category      | Stack                                                                                                    | 도입 이유                                                            |
@@ -336,7 +338,7 @@ GitHub Actions를 통해 자동 배포됩니다.
 | <img src="https://avatars.githubusercontent.com/u/186535028?v=4" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/81423073?v=4" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/81312085?v=4" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/158552165?v=4" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/108278044?v=4" width="150" height="150"/> |
 |---------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
 | @kjhh2605<br/>[GitHub](https://github.com/kjhh2605)                                         | @bmh7190<br/>[GitHub](https://github.com/bmh7190)                                          | @kfdsy0103<br/>[GitHub](https://github.com/kfdsy0103)                                      | @hardwoong<br/>[GitHub](https://github.com/hardwoong)                                       | @LeeJaeJun1<br/>[GitHub](https://github.com/LeeJaeJun1)                                     |
-| OAuth 인증 처리, 성장 로그 분석 서버 담당, 비동기 처리 설계                                                      | AWS 인프라 및 CI/CD 구축, 성장 로그 비동기 분석 로직 설계                                                     | (Lead) 채용 공고 추출 및 추천, 모니터링 담당                                                              | FastAPI 이력서 분석 서버 담당                                                                        | 소셜 관련 Redis 캐싱 및 동시성 처리                                                                     |                                                                          
+| - OAuth 인증 처리<br/>- 성장 로그 분석 서버 담당<br/>- 비동기 워커 패턴 설계                                       | - AWS 인프라 및 CI/CD 구축, <br/>- 성장 로그 담당 <br/>- 비동기 워커 패턴 설계                                  | (Lead) <br/>- 채용 공고 추출 및 추천 <br/>- 모니터링 환경 설정                                              | - FastAPI 이력서 분석 서버 담당<br/>- Few-Shot Prompt 활용 및 일치율 개선                                    | - 소셜 관련 기능 담당 <br/>- 병목 지점 Redis 캐싱 및 동시성 처리                                                |                                                                          
 
 ## Credits
 
