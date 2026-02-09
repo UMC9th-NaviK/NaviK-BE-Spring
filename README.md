@@ -47,7 +47,7 @@
 - [주요 기능 소개](#주요-기능-소개)
 - [주요 API 기능](#주요-API-기능)
 - [기술적 시도](#기술적-시도)
-- [트러블 슈팅](#트러블-슈팅)
+- [배포 과정](#배포-과정)
 - [팀원 구성](#팀원-구성)
 
 ## 📊 프로젝트 구조
@@ -275,7 +275,7 @@ Swagger UI를 통해 전체 API 명세를 확인할 수 있습니다.
 
 ## 🛠 기술적 시도
 
-### 비동기 Worker 아키텍처
+### 1. 비동기 Worker 아키텍처
 
 ```
 [Client] → [REST API] → [Redis Stream] → [Worker] → [AI Server]
@@ -286,7 +286,7 @@ Swagger UI를 통해 전체 API 명세를 확인할 수 있습니다.
 - 성장 로그 평가, 포트폴리오 분석은 Redis Stream 기반 비동기 Worker로 처리됩니다
 - Worker는 poll 방식으로 Stream을 소비하며, claim 메커니즘으로 실패한 메시지를 재처리합니다
 
-### 채용 공고 비동기 추출&적재 파이프라인
+### 2. 채용 공고 비동기 추출&적재 파이프라인
 
 ```
 [Crawler Server] → [Redis Stream] → [REST API]
@@ -294,9 +294,9 @@ Swagger UI를 통해 전체 API 명세를 확인할 수 있습니다.
                                    [DB 결과 저장]
 ```
 
-- 추출과 적재의 분리로 장애 지점 제거
+- 추출 <-> 적재의 분리로 장애 지점 제거
 
-### Redis 캐싱을 활용한 조회 성능 개선
+### 3. Redis 캐싱을 활용한 조회 성능 개선
 
 ```
 [Client] → [HIT: Redis Cache] → [MISS: REST API]
@@ -306,21 +306,21 @@ Swagger UI를 통해 전체 API 명세를 확인할 수 있습니다.
 
 - 자주 조회되는 데이터 캐싱으로 사용자 경험 개선
 
-### 모니터링 서버 구축
+### 4. 모니터링 서버 구축
 
 ```
 [Spring Actuator] → [Prometheus] → [Grafana]
 ```
 
-- API 요청 및 응답 속도 시각화, p95, p99 등을 직접 확인하며 병목 지점 파악
+- API 요청 및 응답 속도 시각화, p95, p99, 쿼리 개수 등을 직접 확인하며 병목 지점 파악
 
-### 그 밖의 성능 개선을 위한 시도
+### 5. 그 밖의 성능 개선을 위한 시도
 
 - 상호 간 코드 리뷰로 병목 지점 사전 파악 및 개선
 - Repository 조회 시 Projection을 적용하여 N+1의 원인 차단
 - QueryDSL을 활용하여 동적 검색 필터 처리 + 컴파일 타입 안정성 확보
 
-## 배포 과정
+## 🚀 배포 과정
 
 GitHub Actions를 통해 자동 배포됩니다.
 
@@ -331,10 +331,12 @@ GitHub Actions를 통해 자동 배포됩니다.
 
 배포 후 Discord 웹훅으로 결과 알림이 전송됩니다.
 
-## Support
+## 👤 팀원 구성
 
-- **GitHub Issues**: 버그 리포트 및 기능 요청
-- **Swagger UI**: API 명세 및 테스트
+| <img src="https://avatars.githubusercontent.com/u/186535028?v=4" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/81423073?v=4" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/81312085?v=4" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/158552165?v=4" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/108278044?v=4" width="150" height="150"/> |
+|---------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| @kjhh2605<br/>[GitHub](https://github.com/kjhh2605)                                         | @bmh7190<br/>[GitHub](https://github.com/bmh7190)                                          | @kfdsy0103<br/>[GitHub](https://github.com/kfdsy0103)                                      | @hardwoong<br/>[GitHub](https://github.com/hardwoong)                                       | @LeeJaeJun1<br/>[GitHub](https://github.com/LeeJaeJun1)                                     |
+| OAuth 인증 처리, 성장 로그 분석 서버 담당, 비동기 처리 설계                                                      | AWS 인프라 및 CI/CD 구축, 성장 로그 비동기 분석 로직 설계                                                     | (Lead) 채용 공고 추출 및 추천, 모니터링 담당                                                              | FastAPI 이력서 분석 서버 담당                                                                        | 소셜 관련 Redis 캐싱 및 동시성 처리                                                                     |                                                                          
 
 ## Credits
 
