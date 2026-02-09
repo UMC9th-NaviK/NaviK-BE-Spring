@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import navik.domain.goal.entity.Goal;
 import navik.domain.notification.entity.Notifiable;
-import navik.domain.notification.entity.NotificationType;
+import navik.domain.notification.enums.NotificationType;
 import navik.domain.notification.strategy.NotificationMessageStrategy;
 import navik.domain.users.entity.User;
 
