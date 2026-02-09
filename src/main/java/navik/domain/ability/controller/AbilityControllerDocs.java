@@ -12,8 +12,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.ability.dto.AbilityResponseDTO;
 import navik.global.apiPayload.ApiResponse;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
 import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDTO;
+import navik.global.swagger.ApiErrorCodes;
 
 @Tag(name = "Ability", description = "내 활동 및 이력 API")
 public interface AbilityControllerDocs {
@@ -48,10 +50,15 @@ public interface AbilityControllerDocs {
 				        "nextCursor": "MjAyNC0wOC0wMVQxMjowMDowMF8y"
 				    }
 				}
-				"""))),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "유저를 찾지 못하였습니다."),
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "입력 값이 잘못되었습니다.")
+				""")))
 	})
+	@ApiErrorCodes(
+		enumClass = GeneralErrorCode.class,
+		includes = {
+			"USER_NOT_FOUND",
+			"INVALID_INPUT_VALUE"
+		}
+	)
 	ApiResponse<CursorResponseDTO<AbilityResponseDTO.AbilityDTO>> getAbilities(
 		@AuthUser Long userId,
 		@RequestParam(value = "cursor", required = false) String cursor,
