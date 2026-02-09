@@ -1,4 +1,4 @@
-package navik.global.s3;
+package navik.global.s3.enums;
 
 import java.time.LocalDate;
 import java.util.UUID;
