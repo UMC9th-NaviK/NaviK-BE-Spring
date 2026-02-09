@@ -15,7 +15,7 @@ import navik.domain.growthLog.dto.req.GrowthLogAiRequestDTO;
 import navik.domain.kpi.repository.KpiCardRepository;
 
 @Component
-@Profile("prod")
+@Profile("!prod")
 @RequiredArgsConstructor
 public class FakeGrowthLogAiClient implements GrowthLogAiClient {
 

@@ -17,7 +17,7 @@ import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Component
-@Profile("!prod")
+@Profile("prod")
 @RequiredArgsConstructor
 @Slf4j
 public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
