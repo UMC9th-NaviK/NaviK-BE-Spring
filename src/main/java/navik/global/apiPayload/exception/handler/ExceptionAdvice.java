@@ -105,11 +105,13 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 			GeneralException ge = (GeneralException)cause;
 			BaseCode code = ge.getCode();
 			log.warn("Enum Deserialization Custom Error: {}", code.getMessage());
-			return (ResponseEntity<Object>)(ResponseEntity<?>)ApiResponse.onFailure(code, null);
+			return ResponseEntity
+				.status(code.getHttpStatus())
+				.body(ApiResponse.onFailure(code, null));
 		}
 
 		return ResponseEntity
-			.status(status) // 부모가 넘겨준 400 Bad Request 사용
+			.status(status)
 			.headers(headers)
 			.body(ApiResponse.onFailure(GeneralErrorCode.INVALID_INPUT_VALUE, null));
 	}
