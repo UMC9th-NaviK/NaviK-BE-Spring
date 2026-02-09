@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import navik.domain.notification.entity.NotificationType;
+import navik.domain.notification.enums.NotificationType;
 
 @Component
 public class NotificationConfig {

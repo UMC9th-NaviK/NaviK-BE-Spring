@@ -34,6 +34,7 @@ public class NotificationCommandService {
 			.type(target.getNotificationType())
 			.relateId(target.getNotifiableId())
 			.content(content)
+			.additionalInfo(target.getAdditionalInfo())
 			.build();
 
 		notificationRepository.save(notification);

@@ -1,4 +1,4 @@
-package navik.domain.notification.entity;
+package navik.domain.notification.enums;
 
 public enum NotificationType {
 	RECRUITMENT,

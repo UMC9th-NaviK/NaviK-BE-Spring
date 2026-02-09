@@ -19,7 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import navik.domain.notification.entity.Notifiable;
-import navik.domain.notification.entity.NotificationType;
+import navik.domain.notification.enums.NotificationType;
 import navik.domain.users.entity.User;
 import navik.global.entity.BaseEntity;
 
@@ -58,13 +58,13 @@ public class Goal extends BaseEntity implements Notifiable {
 	}
 
 	public void updateInfo(String title, String content, LocalDate endDate) {
-		if(title != null){
+		if (title != null) {
 			this.title = title;
 		}
-		if(content != null){
+		if (content != null) {
 			this.content = content;
 		}
-		if(endDate != null){
+		if (endDate != null) {
 			this.endDate = endDate;
 		}
 	}
@@ -82,5 +82,10 @@ public class Goal extends BaseEntity implements Notifiable {
 	@Override
 	public boolean isCompleted() {
 		return this.status == GoalStatus.COMPLETED;
+	}
+
+	@Override
+	public String getAdditionalInfo() {
+		return String.valueOf(id);
 	}
 }
