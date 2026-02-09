@@ -92,7 +92,16 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 	@Override
 	public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException e, HttpHeaders headers,
 		HttpStatusCode status, WebRequest request) {
-		log.warn("HttpMessageNotReadableException: {}", e.getMessage());
+		Throwable cause = e.getMostSpecificCause();
+
+		if (cause instanceof GeneralException) {
+			GeneralException ge = (GeneralException)cause;
+			BaseCode code = ge.getCode();
+			log.warn("Enum Deserialization Custom Error: {}", code.getMessage());
+			return (ResponseEntity<Object>)(ResponseEntity<?>)ApiResponse.onFailure(code, null);
+		}
+
+		log.warn("General HttpMessageNotReadableException: {}", e.getMessage());
 		return (ResponseEntity<Object>)(ResponseEntity<?>)ApiResponse.onFailure(GeneralErrorCode.INVALID_INPUT_VALUE,
 			null);
 	}
@@ -119,10 +128,15 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 	 * @return 에러 응답 {@link ApiResponse}
 	 */
 	@ExceptionHandler(value = GeneralException.class)
-	public ApiResponse<Object> onThrowException(GeneralException generalException, HttpServletRequest request) {
+	public ResponseEntity<ApiResponse<Object>> onThrowException(GeneralException generalException,
+		HttpServletRequest request) {
 		BaseCode code = generalException.getCode();
+
 		log.warn("GeneralException: {} - {}", code.getCode(), code.getMessage());
-		return ApiResponse.onFailure(code, null);
+
+		return ResponseEntity
+			.status(code.getHttpStatus())
+			.body(ApiResponse.onFailure(code, null));
 	}
 
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
