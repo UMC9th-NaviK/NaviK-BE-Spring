@@ -42,7 +42,7 @@ spring:
       stream:
         recruitment:
           key: ${STREAM_RECRUITMENT_KEY}
-          consumer-group-name: ${STREAM_RECRUITMENT_CONSUMER_GROUP_NAME:group}
+          consumer-group-name: ${STREAM_RECRUITMENT_CONSUMER_GROUP_NAME}
 
   security:
     oauth2:
@@ -92,8 +92,8 @@ spring:
 
 ai:
   server:
-    ai-base-url: ${AI_SERVER_BASE_URL:http://localhost:8081}
-    ocr-base-url: ${AI_SERVER_OCR_BASE_URL:http://localhost:8082}
+    ai-base-url: ${AI_SERVER_BASE_URL}
+    ocr-base-url: ${AI_SERVER_OCR_BASE_URL}
 
 notion:
   api-version: "2022-06-28"
@@ -108,7 +108,7 @@ management:
     web:
       exposure:
         include: "prometheus"
-        allowed-ip: ${ALLOWED_IP:localhost}
+        allowed-ip: ${ALLOWED_IP}
   metrics:
     distribution:
       percentiles-histogram:

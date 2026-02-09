@@ -25,7 +25,7 @@ spring:
         enabled: true
 
   jwt:
-    secret: ${JWT_SECRET:secretKeysecretKeysecretKeysecretKeysecretKeysecretKey}
+    secret: ${JWT_SECRET:dummy}
     access-token-validity-in-seconds: 180 # 3분
     refresh-token-validity-in-seconds: 1209600 # 14일
 

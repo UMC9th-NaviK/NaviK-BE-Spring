@@ -32,7 +32,7 @@ spring:
         bucket: ${AWS_S3_BUCKET:dummy-ci-bucket}
 
   jwt:
-    secret: ${JWT_SECRET:ZHVtbXktanV3dC1zZWNyZXQtZm9yLWNpLXRlc3QtMzJieXRlcy1rZXktMTIzNDU2Nzg5MA==}
+    secret: ${JWT_SECRET:dummy}
     access-token-validity-in-seconds: ${JWT_ACCESS_TTL:180}
     refresh-token-validity-in-seconds: ${JWT_REFRESH_TTL:1209600}
 
