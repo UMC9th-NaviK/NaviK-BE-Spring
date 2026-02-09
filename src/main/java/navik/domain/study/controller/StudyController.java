@@ -23,7 +23,6 @@ import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDTO;
-import navik.global.swagger.SwaggerPageable;
 
 @RestController
 @RequestMapping("/v1/studies")
@@ -55,7 +54,6 @@ public class StudyController implements StudyControllerDocs {
 	 * @param userId
 	 * @return
 	 */
-	@SwaggerPageable
 	@GetMapping("/my")
 	public ApiResponse<CursorResponseDTO<StudyDTO.MyStudyDTO>> getMyStudies(
 		@RequestParam(required = false) StudyRole role, // 리더/멤버 탭 구분
@@ -74,7 +72,6 @@ public class StudyController implements StudyControllerDocs {
 	 * @param size
 	 * @return
 	 */
-	@SwaggerPageable
 	@GetMapping("/kpi-cards")
 	public ApiResponse<CursorResponseDTO<StudyKpiCardDTO.StudyKpiCardNameDTO>> getKpiCards(
 		@RequestParam String jobName,
@@ -94,7 +91,6 @@ public class StudyController implements StudyControllerDocs {
 	 * @param userId
 	 * @return
 	 */
-	@SwaggerPageable
 	@GetMapping("/recommendation")
 	public ApiResponse<CursorResponseDTO<StudyRecommendDTO>> getRecommendedStudies(
 		@RequestParam(value = "cursor", required = false) Long cursor,
@@ -127,7 +123,6 @@ public class StudyController implements StudyControllerDocs {
 	 * @param size
 	 * @return
 	 */
-	@SwaggerPageable
 	@GetMapping("/{studyId}/applicants")
 	public ApiResponse<CursorResponseDTO<StudyApplicationDTO.ApplicationPreviewDTO>> getApplicants(
 		@PathVariable Long studyId,
