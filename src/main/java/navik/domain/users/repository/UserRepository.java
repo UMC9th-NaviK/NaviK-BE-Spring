@@ -24,7 +24,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query("""
 		SELECT new navik.domain.users.dto.UserResponseDTO$ProfileDTO(
-			u.profileImageUrl, u.nickname, u.job.name, u.isEntryLevel
+			u.id, u.profileImageUrl, u.nickname, u.job.name, u.isEntryLevel
 		) FROM User u WHERE u.id = :userId
 		""")
 	Optional<UserResponseDTO.ProfileDTO> findProfileById(@Param("userId") Long userId);

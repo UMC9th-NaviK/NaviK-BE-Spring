@@ -32,6 +32,7 @@ public class UserResponseDTO {
 	}
 
 	public record ProfileDTO(
+		Long id,
 		String profileImageUrl,
 		String nickname,
 		String job,
@@ -40,6 +41,7 @@ public class UserResponseDTO {
 	}
 
 	public record MyPageDTO(
+		Long id,
 		String profileImageUrl,
 		String name,
 		String nickname,

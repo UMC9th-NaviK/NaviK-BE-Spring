@@ -164,6 +164,7 @@ public interface UserControllerDocs {
 			  "code": "COMMON200",
 			  "message": "성공입니다.",
 			  "result": {
+			    "id": 1,
 			    "profileImageUrl": "https://example.com/images/profile.jpg",
 			    "name": "홍길동",
 			    "nickname": "길동이",
@@ -212,6 +213,7 @@ public interface UserControllerDocs {
 			  "code": "COMMON200",
 			  "message": "성공입니다.",
 			  "result": {
+			    "id": 1,
 			    "profileImageUrl": "https://example.com/images/profile.jpg",
 			    "nickname": "길동이",
 			    "job": "백엔드 개발자",
