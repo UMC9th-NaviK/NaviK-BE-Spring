@@ -30,6 +30,8 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 	@Override
 	public GrowthLogEvaluationResult evaluateUserInput(
 		Long userId,
+		Long jobId,
+		Integer levelValue,
 		GrowthLogEvaluationContext context
 	) {
 
@@ -39,7 +41,7 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
 				.bodyValue(
-					new GrowthLogAiRequestDTO.EvaluateUserInputRequest(userId, context)
+					new GrowthLogAiRequestDTO.EvaluateUserInputRequest(userId, jobId, levelValue, context)
 				)
 				.retrieve()
 				.bodyToMono(GrowthLogEvaluationResult.class)

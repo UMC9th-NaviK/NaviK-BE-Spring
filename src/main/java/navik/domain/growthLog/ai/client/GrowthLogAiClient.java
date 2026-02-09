@@ -5,6 +5,9 @@ import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO;
 
 public interface GrowthLogAiClient {
 
-	GrowthLogAiResponseDTO.GrowthLogEvaluationResult evaluateUserInput(Long userId,
+	GrowthLogAiResponseDTO.GrowthLogEvaluationResult evaluateUserInput(
+		Long userId,
+		Long jobId,
+		Integer levelValue,
 		GrowthLogAiRequestDTO.GrowthLogEvaluationContext context);
 }

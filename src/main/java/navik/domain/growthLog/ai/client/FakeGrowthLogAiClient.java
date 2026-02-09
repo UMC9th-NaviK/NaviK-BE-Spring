@@ -25,6 +25,8 @@ public class FakeGrowthLogAiClient implements GrowthLogAiClient {
 	@Override
 	public GrowthLogEvaluationResult evaluateUserInput(
 		Long userId,
+		Long jobId,
+		Integer levelValue,
 		GrowthLogAiRequestDTO.GrowthLogEvaluationContext context
 	) {
 		List<Long> kpiCardIds =
@@ -79,9 +81,8 @@ public class FakeGrowthLogAiClient implements GrowthLogAiClient {
 	private float[] generateFakeEmbedding() {
 		float[] embedding = new float[1536];
 		for (int i = 0; i < 1536; i++) {
-			embedding[i] = random.nextFloat() * 2 - 1;  // -1 ~ 1 범위
+			embedding[i] = random.nextFloat() * 2 - 1;
 		}
 		return embedding;
 	}
-
 }
