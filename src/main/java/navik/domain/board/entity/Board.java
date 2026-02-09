@@ -1,5 +1,9 @@
 package navik.domain.board.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -46,6 +51,14 @@ public class Board extends BaseEntity {
 	@Column(name = "article_likes", nullable = false)
 	@Builder.Default
 	private Integer articleLikes = 0;
+
+	@OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<Comment> articleComments = new ArrayList<>();
+
+	@OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<BoardLike> boardLikes = new ArrayList<>();
 
 	public void updateBoard(String articleTitle, String articleContent) {
 		this.articleTitle = articleTitle;
