@@ -45,6 +45,7 @@ public class UserQueryService {
 		List<Long> departmentList = userDepartmentQueryService.getUserDepartments(userId);
 
 		return new UserResponseDTO.MyPageDTO(
+			user.getId(),
 			user.getProfileImageUrl(),
 			user.getName(),
 			user.getNickname(),
