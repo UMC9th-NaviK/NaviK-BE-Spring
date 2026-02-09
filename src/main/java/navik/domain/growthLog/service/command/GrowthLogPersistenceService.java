@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import navik.domain.ability.service.command.AbilityCommandService;
+import navik.domain.ability.service.AbilityCommandService;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.GrowthLogEvaluationResult;
 import navik.domain.growthLog.entity.GrowthLog;
 import navik.domain.growthLog.entity.GrowthLogKpiLink;
@@ -126,7 +126,7 @@ public class GrowthLogPersistenceService {
 
 		applyEvaluationResult(growthLog, userId, normalized, totalDelta);
 		saveAbilitiesSafely(userId, growthLogId, normalized.abilities());
-		
+
 	}
 
 	private GrowthLog newUserInputLog(
