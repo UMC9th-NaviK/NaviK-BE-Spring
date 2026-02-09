@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.hibernate.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -41,7 +42,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 	 * 주로 @RequestParam, @PathVariable 에서 검증 실패 시 발생합니다.
 	 */
 	@ExceptionHandler
-	public ApiResponse<Object> validation(ConstraintViolationException e, WebRequest request) {
+	public ResponseEntity<Object> validation(ConstraintViolationException e, WebRequest request) {
 		String errorMessage = e.getConstraintViolations().stream()
 			.map(ConstraintViolation::getMessage)
 			.findFirst()
@@ -49,7 +50,10 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 
 		GeneralErrorCode errorCode = GeneralErrorCode.valueOf(errorMessage);
 		log.warn("ConstraintViolationException: {}", errorCode.getMessage());
-		return ApiResponse.onFailure(errorCode, null);
+
+		return ResponseEntity
+			.status(errorCode.getHttpStatus())
+			.body(ApiResponse.onFailure(errorCode, null));
 	}
 
 	/**
@@ -75,8 +79,11 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 			});
 
 		log.warn("MethodArgumentNotValidException: {}", errors);
-		return (ResponseEntity<Object>)(ResponseEntity<?>)ApiResponse.onFailure(GeneralErrorCode.INVALID_INPUT_VALUE,
-			errors);
+
+		return ResponseEntity
+			.status(status)
+			.headers(headers)
+			.body(ApiResponse.onFailure(GeneralErrorCode.INVALID_INPUT_VALUE, errors));
 	}
 
 	/**
@@ -101,9 +108,10 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 			return (ResponseEntity<Object>)(ResponseEntity<?>)ApiResponse.onFailure(code, null);
 		}
 
-		log.warn("General HttpMessageNotReadableException: {}", e.getMessage());
-		return (ResponseEntity<Object>)(ResponseEntity<?>)ApiResponse.onFailure(GeneralErrorCode.INVALID_INPUT_VALUE,
-			null);
+		return ResponseEntity
+			.status(status) // 부모가 넘겨준 400 Bad Request 사용
+			.headers(headers)
+			.body(ApiResponse.onFailure(GeneralErrorCode.INVALID_INPUT_VALUE, null));
 	}
 
 	/**
@@ -115,9 +123,11 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 	 * @return 에러 응답 {@link ApiResponse}
 	 */
 	@ExceptionHandler
-	public ApiResponse<String> exception(Exception e, WebRequest request) {
+	public ResponseEntity<Object> exception(Exception e, WebRequest request) {
 		log.error("500 Error", e);
-		return ApiResponse.onFailure(GeneralErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
+		return ResponseEntity
+			.status(GeneralErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus())
+			.body(ApiResponse.onFailure(GeneralErrorCode.INTERNAL_SERVER_ERROR, e.getMessage()));
 	}
 
 	/**
@@ -128,10 +138,9 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 	 * @return 에러 응답 {@link ApiResponse}
 	 */
 	@ExceptionHandler(value = GeneralException.class)
-	public ResponseEntity<ApiResponse<Object>> onThrowException(GeneralException generalException,
+	public ResponseEntity<Object> onThrowException(GeneralException generalException,
 		HttpServletRequest request) {
 		BaseCode code = generalException.getCode();
-
 		log.warn("GeneralException: {} - {}", code.getCode(), code.getMessage());
 
 		return ResponseEntity
@@ -140,20 +149,25 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
-	public ApiResponse<Object> handleMethodArgumentTypeMismatch(
+	public ResponseEntity<Object> handleMethodArgumentTypeMismatch(
 		MethodArgumentTypeMismatchException e,
 		HttpServletRequest request
 	) {
 
 		log.warn("TypeMismatch param={} value={} requiredType={}", e.getName(), e.getValue(), e.getRequiredType());
-		return ApiResponse.onFailure(GeneralErrorCode.INVALID_TYPE_VALUE, null);
+
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body(ApiResponse.onFailure(GeneralErrorCode.INVALID_TYPE_VALUE, null));
 	}
 
 	@ExceptionHandler(TypeMismatchException.class)
-	public ApiResponse<Object> handleTypeMismatch(
+	public ResponseEntity<Object> handleTypeMismatch(
 		TypeMismatchException e,
 		HttpServletRequest request
 	) {
-		return ApiResponse.onFailure(GeneralErrorCode.INVALID_TYPE_VALUE, null);
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body(ApiResponse.onFailure(GeneralErrorCode.INVALID_TYPE_VALUE, null));
 	}
 }
