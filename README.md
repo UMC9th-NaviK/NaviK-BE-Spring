@@ -271,6 +271,13 @@ GitHub Actions를 통해 자동 배포됩니다.
 | AI 평가가 PENDING 상태에서 멈춤 | AI 서버(`AI_SERVER_BASE_URL`) 연결 확인 및 Worker 활성화 여부 확인 |
 
 
+## 👤 Na:viK BE
+
+| <img src="https://avatars.githubusercontent.com/u/186535028?v=4" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/81423073?v=4" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/81312085?v=4" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/158552165?v=4" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/108278044?v=4" width="150" height="150"/> |
+| --- | --- | --- | --- | --- |
+| @kjhh2605<br/>[GitHub](https://github.com/kjhh2605) | @bmh7190<br/>[GitHub](https://github.com/bmh7190) | @kfdsy0103<br/>[GitHub](https://github.com/kfdsy0103) | @hardwoong<br/>[GitHub](https://github.com/hardwoong) | @LeeJaeJun1<br/>[GitHub](https://github.com/LeeJaeJun1) |
+
+
 ## License
 
 > 라이선스 추가 예정
