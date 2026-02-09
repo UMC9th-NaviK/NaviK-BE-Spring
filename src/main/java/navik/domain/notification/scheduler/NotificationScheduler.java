@@ -117,7 +117,7 @@ public class NotificationScheduler {
 	public void createRecommendedRecruitment() {
 		log.info("[NotificationScheduler] 추천 공고 생성 스케쥴러 실행");
 
-		// todo: 청크 단위 Batch 처리
+		// todo: 사용자 증가 시 청크 단위 Batch 처리 필요
 		userRepository.findAllIds().forEach(
 			userId -> {
 				try {
@@ -140,7 +140,7 @@ public class NotificationScheduler {
 		log.info("[NotificationScheduler] 추천 공고 알림 스케쥴러 실행");
 
 		// 메모리 고려 id만 가져오고, 개별 트랜잭션을 타도록 facade
-		// todo: 청크 단위 Batch 처리
+		// todo: 사용자 증가 시 청크 단위 Batch 처리 필요
 		recommendedRecruitmentRepository.findAllIds().forEach(
 			recommendedRecruitmentId -> {
 				try {

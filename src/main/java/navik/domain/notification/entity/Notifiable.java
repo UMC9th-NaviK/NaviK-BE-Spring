@@ -8,4 +8,6 @@ public interface Notifiable {
 	Long getNotifiableId();
 
 	boolean isCompleted();
+
+	String getAdditionalInfo();
 }

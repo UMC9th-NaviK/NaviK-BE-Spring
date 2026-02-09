@@ -88,4 +88,9 @@ public class Recruitment extends BaseEntity implements Notifiable {
 	public boolean isCompleted() {
 		return false;
 	}
+
+	@Override
+	public String getAdditionalInfo() {
+		return this.link;
+	}
 }

@@ -50,6 +50,9 @@ public class Notification extends BaseEntity {
 	@Builder.Default
 	private Boolean isRead = false;
 
+	@Column(name = "additional_info")
+	private String additionalInfo;
+
 	public void setIsRead() {
 		this.isRead = true;
 	}

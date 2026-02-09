@@ -83,4 +83,9 @@ public class Goal extends BaseEntity implements Notifiable {
 	public boolean isCompleted() {
 		return this.status == GoalStatus.COMPLETED;
 	}
+
+	@Override
+	public String getAdditionalInfo() {
+		return String.valueOf(id);
+	}
 }

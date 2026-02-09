@@ -86,6 +86,11 @@ public class Study extends BaseEntity implements Notifiable {
 		return LocalDateTime.now().isAfter(this.endDate);
 	}
 
+	@Override
+	public String getAdditionalInfo() {
+		return String.valueOf(id);
+	}
+
 	public RecruitmentStatus getStatus(LocalDateTime now) {
 		if (now.isBefore(this.startDate)) {
 			return RecruitmentStatus.RECURRING; // 모집중
