@@ -9,6 +9,10 @@ import navik.domain.growthLog.enums.ProcessResult;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.growthLog.service.command.GrowthLogEvaluationCoreService;
 import navik.domain.growthLog.service.command.GrowthLogPersistenceService;
+import navik.domain.users.entity.User;
+import navik.domain.users.repository.UserRepository;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
+import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +21,7 @@ public class GrowthLogEvaluationWorkerProcessor {
 	private final GrowthLogRepository growthLogRepository;
 	private final GrowthLogEvaluationCoreService core;
 	private final GrowthLogPersistenceService persistence;
+	private final UserRepository userRepository;
 
 	@Transactional
 	public ProcessResult process(Long userId, Long growthLogId, String traceId, String processingToken) {
@@ -53,16 +58,23 @@ public class GrowthLogEvaluationWorkerProcessor {
 			return ProcessResult.SKIP_ALREADY_APPLYING;
 		}
 
-		// 5) 평가 수행
+		// 5) 유저 정보 조회
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
+
+		Integer userLevel = user.getLevel();
+		Long jobId = user.getJob() != null ? user.getJob().getId() : null;
+
+		// 6) 평가 수행
 		String content = growthLog.getContent();
 		if (content == null || content.isBlank()) {
 			content = "(내용 없음)";
 		}
 
 		var ctx = core.buildContext(userId, content);
-		var evaluated = core.evaluate(userId, ctx);
+		var evaluated = core.evaluate(userId, jobId, userLevel, ctx);
 
-		// 6) 완료 반영
+		// 7) 완료 반영
 		persistence.completeGrowthLogAfterProcessing(
 			userId,
 			growthLogId,
@@ -70,7 +82,7 @@ public class GrowthLogEvaluationWorkerProcessor {
 			evaluated.totalDelta()
 		);
 
-		// 7) 토큰 정리
+		// 8) 토큰 정리
 		growthLogRepository.clearProcessingTokenIfMatch(
 			userId, growthLogId, processingToken, GrowthLogStatus.COMPLETED
 		);

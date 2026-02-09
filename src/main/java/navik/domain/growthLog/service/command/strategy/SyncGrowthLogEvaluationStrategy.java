@@ -15,6 +15,9 @@ import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.growthLog.service.command.GrowthLogEvaluationCoreService;
 import navik.domain.growthLog.service.command.GrowthLogPersistenceService;
+import navik.domain.users.entity.User;
+import navik.domain.users.repository.UserRepository;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
 import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Service
@@ -26,15 +29,21 @@ public class SyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStrat
 	private final GrowthLogEvaluationCoreService core;
 	private final GrowthLogPersistenceService growthLogPersistenceService;
 	private final RetryRateLimiter retryRateLimiter;
+	private final UserRepository userRepository;
 
 	@Override
 	public GrowthLogResponseDTO.CreateResult create(Long userId, GrowthLogRequestDTO.CreateUserInput req) {
 
 		String inputContent = safe(req.content());
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
+
+		Integer userLevel = user.getLevel();
+		Long jobId = user.getJob() != null ? user.getJob().getId() : null;
 
 		try {
 			var context = core.buildContext(userId, inputContent);
-			Evaluated evaluated = core.evaluate(userId, context);
+			Evaluated evaluated = core.evaluate(userId, jobId, userLevel, context);
 
 			Long id = growthLogPersistenceService.saveUserInputLog(
 				userId,
@@ -52,6 +61,12 @@ public class SyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStrat
 
 	@Override
 	public GrowthLogResponseDTO.RetryResult retry(Long userId, Long growthLogId) {
+
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
+
+		Integer userLevel = user.getLevel();
+		Long jobId = user.getJob() != null ? user.getJob().getId() : null;
 
 		GrowthLog growthLog = growthLogRepository.findByIdAndUserId(growthLogId, userId)
 			.orElseThrow(() -> new GeneralException(GrowthLogErrorCode.GROWTH_LOG_NOT_FOUND));
@@ -79,7 +94,7 @@ public class SyncGrowthLogEvaluationStrategy implements GrowthLogEvaluationStrat
 
 		try {
 			var context = core.buildContext(userId, safe(growthLog.getContent()));
-			Evaluated evaluated = core.evaluate(userId, context);
+			Evaluated evaluated = core.evaluate(userId, jobId, userLevel, context);
 
 			growthLogPersistenceService.updateGrowthLogAfterRetry(
 				userId,

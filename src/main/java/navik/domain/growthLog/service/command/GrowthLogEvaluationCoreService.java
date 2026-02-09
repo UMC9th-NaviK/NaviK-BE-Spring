@@ -24,9 +24,7 @@ import navik.domain.growthLog.repository.GrowthLogRepository;
 import navik.domain.kpi.repository.KpiCardRepository;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.repository.PortfolioRepository;
-import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
-import navik.global.apiPayload.exception.code.GeneralErrorCode;
 import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Slf4j
@@ -43,12 +41,6 @@ public class GrowthLogEvaluationCoreService {
 	private final AbilityNormalizer abilityNormalizer;
 
 	public GrowthLogEvaluationContext buildContext(Long userId, String inputContent) {
-
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
-
-		Integer userLevel = user.getLevel();
-		Long jobId = user.getJob() != null ? user.getJob().getId() : null;
 
 		String resumeText = portfolioRepository
 			.findTopByUserIdOrderByCreatedAtDesc(userId)
@@ -83,8 +75,6 @@ public class GrowthLogEvaluationCoreService {
 			.toList();
 
 		return new GrowthLogEvaluationContext(
-			jobId,
-			userLevel,
 			resumeText,
 			recentGrowthLogs,
 			recentKpiDeltas,
@@ -92,8 +82,8 @@ public class GrowthLogEvaluationCoreService {
 		);
 	}
 
-	public Evaluated evaluate(Long userId, GrowthLogEvaluationContext context) {
-		GrowthLogEvaluationResult aiResult = growthLogAiClient.evaluateUserInput(userId, context);
+	public Evaluated evaluate(Long userId, Long jobId, Integer levelValue, GrowthLogEvaluationContext context) {
+		GrowthLogEvaluationResult aiResult = growthLogAiClient.evaluateUserInput(userId, jobId, levelValue, context);
 
 		GrowthLogEvaluationResult base = normalize(aiResult);
 
