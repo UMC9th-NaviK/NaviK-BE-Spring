@@ -1,4 +1,4 @@
-package navik.domain.ability.service.command;
+package navik.domain.ability.service;
 
 import static navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.*;
 
