@@ -17,7 +17,7 @@ import navik.domain.kpi.exception.code.KpiCardErrorCode;
 import navik.domain.kpi.exception.code.KpiScoreErrorCode;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.swagger.ApiErrorCodes;
+import navik.global.swagger.annotation.ApiErrorCodes;
 
 @Tag(name = "KPI Score", description = "KPI 점수 API")
 public interface KpiScoreControllerDocs {

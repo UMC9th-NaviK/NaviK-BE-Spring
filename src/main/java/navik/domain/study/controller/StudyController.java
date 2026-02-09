@@ -23,7 +23,7 @@ import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.exception.code.GeneralSuccessCode;
 import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDTO;
-import navik.global.swagger.SwaggerPageable;
+import navik.global.swagger.annotation.SwaggerPageable;
 
 @RestController
 @RequestMapping("/v1/studies")

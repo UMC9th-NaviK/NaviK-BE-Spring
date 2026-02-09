@@ -1,19 +1,20 @@
-# Navik Backend
+# Na:viK Backend
 
-> AI 기반 커리어 성장 추적 플랫폼의 백엔드 서버
+### AI 기반 커리어 성장 추적 플랫폼 'Na:viK' 의 백엔드 서버입니다!
 
-## Overview
+# 📝 프로젝트 소개
 
 **Navik**은 주니어 개발자가 자신의 성장을 체계적으로 기록하고, AI를 활용해 역량을 분석받으며, 맞춤형 채용 공고와 스터디를 추천받을 수 있는 커리어 성장 플랫폼입니다.
 ![img_4.png](img_4.png)
 ![img_3.png](img_3.png)
-### Why?
 
-- 성장 기록이 파편화되어 있어 본인의 역량 변화를 파악하기 어렵다
-- 직무별 핵심 역량(KPI)과 내 현재 수준의 갭을 객관적으로 파악할 수 없다
-- 채용 공고·스터디를 직접 찾아야 해서 시간이 많이 든다
+### 🔍 Why?
 
-### What?
+- 성장 기록이 파편화되어 있어 본인의 역량 변화를 파악하기 어렵습니다.
+- 직무별 핵심 역량(KPI)과 내 현재 수준의 갭을 객관적으로 파악할 수 없는 어려움이 있습니다.
+- 채용 공고·스터디를 직접 찾아야 해서 시간이 많이 듭니다.
+
+### 🔍 What?
 
 - 성장 로그를 작성하면 AI가 직무 KPI 기준으로 평가해 점수를 매긴다
 - 포트폴리오를 업로드하면 AI가 분석해 강점·약점을 도출한다
@@ -21,35 +22,36 @@
 
 ## Features
 
-| 기능 | 설명 |
-|------|------|
-| **성장 로그** | 활동·학습·성과를 기록하고 AI 평가(비동기 Worker)를 받아 KPI 점수에 반영 |
-| **포트폴리오 분석** | PDF/텍스트 포트폴리오 업로드 → AI 분석 → 강점·약점 리포트 |
-| **KPI 카드** | 직무별 핵심 역량 카드와 레이더 차트로 내 역량 시각화 |
-| **채용 추천** | pgvector 기반 벡터 유사도로 내 KPI에 맞는 채용 공고 자동 매칭 |
-| **스터디** | 스터디 생성·참여·동료 평가, KPI 유사도 기반 스터디 추천 |
-| **커뮤니티** | 직무별 게시판, 댓글, 좋아요, 인기글 랭킹 |
-| **소셜 로그인** | Google · Kakao · Naver OAuth2 지원 |
+| 기능           | 설명                                              |
+|--------------|-------------------------------------------------|
+| **성장 로그**    | 활동·학습·성과를 기록하고 AI 평가(비동기 Worker)를 받아 KPI 점수에 반영 |
+| **포트폴리오 분석** | PDF/텍스트 포트폴리오 업로드 → AI 분석 → 강점·약점 리포트           |
+| **KPI 카드**   | 직무별 핵심 역량 카드와 레이더 차트로 내 역량 시각화                  |
+| **채용 추천**    | pgvector 기반 벡터 유사도로 내 KPI에 맞는 채용 공고 자동 매칭       |
+| **스터디**      | 스터디 생성·참여·동료 평가, KPI 유사도 기반 스터디 추천              |
+| **커뮤니티**     | 직무별 게시판, 댓글, 좋아요, 인기글 랭킹                        |
+| **소셜 로그인**   | Google · Kakao · Naver OAuth2 지원                |
 
 ## Demo
 
 - **Production**: `http://www.navik.kr`
+
 ## Tech Stack
 
-| 분류 | 기술 |
-|------|------|
-| Language | Java 21 |
-| Framework | Spring Boot 3.5.9 |
-| Database | PostgreSQL + pgvector |
-| Cache / Stream | Redis |
-| ORM | Spring Data JPA + QueryDSL 5.1.0 |
-| Auth | Spring Security + OAuth2 + JWT (JJWT 0.12.3) |
-| Storage | AWS S3 |
-| Vector Search | Hibernate Vector 6.6 |
-| API Docs | springdoc-openapi 2.8.5 (Swagger UI) |
-| Monitoring | Spring Actuator + Prometheus + Micrometer |
-| CI/CD | GitHub Actions → AWS ECR → EC2 |
-| Container | Docker (eclipse-temurin:21-jre) |
+| 분류             | 기술                                           |
+|----------------|----------------------------------------------|
+| Language       | Java 21                                      |
+| Framework      | Spring Boot 3.5.9                            |
+| Database       | PostgreSQL + pgvector                        |
+| Cache / Stream | Redis                                        |
+| ORM            | Spring Data JPA + QueryDSL 5.1.0             |
+| Auth           | Spring Security + OAuth2 + JWT (JJWT 0.12.3) |
+| Storage        | AWS S3                                       |
+| Vector Search  | Hibernate Vector 6.6                         |
+| API Docs       | springdoc-openapi 2.8.5 (Swagger UI)         |
+| Monitoring     | Spring Actuator + Prometheus + Micrometer    |
+| CI/CD          | GitHub Actions → AWS ECR → EC2               |
+| Container      | Docker (eclipse-temurin:21-jre)              |
 
 ## Getting Started
 
@@ -172,7 +174,9 @@ curl http://localhost:8080/v1/growth-logs/monthly?year=2025&month=6 \
   "isSuccess": true,
   "code": "OK",
   "message": "성공",
-  "result": { ... },
+  "result": {
+    ...
+  },
   "timestamp": "2025-06-01T12:00:00"
 }
 ```
@@ -186,23 +190,24 @@ Swagger UI를 통해 전체 API 명세를 확인할 수 있습니다.
 
 주요 API 그룹:
 
-| 그룹 | Prefix | 설명 |
-|------|--------|------|
-| Auth | `/v1/auth` | 토큰 갱신, 로그아웃 |
-| Users | `/v1/users` | 프로필, 온보딩, 마이페이지 |
-| Growth Logs | `/v1/growth-logs` | 성장 로그 CRUD + AI 평가 |
-| Portfolios | `/v1/portfolios` | 포트폴리오 등록 + AI 분석 |
-| KPI Cards | `/v1/kpi-cards` | KPI 카드 조회, Top/Bottom |
-| KPI Scores | `/v1/kpi-scores` | 레이더 차트 데이터 |
-| Boards | `/v1/boards` | 게시글 CRUD, 인기글, 검색 |
-| Comments | `/v1/comments` | 댓글 CRUD |
-| Studies | `/v1/studies` | 스터디 생성·참여·추천 |
-| Evaluations | `/v1/evaluations` | 동료 평가 |
-| Recruitments | `/v1/recruitments` | 채용 공고 추천 |
-| Goals | `/v1/goals` | 개인 목표 관리 |
-| Notifications | `/v1/notifications` | 알림 조회 |
+| 그룹            | Prefix              | 설명                    |
+|---------------|---------------------|-----------------------|
+| Auth          | `/v1/auth`          | 토큰 갱신, 로그아웃           |
+| Users         | `/v1/users`         | 프로필, 온보딩, 마이페이지       |
+| Growth Logs   | `/v1/growth-logs`   | 성장 로그 CRUD + AI 평가    |
+| Portfolios    | `/v1/portfolios`    | 포트폴리오 등록 + AI 분석      |
+| KPI Cards     | `/v1/kpi-cards`     | KPI 카드 조회, Top/Bottom |
+| KPI Scores    | `/v1/kpi-scores`    | 레이더 차트 데이터            |
+| Boards        | `/v1/boards`        | 게시글 CRUD, 인기글, 검색     |
+| Comments      | `/v1/comments`      | 댓글 CRUD               |
+| Studies       | `/v1/studies`       | 스터디 생성·참여·추천          |
+| Evaluations   | `/v1/evaluations`   | 동료 평가                 |
+| Recruitments  | `/v1/recruitments`  | 채용 공고 추천              |
+| Goals         | `/v1/goals`         | 개인 목표 관리              |
+| Notifications | `/v1/notifications` | 알림 조회                 |
 
 ## Server Architecture
+
 ![img.png](img.png)
 
 ## Project Architecture
@@ -254,22 +259,21 @@ src/main/java/navik/
 
 GitHub Actions를 통해 자동 배포됩니다.
 
-| 워크플로 | 트리거 | 동작 |
-|----------|--------|------|
-| `integrate.yml` | `develop` 브랜치 PR | 테스트 실행 + merge 시뮬레이션 검증 |
-| `deploy.yml` | `main` 브랜치 push | JAR 빌드 → Docker → ECR push → EC2 배포 |
+| 워크플로            | 트리거              | 동작                                  |
+|-----------------|------------------|-------------------------------------|
+| `integrate.yml` | `develop` 브랜치 PR | 테스트 실행 + merge 시뮬레이션 검증             |
+| `deploy.yml`    | `main` 브랜치 push  | JAR 빌드 → Docker → ECR push → EC2 배포 |
 
 배포 후 Discord 웹훅으로 결과가 알림됩니다.
 
 ## Troubleshooting
 
-| 증상 | 해결 |
-|------|------|
-| `vector` 타입 관련 SQL 에러 | PostgreSQL에 `CREATE EXTENSION IF NOT EXISTS vector;` 실행 |
-| OAuth 로그인 리다이렉트 실패 | `.env`의 OAuth Client ID/Secret 확인 및 리다이렉트 URI 설정 확인 |
-| Redis 연결 실패 | Redis 서버 실행 여부 확인 (`redis-cli ping`) |
-| AI 평가가 PENDING 상태에서 멈춤 | AI 서버(`AI_SERVER_BASE_URL`) 연결 확인 및 Worker 활성화 여부 확인 |
-
+| 증상                     | 해결                                                      |
+|------------------------|---------------------------------------------------------|
+| `vector` 타입 관련 SQL 에러  | PostgreSQL에 `CREATE EXTENSION IF NOT EXISTS vector;` 실행 |
+| OAuth 로그인 리다이렉트 실패     | `.env`의 OAuth Client ID/Secret 확인 및 리다이렉트 URI 설정 확인     |
+| Redis 연결 실패            | Redis 서버 실행 여부 확인 (`redis-cli ping`)                    |
+| AI 평가가 PENDING 상태에서 멈춤 | AI 서버(`AI_SERVER_BASE_URL`) 연결 확인 및 Worker 활성화 여부 확인    |
 
 ## License
 

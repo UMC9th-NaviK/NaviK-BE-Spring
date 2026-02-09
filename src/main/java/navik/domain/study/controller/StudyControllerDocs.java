@@ -19,7 +19,7 @@ import navik.domain.study.exception.code.StudyErrorCode;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDTO;
-import navik.global.swagger.ApiErrorCodes;
+import navik.global.swagger.annotation.ApiErrorCodes;
 
 @Tag(name = "Study", description = "스터디 관련 API")
 public interface StudyControllerDocs {
