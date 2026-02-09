@@ -116,10 +116,10 @@ public class BoardController implements BoardControllerDocs {
 	 */
 	@GetMapping("/{boardId}")
 	public ApiResponse<BoardResponseDTO.BoardDTO> getBoardDetail(
-		@PathVariable Long boardId
-		// @AuthUser Long userId
+		@PathVariable Long boardId,
+		@AuthUser Long userId
 	) {
-		BoardResponseDTO.BoardDTO boardDetail = boardQueryService.getBoardDetail(boardId, 1L);
+		BoardResponseDTO.BoardDTO boardDetail = boardQueryService.getBoardDetail(boardId, userId);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, boardDetail);
 	}
 
