@@ -21,10 +21,10 @@ public interface NotificationControllerDocs {
 			
 			### 필드 설명
 			- NotificationType
-				- RECRUITMENT (채용 공고 관련 일림인 경우)
+				- RECRUITMENT (채용 공고 관련 알림인 경우)
 				- GOAL (목표 관련 알림인 경우)
 				- STUDY (스터디 관련 알림인 경우)
-			- additionalInfoPerNotification
+			- additionalInfoPerNotificationType
 				- RECRUITMENT에서는 채용 사이트 링크를 의미
 				- GOAL에서는 해당 목표에 대한 식별 id를 의미
 				- STUDY에서는 해당 스터디에 대한 식별 id를 의미
