@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
 import navik.domain.kpi.dto.res.KpiScoreResponseDTO;
 import navik.domain.kpi.entity.KpiScore;
@@ -16,6 +17,7 @@ import navik.global.apiPayload.exception.exception.GeneralException;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class KpiScoreIncrementService {
 
 	private final KpiScoreRepository kpiScoreRepository;
@@ -39,9 +41,14 @@ public class KpiScoreIncrementService {
 
 	public void incrementInternal(Long userId, Long kpiCardId, int delta) {
 		int updatedRows = kpiScoreRepository.incrementScore(userId, kpiCardId, delta);
+
 		if (updatedRows == 0) {
+			log.error("[KpiScore] increment failed. userId={}, kpiCardId={}, delta={}",
+				userId, kpiCardId, delta);
 			throw new GeneralException(KpiScoreErrorCode.KPI_SCORE_NOT_FOUND);
 		}
+
 		eventPublisher.publishEvent(new KpiScoreUpdatedEvent(userId));
 	}
+
 }
