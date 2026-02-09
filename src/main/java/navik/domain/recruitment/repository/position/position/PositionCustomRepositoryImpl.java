@@ -125,7 +125,7 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 			.orderBy(
 				matchCount.desc(),     // 매칭 개수
 				similarityAvg.desc(),  // 평균 매칭 유사도
-				recruitment.id.asc()   // PK
+				position.id.asc()      // PK
 			)
 			.limit(pageable.getPageSize() + 1)
 			.fetch();
