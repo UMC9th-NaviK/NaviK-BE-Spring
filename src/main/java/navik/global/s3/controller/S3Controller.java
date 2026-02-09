@@ -12,8 +12,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.exception.code.GeneralSuccessCode;
-import navik.global.s3.enums.S3PathType;
 import navik.global.s3.dto.S3DTO;
+import navik.global.s3.enums.S3PathType;
 import navik.global.s3.service.S3Service;
 
 @RestController
