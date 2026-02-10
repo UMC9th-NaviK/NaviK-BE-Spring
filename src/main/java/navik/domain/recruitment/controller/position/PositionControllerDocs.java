@@ -110,7 +110,7 @@ public interface PositionControllerDocs {
 	@Operation(summary = "필터링된 포지션 전체 개수 조회", description = """
 		**API 역할**
 		- 마이페이지 -> 검색 필터를 적용하였을 때, Total 등록된 개수를 반환합니다.
-		- `사용자 추천 포지션 전체 검색 API`에서 사용한 검색 필터를 그대로 여기 ResponseBody로 넣어주시면 됩니다!
+		- `사용자 추천 포지션 전체 검색 API`에서 사용한 검색 필터를 그대로 여기 RequestBody로 넣어주시면 됩니다!
 		- 상수 문자열 및 에러 코드는 위 API와 동일합니다!
 		- Body로 주고받기 위해 의도적으로 `Post` 매핑하였습니다! 참고해주세요!
 		"""
