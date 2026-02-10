@@ -66,7 +66,7 @@ public interface EvaluationControllerDocs {
 
 	@Operation(summary = "스터디 평가 목록 조회 API", description = "참여한 스터디 리스트를 커서 기반 페이징으로 조회합니다.")
 	@Parameters({
-		@Parameter(name = "cursor", description = "마지막으로 조회된 StudyUser의 ID", example = "10"),
+		@Parameter(name = "cursor", description = "마지막으로 조회된 StudyUser의 ID, (첫 조회 시에는 X)"),
 		@Parameter(name = "size", description = "한 번에 가져올 데이터 개수", example = "10"),
 		@Parameter(name = "userId", hidden = true)
 	})

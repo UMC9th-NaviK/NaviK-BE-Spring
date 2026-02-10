@@ -105,7 +105,7 @@ public class CommentController implements CommentControllerDocs {
 		@AuthUser Long userId
 	) {
 		commentCommandService.deleteComment(CommentConverter.toDeleteParameter(userId, boardId, commentId));
-		return ApiResponse.onSuccess(GeneralSuccessCode._DELETED);
+		return ApiResponse.onSuccess(GeneralSuccessCode._DELETED, null);
 	}
 
 	/**

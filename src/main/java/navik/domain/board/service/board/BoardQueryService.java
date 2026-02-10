@@ -76,7 +76,8 @@ public class BoardQueryService {
 			.collect(Collectors.toList());
 
 		boolean hasNext = boards.size() >= pageSize;
-		String nextCursor = (hasNext && !boards.isEmpty()) ? boards.get(boards.size() - 1).getId().toString() : null;
+		String nextCursor =
+			(hasNext && !boards.isEmpty()) ? boards.get(boards.size() - 1).getCreatedAt().toString() : null;
 
 		return CursorResponseDTO.of(doList, hasNext, nextCursor);
 	}

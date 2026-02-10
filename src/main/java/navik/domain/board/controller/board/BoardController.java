@@ -167,7 +167,7 @@ public class BoardController implements BoardControllerDocs {
 		@AuthUser Long userId
 	) {
 		boardCommandService.deleteBoard(boardId, userId);
-		return ApiResponse.onSuccess(GeneralSuccessCode._DELETED);
+		return ApiResponse.onSuccess(GeneralSuccessCode._DELETED, null);
 	}
 
 	/**
