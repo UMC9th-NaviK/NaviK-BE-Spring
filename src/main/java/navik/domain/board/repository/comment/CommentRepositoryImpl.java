@@ -1,11 +1,11 @@
 package navik.domain.board.repository.comment;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.types.dsl.Expressions;
@@ -36,8 +36,34 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
 	}
 
 	@Override
-	public Slice<Comment> findByBoardId(Long boardId, Pageable pageable) {
-		// 1. 현재 페이지에 보여줄 '부모 댓글'의 id들만 먼저 조회한다
+	public Page<Comment> findByBoardId(Long boardId, Pageable pageable) {
+
+		// 1. Page로 수정, 전체 개수 조회
+		Long totalCount = queryFactory
+			.select(comment.count())
+			.from(comment)
+			.where(
+				comment.board.id.eq(boardId),
+				comment.parentComment.isNull(),
+				comment.isDeleted.isFalse()
+					.or(
+						comment.isDeleted.isTrue()
+							.and(
+								JPAExpressions.selectOne()
+									.from(subComment)
+									.where(subComment.parentComment.id.eq(comment.id),
+										subComment.isDeleted.isFalse())
+									.exists()
+							)
+					)
+			)
+			.fetchOne();
+
+		if (totalCount == null || totalCount == 0) {
+			return new PageImpl<>(new ArrayList<>(), pageable, 0);
+		}
+
+		// 2. 현재 페이지에 보여줄 '부모 댓글'의 id들만 먼저 조회한다
 		List<Long> parentIds = queryFactory
 			.select(comment.id)
 			.from(comment)
@@ -58,20 +84,10 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
 			)
 			.orderBy(comment.createdAt.asc())
 			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize() + 1)
+			.limit(pageable.getPageSize())
 			.fetch();
 
-		if (parentIds.isEmpty()) {
-			return new SliceImpl<>(Collections.emptyList(), pageable, false);
-		}
-
-		boolean hasNext = false;
-		if (parentIds.size() > pageable.getPageSize()) {
-			parentIds.remove(pageable.getPageSize());
-			hasNext = true;
-		}
-
-		// 2. 부모 댓글 id들에 속한 모든 댓글 조회
+		// 3. 부모 댓글 id들에 속한 모든 댓글 조회
 		List<Comment> result = queryFactory
 			.selectFrom(comment)
 			.leftJoin(comment.parentComment).fetchJoin()
@@ -108,6 +124,6 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
 			)
 			.fetch();
 
-		return new SliceImpl<>(result, pageable, hasNext);
+		return new PageImpl<>(result, pageable, totalCount);
 	}
 }

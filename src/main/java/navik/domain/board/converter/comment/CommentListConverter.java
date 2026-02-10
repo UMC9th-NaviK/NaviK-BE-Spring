@@ -5,12 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 
 import navik.domain.board.dto.comment.CommentListDTO;
 import navik.domain.board.entity.Comment;
-import navik.global.dto.CursorResponseDTO;
+import navik.global.dto.PageResponseDTO;
 
 public class CommentListConverter {
 
@@ -23,10 +24,9 @@ public class CommentListConverter {
 			.build();
 	}
 
-	// Slice로 변경 및 파라미터 최적화 진행
-	public static CursorResponseDTO<CommentListDTO.ResponseComment> toResponse(
-		Slice<Comment> comments,
-		String nextCursor,
+	// Page로 변경 및 파라미터 최적화 진행
+	public static PageResponseDTO<CommentListDTO.ResponseComment> toResponse(
+		Page<Comment> comments,
 		Long currentUserId
 	) {
 
@@ -60,12 +60,13 @@ public class CommentListConverter {
 			}
 		});
 
-		return CursorResponseDTO.<CommentListDTO.ResponseComment>builder()
-			.content(rootComments)
-			.nextCursor(nextCursor)
-			.pageSize(rootComments.size())
-			.hasNext(comments.hasNext())
-			.build();
+		Page<CommentListDTO.ResponseComment> resultPage = new PageImpl<>(
+			rootComments,
+			comments.getPageable(),
+			comments.getTotalElements()
+		);
+
+		return PageResponseDTO.of(resultPage);
 	}
 
 	// 단일 엔티티 변환시 currentUserId 직접 받아서 비교 진행한다
