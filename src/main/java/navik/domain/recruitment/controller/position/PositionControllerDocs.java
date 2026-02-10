@@ -18,6 +18,7 @@ public interface PositionControllerDocs {
 	@Operation(summary = "사용자 추천 포지션 전체 검색", description = """
 		**API 역할**
 		- 마이페이지 -> 검색 필터를 적용하여 사용자에게 적합한 포지션을 전체 검색합니다.
+		- Body로 주고받기 위해 의도적으로 `Post` 매핑하였습니다! 참고해주세요!
 		
 		**검색 필터 별 입력 가능한 상수 문자열 설명**
 		- `특정 필터에 대해 상관없이 모두 보려면, 해당 필터의 List는 안보내시면 됩니다!`
@@ -105,4 +106,26 @@ public interface PositionControllerDocs {
 		@Parameter(description = "마지막으로 조회한 커서 Base64 인코딩 값 (nextCursor)") String cursor,
 		@Parameter(description = "한번에 가져올 데이터 수") Integer size
 	);
+
+	@Operation(summary = "필터링된 포지션 전체 개수 조회", description = """
+		**API 역할**
+		- 마이페이지 -> 검색 필터를 적용하였을 때, Total 등록된 개수를 반환합니다.
+		- `사용자 추천 포지션 전체 검색 API`에서 사용한 검색 필터를 그대로 여기 RequestBody로 넣어주시면 됩니다!
+		- 상수 문자열 및 에러 코드는 위 API와 동일합니다!
+		- Body로 주고받기 위해 의도적으로 `Post` 매핑하였습니다! 참고해주세요!
+		"""
+	)
+	@ApiErrorCodes(
+		enumClass = RecruitmentErrorCode.class,
+		includes = {
+			"AREA_TYPE_NOT_FOUND",
+			"COMPANY_SIZE_NOT_FOUND",
+			"EMPLOYMENT_TYPE_NOT_FOUND",
+			"EXPERIENCE_TYPE_NOT_FOUND",
+			"INDUSTRY_TYPE_NOT_FOUND",
+			"JOB_TYPE_NOT_FOUND",
+			"MAJOR_TYPE_NOT_FOUND"
+		}
+	)
+	ApiResponse<Long> getPositionCount(@RequestBody PositionRequestDTO.SearchCondition searchCondition);
 }

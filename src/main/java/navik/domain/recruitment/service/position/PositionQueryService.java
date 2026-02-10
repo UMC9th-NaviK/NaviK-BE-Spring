@@ -76,6 +76,18 @@ public class PositionQueryService {
 		);
 	}
 
+	public Long getPositionCount(PositionRequestDTO.SearchCondition searchCondition) {
+
+		// 1. 직무 검색
+		List<String> jobNames = searchCondition.getJobTypes().stream()
+			.map(JobType::getLabel)
+			.toList();
+		List<Job> jobs = jobRepository.findByNameIn(jobNames);
+
+		// 2. 필터 적용 Total Count
+		return positionRepository.countPositions(jobs, searchCondition);
+	}
+
 	private String encodeCursor(Double similarity, Long matchCount, Long id) {
 		String original = similarity + "_" + matchCount + "_" + id;
 		return Base64.getEncoder().encodeToString(original.getBytes());

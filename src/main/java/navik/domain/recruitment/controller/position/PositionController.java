@@ -40,4 +40,11 @@ public class PositionController implements PositionControllerDocs {
 			searchCondition, cursor, pageable);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
 	}
+
+	@Override
+	@PostMapping("/count")
+	public ApiResponse<Long> getPositionCount(@RequestBody PositionRequestDTO.SearchCondition searchCondition) {
+		Long result = positionQueryService.getPositionCount(searchCondition);
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
+	}
 }
