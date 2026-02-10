@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import navik.domain.job.dto.JobResponseDTO;
 import navik.domain.users.exception.code.JobErrorCode;
-import navik.global.swagger.ApiErrorCodes;
+import navik.global.swagger.annotation.ApiErrorCodes;
 
 @Tag(name = "Job", description = "직무 관련 API")
 public interface JobControllerDocs {

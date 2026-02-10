@@ -16,7 +16,7 @@ import navik.domain.evaluation.exception.code.EvaluationErrorCode;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDTO;
-import navik.global.swagger.ApiErrorCodes;
+import navik.global.swagger.annotation.ApiErrorCodes;
 
 @Tag(name = "Evaluation", description = "스터디 평가 관련 API")
 public interface EvaluationControllerDocs {

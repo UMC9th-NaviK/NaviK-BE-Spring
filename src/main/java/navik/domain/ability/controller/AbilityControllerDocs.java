@@ -15,7 +15,7 @@ import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.exception.code.GeneralErrorCode;
 import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDTO;
-import navik.global.swagger.ApiErrorCodes;
+import navik.global.swagger.annotation.ApiErrorCodes;
 
 @Tag(name = "Ability", description = "내 활동 및 이력 API")
 public interface AbilityControllerDocs {
