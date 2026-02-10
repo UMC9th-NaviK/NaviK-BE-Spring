@@ -110,6 +110,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 				.body(ApiResponse.onFailure(code, null));
 		}
 
+		log.warn("HttpMessageNotReadableException: {}", e.getMessage());
 		return ResponseEntity
 			.status(status)
 			.headers(headers)
@@ -156,7 +157,8 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 		HttpServletRequest request
 	) {
 
-		log.warn("TypeMismatch param={} value={} requiredType={}", e.getName(), e.getValue(), e.getRequiredType());
+		log.warn("MethodArgumentTypeMismatch param={} value={} requiredType={}", e.getName(), e.getValue(),
+			e.getRequiredType());
 
 		return ResponseEntity
 			.status(HttpStatus.BAD_REQUEST)
@@ -168,6 +170,9 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 		TypeMismatchException e,
 		HttpServletRequest request
 	) {
+
+		log.warn("TypeMismatchException: {}", e.getMessage());
+
 		return ResponseEntity
 			.status(HttpStatus.BAD_REQUEST)
 			.body(ApiResponse.onFailure(GeneralErrorCode.INVALID_TYPE_VALUE, null));
