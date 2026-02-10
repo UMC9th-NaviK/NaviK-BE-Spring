@@ -60,13 +60,15 @@ public class EvaluationQueryService {
 		Study study = studyRepository.findById(studyId)
 			.orElseThrow(() -> new GeneralException(StudyErrorCode.STUDY_NOT_FOUND));
 
-		List<User> members = studyUserRepository.findUserByStudyId(studyId).stream()
-			.filter(u -> !u.getId().equals(userId))
-			.toList();
+		List<User> members = studyUserRepository.findUserByStudyId(studyId);
 
 		if (!members.contains(user)) {
 			throw new GeneralException(StudyErrorCode.USER_NOT_FOUND);
 		}
+
+		members = members.stream()
+			.filter(u -> !u.getId().equals(userId))
+			.toList();
 
 		return EvaluationConverter.toPage(study, members);
 	}
