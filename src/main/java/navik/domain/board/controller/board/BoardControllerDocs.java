@@ -67,7 +67,7 @@ public interface BoardControllerDocs {
 		@Parameter(name = "keyword", description = "검색어", example = "Spring"),
 		@Parameter(name = "type", description = "게시판 종류 (ALL, JOB, HOT)", example = "ALL"),
 		@Parameter(name = "jobName", description = "직무 이름 (type이 JOB일 때 필수), (예: 프로덕트 매니저, 프로덕트 디자이너, 프론트엔드 개발자, 백엔드 개발자)"),
-		@Parameter(name = "cursor", description = "마지막 게시글의 커서 (ALL/JOB은 '시간', HOT은 '점수_시간')"),
+		@Parameter(name = "cursor", description = "마지막 게시글의 커서 (ALL/JOB은 '시간', HOT은 '점수_시간') (첫 조회 시에는 X)"),
 		@Parameter(name = "size", description = "페이지 크기", example = "10")
 	})
 	ApiResponse<CursorResponseDTO<BoardResponseDTO.BoardDTO>> searchBoards(
