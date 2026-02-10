@@ -351,6 +351,11 @@ GitHub Actions를 통해 자동 배포됩니다.
 |                     @kjhh2605<br/>[GitHub](https://github.com/kjhh2605)                     |                     @bmh7190<br/>[GitHub](https://github.com/bmh7190)                      |                   @kfdsy0103<br/>[GitHub](https://github.com/kfdsy0103)                    |                    @hardwoong<br/>[GitHub](https://github.com/hardwoong)                    |                   @LeeJaeJun1<br/>[GitHub](https://github.com/LeeJaeJun1)                   |
 |     <small>• Social/Notion OAuth 인증 처리<br/>• 성장 로그 분석 서버 담당<br/>• 이벤트 기반 레벨링 설계</small>     |         <small>• AWS 인프라 및 CI/CD 구축<br/>• 성장 로그 API 담당<br/>• 비동기 워커 로직 설계</small>          |               <small>(Lead)<br/>• 채용 공고 추출/적재 및 추천<br/>• 모니터링 환경 구축</small>                |               <small>• FastAPI 분석 서버 담당<br/>• Few-Shot 프롬프트 활용 일치율 개선</small>               |                <small>• 소셜 기능 담당<br/>• Redis 캐싱 처리<br/>• 카운트 원자적 제어</small>                 |
 
+## Support
+
+- Issues: [GitHub Issues](https://github.com/UMC9th-NaviK/NaviK-BE-Spring/issues)
+- Organization: [UMC 9th - NaviK Team](https://github.com/UMC9th-NaviK)
+
 ## Credits
 
 - [Spring Boot](https://spring.io/projects/spring-boot)
