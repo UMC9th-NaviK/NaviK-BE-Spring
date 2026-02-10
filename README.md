@@ -285,7 +285,7 @@ Swagger UI를 통해 전체 API 명세를 확인할 수 있습니다.
 [Limit/Offset Query] = Count Query + Limit/Offset로 인한 성능 저하
 ```
 
-- Workbook Cursor를 활용하여 조회 성능 개선
+- OrderBy에 사용된 컬럼을 활용하여 Cursor 조합, 조회 성능 개선
 
 ### 2. 비동기 Worker 아키텍처
 
