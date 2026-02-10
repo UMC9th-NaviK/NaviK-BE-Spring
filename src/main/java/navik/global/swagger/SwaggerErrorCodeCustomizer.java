@@ -14,6 +14,8 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import navik.global.apiPayload.exception.code.BaseCode;
+import navik.global.swagger.annotation.ApiErrorCodes;
+import navik.global.swagger.annotation.ApiErrorCodesGroup;
 
 @Slf4j
 @Configuration

@@ -10,7 +10,7 @@ import navik.domain.recruitment.exception.code.RecruitmentErrorCode;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
 import navik.global.dto.CursorResponseDTO;
-import navik.global.swagger.ApiErrorCodes;
+import navik.global.swagger.annotation.ApiErrorCodes;
 
 @Tag(name = "Position", description = "채용 공고 중 포지션 관련 API")
 public interface PositionControllerDocs {

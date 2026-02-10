@@ -16,7 +16,7 @@ import navik.domain.kpi.exception.code.KpiCardErrorCode;
 import navik.domain.users.exception.code.JobErrorCode;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.swagger.ApiErrorCodes;
+import navik.global.swagger.annotation.ApiErrorCodes;
 
 @Tag(name = "KPI Card", description = "KPI 카드 조회 API")
 public interface KpiCardControllerDocs {

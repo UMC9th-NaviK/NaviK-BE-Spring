@@ -10,7 +10,7 @@ import navik.domain.kpi.exception.code.KpiCardErrorCode;
 import navik.domain.recruitment.dto.recruitment.RecruitmentResponseDTO;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.swagger.ApiErrorCodes;
+import navik.global.swagger.annotation.ApiErrorCodes;
 
 @Tag(name = "Recruitment", description = "채용 공고 관련 API")
 public interface RecruitmentControllerDocs {
