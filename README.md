@@ -6,8 +6,8 @@
 
 **NaviK**은 주니어 개발자가 자신의 성장을 체계적으로 기록하고, AI를 활용해 역량을 분석받으며, 맞춤형 채용 공고와 스터디를 추천받을 수 있는 커리어 성장 플랫폼입니다.
 
-![img_4.png](img_4.png)
-![img_3.png](img_3.png)
+![img_4.png](images/img_4.png)
+![img_3.png](images/img_3.png)
 
 <p align="center">
   <a href="https://www.navik.kr">
@@ -86,7 +86,7 @@ src/main/java/navik/
 
 ## 🛠 시스템 아키텍처
 
-![img.png](img.png)
+![img.png](images/img.png)
 
 ### 전체 흐름도
 
@@ -183,7 +183,8 @@ src/main/java/navik/
 ### 2. 채용 공고 크롤링 및 성장 기록 분석 서버 (Private Subnet)
 
 > 주요 역할 : 외부 IO가 필요한 작업 (OpenAI, NaverOCR, 채용 공고 스크래핑)
-> 서비스 사용자의 트래픽을 담당하지 않고 Server to Server 이므로 (Private)
+<br>
+> 서비스 사용자의 트래픽을 담당하지 않고 Server to Server 이므로 -> Private
 
 ---
 
@@ -216,6 +217,7 @@ src/main/java/navik/
 ### 3. 이력서 분석 서버 (Private Subnet)
 
 > 주요 역할 : 파일 유형이 늘어나는 요구사항에 대비, '파일 관련 라이브러리 생태계'가 풍부한 파이썬이 적합하다고 판단
+<br>
 > 외부 IO 작업만 처리 (OpenAI) -> Private Subnet
 ---
 
@@ -237,19 +239,19 @@ src/main/java/navik/
 
 ## 🧩 ERD
 
-![img_1.png](img_1.png)
+![img_2.png](images/img_2.png)
 
 ## ✨ 주요 기능 소개
 
-| 기능           | 설명                                              |
-|--------------|-------------------------------------------------|
-| **성장 로그**    | 활동·학습·성과를 기록하고 AI 평가(비동기 Worker)를 받아 KPI 점수에 반영 |
-| **포트폴리오 분석** | PDF/텍스트 포트폴리오 업로드 → AI 분석 → 강점·약점 리포트           |
-| **KPI 카드**   | 직무별 핵심 역량 카드와 레이더 차트로 내 역량 시각화                  |
-| **채용 공고 추천** | pgvector 기반 의미 유사도로 내 역량에 맞는 채용 공고 자동 매칭        |
-| **스터디**      | 스터디 생성·참여·동료 평가, KPI 유사도 기반 스터디 추천              |
-| **커뮤니티**     | 직무별 게시판, 댓글, 좋아요, 인기글 랭킹                        |
-| **소셜 로그인**   | Google · Kakao · Naver OAuth2 지원                |
+| 기능           | 설명                                                                                   |
+|--------------|--------------------------------------------------------------------------------------|
+| **성장 로그**    | 활동·학습·성과를 기록하고 AI 평가(비동기 Worker)를 받아 KPI 점수에 반영 (Text, PDF, Notion, Github PR 분석 지원) |
+| **포트폴리오 분석** | PDF/텍스트 포트폴리오 업로드 → AI 분석 → 강점·약점 리포트                                                |
+| **KPI 카드**   | 직무별 핵심 역량 카드와 레이더 차트로 내 역량 시각화                                                       |
+| **채용 공고 추천** | pgvector 기반 의미 유사도로 내 역량에 맞는 채용 공고 자동 매칭                                             |
+| **스터디**      | 스터디 생성·참여·동료 평가, KPI 유사도 기반 스터디 추천                                                   |
+| **커뮤니티**     | 직무별 게시판, 댓글, 좋아요, 인기글 랭킹                                                             |
+| **소셜 로그인**   | Google · Kakao · Naver OAuth2 지원                                                     |
 
 ## 📚 주요 API 그룹
 
@@ -277,38 +279,47 @@ Swagger UI를 통해 전체 API 명세를 확인할 수 있습니다.
 
 ## 🛠 기술적 시도
 
-### 1. 비동기 Worker 아키텍처
+### 1. Cursor 기반 조회 쿼리
 
 ```
-[Client] → [REST API] → [Redis Stream] → [Worker] → [AI Server]
-                                             ↓
-                                       [DB 결과 저장]
+[Limit/Offset Query] = Count Query + Limit/Offset로 인한 성능 저하
+```
+
+- Cursor를 활용하여 조회 성능 개선
+
+### 2. 비동기 Worker 아키텍처
+
+```
+[Client] → [Main API Server] → [Redis Stream] → [Worker] → [AI Server] (I/O) 
+                                                    ↓
+                                              [DB 결과 저장]
 ```
 
 - 성장 로그 평가, 포트폴리오 분석은 Redis Stream 기반 비동기 Worker로 처리됩니다
 - Worker는 poll 방식으로 Stream을 소비하며, claim 메커니즘으로 실패한 메시지를 재처리합니다
 
-### 2. 채용 공고 비동기 추출&적재 파이프라인
+### 3. 채용 공고 비동기 추출&적재 파이프라인
 
 ```
-[Crawler Server] → [Redis Stream] → [REST API]
-                                        ↓
-                                   [DB 결과 저장]
+[Crawler Server] → [Redis Stream] → [Main API Server]
+                                           ↓
+                                      [DB 결과 저장]
 ```
 
-- 추출 <-> 적재의 분리로 장애 지점 제거
+- 추출 <-> 적재의 분리로 단일 장애 포인트 제거
+- JdbcTemplate을 통해 직접 Batch Insert Query를 작성하여 적재 속도 개선
 
-### 3. Redis 캐싱을 활용한 조회 성능 개선
+### 4. Redis 캐싱을 활용한 조회 성능 개선
 
 ```
 [Client] → [HIT: Redis Cache] → [MISS: REST API]
-                                        ↓
+                                       ↓
                                     [DB 조회]
 ```
 
 - 자주 조회되는 데이터 캐싱으로 사용자 경험 개선
 
-### 4. 모니터링 서버 구축
+### 5. 모니터링 서버 구축
 
 ```
 [Spring Actuator] → [Prometheus] → [Grafana]
@@ -316,10 +327,10 @@ Swagger UI를 통해 전체 API 명세를 확인할 수 있습니다.
 
 - API 요청 및 응답 속도 시각화, p95, p99, 쿼리 개수 등을 직접 확인하며 병목 지점 파악
 
-### 5. 그 밖의 성능 개선을 위한 시도
+### 6. 그 밖의 성능 개선을 위한 시도
 
 - 상호 간 코드 리뷰로 병목 지점 사전 파악 및 개선
-- Repository 조회 시 Projection을 적용하여 N+1의 원인 차단
+- Repository 조회 시 Projection을 적용하여 N+1의 원인 제거
 - QueryDSL을 활용하여 동적 검색 필터 처리 + 컴파일 타임 안정성 확보
 
 ## 🚀 배포 과정
