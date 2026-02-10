@@ -1,6 +1,6 @@
 package navik.domain.board.service.comment;
 
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,7 +13,7 @@ import navik.domain.board.repository.board.BoardRepository;
 import navik.domain.board.repository.comment.CommentRepository;
 import navik.domain.users.repository.UserRepository;
 import navik.domain.users.service.UserQueryService;
-import navik.global.dto.CursorResponseDTO;
+import navik.global.dto.PageResponseDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -39,18 +39,13 @@ public class CommentQueryService {
 	 * @param parameter
 	 * @return
 	 */
-	public CursorResponseDTO<CommentListDTO.ResponseComment> getCommentList(CommentListDTO.Parameter parameter) {
+	public PageResponseDTO<CommentListDTO.ResponseComment> getCommentList(CommentListDTO.Parameter parameter) {
 		// 1. 게시글 조회
-		Slice<Comment> comments = commentRepository.findByBoardId(
+		Page<Comment> comments = commentRepository.findByBoardId(
 			parameter.getBoardId(),
 			parameter.getPageable());
 
-		// 2. 다믐 커서 값 추출 (마지막 데이터 Id)
-		String nextCusor = (comments.hasNext() && !comments.isEmpty()) ?
-			comments.getContent().get(comments.getNumberOfElements() - 1).getId().toString() : null;
-
-		// 3. DTO 변환
-		return CommentListConverter.toResponse(comments, nextCusor, parameter.getUserId());
+		// 2. DTO 변환
+		return CommentListConverter.toResponse(comments, parameter.getUserId());
 	}
-
 }

@@ -1,6 +1,7 @@
 package navik.domain.board.controller.comment;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,20 +16,21 @@ import navik.domain.board.dto.comment.CommentListDTO;
 import navik.domain.board.dto.comment.ReplyDTO;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.auth.annotation.AuthUser;
-import navik.global.dto.CursorResponseDTO;
+import navik.global.dto.PageResponseDTO;
+import navik.global.swagger.annotation.SwaggerPageable;
 
 @Tag(name = "Comment", description = "댓글 관련 API")
 public interface CommentControllerDocs {
 	@Operation(summary = "댓글 목록 조회", description = "특정 게시글의 댓글 목록을 계층 구조(부모-자식)로 페이징하여 조회합니다.")
 	@Parameters({
 		@Parameter(name = "boardId", description = "댓글 목록을 조회할 게시글의 ID입니다.", example = "1"),
-		@Parameter(name = "userId", description = "현재 로그인한 유저 ID입니다.", hidden = true),
-		@Parameter(name = "pageable", description = "페이징 파라미터입니다. (page, size, sort)")
+		@Parameter(name = "userId", description = "현재 로그인한 유저 ID입니다.", hidden = true)
 	})
-	ApiResponse<CursorResponseDTO<CommentListDTO.ResponseComment>> getComments(
+	@SwaggerPageable
+	ApiResponse<PageResponseDTO<CommentListDTO.ResponseComment>> getComments(
 		@PathVariable Long boardId,
 		@AuthUser Long userId,
-		Pageable pageable
+		@PageableDefault(page = 0, size = 10) Pageable pageable
 	);
 
 	@Operation(summary = "댓글 작성", description = "게시글에 댓글 또는 대댓글을 작성합니다.")
