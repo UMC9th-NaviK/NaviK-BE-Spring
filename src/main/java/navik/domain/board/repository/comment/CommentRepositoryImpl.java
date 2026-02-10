@@ -59,7 +59,7 @@ public class CommentRepositoryImpl implements CommentCustomRepository {
 			)
 			.fetchOne();
 
-		if (totalCount == 0) {
+		if (totalCount == null || totalCount == 0) {
 			return new PageImpl<>(new ArrayList<>(), pageable, 0);
 		}
 
