@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import navik.domain.notification.enums.NotificationType;
 import navik.domain.users.entity.User;
 import navik.global.entity.BaseEntity;
 
@@ -48,6 +49,9 @@ public class Notification extends BaseEntity {
 	@Column(name = "is_read", nullable = false)
 	@Builder.Default
 	private Boolean isRead = false;
+
+	@Column(name = "additional_info")
+	private String additionalInfo;
 
 	public void setIsRead() {
 		this.isRead = true;

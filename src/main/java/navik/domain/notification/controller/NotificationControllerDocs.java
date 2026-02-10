@@ -18,6 +18,16 @@ public interface NotificationControllerDocs {
 		description = """
 			최근 7일 간 알림을 모두 조회합니다.
 			최신순으로 정렬되어 반환합니다.
+			
+			### 필드 설명
+			- NotificationType
+				- RECRUITMENT (채용 공고 관련 알림인 경우)
+				- GOAL (목표 관련 알림인 경우)
+				- STUDY (스터디 관련 알림인 경우)
+			- additionalInfoPerNotificationType
+				- RECRUITMENT에서는 채용 사이트 링크를 의미
+				- GOAL에서는 해당 목표에 대한 식별 id를 의미
+				- STUDY에서는 해당 스터디에 대한 식별 id를 의미
 			"""
 	)
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({

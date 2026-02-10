@@ -1,6 +1,4 @@
-package navik.domain.ability.service.command;
-
-import static navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO.*;
+package navik.domain.ability.service;
 
 import java.util.List;
 
@@ -13,6 +11,7 @@ import navik.domain.ability.entity.Ability;
 import navik.domain.ability.entity.AbilityEmbedding;
 import navik.domain.ability.repository.AbilityEmbeddingRepository;
 import navik.domain.ability.repository.AbilityRepository;
+import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 
@@ -26,14 +25,14 @@ public class AbilityCommandService {
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void saveAbilities(Long userId,
-		List<GrowthLogEvaluationResult.AbilityResult> abilities) {
+		List<GrowthLogAiResponseDTO.GrowthLogEvaluationResult.AbilityResult> abilities) {
 		if (abilities == null || abilities.isEmpty()) {
 			return;
 		}
 
 		User user = userRepository.getReferenceById(userId);
 
-		for (GrowthLogEvaluationResult.AbilityResult abilityResult : abilities) {
+		for (GrowthLogAiResponseDTO.GrowthLogEvaluationResult.AbilityResult abilityResult : abilities) {
 			Ability ability = Ability.builder()
 				.content(abilityResult.content())
 				.user(user)

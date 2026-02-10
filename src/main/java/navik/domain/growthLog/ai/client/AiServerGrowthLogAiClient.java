@@ -17,7 +17,7 @@ import navik.domain.growthLog.exception.code.GrowthLogErrorCode;
 import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Component
-@Profile("!prod")
+@Profile("prod")
 @RequiredArgsConstructor
 @Slf4j
 public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
@@ -30,6 +30,8 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 	@Override
 	public GrowthLogEvaluationResult evaluateUserInput(
 		Long userId,
+		Long jobId,
+		Integer levelValue,
 		GrowthLogEvaluationContext context
 	) {
 
@@ -39,7 +41,7 @@ public class AiServerGrowthLogAiClient implements GrowthLogAiClient {
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
 				.bodyValue(
-					new GrowthLogAiRequestDTO.EvaluateUserInputRequest(userId, context)
+					new GrowthLogAiRequestDTO.EvaluateUserInputRequest(userId, jobId, levelValue, context)
 				)
 				.retrieve()
 				.bodyToMono(GrowthLogEvaluationResult.class)

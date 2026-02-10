@@ -67,5 +67,4 @@ public class UserController implements UserControllerDocs {
 	public void updateProfileImage(@AuthUser Long userId, @RequestBody String imageUrl) {
 		userCommandService.updateProfileImage(userId, imageUrl);
 	}
-
 }
