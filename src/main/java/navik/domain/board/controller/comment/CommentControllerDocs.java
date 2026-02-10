@@ -65,7 +65,7 @@ public interface CommentControllerDocs {
 
 	@Operation(summary = "댓글 삭제", description = "본인이 작성한 댓글을 삭제합니다.")
 	@io.swagger.v3.oas.annotations.responses.ApiResponses(
-		value = {@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "DELETED")
+		value = {@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "삭제 성공")
 		})
 	@Parameters({
 		@Parameter(name = "boardId", description = "게시글의 ID입니다."),
