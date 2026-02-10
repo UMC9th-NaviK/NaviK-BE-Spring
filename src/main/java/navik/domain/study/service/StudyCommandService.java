@@ -92,6 +92,7 @@ public class StudyCommandService {
 			.role(StudyRole.STUDY_MEMBER)
 			.attend(AttendStatus.WAITING)
 			.isActive(false)
+			.memberStartDate(LocalDateTime.now())
 			.build();
 
 		studyUserRepository.save(application);
