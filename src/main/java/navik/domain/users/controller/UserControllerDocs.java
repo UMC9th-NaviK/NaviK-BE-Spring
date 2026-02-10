@@ -284,7 +284,7 @@ public interface UserControllerDocs {
 			  "timestamp": "2026-01-20T14:30:00"
 			}
 			""")))})
-	void updateMyInfo(@Parameter(hidden = true) @AuthUser Long userId,
+	ApiResponse<Void> updateMyInfo(@Parameter(hidden = true) @AuthUser Long userId,
 		@RequestBody @Valid UserRequestDTO.MyInfoDTO req);
 
 	@Operation(summary = "프로필 이미지 수정", description = "로그인한 사용자의 프로필 이미지 URL을 수정합니다.")
@@ -317,6 +317,6 @@ public interface UserControllerDocs {
 			  "timestamp": "2026-01-20T14:30:00"
 			}
 			""")))})
-	void updateProfileImage(@Parameter(hidden = true) @AuthUser Long userId,
+	ApiResponse<Void> updateProfileImage(@Parameter(hidden = true) @AuthUser Long userId,
 		@RequestBody String imageUrl);
 }

@@ -58,13 +58,15 @@ public class UserController implements UserControllerDocs {
 
 	@PatchMapping("/my-page")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void updateMyInfo(@AuthUser Long userId, @Valid @RequestBody UserRequestDTO.MyInfoDTO req) {
+	public ApiResponse<Void> updateMyInfo(@AuthUser Long userId, @Valid @RequestBody UserRequestDTO.MyInfoDTO req) {
 		userCommandService.updateMyInfo(userId, req);
+		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, null);
 	}
 
 	@PutMapping("/profile-image")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void updateProfileImage(@AuthUser Long userId, @RequestBody String imageUrl) {
+	public ApiResponse<Void> updateProfileImage(@AuthUser Long userId, @RequestBody String imageUrl) {
 		userCommandService.updateProfileImage(userId, imageUrl);
+		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, null);
 	}
 }
