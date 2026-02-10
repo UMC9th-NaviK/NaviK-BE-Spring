@@ -26,6 +26,7 @@ import navik.domain.evaluation.repository.EvaluationTagSelectionRepository;
 import navik.domain.study.entity.Study;
 import navik.domain.study.entity.StudyUser;
 import navik.domain.study.enums.AttendStatus;
+import navik.domain.study.exception.code.StudyErrorCode;
 import navik.domain.study.repository.StudyRepository;
 import navik.domain.study.repository.StudyUserRepository;
 import navik.domain.users.entity.User;
@@ -53,11 +54,19 @@ public class EvaluationQueryService {
 	 */
 	@Transactional(readOnly = true)
 	public EvaluationStudyUserDTO.EvaluationPage getTargetMembers(Long studyId, Long userId) {
-		Study study = studyRepository.getReferenceById(studyId);
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
+
+		Study study = studyRepository.findById(studyId)
+			.orElseThrow(() -> new GeneralException(StudyErrorCode.STUDY_NOT_FOUND));
 
 		List<User> members = studyUserRepository.findUserByStudyId(studyId).stream()
-			.filter(user -> !user.getId().equals(userId))
+			.filter(u -> !u.getId().equals(userId))
 			.toList();
+
+		if (!members.contains(user)) {
+			throw new GeneralException(StudyErrorCode.USER_NOT_FOUND);
+		}
 
 		return EvaluationConverter.toPage(study, members);
 	}
@@ -65,11 +74,11 @@ public class EvaluationQueryService {
 	@Transactional
 	public void submitEvaluation(Long evaluatorId, Long studyId, EvaluationSubmitDTO req) {
 		Study study = studyRepository.findById(studyId)
-			.orElseThrow(() -> new GeneralException(GeneralErrorCode.STUDY_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(StudyErrorCode.STUDY_NOT_FOUND));
 		User evaluator = userRepository.findById(evaluatorId)
-			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(StudyErrorCode.USER_NOT_FOUND));
 		User evaluatee = userRepository.findById(req.targetUserId())
-			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(StudyErrorCode.USER_NOT_FOUND));
 
 		// 이미 해당 스터디원에 대한 평가를 진행했으면 오류발생
 		if (evaluationRepository.existsByStudyIdAndEvaluatorIdAndEvaluateeId(studyId, evaluatorId,
@@ -163,7 +172,7 @@ public class EvaluationQueryService {
 	public EvaluationMyDTO.MyStudyEvaluationDetailDTO getMyEvaluationDetails(Long userId, Long studyId) {
 		// 스터디 참여했는지 확인
 		StudyUser studyUser = studyUserRepository.findByUserIdAndStudyId(userId, studyId)
-			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(StudyErrorCode.USER_NOT_FOUND));
 
 		Study study = studyUser.getStudy();
 
