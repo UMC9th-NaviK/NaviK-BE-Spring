@@ -21,4 +21,6 @@ public interface PositionCustomRepository {
 	);
 
 	void batchSaveAll(List<Position> positions);
+
+	Long countPositions(List<Job> jobs, PositionRequestDTO.SearchCondition searchCondition);
 }

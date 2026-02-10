@@ -134,6 +134,33 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 		return toSlice(result, pageable);
 	}
 
+	@Override
+	public Long countPositions(List<Job> jobs, PositionRequestDTO.SearchCondition searchCondition) {
+
+		// 1. 조건 설정
+		BooleanExpression where = Stream.of(
+				jobIn(jobs),
+				experienceTypeIn(searchCondition.getExperienceTypes()),
+				employmentTypeIn(searchCondition.getEmploymentTypes()),
+				companySizeIn(searchCondition.getCompanySizes()),
+				educationLevelIn(searchCondition.getEducationLevels()),
+				areaTypeIn(searchCondition.getAreaTypes()),
+				industryTypeIn(searchCondition.getIndustryTypes()),
+				endDate(searchCondition.isWithEnded())
+			)
+			.filter(Objects::nonNull)
+			.reduce(BooleanExpression::and)
+			.orElse(null);
+
+		// 2. Total Count Query
+		return jpaQueryFactory
+			.select(position.countDistinct())
+			.from(position)
+			.join(position.recruitment, recruitment)
+			.where(where)
+			.fetchOne();
+	}
+
 	/**
 	 * Position에 대한 Batch Insert를 수행합니다.
 	 * PK에 대한 set도 처리합니다.
