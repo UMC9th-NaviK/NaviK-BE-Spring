@@ -69,4 +69,10 @@ public class UserController implements UserControllerDocs {
 		userCommandService.updateProfileImage(userId, imageUrl);
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, null);
 	}
+
+	@GetMapping("/me/level")
+	public ApiResponse<UserResponseDTO.LevelSummary> getMyLevelSummary(@AuthUser Long userId) {
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getMyLevelSummary(userId));
+	}
+
 }

@@ -14,7 +14,9 @@ import jakarta.validation.Valid;
 import navik.domain.users.dto.UserRequestDTO;
 import navik.domain.users.dto.UserResponseDTO;
 import navik.global.apiPayload.ApiResponse;
+import navik.global.apiPayload.exception.code.GeneralErrorCode;
 import navik.global.auth.annotation.AuthUser;
+import navik.global.swagger.annotation.ApiErrorCodes;
 
 @Tag(name = "User", description = "유저 관련 API")
 public interface UserControllerDocs {
@@ -319,4 +321,44 @@ public interface UserControllerDocs {
 			""")))})
 	ApiResponse<Void> updateProfileImage(@Parameter(hidden = true) @AuthUser Long userId,
 		@RequestBody String imageUrl);
+
+	@Operation(
+		summary = "내 레벨 요약 조회",
+		description = "로그인한 사용자의 총 KPI 점수(totalScore)를 기반으로 레벨, 레벨 설명, 레벨 구간 내 진행률(percentage, 0~100)을 조회합니다."
+	)
+	@ApiResponses({
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200",
+			description = "조회 성공",
+			content = @Content(
+				mediaType = "application/json",
+				examples = @ExampleObject(
+					name = "내 레벨 요약 조회 성공 예시",
+					value = """
+						{
+						  "isSuccess": true,
+						  "code": "COMMON200",
+						  "message": "성공입니다.",
+						  "result": {
+						    "level": 3,
+						    "description": "꾸준히 발전하고 있습니다.",
+						    "percentage": 87
+						  },
+						  "timestamp": "2026-02-11T18:29:17"
+						}
+						"""
+				)
+			)
+		)
+	})
+	@ApiErrorCodes(
+		enumClass = GeneralErrorCode.class,
+		includes = {
+			"USER_NOT_FOUND"
+		}
+	)
+	ApiResponse<UserResponseDTO.LevelSummary> getMyLevelSummary(
+		@Parameter(hidden = true) @AuthUser Long userId
+	);
+
 }

@@ -51,4 +51,11 @@ public class UserResponseDTO {
 		List<Long> departmentList
 	) {
 	}
+
+	public record LevelSummary(
+		Integer level,
+		String description,
+		Integer percentage
+	) {
+	}
 }
