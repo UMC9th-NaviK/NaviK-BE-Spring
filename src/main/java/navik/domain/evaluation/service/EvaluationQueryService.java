@@ -217,7 +217,7 @@ public class EvaluationQueryService {
 				int compare = b.getValue().compareTo(a.getValue());
 				return (compare == 0) ? -1 : compare;
 			})
-			.limit(5)
+			.limit(limit)
 			.map(Map.Entry::getKey)
 			.toList();
 	}
