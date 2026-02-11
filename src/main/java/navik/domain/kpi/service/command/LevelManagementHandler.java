@@ -7,8 +7,8 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.kpi.event.KpiScoreUpdatedEvent;
-import navik.domain.kpi.event.policy.LevelPolicy;
 import navik.domain.kpi.repository.KpiScoreRepository;
+import navik.domain.level.service.LevelQueryService;
 import navik.domain.users.entity.User;
 import navik.domain.users.service.UserQueryService;
 
@@ -16,7 +16,7 @@ import navik.domain.users.service.UserQueryService;
 @RequiredArgsConstructor
 public class LevelManagementHandler {
 	private final UserQueryService userQueryService;
-	private final LevelPolicy levelPolicy;
+	private final LevelQueryService levelQueryService;
 	private final KpiScoreRepository kpiScoreRepository;
 
 	@TransactionalEventListener
@@ -25,7 +25,7 @@ public class LevelManagementHandler {
 		User user = userQueryService.getUser(event.userId());
 
 		int previousLevel = user.getLevel();
-		int newLevel = levelPolicy.calculateLevel(kpiScoreRepository.sumTotalScore(event.userId()));
+		int newLevel = levelQueryService.calculateLevel(kpiScoreRepository.sumTotalScore(event.userId()));
 
 		isLeveledUp(newLevel, previousLevel, user);
 		//todo: 레벨업시 이벤트...?

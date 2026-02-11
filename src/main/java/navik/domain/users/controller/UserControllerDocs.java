@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import navik.domain.level.dto.LevelResponseDTO;
 import navik.domain.users.dto.UserRequestDTO;
 import navik.domain.users.dto.UserResponseDTO;
 import navik.global.apiPayload.ApiResponse;
@@ -357,7 +358,7 @@ public interface UserControllerDocs {
 			"USER_NOT_FOUND"
 		}
 	)
-	ApiResponse<UserResponseDTO.LevelSummary> getMyLevelSummary(
+	ApiResponse<LevelResponseDTO.LevelResult> getMyLevelSummary(
 		@Parameter(hidden = true) @AuthUser Long userId
 	);
 
