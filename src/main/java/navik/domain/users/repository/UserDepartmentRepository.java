@@ -3,6 +3,7 @@ package navik.domain.users.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -12,5 +13,8 @@ public interface UserDepartmentRepository extends JpaRepository<UserDepartment, 
 
 	@Query("SELECT ud.department.id FROM UserDepartment ud WHERE ud.user.id = :userId")
 	List<Long> findDepartmentIdsByUserId(Long userId);
-	void deleteAllByUserId(Long userId);
+
+	@Modifying(flushAutomatically = true, clearAutomatically = true)
+	@Query("DELETE FROM UserDepartment ud WHERE ud.user.id = :userId")
+	void deleteAllByUserId(@Param("userId") Long userId);
 }
