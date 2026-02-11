@@ -31,6 +31,11 @@ public interface GrowthLogControllerDocs {
 			사용자 입력 성장 로그를 생성하고 AI 평가를 시도합니다.
 			- AI 평가 성공: COMPLETED로 저장 + KPI 링크/점수 반영
 			- AI 평가 실패: FAILED로 저장되며, 생성 자체는 성공(201)으로 반환됩니다.
+			
+			입력 가능한 값
+			- 일반 텍스트 문장
+			- 노션 페이지 경로
+			- 깃허브 PR 경로
 			"""
 	)
 	@io.swagger.v3.oas.annotations.responses.ApiResponses({
