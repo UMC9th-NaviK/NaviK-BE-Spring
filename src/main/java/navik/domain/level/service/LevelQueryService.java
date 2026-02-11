@@ -40,7 +40,7 @@ public class LevelQueryService {
 	}
 
 	// 총 점수로 레벨 퍼센트 반환
-	public int calculatePercentage(Long totalScore, Level current) {
+	private int calculatePercentage(Long totalScore, Level current) {
 
 		if (totalScore == null || totalScore <= 0)
 			return 0;
