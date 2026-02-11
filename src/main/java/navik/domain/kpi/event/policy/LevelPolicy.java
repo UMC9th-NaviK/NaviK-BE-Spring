@@ -16,4 +16,13 @@ public class LevelPolicy {
 		}
 		return Level.fromScore(totalScore).getValue();
 	}
+
+	public String getDescription(Long totalScore) {
+		if (totalScore == null) {
+			log.warn("totalScore is null.");
+			return "";
+		}
+		return Level.fromScore(totalScore).getDescription();
+	}
+
 }
