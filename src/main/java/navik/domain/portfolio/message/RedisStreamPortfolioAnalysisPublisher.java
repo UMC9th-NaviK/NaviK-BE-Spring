@@ -29,7 +29,8 @@ public class RedisStreamPortfolioAnalysisPublisher implements PortfolioAnalysisP
 			"userId", String.valueOf(message.userId()),
 			"portfolioId", String.valueOf(message.portfolioId()),
 			"traceId", message.traceId(),
-			"isFallBacked", String.valueOf(message.isFallBacked())
+			"isFallBacked", String.valueOf(message.isFallBacked()),
+			"analysisType", message.analysisType().name()
 		);
 
 		// 레디스 스트림 메시지 발행
