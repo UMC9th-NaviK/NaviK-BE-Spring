@@ -17,6 +17,7 @@ public class StudyDTO {
 		private Long studyId;
 		private String title; // 스터디명
 		private String kpiName;
+		private Long kpiId;
 		private String description; // 스터디 소개
 		private LocalDateTime startDate;
 		private LocalDateTime endDate;

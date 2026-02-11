@@ -71,12 +71,15 @@ public class StudyQueryService {
 
 		Map<Long, Integer> participantCountMap = getParticipantCountMap(studyIds);
 		Map<Long, String> kpiNameMap = getKpiNameMap(studyIds);
+		Map<Long, Long> kpiIdMap = getKpiIdMap(studyIds);
 
 		// 4. DTO 변환
 		List<StudyDTO.MyStudyDTO> content = pagingList.stream()
 			.map(su -> StudyConverter.toMyStudyDTO(
-				su, participantCountMap.getOrDefault(su.getStudy().getId(), 0),
-				kpiNameMap.getOrDefault(su.getStudy().getId(), null)
+				su,
+				participantCountMap.getOrDefault(su.getStudy().getId(), 0),
+				kpiNameMap.getOrDefault(su.getStudy().getId(), null),
+				kpiIdMap.getOrDefault(su.getStudy().getId(), null)
 			))
 			.toList();
 
@@ -153,13 +156,15 @@ public class StudyQueryService {
 		List<Long> studyIds = pagingList.stream().map(Study::getId).toList();
 		Map<Long, Integer> participantCountMap = getParticipantCountMap(studyIds);
 		Map<Long, String> kpiNameMap = getKpiNameMap(studyIds);
+		Map<Long, Long> kpiIdMap = getKpiIdMap(studyIds);
 
 		// 5. DTO 변환
 		List<StudyRecommendDTO> content = pagingList.stream()
 			.map(s -> StudyRecommendConverter.toStudyRecommendDTO(
 				s,
 				participantCountMap.getOrDefault(s.getId(), 0),
-				kpiNameMap.getOrDefault(s.getId(), "KPI 정보 없음")
+				kpiNameMap.getOrDefault(s.getId(), "KPI 정보 없음"),
+				kpiIdMap.getOrDefault(s.getId(), null)
 			)).toList();
 
 		String nextCursor = hasNext ? pagingList.get(pagingList.size() - 1).getId().toString() : null;
@@ -181,6 +186,19 @@ public class StudyQueryService {
 			.collect(Collectors.toMap(
 				(StudyKpi sk) -> sk.getStudy().getId(),
 				(StudyKpi sk) -> sk.getKpiCard().getName()
+			));
+	}
+
+	// StudyKpiRepository 등을 활용하여 studyId와 kpiCardId 쌍을 가져옵니다.
+	private Map<Long, Long> getKpiIdMap(List<Long> studyIds) {
+		if (studyIds.isEmpty())
+			return Map.of();
+
+		// 이전에 생성했던 study_kpis 연관 테이블을 조회하는 쿼리가 필요합니다.
+		return studyKpiRepository.findByStudyIdIn(studyIds).stream()
+			.collect(Collectors.toMap(
+				sk -> sk.getStudy().getId(),
+				sk -> sk.getKpiCard().getId()
 			));
 	}
 
