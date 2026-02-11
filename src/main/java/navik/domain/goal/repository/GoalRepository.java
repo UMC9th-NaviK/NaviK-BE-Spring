@@ -26,10 +26,7 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
 	@Query("SELECT g FROM Goal g JOIN FETCH g.user WHERE g.endDate IN :endDates")
 	List<Goal> findByEndDateIn(List<LocalDate> endDates);
 
-	List<Goal> findTop3ByUserIdAndStatusInOrderByEndDateAscIdAsc(
-		Long userId,
-		List<GoalStatus> statuses
-	);
+	Long countByUserIdAndStatus(Long userId, GoalStatus goalStatus);
 
-	Long countByUserIdAndStatusIn(Long userId, List<GoalStatus> statuses);
+	List<Goal> findTop3ByUserIdAndStatusOrderByEndDateAscIdAsc(Long userId, GoalStatus goalStatus);
 }

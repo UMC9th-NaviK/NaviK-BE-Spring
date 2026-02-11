@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import navik.domain.job.entity.Job;
 import navik.domain.recruitment.dto.position.PositionRequestDTO;
@@ -45,8 +46,8 @@ public class PositionConverter {
 		Position position = recommendedPositionProjection.getPosition();
 		boolean satisfyExperience = (position.getExperienceType() == null) || (position.getExperienceType().getOrder()
 			<= userExperience.getOrder());
-		boolean satisfyEducation = (position.getEducationLevel() == null) || (position.getEducationLevel().getOrder()
-			<= userEducationLevel.getOrder());
+		boolean satisfyEducation = (position.getEducationLevel() == null) ||
+			(userEducationLevel != null && position.getEducationLevel().getOrder() <= userEducationLevel.getOrder());
 		boolean satisfyMajor = (position.getMajorType() == null) || userMajors.contains(position.getMajorType());
 
 		// 3. 해시태그 생성 (근무지/경력/고용형태 3가지는 기본)
@@ -58,8 +59,11 @@ public class PositionConverter {
 			hashTags.add(position.getJob().getName());
 		if (searchCondition.getCompanySizes() != null && !searchCondition.getCompanySizes().isEmpty())
 			hashTags.add(position.getRecruitment().getCompanySize().getLabel());
-		if (searchCondition.getEducationLevels() != null && !searchCondition.getEducationLevels().isEmpty())
-			hashTags.add(position.getEducationLevel().getLabel());
+		if (searchCondition.getEducationLevels() != null && !searchCondition.getEducationLevels().isEmpty()) {
+			Optional.ofNullable(position.getEducationLevel())
+				.map(EducationLevel::getLabel)
+				.ifPresentOrElse(hashTags::add, () -> hashTags.add("학력미기재"));
+		}
 		if (searchCondition.getIndustryTypes() != null && !searchCondition.getIndustryTypes().isEmpty())
 			hashTags.add(position.getRecruitment().getIndustryType() == null ?
 				"기타산업"

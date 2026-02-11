@@ -22,6 +22,13 @@ public enum MajorType {
 
 	private final String label;
 
+	public static MajorType fromString(String text) {
+		return Arrays.stream(values())
+			.filter(type -> type.name().equalsIgnoreCase(text) || type.label.equals(text))
+			.findAny()
+			.orElse(null); // 에러를 던지지 않고 null 반환 (스트림 처리를 위해)
+	}
+
 	@JsonCreator
 	public static MajorType deserialize(String majorType) {
 		return Arrays.stream(values())
