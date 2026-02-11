@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import navik.domain.ability.repository.AbilityRepository;
 import navik.domain.job.entity.Job;
 import navik.domain.job.repository.JobRepository;
 import navik.domain.recruitment.converter.position.PositionConverter;
@@ -31,6 +32,7 @@ public class PositionQueryService {
 	private final PositionRepository positionRepository;
 	private final UserRepository userRepository;
 	private final JobRepository jobRepository;
+	private final AbilityRepository abilityRepository;
 
 	/**
 	 * 최대 8가지 검색 필터를 적용하여 사용자에게 적합한 추천 공고를 조회합니다.
@@ -53,21 +55,27 @@ public class PositionQueryService {
 			.toList();
 		List<Job> jobs = jobRepository.findByNameIn(jobNames);
 
-		// 3. 커서 디코딩
-		PositionRequestDTO.CursorRequest cursorRequest = decodeCursor(cursor);
+		boolean hasAbilities = abilityRepository.existsByUser(user);
 
-		// 4. 추천 포지션 조회
-		Slice<RecommendedPositionProjection> result = positionRepository.findRecommendedPositions(
-			user, jobs, searchCondition, cursorRequest, pageable);
+		Slice<RecommendedPositionProjection> result;
+		String nextCursor = null;
 
-		// 5. 커서 인코딩
-		String nextCursor = result.hasNext() ?
-			encodeCursor(
-				result.getContent().getLast().getMatchScore(),
-				result.getContent().getLast().getMatchCount(),
-				result.getContent().getLast().getPosition().getId()
-			)
-			: null;
+		if (!hasAbilities) {
+			result = positionRepository.findSimpleRecentPositions(jobs, searchCondition, pageable);
+		} else {
+			PositionRequestDTO.CursorRequest cursorRequest = decodeCursor(cursor);
+			result = positionRepository.findRecommendedPositions(
+				user, jobs, searchCondition, cursorRequest, pageable);
+
+			if (result.hasNext()) {
+				RecommendedPositionProjection lastItem = result.getContent().get(result.getContent().size() - 1);
+				nextCursor = encodeCursor(
+					lastItem.getMatchScore(),
+					lastItem.getMatchCount(),
+					lastItem.getPosition().getId()
+				);
+			}
+		}
 
 		// 6. DTO 반환
 		return CursorResponseDTO.of(

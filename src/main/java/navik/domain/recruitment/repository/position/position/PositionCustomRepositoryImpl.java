@@ -135,6 +135,48 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 	}
 
 	@Override
+	public Slice<RecommendedPositionProjection> findSimpleRecentPositions(
+		List<Job> jobs,
+		PositionRequestDTO.SearchCondition searchCondition,
+		Pageable pageable
+	) {
+		// 1. 조건 설정 (기존 필터 로직 재사용)
+		BooleanExpression where = Stream.of(
+				jobIn(jobs),
+				experienceTypeIn(searchCondition.getExperienceTypes()),
+				employmentTypeIn(searchCondition.getEmploymentTypes()),
+				companySizeIn(searchCondition.getCompanySizes()),
+				educationLevelIn(searchCondition.getEducationLevels()),
+				areaTypeIn(searchCondition.getAreaTypes()),
+				industryTypeIn(searchCondition.getIndustryTypes()),
+				endDate(searchCondition.isWithEnded())
+			)
+			.filter(Objects::nonNull)
+			.reduce(BooleanExpression::and)
+			.orElse(null);
+
+		// 2. 조회 (매칭 점수는 0으로 고정)
+		List<RecommendedPositionProjection> result = jpaQueryFactory
+			.select(new QRecommendedPositionProjection(
+				position,
+				Expressions.asNumber(0.0), // similarityAvg 대신 0.0
+				Expressions.asNumber(0L)   // matchCount 대신 0L
+			))
+			.from(position)
+			.join(position.recruitment, recruitment)
+			.where(where)
+			.orderBy(
+				position.createdAt.desc(), // 최신 등록 순 정렬
+				position.id.asc()
+			)
+			.limit(pageable.getPageSize() + 1)
+			.fetch();
+
+		// 3. Slice 반환
+		return toSlice(result, pageable);
+	}
+
+	@Override
 	public Long countPositions(List<Job> jobs, PositionRequestDTO.SearchCondition searchCondition) {
 
 		// 1. 조건 설정
