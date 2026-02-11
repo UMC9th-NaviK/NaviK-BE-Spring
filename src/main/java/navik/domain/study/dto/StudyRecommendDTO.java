@@ -16,6 +16,7 @@ public class StudyRecommendDTO {
 	private String title;
 	private String description;
 	private String kpiName;
+	private Long kpiId;
 	private LocalDateTime startDate;
 	private LocalDateTime endDate;
 	private Integer capacity; // 전체 정원

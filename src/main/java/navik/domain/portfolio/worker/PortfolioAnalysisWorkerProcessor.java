@@ -44,10 +44,16 @@ public class PortfolioAnalysisWorkerProcessor {
 		// 2) 분석 요청 및 KPI 점수 초기화
 		boolean success = isFallBacked ? processFallbackAnalysis(userId, portfolio, traceId) :
 			processNormalAnalysis(userId, portfolio, portfolioId, traceId);
-		if (!success) {return false;}
+		if (!success) {
+			return false;
+		}
 
-		portfolio.updateStatus(PortfolioStatus.COMPLETED);
 		eventPublisher.publishEvent(new KpiScoreUpdatedEvent(userId));
+
+		if (portfolio.getStatus() != PortfolioStatus.RETRY_REQUIRED) {
+			portfolio.updateStatus(PortfolioStatus.COMPLETED);
+		}
+
 		return true;
 	}
 
