@@ -27,8 +27,8 @@ public class LevelQueryService {
 
 	public LevelResponseDTO.LevelResult getLevelInfo(User user, Long totalScore) {
 
-		JobType jobType = Optional
-			.ofNullable(JobType.getByLabel(user.getJob().getName()))
+		JobType jobType = Optional.ofNullable(user.getJob())
+			.map(job -> JobType.getByLabel(job.getName()))
 			.orElseThrow(() -> new GeneralException(RecruitmentErrorCode.JOB_TYPE_NOT_FOUND));
 
 		Level level = Level.fromScore(totalScore);
