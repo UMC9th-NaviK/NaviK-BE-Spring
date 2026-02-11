@@ -45,8 +45,8 @@ public class PositionConverter {
 		Position position = recommendedPositionProjection.getPosition();
 		boolean satisfyExperience = (position.getExperienceType() == null) || (position.getExperienceType().getOrder()
 			<= userExperience.getOrder());
-		boolean satisfyEducation = (position.getEducationLevel() == null) || (position.getEducationLevel().getOrder()
-			<= userEducationLevel.getOrder());
+		boolean satisfyEducation = (position.getEducationLevel() == null) ||
+			(userEducationLevel != null && position.getEducationLevel().getOrder() <= userEducationLevel.getOrder());
 		boolean satisfyMajor = (position.getMajorType() == null) || userMajors.contains(position.getMajorType());
 
 		// 3. 해시태그 생성 (근무지/경력/고용형태 3가지는 기본)
