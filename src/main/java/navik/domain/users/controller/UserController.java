@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import navik.domain.level.dto.LevelResponseDTO;
 import navik.domain.users.dto.UserRequestDTO;
 import navik.domain.users.dto.UserResponseDTO;
 import navik.domain.users.service.UserCommandService;
@@ -71,7 +72,7 @@ public class UserController implements UserControllerDocs {
 	}
 
 	@GetMapping("/me/level")
-	public ApiResponse<UserResponseDTO.LevelSummary> getMyLevelSummary(@AuthUser Long userId) {
+	public ApiResponse<LevelResponseDTO.LevelResult> getMyLevelSummary(@AuthUser Long userId) {
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, userQueryService.getMyLevelSummary(userId));
 	}
 
