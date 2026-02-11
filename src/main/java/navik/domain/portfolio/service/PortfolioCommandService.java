@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.domain.portfolio.dto.PortfolioRequestDTO;
 import navik.domain.portfolio.dto.PortfolioResponseDTO;
+import navik.domain.portfolio.entity.AnalysisType;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.entity.PortfolioStatus;
 import navik.domain.portfolio.event.PortfolioAnalysisEvent;
@@ -44,7 +45,29 @@ public class PortfolioCommandService {
 
 		portfolioRepository.save(portfolio);
 
-		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolio.getId(), false));
+		eventPublisher.publishEvent(
+			new PortfolioAnalysisEvent(userId, portfolio.getId(), false, AnalysisType.BASIC));
+
+		return new PortfolioResponseDTO.Created(portfolio.getId(), request.inputType(), portfolio.getStatus());
+	}
+
+	public PortfolioResponseDTO.Created createPortfolioV2(Long userId, PortfolioRequestDTO.Create request) {
+		User user = userQueryService.getUser(userId);
+
+		String content = portfolioTextExtractorResolver.resolve(request.inputType())
+			.extractText(request);
+
+		Portfolio portfolio = Portfolio.builder()
+			.inputType(request.inputType())
+			.content(content)
+			.fileUrl(request.fileUrl())
+			.user(user)
+			.build();
+
+		portfolioRepository.save(portfolio);
+
+		eventPublisher.publishEvent(
+			new PortfolioAnalysisEvent(userId, portfolio.getId(), false, AnalysisType.WITH_ABILITY));
 
 		return new PortfolioResponseDTO.Created(portfolio.getId(), request.inputType(), portfolio.getStatus());
 	}
@@ -65,7 +88,8 @@ public class PortfolioCommandService {
 		portfolio.updateAdditionalInfo(request.qB1(), request.qB2(), request.qB3(), request.qB4(), request.qB5());
 		portfolioRepository.save(portfolio);
 
-		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolioId, true));
+		eventPublisher.publishEvent(
+			new PortfolioAnalysisEvent(userId, portfolioId, true, AnalysisType.BASIC));
 
 		return new PortfolioResponseDTO.AdditionalInfoSubmitted(portfolioId);
 	}
