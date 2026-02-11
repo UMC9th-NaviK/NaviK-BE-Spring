@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import navik.domain.kpi.event.policy.LevelPolicy;
+import navik.domain.kpi.repository.KpiScoreRepository;
 import navik.domain.users.dto.UserResponseDTO;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
@@ -20,6 +22,8 @@ public class UserQueryService {
 
 	private final UserRepository userRepository;
 	private final UserDepartmentQueryService userDepartmentQueryService;
+	private final KpiScoreRepository kpiScoreRepository;
+	private final LevelPolicy levelPolicy;
 
 	public UserResponseDTO.UserInfoDTO getUserInfo(Long userId) {
 		return userRepository.findUserInfoById(userId)
@@ -54,5 +58,18 @@ public class UserQueryService {
 			user.getEducationLevel(),
 			departmentList
 		);
+	}
+
+	public UserResponseDTO.LevelSummary getMyLevelSummary(long userId) {
+
+		getUser(userId);
+
+		Long totalScore = kpiScoreRepository.sumTotalScore(userId);
+
+		int level = levelPolicy.calculateLevel(totalScore);
+		int percentage = levelPolicy.calculatePercentage(totalScore);
+		String description = levelPolicy.getDescription(totalScore);
+
+		return new UserResponseDTO.LevelSummary(level, description, percentage);
 	}
 }
