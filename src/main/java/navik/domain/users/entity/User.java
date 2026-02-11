@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -45,7 +44,7 @@ public class User extends BaseEntity {
 	@Column(name = "profile_image_url")
 	private String profileImageUrl;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	@Builder.Default
 	private String nickname = "사용자" + UUID.randomUUID().toString().substring(0, 5);
 
@@ -92,7 +91,7 @@ public class User extends BaseEntity {
 
 	public void updateBasicInfo(String name, String nickname, boolean isEntryLevel, Job job) {
 		this.name = name;
-		if(nickname!=null){
+		if (nickname != null) {
 			this.nickname = nickname;
 		}
 		this.job = job;
@@ -105,14 +104,19 @@ public class User extends BaseEntity {
 	}
 
 	public void updateMyInfo(String nickname, Boolean isEntryLevel, EducationLevel educationLevel) {
-		if (nickname != null) this.nickname = nickname;
-		if (isEntryLevel != null) this.isEntryLevel = isEntryLevel;
-		if (educationLevel != null) this.educationLevel = educationLevel;
+		if (nickname != null)
+			this.nickname = nickname;
+		if (isEntryLevel != null)
+			this.isEntryLevel = isEntryLevel;
+		if (educationLevel != null)
+			this.educationLevel = educationLevel;
 	}
 
 	public void updateProfileImage(String profileImageUrl) {
 		this.profileImageUrl = profileImageUrl;
 	}
 
-	public void updateLevel(Integer level) {this.level = level;}
+	public void updateLevel(Integer level) {
+		this.level = level;
+	}
 }
