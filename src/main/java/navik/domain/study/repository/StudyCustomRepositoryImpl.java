@@ -87,21 +87,21 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 		int pageSize) {
 		QStudy study = QStudy.study;
 		QStudyKpi studyKpi = QStudyKpi.studyKpi;
-		QStudyUser studyUser = QStudyUser.studyUser;
+		QStudyUser subStudyUser = new QStudyUser("subStudyUser");
 
 		return queryFactory
 			.selectFrom(study)
 			.join(studyKpi).on(studyKpi.study.eq(study))
 			.where(
-				studyKpi.kpiCard.id.in(weaknessKpiIds), // 약점 KPI 중 하나라도 포함되어야 함
-				study.id.notIn(excludeStudyIds), // 이미 참여중인 스터디 제외되어야 함
-				study.recruitmentStatus.ne(RecruitmentStatus.CLOSED), // 모집중인 스터디이어야 함
+				studyKpi.kpiCard.id.in(weaknessKpiIds),
+				study.id.notIn(excludeStudyIds),
+				study.recruitmentStatus.ne(RecruitmentStatus.CLOSED),
 
-				JPAExpressions.select(studyUser.count()) // 현재 참여 인원 < 최대 수용인원
-					.from(studyUser)
+				JPAExpressions.select(subStudyUser.count())
+					.from(subStudyUser)
 					.where(
-						studyUser.study.eq(study),
-						studyUser.attend.eq(AttendStatus.ACCEPTANCE)
+						subStudyUser.study.eq(study), // 메인 쿼리의 study와 연결
+						subStudyUser.attend.eq(AttendStatus.ACCEPTANCE)
 					)
 					.lt(study.capacity.longValue()),
 
