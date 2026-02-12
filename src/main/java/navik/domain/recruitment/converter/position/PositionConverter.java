@@ -57,7 +57,7 @@ public class PositionConverter {
 		hashTags.add(projection.getExperienceType() == null ? "경력무관" : projection.getExperienceType().getLabel());
 		hashTags.add(projection.getEmploymentType() == null ? "기타고용형태" : projection.getEmploymentType().getLabel());
 		if (searchCondition.getJobTypes() != null && !searchCondition.getJobTypes().isEmpty())
-			hashTags.add(projection.getJobName());
+			hashTags.add(projection.getJobName() == null ? "직무미기재" : projection.getJobName());
 		if (searchCondition.getCompanySizes() != null && !searchCondition.getCompanySizes().isEmpty())
 			hashTags.add(projection.getCompanySize() == null ? "규모미기재" : projection.getCompanySize().getLabel());
 		if (searchCondition.getEducationLevels() != null && !searchCondition.getEducationLevels().isEmpty())
@@ -68,7 +68,7 @@ public class PositionConverter {
 		// 4. DTO 반환
 		return PositionResponseDTO.RecommendedPosition.builder()
 			.id(projection.getId())
-			.postId(String.valueOf(projection.getPostId()))
+			.postId(projection.getPostId())
 			.link(projection.getLink())
 			.companyLogo(projection.getCompanyLogo())
 			.companySize(projection.getCompanySize() == null ? "미분류" : projection.getCompanySize().getLabel())
