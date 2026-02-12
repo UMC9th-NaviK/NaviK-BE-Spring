@@ -52,10 +52,4 @@ public class UserResponseDTO {
 	) {
 	}
 
-	public record LevelSummary(
-		Integer level,
-		String description,
-		Integer percentage
-	) {
-	}
 }

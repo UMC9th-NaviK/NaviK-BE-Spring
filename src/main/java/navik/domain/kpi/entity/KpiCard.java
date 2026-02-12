@@ -52,6 +52,6 @@ public class KpiCard extends BaseEntity {
 	@Column(name = "image_url", nullable = false, length = 500)
 	private String imageUrl;
 
-	@OneToOne(mappedBy = "kpiCard", fetch = FetchType.LAZY)
+	@OneToOne(mappedBy = "kpiCard")
 	private KpiCardEmbedding kpiCardEmbedding;
 }

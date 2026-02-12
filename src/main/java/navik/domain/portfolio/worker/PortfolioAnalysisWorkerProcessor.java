@@ -8,18 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import navik.domain.ability.normalizer.AbilityNormalizer;
-import navik.domain.ability.service.AbilityCommandService;
 import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
 import navik.domain.kpi.event.KpiScoreUpdatedEvent;
 import navik.domain.kpi.service.command.KpiScoreInitialService;
 import navik.domain.portfolio.ai.client.PortfolioAiClient;
 import navik.domain.portfolio.dto.PortfolioAiDTO;
-import navik.domain.portfolio.entity.AnalysisType;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.entity.PortfolioStatus;
 import navik.domain.portfolio.repository.PortfolioRepository;
-import navik.domain.portfolio.worker.strategy.PortfolioAnalysisStrategyResolver;
 import navik.domain.users.exception.code.JobErrorCode;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.exception.exception.GeneralException;
@@ -34,9 +30,6 @@ public class PortfolioAnalysisWorkerProcessor {
 	private final KpiScoreInitialService kpiScoreInitialService;
 	private final UserRepository userRepository;
 	private final ApplicationEventPublisher eventPublisher;
-	private final PortfolioAnalysisStrategyResolver strategyResolver;
-	private final AbilityNormalizer abilityNormalizer;
-	private final AbilityCommandService abilityCommandService;
 
 	@Transactional
 	public boolean process(Long userId, Long portfolioId, String traceId, boolean isFallBacked,
@@ -60,6 +53,7 @@ public class PortfolioAnalysisWorkerProcessor {
 
 		if (portfolio.getStatus() != PortfolioStatus.RETRY_REQUIRED) {
 			portfolio.updateStatus(PortfolioStatus.COMPLETED);
+			userQueryService.getUser(userId).updateUserStatus(UserStatus.ACTIVE);
 		}
 
 		return true;
@@ -128,6 +122,8 @@ public class PortfolioAnalysisWorkerProcessor {
 
 		log.info("[PortfolioAnalysis] fallback completed. traceId={}, userId={}, portfolioId={}, scoreCount={}",
 			traceId, userId, portfolio.getId(), result.scores().size());
+
+		userQueryService.getUser(userId).updateUserStatus(UserStatus.ACTIVE);
 		return true;
 	}
 

@@ -36,7 +36,7 @@ public class PositionKpi extends BaseEntity {
 	@Column(name = "content", nullable = false)
 	private String content;
 
-	@OneToOne(mappedBy = "positionKpi", fetch = FetchType.LAZY)
+	@OneToOne(mappedBy = "positionKpi")
 	private PositionKpiEmbedding positionKpiEmbedding;
 
 	public void assignId(Long id) {

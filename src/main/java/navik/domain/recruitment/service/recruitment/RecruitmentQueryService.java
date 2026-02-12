@@ -50,12 +50,11 @@ public class RecruitmentQueryService {
 
 		List<MajorType> majorTypes = departments.stream()
 			.map(name -> {
-				try {
-					return MajorType.valueOf(name);
-				} catch (Exception e) {
-					log.error("[RecruitmentQueryService] 존재하지 않는 학과 타입입니다 : {}", name, e);
-					return null;
+				MajorType type = MajorType.fromString(name);
+				if (type == null) {
+					log.error("[RecruitmentQueryService] 존재하지 않는 학과 타입입니다 : {}", name);
 				}
+				return type;
 			})
 			.filter(Objects::nonNull)
 			.toList();

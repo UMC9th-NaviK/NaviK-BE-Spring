@@ -18,10 +18,14 @@ public class CorsConfig {
 				"http://localhost:5173",
 				"http://localhost:8080",
 				"https://api.navik.kro.kr",
-				"https://www.navik.kr"));
-		config.setAllowCredentials(true);  // 쿠키 전송 허용
+				"https://www.navik.kr",
+				"https://navik.kr"
+			));
+		config.setAllowCredentials(true);
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-		config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+
+		config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cache-Control", "X-Requested-With"));
+		config.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", config);

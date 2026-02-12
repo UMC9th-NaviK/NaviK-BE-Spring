@@ -70,9 +70,9 @@ public class GoalQueryService {
 
 	public GoalResponseDTO.InProgressDTO getInProgressGoals(Long userId) {
 
-		List<GoalStatus> statuses = List.of(GoalStatus.NONE, GoalStatus.IN_PROGRESS);
-		List<Goal> goals = goalRepository.findTop3ByUserIdAndStatusInOrderByEndDateAscIdAsc(userId, statuses);
-		Long totalCount = goalRepository.countByUserIdAndStatusIn(userId, statuses);
+		List<Goal> goals = goalRepository.findTop3ByUserIdAndStatusOrderByEndDateAscIdAsc(userId,
+			GoalStatus.IN_PROGRESS);
+		Long totalCount = goalRepository.countByUserIdAndStatus(userId, GoalStatus.IN_PROGRESS);
 
 		List<GoalResponseDTO.InfoDTO> infos = goals.stream()
 			.map(GoalConverter::toInfoDto)

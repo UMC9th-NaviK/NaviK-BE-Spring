@@ -1,5 +1,11 @@
 server:
   forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        secure: true
+        http-only: true
 
 spring:
   config:
@@ -33,7 +39,7 @@ spring:
     refresh-token-validity-in-seconds: 1209600 # 14일
 
   oauth2:
-    redirect-url: http://localhost:5173/oauth2/redirect  # 리액트 로컬이므로 테스트 후 실 주소로 변경 필요
+    redirect-url: https://navik.kr/oauth2/redirect  # 리액트 로컬이므로 테스트 후 실 주소로 변경 필요
 
   data:
     redis:

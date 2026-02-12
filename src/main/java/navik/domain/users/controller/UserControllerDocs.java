@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import navik.domain.level.dto.LevelResponseDTO;
 import navik.domain.users.dto.UserRequestDTO;
 import navik.domain.users.dto.UserResponseDTO;
 import navik.global.apiPayload.ApiResponse;
@@ -62,7 +63,6 @@ public interface UserControllerDocs {
 	@Operation(summary = "사용자 초기 정보 등록 (온보딩)", description = """
 		사용자 상태가 `PENDING`인 경우, 이름/닉네임/직무/신입 여부를 입력하여 가입을 완료합니다.
 		- 사용자가 닉네임을 입력하지 않은경우(null) 랜덤으로 저장됩니다.(ex.사용자1234)
-		- 성공 시 사용자 상태가 `ACTIVE`로 변경됩니다.
 		- 온보딩 완료 후 `/v1/auth/refresh`를 호출하여 ACTIVE 상태의 새 액세스 토큰을 발급받아야 합니다.
 		""")
 	@ApiResponses({
@@ -357,7 +357,7 @@ public interface UserControllerDocs {
 			"USER_NOT_FOUND"
 		}
 	)
-	ApiResponse<UserResponseDTO.LevelSummary> getMyLevelSummary(
+	ApiResponse<LevelResponseDTO.LevelResult> getMyLevelSummary(
 		@Parameter(hidden = true) @AuthUser Long userId
 	);
 
