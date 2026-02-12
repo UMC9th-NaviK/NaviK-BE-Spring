@@ -17,6 +17,7 @@ spring:
         static: ${AWS_REGION}
       s3:
         bucket: ${AWS_S3_BUCKET}
+        prefix: ${AWS_S3_PREFIX}
 
 navik:
   growth-log:

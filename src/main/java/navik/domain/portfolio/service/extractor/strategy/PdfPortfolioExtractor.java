@@ -1,5 +1,6 @@
 package navik.domain.portfolio.service.extractor.strategy;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,9 @@ public class PdfPortfolioExtractor implements PortfolioTextExtractor {
 
 	private final PortfolioAiClient portfolioAiClient;
 
+	@Value("${spring.cloud.aws.s3.prefix}")
+	private String S3Prefix;
+
 	@Override
 	public boolean supports(InputType inputType) {
 		return inputType == InputType.PDF;
@@ -20,7 +24,7 @@ public class PdfPortfolioExtractor implements PortfolioTextExtractor {
 
 	@Override
 	public String extractText(PortfolioRequestDTO.Create request) {
-		return portfolioAiClient.extractTextFromPdf(request.fileUrl());
+		return portfolioAiClient.extractTextFromPdf(S3Prefix + request.fileUrl());
 	}
 }
 

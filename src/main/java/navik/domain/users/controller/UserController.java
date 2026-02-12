@@ -1,5 +1,6 @@
 package navik.domain.users.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -30,6 +31,9 @@ public class UserController implements UserControllerDocs {
 
 	private final UserQueryService userQueryService;
 	private final UserCommandService userCommandService;
+
+	@Value("${spring.cloud.aws.s3.prefix}")
+	private String S3Prefix;
 
 	@GetMapping("/{userId}")
 	public ApiResponse<UserResponseDTO.UserInfoDTO> getUser(@PathVariable Long userId) {
@@ -67,7 +71,7 @@ public class UserController implements UserControllerDocs {
 	@PutMapping("/profile-image")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public ApiResponse<Void> updateProfileImage(@AuthUser Long userId, @RequestBody String imageUrl) {
-		userCommandService.updateProfileImage(userId, imageUrl);
+		userCommandService.updateProfileImage(userId, S3Prefix + imageUrl);
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED, null);
 	}
 

@@ -1,5 +1,6 @@
 package navik.domain.portfolio.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,9 @@ public class PortfolioCommandService {
 	private final PortfolioTextExtractorResolver portfolioTextExtractorResolver;
 	private final ApplicationEventPublisher eventPublisher;
 
+	@Value("${spring.cloud.aws.s3.prefix}")
+	private String S3Prefix;
+
 	public PortfolioResponseDTO.Created createPortfolio(Long userId, PortfolioRequestDTO.Create request,
 		AnalysisType analysisType) {
 		User user = userQueryService.getUser(userId);
@@ -40,7 +44,7 @@ public class PortfolioCommandService {
 		Portfolio portfolio = Portfolio.builder()
 			.inputType(request.inputType())
 			.content(content)
-			.fileUrl(request.fileUrl())
+			.fileUrl(S3Prefix + request.fileUrl())
 			.user(user)
 			.build();
 
