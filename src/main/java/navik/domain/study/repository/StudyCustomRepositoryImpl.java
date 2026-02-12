@@ -47,7 +47,7 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 				studyUser.user.id.eq(userId), // 내 스터디만
 				roleEq(role),                 // 리더/멤버 필터
 				studyUser.attend.eq(AttendStatus.ACCEPTANCE),
-				ltStudyUserId(cursor)        // 커서 기반 페이징
+				cursor != null ? studyUser.id.lt(cursor) : null
 			)
 			.orderBy(studyUser.id.desc())    // 최신 가입 순
 			.limit(pageSize + 1)
@@ -105,7 +105,7 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 					)
 					.lt(study.capacity.longValue()),
 
-				ltStudyUserId(cursor)
+				ltStudyId(cursor)
 			)
 			.distinct()
 			.orderBy(study.id.desc())
@@ -140,12 +140,6 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 
 	private BooleanExpression roleEq(StudyRole role) {
 		return role != null ? QStudyUser.studyUser.role.eq(role) : null;
-	}
-
-	private BooleanExpression ltStudyUserId(Long cursor) {
-		if (cursor == null)
-			return null;
-		return QStudy.study.id.lt(cursor); // 메인 쿼리 주인인 study의 id를 사용
 	}
 
 	private BooleanExpression ltKpiId(Long cursor) {
