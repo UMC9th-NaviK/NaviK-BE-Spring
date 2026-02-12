@@ -71,6 +71,7 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 			  and (:type is null or type = cast(:type as varchar))
 			  and created_at >= :start
 			  and created_at < :end
+			  and status = 'COMPLETED'
 			group by period_start
 			order by period_start
 		""", nativeQuery = true)
@@ -91,6 +92,7 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 			  and (:type is null or type = cast(:type as varchar))
 			  and created_at >= :start
 			  and created_at < :end
+			  and status = 'COMPLETED'
 			group by period_start
 			order by period_start
 		""", nativeQuery = true)
@@ -111,6 +113,7 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 			  and (:type is null or type = cast(:type as varchar))
 			  and created_at >= :start
 			  and created_at < :end
+			  and status = 'COMPLETED'
 			group by period_start
 			order by period_start
 		""", nativeQuery = true)
@@ -125,6 +128,7 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 		    select coalesce(sum(total_delta), 0)
 		    from growth_logs
 		    where user_id = :userId
+		      and status = 'COMPLETED'
 		""", nativeQuery = true)
 	long sumTotalDeltaAll(@Param("userId") Long userId);
 
@@ -132,6 +136,7 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 		    select coalesce(sum(total_delta), 0)
 		    from growth_logs
 		    where user_id = :userId
+		      and status = 'COMPLETED'
 		      and created_at < :before
 		""", nativeQuery = true)
 	long sumTotalDeltaBefore(
