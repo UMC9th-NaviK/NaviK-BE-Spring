@@ -1,5 +1,7 @@
 package navik.domain.recruitment.repository.position.position;
 
+import static navik.domain.job.entity.QJob.*;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -20,7 +22,6 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
-import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -68,26 +69,31 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 		Pageable pageable
 	) {
 
-		// 1. pgvector 코사인 쿼리
-		NumberTemplate<Double> similarityQuery = Expressions.numberTemplate(
-			Double.class,
-			"1.0 - cast(function('cosine_distance', {0}, {1}) as double)",
-			positionKpiEmbedding.embedding,
-			abilityEmbedding.embedding
-		);
+		// 1. pgvector 코사인 쿼리 (역량이 없어도 어쨌든 전체 검색이므로 검색이 되도록, 역량 있으면 매칭 개수 Desc)
+		NumberExpression<Double> similarityQuery = new CaseBuilder()
+			.when(abilityEmbedding.embedding.isNull())
+			.then(0.0)
+			.otherwise(
+				Expressions.numberTemplate(
+					Double.class,
+					"1.0 - cast(function('cosine_distance', {0}, {1}) as double)",
+					positionKpiEmbedding.embedding,
+					abilityEmbedding.embedding
+				)
+			);
 
 		// 2. 유효 매칭 카운트
 		NumberExpression<Long> matchCount = new CaseBuilder()
 			.when(similarityQuery.goe(0.42))
 			.then(positionKpi.id)
-			.otherwise((Long)null)
+			.otherwise((Long)null) // count 집계 대상 제외
 			.countDistinct();
 
 		// 3. 매칭 평균 유사도
 		NumberExpression<Double> similarityAvg = new CaseBuilder()
 			.when(similarityQuery.goe(0.42))
 			.then(similarityQuery)
-			.otherwise((Double)null)
+			.otherwise((Double)null) // 마찬가지, 집계 대상 제외
 			.avg()
 			.coalesce(0.0);
 
@@ -109,18 +115,34 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 		// 5. 조회
 		List<RecommendedPositionProjection> result = jpaQueryFactory
 			.select(new QRecommendedPositionProjection(
-				position,
+				position.id,
+				position.name,
+				position.experienceType,
+				position.educationLevel,
+				position.majorType,
+				position.workPlace,
+				position.employmentType,
+				recruitment.postId,
+				recruitment.link,
+				recruitment.companyLogo,
+				recruitment.companySize,
+				recruitment.companyName,
+				recruitment.endDate,
+				recruitment.industryType,
+				recruitment.title,
+				job.name,
 				similarityAvg,
 				matchCount
 			))
 			.from(position)
 			.join(position.recruitment, recruitment)
+			.leftJoin(position.job, job)
 			.join(position.positionKpis, positionKpi)
 			.join(positionKpi.positionKpiEmbedding, positionKpiEmbedding)
 			.leftJoin(ability).on(ability.user.eq(user))
 			.leftJoin(ability.abilityEmbedding, abilityEmbedding)
 			.where(where)
-			.groupBy(position)
+			.groupBy(position, recruitment, job)
 			.having(cursorExpression(cursorRequest, matchCount, similarityAvg))
 			.orderBy(
 				matchCount.desc(),     // 매칭 개수
@@ -131,48 +153,6 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 			.fetch();
 
 		// 5. Slice 반환
-		return toSlice(result, pageable);
-	}
-
-	@Override
-	public Slice<RecommendedPositionProjection> findSimpleRecentPositions(
-		List<Job> jobs,
-		PositionRequestDTO.SearchCondition searchCondition,
-		Pageable pageable
-	) {
-		// 1. 조건 설정 (기존 필터 로직 재사용)
-		BooleanExpression where = Stream.of(
-				jobIn(jobs),
-				experienceTypeIn(searchCondition.getExperienceTypes()),
-				employmentTypeIn(searchCondition.getEmploymentTypes()),
-				companySizeIn(searchCondition.getCompanySizes()),
-				educationLevelIn(searchCondition.getEducationLevels()),
-				areaTypeIn(searchCondition.getAreaTypes()),
-				industryTypeIn(searchCondition.getIndustryTypes()),
-				endDate(searchCondition.isWithEnded())
-			)
-			.filter(Objects::nonNull)
-			.reduce(BooleanExpression::and)
-			.orElse(null);
-
-		// 2. 조회 (매칭 점수는 0으로 고정)
-		List<RecommendedPositionProjection> result = jpaQueryFactory
-			.select(new QRecommendedPositionProjection(
-				position,
-				Expressions.asNumber(0.0), // similarityAvg 대신 0.0
-				Expressions.asNumber(0L)   // matchCount 대신 0L
-			))
-			.from(position)
-			.join(position.recruitment, recruitment)
-			.where(where)
-			.orderBy(
-				position.createdAt.desc(), // 최신 등록 순 정렬
-				position.id.asc()
-			)
-			.limit(pageable.getPageSize() + 1)
-			.fetch();
-
-		// 3. Slice 반환
 		return toSlice(result, pageable);
 	}
 

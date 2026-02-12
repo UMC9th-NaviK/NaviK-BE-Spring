@@ -2,6 +2,7 @@ package navik.domain.recruitment.service.position;
 
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -18,6 +19,7 @@ import navik.domain.recruitment.dto.position.PositionResponseDTO;
 import navik.domain.recruitment.enums.JobType;
 import navik.domain.recruitment.repository.position.position.PositionRepository;
 import navik.domain.recruitment.repository.position.position.projection.RecommendedPositionProjection;
+import navik.domain.recruitment.repository.position.positionKpi.PositionKpiRepository;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 import navik.global.apiPayload.exception.code.GeneralErrorCode;
@@ -33,6 +35,7 @@ public class PositionQueryService {
 	private final UserRepository userRepository;
 	private final JobRepository jobRepository;
 	private final AbilityRepository abilityRepository;
+	private final PositionKpiRepository positionKpiRepository;
 
 	/**
 	 * 최대 8가지 검색 필터를 적용하여 사용자에게 적합한 추천 공고를 조회합니다.
@@ -45,7 +48,7 @@ public class PositionQueryService {
 		Pageable pageable
 	) {
 
-		// 1. 유저 및 전공 검색
+		// 1. 유저 및 전공 검색 (1:N Fetch join)
 		User user = userRepository.findByIdWithUserDepartmentAndDepartment(userId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
 
@@ -55,31 +58,35 @@ public class PositionQueryService {
 			.toList();
 		List<Job> jobs = jobRepository.findByNameIn(jobNames);
 
-		boolean hasAbilities = abilityRepository.existsByUser(user);
+		// 3. 커서 디코딩
+		PositionRequestDTO.CursorRequest cursorRequest = decodeCursor(cursor);
 
-		Slice<RecommendedPositionProjection> result;
+		// 4. 검색
+		Slice<RecommendedPositionProjection> result = positionRepository.findRecommendedPositions(
+			user, jobs, searchCondition, cursorRequest, pageable);
+
+		// 5. 프로젝션에 담긴 positionId(1)로 positionKpi(N) 한번에 조회
+		List<Long> positionIds = result.stream()
+			.map(RecommendedPositionProjection::getId)
+			.toList();
+		Map<Long, List<String>> kpiMap = positionKpiRepository.findPositionKpiMapByPositionIds(
+			positionIds);
+
+		// 6. Cursor 생성
 		String nextCursor = null;
-
-		if (!hasAbilities) {
-			result = positionRepository.findSimpleRecentPositions(jobs, searchCondition, pageable);
-		} else {
-			PositionRequestDTO.CursorRequest cursorRequest = decodeCursor(cursor);
-			result = positionRepository.findRecommendedPositions(
-				user, jobs, searchCondition, cursorRequest, pageable);
-
-			if (result.hasNext()) {
-				RecommendedPositionProjection lastItem = result.getContent().get(result.getContent().size() - 1);
-				nextCursor = encodeCursor(
-					lastItem.getMatchScore(),
-					lastItem.getMatchCount(),
-					lastItem.getPosition().getId()
-				);
-			}
+		if (result.hasNext()) {
+			RecommendedPositionProjection lastItem = result.getContent().get(result.getContent().size() - 1);
+			nextCursor = encodeCursor(
+				lastItem.getSimilarityAvg(),
+				lastItem.getMatchCount(),
+				lastItem.getId()
+			);
 		}
 
-		// 6. DTO 반환
+		// 7. DTO 반환
 		return CursorResponseDTO.of(
-			result.map(projection -> PositionConverter.toRecommendedPosition(user, projection, searchCondition)),
+			result.map(
+				projection -> PositionConverter.toRecommendedPosition(user, projection, kpiMap, searchCondition)),
 			nextCursor
 		);
 	}

@@ -37,6 +37,6 @@ public class Ability extends BaseEntity {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@OneToOne(mappedBy = "ability", fetch = FetchType.LAZY)
+	@OneToOne(mappedBy = "ability")
 	private AbilityEmbedding abilityEmbedding;
 }
