@@ -20,9 +20,12 @@ public class PortfolioAiDTO {
 								  @JsonProperty("q_b5") Integer qB5) {
 	}
 
-	public record AnalyzeResponse(List<KpiScoreItem> scores) {
+	public record AnalyzeResponse(List<KpiScoreItem> scores, List<Abilities> abilities) {
 		public record KpiScoreItem(@JsonProperty("kpi_id") Long kpiId, @JsonProperty("kpi_name") String kpiName,
 								   Integer score, String basis) {
 		}
+	}
+
+	public record Abilities(String content, float[] embedding) {
 	}
 }

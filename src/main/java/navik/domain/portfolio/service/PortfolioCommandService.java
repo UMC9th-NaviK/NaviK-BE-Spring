@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import navik.domain.portfolio.dto.PortfolioRequestDTO;
 import navik.domain.portfolio.dto.PortfolioResponseDTO;
+import navik.domain.portfolio.entity.AnalysisType;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.entity.PortfolioStatus;
 import navik.domain.portfolio.event.PortfolioAnalysisEvent;
@@ -29,22 +30,24 @@ public class PortfolioCommandService {
 	private final PortfolioTextExtractorResolver portfolioTextExtractorResolver;
 	private final ApplicationEventPublisher eventPublisher;
 
-	public PortfolioResponseDTO.Created createPortfolio(Long userId, PortfolioRequestDTO.Create request) {
+	public PortfolioResponseDTO.Created createPortfolio(Long userId, PortfolioRequestDTO.Create request,
+		AnalysisType analysisType) {
 		User user = userQueryService.getUser(userId);
 
 		String content = portfolioTextExtractorResolver.resolve(request.inputType())
-			.extractText(request); // 이력서는 반드시 텍스트로 변환
+			.extractText(request);
 
 		Portfolio portfolio = Portfolio.builder()
 			.inputType(request.inputType())
 			.content(content)
-			.fileUrl(request.fileUrl()) // 파일이 아닌경우 null
+			.fileUrl(request.fileUrl())
 			.user(user)
 			.build();
 
 		portfolioRepository.save(portfolio);
 
-		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolio.getId(), false));
+		eventPublisher.publishEvent(
+			new PortfolioAnalysisEvent(userId, portfolio.getId(), false, analysisType));
 
 		return new PortfolioResponseDTO.Created(portfolio.getId(), request.inputType(), portfolio.getStatus());
 	}
@@ -65,7 +68,8 @@ public class PortfolioCommandService {
 		portfolio.updateAdditionalInfo(request.qB1(), request.qB2(), request.qB3(), request.qB4(), request.qB5());
 		portfolioRepository.save(portfolio);
 
-		eventPublisher.publishEvent(new PortfolioAnalysisEvent(userId, portfolioId, true));
+		eventPublisher.publishEvent(
+			new PortfolioAnalysisEvent(userId, portfolioId, true, AnalysisType.BASIC));
 
 		return new PortfolioResponseDTO.AdditionalInfoSubmitted(portfolioId);
 	}

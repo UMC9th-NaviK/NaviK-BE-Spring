@@ -23,6 +23,7 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 
 	private static final String OCR_PATH = "/ocr/pdf";
 	private static final String ANALYZE_PATH_PREFIX = "/api/kpi/analyze/";
+	private static final String ABILITIES_PATH_PREFIX = "/api/kpi/analyze/abilities/";
 	private static final String FALLBACK_PATH_PREFIX = "/api/kpi/fallback/";
 
 	private static final Map<Long, String> JOB_NAME_MAP = Map.of(1L, "pm", 2L, "designer", 3L, "frontend", 4L, "backend");
@@ -51,6 +52,23 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 		try {
 			return aiWebClient.post()
 				.uri(ANALYZE_PATH_PREFIX + JOB_NAME_MAP.get(jobId))
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.bodyValue(new PortfolioAiDTO.AnalyzeRequest(resumeText))
+				.retrieve()
+				.bodyToMono(PortfolioAiDTO.AnalyzeResponse.class)
+				.timeout(Duration.ofSeconds(30))
+				.block();
+		} catch (Exception e) {
+			throw new GeneralException(GeneralErrorCode.EXTERNAL_API_ERROR);
+		}
+	}
+
+	@Override
+	public PortfolioAiDTO.AnalyzeResponse analyzeAbilities(String resumeText, Long jobId) {
+		try {
+			return aiWebClient.post()
+				.uri(ABILITIES_PATH_PREFIX + JOB_NAME_MAP.get(jobId))
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
 				.bodyValue(new PortfolioAiDTO.AnalyzeRequest(resumeText))
