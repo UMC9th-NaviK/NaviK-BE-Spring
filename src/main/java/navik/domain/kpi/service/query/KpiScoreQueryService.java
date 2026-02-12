@@ -1,6 +1,5 @@
 package navik.domain.kpi.service.query;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
@@ -68,28 +67,20 @@ public class KpiScoreQueryService {
 
 	// 전월 대비 점수 증감 비율 조회
 	public KpiScoreResponseDTO.MonthlyTotalScoreChange getMonthlyChangeRate(Long userId) {
+
 		YearMonth currentYm = YearMonth.now();
-		LocalDate currentMonthStart = currentYm.atDay(1);
+		LocalDateTime monthStart = currentYm.atDay(1).atStartOfDay();
 
-		LocalDateTime start = currentMonthStart.atStartOfDay();
-		LocalDateTime end = currentYm.plusMonths(1).atDay(1).atStartOfDay();
+		// 현재까지 전체 누적
+		long currentTotalScore = growthLogRepository.sumTotalDeltaAll(userId);
 
-		// 현재 전체 누적 점수
-		long currentTotalScore = kpiScoreRepository.sumTotalScore(userId);
+		// 전월 말까지 전체 누적
+		long prevTotalScore = growthLogRepository.sumTotalDeltaBefore(userId, monthStart);
 
-		// 이번 달 증가분
-		List<Object[]> rows = growthLogRepository.sumByMonth(userId, null, start, end);
-
-		long deltaThisMonth = 0;
-		for (Object[] row : rows) {
-			long sumScore = extractSumScore(row[1]);
-			deltaThisMonth += sumScore;
-		}
-
-		//전월 말 누적 점수 = 현재 누적 - 이번 달 증가분
-		long prevTotalScore = currentTotalScore - deltaThisMonth;
-
-		Double changeRate = calculateChangeRate(currentTotalScore, prevTotalScore);
+		// 증가율 계산
+		Double changeRate = (prevTotalScore <= 0)
+			? null
+			: calculateChangeRate(currentTotalScore, prevTotalScore);
 
 		return new KpiScoreResponseDTO.MonthlyTotalScoreChange(
 			currentYm.getYear(),
@@ -98,13 +89,6 @@ public class KpiScoreQueryService {
 			prevTotalScore,
 			changeRate
 		);
-	}
-
-	private long extractSumScore(Object value) {
-		if (value == null) {
-			return 0L;
-		}
-		return ((Number)value).longValue();
 	}
 
 	private Double calculateChangeRate(long current, long prev) {
