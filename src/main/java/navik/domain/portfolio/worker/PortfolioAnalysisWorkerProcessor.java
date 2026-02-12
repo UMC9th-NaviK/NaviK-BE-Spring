@@ -16,8 +16,10 @@ import navik.domain.portfolio.dto.PortfolioAiDTO;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.entity.PortfolioStatus;
 import navik.domain.portfolio.repository.PortfolioRepository;
+import navik.domain.users.enums.UserStatus;
 import navik.domain.users.exception.code.JobErrorCode;
 import navik.domain.users.repository.UserRepository;
+import navik.domain.users.service.UserQueryService;
 import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Slf4j
@@ -30,6 +32,7 @@ public class PortfolioAnalysisWorkerProcessor {
 	private final KpiScoreInitialService kpiScoreInitialService;
 	private final UserRepository userRepository;
 	private final ApplicationEventPublisher eventPublisher;
+	private final UserQueryService userQueryService;
 
 	@Transactional
 	public boolean process(Long userId, Long portfolioId, String traceId, boolean isFallBacked) {
@@ -54,6 +57,7 @@ public class PortfolioAnalysisWorkerProcessor {
 			portfolio.updateStatus(PortfolioStatus.COMPLETED);
 		}
 
+		userQueryService.getUser(userId).updateUserStatus(UserStatus.ACTIVE);
 		return true;
 	}
 
