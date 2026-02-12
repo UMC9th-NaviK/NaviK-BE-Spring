@@ -46,6 +46,7 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 			.where(
 				studyUser.user.id.eq(userId), // 내 스터디만
 				roleEq(role),                 // 리더/멤버 필터
+				studyUser.attend.eq(AttendStatus.ACCEPTANCE),
 				ltStudyUserId(cursor)        // 커서 기반 페이징
 			)
 			.orderBy(studyUser.id.desc())    // 최신 가입 순

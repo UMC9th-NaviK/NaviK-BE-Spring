@@ -48,7 +48,6 @@ public class StudyQueryService {
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-
 	public CursorResponseDTO<StudyDTO.MyStudyDTO> getMyStudyList(Long userId, StudyRole role, Long cursor,
 		int pageSize) {
 		// 1. 커서 기반 목록 조회 (리포지토리에서 pageSize + 1개를 조회함)
@@ -84,7 +83,7 @@ public class StudyQueryService {
 			.toList();
 
 		// 5. 다음 커서값 생성 (실제 응답에 포함된 마지막 항목의 ID 기준)
-		String nextCursor = hasNext ? pagingList.get(pagingList.size() - 1).getId().toString() : null;
+		String nextCursor = hasNext ? pagingList.getLast().getId().toString() : null;
 
 		return CursorResponseDTO.of(content, hasNext, nextCursor);
 	}
