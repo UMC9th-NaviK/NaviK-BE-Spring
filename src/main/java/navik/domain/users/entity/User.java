@@ -96,7 +96,6 @@ public class User extends BaseEntity {
 		}
 		this.job = job;
 		this.isEntryLevel = isEntryLevel;
-		this.userStatus = UserStatus.ACTIVE;
 	}
 
 	public void updateProfileImageUrl(String profileImageUrl) {
