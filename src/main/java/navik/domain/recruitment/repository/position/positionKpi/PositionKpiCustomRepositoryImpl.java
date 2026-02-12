@@ -4,20 +4,30 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.querydsl.core.Tuple;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+
 import lombok.RequiredArgsConstructor;
 import navik.domain.recruitment.entity.PositionKpi;
+import navik.domain.recruitment.entity.QPositionKpi;
 
 @Repository
 @RequiredArgsConstructor
 public class PositionKpiCustomRepositoryImpl implements PositionKpiCustomRepository {
 
 	private final JdbcTemplate jdbcTemplate;
+	private final JPAQueryFactory jpaQueryFactory;
+
+	private final QPositionKpi positionKpi = QPositionKpi.positionKpi;
 
 	/**
 	 * PositionKpi에 대한 Batch Insert를 수행합니다.
@@ -65,5 +75,30 @@ public class PositionKpiCustomRepositoryImpl implements PositionKpiCustomReposit
 				return null;
 			}
 		});
+	}
+
+	@Override
+	public Map<Long, List<String>> findPositionKpiMapByPositionIds(List<Long> positionIds) {
+		if (positionIds == null || positionIds.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		List<Tuple> results = jpaQueryFactory
+			.select(
+				positionKpi.position.id,
+				positionKpi.content
+			)
+			.from(positionKpi)
+			.where(positionKpi.position.id.in(positionIds))
+			.fetch();
+		
+		return results.stream()
+			.collect(Collectors.groupingBy(
+				tuple -> tuple.get(positionKpi.position.id), // Key
+				Collectors.mapping(
+					tuple -> tuple.get(positionKpi.content), // Value
+					Collectors.toList()
+				)
+			));
 	}
 }

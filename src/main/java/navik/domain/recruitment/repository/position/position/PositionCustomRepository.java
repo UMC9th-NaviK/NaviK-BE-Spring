@@ -20,12 +20,6 @@ public interface PositionCustomRepository {
 		Pageable pageable
 	);
 
-	Slice<RecommendedPositionProjection> findSimpleRecentPositions(
-		List<Job> jobs,
-		PositionRequestDTO.SearchCondition searchCondition,
-		Pageable pageable
-	);
-
 	void batchSaveAll(List<Position> positions);
 
 	Long countPositions(List<Job> jobs, PositionRequestDTO.SearchCondition searchCondition);
