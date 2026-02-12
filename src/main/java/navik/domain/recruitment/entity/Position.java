@@ -2,8 +2,6 @@ package navik.domain.recruitment.entity;
 
 import java.util.List;
 
-import org.hibernate.annotations.BatchSize;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -75,7 +73,6 @@ public class Position extends BaseEntity {
 	@Column(name = "work_place")
 	private String workPlace;
 
-	@BatchSize(size = 100)
 	@OneToMany(mappedBy = "position", fetch = FetchType.LAZY)
 	private List<PositionKpi> positionKpis;
 
