@@ -8,16 +8,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import navik.domain.ability.normalizer.AbilityNormalizer;
+import navik.domain.ability.service.AbilityCommandService;
 import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
 import navik.domain.kpi.event.KpiScoreUpdatedEvent;
 import navik.domain.kpi.service.command.KpiScoreInitialService;
 import navik.domain.portfolio.ai.client.PortfolioAiClient;
 import navik.domain.portfolio.dto.PortfolioAiDTO;
+import navik.domain.portfolio.entity.AnalysisType;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.entity.PortfolioStatus;
 import navik.domain.portfolio.repository.PortfolioRepository;
+import navik.domain.portfolio.worker.strategy.PortfolioAnalysisStrategyResolver;
+import navik.domain.users.enums.UserStatus;
 import navik.domain.users.exception.code.JobErrorCode;
 import navik.domain.users.repository.UserRepository;
+import navik.domain.users.service.UserQueryService;
 import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Slf4j
@@ -29,10 +35,15 @@ public class PortfolioAnalysisWorkerProcessor {
 	private final PortfolioAiClient portfolioAiClient;
 	private final KpiScoreInitialService kpiScoreInitialService;
 	private final UserRepository userRepository;
+	private final UserQueryService userQueryService;
 	private final ApplicationEventPublisher eventPublisher;
+	private final PortfolioAnalysisStrategyResolver strategyResolver;
+	private final AbilityCommandService abilityCommandService;
+	private final AbilityNormalizer abilityNormalizer;
 
 	@Transactional
-	public boolean process(Long userId, Long portfolioId, String traceId, boolean isFallBacked) {
+	public boolean process(Long userId, Long portfolioId, String traceId, boolean isFallBacked,
+		AnalysisType analysisType) {
 		// 1) 포트폴리오 조회
 		Portfolio portfolio = portfolioRepository.findById(portfolioId).orElse(null);
 		if (portfolio == null) {
@@ -43,7 +54,7 @@ public class PortfolioAnalysisWorkerProcessor {
 
 		// 2) 분석 요청 및 KPI 점수 초기화
 		boolean success = isFallBacked ? processFallbackAnalysis(userId, portfolio, traceId) :
-			processNormalAnalysis(userId, portfolio, portfolioId, traceId);
+			processNormalAnalysis(userId, portfolio, portfolioId, traceId, analysisType);
 		if (!success) {
 			return false;
 		}
@@ -52,6 +63,7 @@ public class PortfolioAnalysisWorkerProcessor {
 
 		if (portfolio.getStatus() != PortfolioStatus.RETRY_REQUIRED) {
 			portfolio.updateStatus(PortfolioStatus.COMPLETED);
+			userQueryService.getUser(userId).updateUserStatus(UserStatus.ACTIVE);
 		}
 
 		return true;
@@ -61,8 +73,9 @@ public class PortfolioAnalysisWorkerProcessor {
 	 * 일반 분석: basis="none"인 항목은 score=0으로 강제하여 초기화
 	 * none이 있으면 RETRY_REQUIRED 상태로 마킹
 	 */
-	private boolean processNormalAnalysis(Long userId, Portfolio portfolio, Long portfolioId, String traceId) {
-		PortfolioAiDTO.AnalyzeResponse result = analyzePortfolio(userId, portfolioId, traceId, portfolio);
+	private boolean processNormalAnalysis(Long userId, Portfolio portfolio, Long portfolioId, String traceId,
+		AnalysisType analysisType) {
+		PortfolioAiDTO.AnalyzeResponse result = analyzePortfolio(userId, portfolioId, traceId, portfolio, analysisType);
 
 		if (isEmptyResponse(result)) {
 			log.warn("[PortfolioAnalysis] skip (empty AI response). traceId={}, portfolioId={}", traceId, portfolioId);
@@ -79,6 +92,15 @@ public class PortfolioAnalysisWorkerProcessor {
 			.toList();
 
 		kpiScoreInitialService.initializeKpiScores(userId, new KpiScoreRequestDTO.Initialize(items));
+
+		// v2: abilities 임베딩 저장
+		if (analysisType == AnalysisType.WITH_ABILITY && result.abilities() != null && !result.abilities().isEmpty()) {
+			try {
+				abilityCommandService.saveAbilitiesFromPortfolio(userId, abilityNormalizer.normalizeFromPortfolio(result.abilities()));
+			} catch (Exception e) {
+				log.warn("[PortfolioAnalysis] ability save failed. traceId={}, portfolioId={}", traceId, portfolioId, e);
+			}
+		}
 
 		if (hasNoneBasis) {
 			log.warn("[PortfolioAnalysis] `basis=none` detected. Try fallback logic. traceId={}, portfolioId={}",
@@ -110,18 +132,20 @@ public class PortfolioAnalysisWorkerProcessor {
 
 		log.info("[PortfolioAnalysis] fallback completed. traceId={}, userId={}, portfolioId={}, scoreCount={}",
 			traceId, userId, portfolio.getId(), result.scores().size());
+
+		userQueryService.getUser(userId).updateUserStatus(UserStatus.ACTIVE);
 		return true;
 	}
 
 	private PortfolioAiDTO.AnalyzeResponse analyzePortfolio(Long userId, Long portfolioId, String traceId,
-		Portfolio portfolio) {
+		Portfolio portfolio, AnalysisType analysisType) {
 		String resumeText = portfolio.getContent();
 		if (resumeText == null || resumeText.isBlank()) {
 			log.warn("[PortfolioAnalysis] skip (empty content). traceId={}, portfolioId={}", traceId, portfolioId);
 			portfolio.updateStatus(PortfolioStatus.FAILED);
 			return null;
 		}
-		return portfolioAiClient.analyzePortfolio(resumeText, getJobId(userId));
+		return strategyResolver.resolve(analysisType).analyze(resumeText, getJobId(userId));
 	}
 
 	private PortfolioAiDTO.AnalyzeResponse reanalyzePortfolio(Long userId, Portfolio portfolio) {

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import navik.domain.portfolio.entity.AnalysisType;
 
 @Slf4j
 @Component
@@ -128,6 +129,8 @@ public class RedisStreamPortfolioAnalysisWorker {
 			Long portfolioId = parseLong(body.get("portfolioId"));
 			String traceId = String.valueOf(body.getOrDefault("traceId", ""));
 			boolean isFallBacked = Boolean.parseBoolean(String.valueOf(body.getOrDefault("isFallBacked", "false")));
+			String analysisTypeStr = String.valueOf(body.getOrDefault("analysisType", "BASIC"));
+			AnalysisType analysisType = parseAnalysisType(analysisTypeStr);
 
 			if (userId == null || portfolioId == null) {
 				log.warn("[PortfolioAnalysisWorker] invalid message. recordId={}, body={}", recordId, body);
@@ -136,7 +139,7 @@ public class RedisStreamPortfolioAnalysisWorker {
 			}
 
 			try {
-				processor.process(userId, portfolioId, traceId, isFallBacked);
+				processor.process(userId, portfolioId, traceId, isFallBacked, analysisType);
 				ack(recordId);
 			} catch (Exception e) {
 				log.error("[PortfolioAnalysisWorker] failed. traceId={}, userId={}, portfolioId={}, recordId={}",
@@ -161,6 +164,14 @@ public class RedisStreamPortfolioAnalysisWorker {
 			return Long.parseLong(String.valueOf(v));
 		} catch (Exception e) {
 			return null;
+		}
+	}
+
+	private AnalysisType parseAnalysisType(String value) {
+		try {
+			return AnalysisType.valueOf(value);
+		} catch (Exception e) {
+			return AnalysisType.BASIC;
 		}
 	}
 }

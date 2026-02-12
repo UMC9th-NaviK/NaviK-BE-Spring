@@ -12,6 +12,7 @@ import navik.domain.ability.entity.AbilityEmbedding;
 import navik.domain.ability.repository.AbilityEmbeddingRepository;
 import navik.domain.ability.repository.AbilityRepository;
 import navik.domain.growthLog.dto.res.GrowthLogAiResponseDTO;
+import navik.domain.portfolio.dto.PortfolioAiDTO;
 import navik.domain.users.entity.User;
 import navik.domain.users.repository.UserRepository;
 
@@ -33,6 +34,31 @@ public class AbilityCommandService {
 		User user = userRepository.getReferenceById(userId);
 
 		for (GrowthLogAiResponseDTO.GrowthLogEvaluationResult.AbilityResult abilityResult : abilities) {
+			Ability ability = Ability.builder()
+				.content(abilityResult.content())
+				.user(user)
+				.build();
+
+			Ability savedAbility = abilityRepository.save(ability);
+
+			AbilityEmbedding embedding = AbilityEmbedding.builder()
+				.ability(savedAbility)
+				.embedding(abilityResult.embedding())
+				.build();
+
+			abilityEmbeddingRepository.save(embedding);
+		}
+	}
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void saveAbilitiesFromPortfolio(Long userId, List<PortfolioAiDTO.Abilities> abilities) {
+		if (abilities == null || abilities.isEmpty()) {
+			return;
+		}
+
+		User user = userRepository.getReferenceById(userId);
+
+		for (PortfolioAiDTO.Abilities abilityResult : abilities) {
 			Ability ability = Ability.builder()
 				.content(abilityResult.content())
 				.user(user)

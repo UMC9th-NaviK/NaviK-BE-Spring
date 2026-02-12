@@ -22,5 +22,4 @@ public class StudyRecommendDTO {
 	private Integer capacity; // 전체 정원
 	private Integer participantCount; // 현재 참여 인원
 	private String participationMethod; // 온/오프라인
-
 }

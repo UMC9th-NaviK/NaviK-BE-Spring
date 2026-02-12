@@ -37,6 +37,8 @@ public class UserCommandService {
 	public void updateMyInfo(Long userId, UserRequestDTO.MyInfoDTO req) {
 		User user = userQueryService.getUser(userId);
 
+		user.updateMyInfo(req.nickname(), req.isEntryLevel(), req.educationLevel());
+
 		if (req.departmentIds() != null) {
 			userDepartmentRepository.deleteAllByUserId(userId);
 
@@ -51,7 +53,6 @@ public class UserCommandService {
 			userDepartmentRepository.saveAll(newDepartments);
 		}
 
-		user.updateMyInfo(req.nickname(), req.isEntryLevel(), req.educationLevel());
 	}
 
 	@Transactional
