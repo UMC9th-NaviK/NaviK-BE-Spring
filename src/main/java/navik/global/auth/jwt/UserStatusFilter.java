@@ -29,6 +29,7 @@ public class UserStatusFilter extends OncePerRequestFilter {
 		"/v1/jobs/**", "/v1/terms/**",
 		"/v1/departments/**",
 		"/v1/portfolios/**",
+		"/v2/portfolios/**",
 		"/v1/users/my-page"
 	);
 
