@@ -23,6 +23,16 @@ public class PortfolioAiDTO {
 	public record AnalyzeResponse(List<KpiScoreItem> scores, List<Abilities> abilities) {
 		public record KpiScoreItem(@JsonProperty("kpi_id") Long kpiId, @JsonProperty("kpi_name") String kpiName,
 								   Integer score, String basis) {
+			public KpiScoreItem withOffsetKpiId(long offset) {
+				return new KpiScoreItem(kpiId + offset, kpiName, score, basis);
+			}
+		}
+
+		public AnalyzeResponse withKpiIdOffset(long offset) {
+			List<KpiScoreItem> mappedScores = scores.stream()
+				.map(item -> item.withOffsetKpiId(offset))
+				.toList();
+			return new AnalyzeResponse(mappedScores, abilities);
 		}
 	}
 
