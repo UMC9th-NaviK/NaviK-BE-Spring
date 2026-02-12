@@ -185,7 +185,8 @@ public class StudyQueryService {
 		return studyKpis.stream()
 			.collect(Collectors.toMap(
 				(StudyKpi sk) -> sk.getStudy().getId(),
-				(StudyKpi sk) -> sk.getKpiCard().getName()
+				(StudyKpi sk) -> sk.getKpiCard().getName(),
+				(oldVal, newVal) -> oldVal
 			));
 	}
 
