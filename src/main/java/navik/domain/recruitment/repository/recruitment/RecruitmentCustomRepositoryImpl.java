@@ -65,14 +65,14 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 
 		// 2. 유효 매칭 카운트
 		NumberExpression<Long> matchCount = new CaseBuilder()
-			.when(similarityQuery.goe(0.2))
+			.when(similarityQuery.goe(0.42))
 			.then(positionKpi.id)
 			.otherwise((Long)null)
 			.countDistinct();
 
 		// 3. 매칭 평균 유사도
 		NumberExpression<Double> similarityAvg = new CaseBuilder()
-			.when(similarityQuery.goe(0.2))
+			.when(similarityQuery.goe(0.42))
 			.then(similarityQuery)
 			.otherwise((Double)null)
 			.avg()
@@ -85,7 +85,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 				experienceTypeSatisfy(experienceType),
 				majorTypeSatisfy(majorTypes),
 				endDateSatisfy(),
-				similarityQuery.goe(0.2)
+				similarityQuery.goe(0.42)
 			)
 			.filter(Objects::nonNull)
 			.reduce(BooleanExpression::and)
@@ -106,7 +106,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 			.join(ability.abilityEmbedding, abilityEmbedding)              // Ability -> Embedding
 			.where(where)
 			.groupBy(recruitment)
-			.having(matchCount.goe(1))  // 매칭되는 KPI는 최소 3개 이상
+			.having(matchCount.goe(2))  // 매칭되는 KPI는 최소 2개 이상
 			.orderBy(
 				matchCount.desc(),     // 매칭 개수
 				similarityAvg.desc(),  // 평균 매칭 유사도
