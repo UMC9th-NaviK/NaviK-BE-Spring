@@ -122,17 +122,17 @@ public class JwtTokenProvider {
 				.build()
 				.parseSignedClaims(token);
 		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-			log.error("잘못된 JWT 서명입니다.", e);
+			log.error("잘못된 JWT 서명입니다.");
 			throw new GeneralException(AuthErrorCode.AUTH_TOKEN_INVALID);
 		} catch (ExpiredJwtException e) {
-			log.warn("만료된 JWT 토큰입니다.", e);
+			log.warn("만료된 JWT 토큰입니다.");
 			throw new GeneralException(
 				isAccessToken ? AuthErrorCode.AUTH_TOKEN_EXPIRED : AuthErrorCode.REFRESH_TOKEN_EXPIRED);
 		} catch (UnsupportedJwtException e) {
-			log.error("지원되지 않는 JWT 토큰입니다.", e);
+			log.error("지원되지 않는 JWT 토큰입니다.");
 			throw new GeneralException(AuthErrorCode.AUTH_TOKEN_INVALID);
 		} catch (IllegalArgumentException e) {
-			log.error("JWT 토큰이 잘못되었습니다.", e);
+			log.error("JWT 토큰이 잘못되었습니다.");
 			throw new GeneralException(AuthErrorCode.AUTH_TOKEN_INVALID);
 		}
 	}
