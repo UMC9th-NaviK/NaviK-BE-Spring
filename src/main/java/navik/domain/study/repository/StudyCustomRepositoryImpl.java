@@ -142,8 +142,10 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 		return role != null ? QStudyUser.studyUser.role.eq(role) : null;
 	}
 
-	private BooleanExpression ltStudyUserId(Long lastId) {
-		return lastId != null ? QStudyUser.studyUser.id.lt(lastId) : null;
+	private BooleanExpression ltStudyUserId(Long cursor) {
+		if (cursor == null)
+			return null;
+		return QStudy.study.id.lt(cursor); // 메인 쿼리 주인인 study의 id를 사용
 	}
 
 	private BooleanExpression ltKpiId(Long cursor) {
