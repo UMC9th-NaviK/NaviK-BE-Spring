@@ -30,7 +30,8 @@ public class UserStatusFilter extends OncePerRequestFilter {
 		"/v1/departments/**",
 		"/v1/portfolios/**",
 		"/v2/portfolios/**",
-		"/v1/users/my-page"
+		"/v1/users/my-page",
+		"v1/kpi-cards/me"
 	);
 
 	@Override

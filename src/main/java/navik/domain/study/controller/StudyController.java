@@ -149,4 +149,5 @@ public class StudyController implements StudyControllerDocs {
 		studyCommandService.resolveApplication(userId, studyUserId, request.getAccept());
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK);
 	}
+
 }
