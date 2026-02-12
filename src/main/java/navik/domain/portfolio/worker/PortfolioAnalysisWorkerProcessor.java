@@ -8,16 +8,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import navik.domain.ability.normalizer.AbilityNormalizer;
+import navik.domain.ability.service.AbilityCommandService;
 import navik.domain.kpi.dto.req.KpiScoreRequestDTO;
 import navik.domain.kpi.event.KpiScoreUpdatedEvent;
 import navik.domain.kpi.service.command.KpiScoreInitialService;
 import navik.domain.portfolio.ai.client.PortfolioAiClient;
 import navik.domain.portfolio.dto.PortfolioAiDTO;
+import navik.domain.portfolio.entity.AnalysisType;
 import navik.domain.portfolio.entity.Portfolio;
 import navik.domain.portfolio.entity.PortfolioStatus;
 import navik.domain.portfolio.repository.PortfolioRepository;
+import navik.domain.portfolio.worker.strategy.PortfolioAnalysisStrategyResolver;
+import navik.domain.users.enums.UserStatus;
 import navik.domain.users.exception.code.JobErrorCode;
 import navik.domain.users.repository.UserRepository;
+import navik.domain.users.service.UserQueryService;
 import navik.global.apiPayload.exception.exception.GeneralException;
 
 @Slf4j
@@ -29,7 +35,11 @@ public class PortfolioAnalysisWorkerProcessor {
 	private final PortfolioAiClient portfolioAiClient;
 	private final KpiScoreInitialService kpiScoreInitialService;
 	private final UserRepository userRepository;
+	private final UserQueryService userQueryService;
 	private final ApplicationEventPublisher eventPublisher;
+	private final PortfolioAnalysisStrategyResolver strategyResolver;
+	private final AbilityCommandService abilityCommandService;
+	private final AbilityNormalizer abilityNormalizer;
 
 	@Transactional
 	public boolean process(Long userId, Long portfolioId, String traceId, boolean isFallBacked,

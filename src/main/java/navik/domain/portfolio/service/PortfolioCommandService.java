@@ -30,28 +30,8 @@ public class PortfolioCommandService {
 	private final PortfolioTextExtractorResolver portfolioTextExtractorResolver;
 	private final ApplicationEventPublisher eventPublisher;
 
-	public PortfolioResponseDTO.Created createPortfolio(Long userId, PortfolioRequestDTO.Create request) {
-		User user = userQueryService.getUser(userId);
-
-		String content = portfolioTextExtractorResolver.resolve(request.inputType())
-			.extractText(request); // 이력서는 반드시 텍스트로 변환
-
-		Portfolio portfolio = Portfolio.builder()
-			.inputType(request.inputType())
-			.content(content)
-			.fileUrl(request.fileUrl()) // 파일이 아닌경우 null
-			.user(user)
-			.build();
-
-		portfolioRepository.save(portfolio);
-
-		eventPublisher.publishEvent(
-			new PortfolioAnalysisEvent(userId, portfolio.getId(), false, AnalysisType.BASIC));
-
-		return new PortfolioResponseDTO.Created(portfolio.getId(), request.inputType(), portfolio.getStatus());
-	}
-
-	public PortfolioResponseDTO.Created createPortfolioV2(Long userId, PortfolioRequestDTO.Create request) {
+	public PortfolioResponseDTO.Created createPortfolio(Long userId, PortfolioRequestDTO.Create request,
+		AnalysisType analysisType) {
 		User user = userQueryService.getUser(userId);
 
 		String content = portfolioTextExtractorResolver.resolve(request.inputType())
@@ -67,7 +47,7 @@ public class PortfolioCommandService {
 		portfolioRepository.save(portfolio);
 
 		eventPublisher.publishEvent(
-			new PortfolioAnalysisEvent(userId, portfolio.getId(), false, AnalysisType.WITH_ABILITY));
+			new PortfolioAnalysisEvent(userId, portfolio.getId(), false, analysisType));
 
 		return new PortfolioResponseDTO.Created(portfolio.getId(), request.inputType(), portfolio.getStatus());
 	}

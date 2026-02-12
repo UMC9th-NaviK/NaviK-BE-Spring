@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import navik.domain.portfolio.dto.PortfolioRequestDTO;
 import navik.domain.portfolio.dto.PortfolioResponseDTO;
+import navik.domain.portfolio.entity.AnalysisType;
 import navik.domain.portfolio.service.PortfolioCommandService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.exception.code.GeneralSuccessCode;
@@ -36,6 +37,6 @@ public class PortfolioV2Controller {
 		@RequestBody @Valid PortfolioRequestDTO.Create request) {
 
 		return ApiResponse.onSuccess(GeneralSuccessCode._CREATED,
-			portfolioCommandService.createPortfolioV2(userId, request));
+			portfolioCommandService.createPortfolio(userId, request, AnalysisType.WITH_ABILITY));
 	}
 }
