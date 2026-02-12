@@ -26,8 +26,7 @@ public class AiServerPortfolioAiClient implements PortfolioAiClient {
 	private static final String ABILITIES_PATH_PREFIX = "/api/kpi/analyze/abilities/";
 	private static final String FALLBACK_PATH_PREFIX = "/api/kpi/fallback/";
 
-	private static final Map<Long, String> JOB_NAME_MAP = Map.of(1L, "pm", 2L, "designer", 3L, "frontend", 4L,
-		"backend");
+	private static final Map<Long, String> JOB_NAME_MAP = Map.of(1L, "pm", 2L, "designer", 3L, "frontend", 4L, "backend");
 	private static final Map<Long, Long> KPI_OFFSET_MAP = Map.of(1L, 0L, 2L, 10L, 3L, 20L, 4L, 30L);
 
 	@Override
