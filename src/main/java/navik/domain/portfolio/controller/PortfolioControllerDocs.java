@@ -37,7 +37,7 @@ public interface PortfolioControllerDocs {
 			- **FAILED**: 분석 자체가 실패함 (빈 응답 등)
 			
 			### 회원 상태
-			- 분석 결과가 **COMPLETED**,**RETRY_REQUIRED**인 경우 사용자 상태가 `ACTIVE`로 변경됩니다.
+			- 분석 결과가 **COMPLETED**인 경우 사용자 상태가 `ACTIVE`로 변경됩니다.
 			"""
 	)
 	@ApiResponses(value = {
@@ -239,6 +239,9 @@ public interface PortfolioControllerDocs {
 			
 			### 비동기 처리 안내
 			- 추가 정보 저장 후 재분석이 비동기로 진행됩니다.
+			
+			### 회원 상태
+			- 분석 결과가 **COMPLETED**인 경우 사용자 상태가 `ACTIVE`로 변경됩니다.
 			"""
 	)
 	@ApiResponses(value = {

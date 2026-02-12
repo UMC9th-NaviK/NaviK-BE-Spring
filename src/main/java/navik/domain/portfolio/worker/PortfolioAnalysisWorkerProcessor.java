@@ -55,9 +55,9 @@ public class PortfolioAnalysisWorkerProcessor {
 
 		if (portfolio.getStatus() != PortfolioStatus.RETRY_REQUIRED) {
 			portfolio.updateStatus(PortfolioStatus.COMPLETED);
+			userQueryService.getUser(userId).updateUserStatus(UserStatus.ACTIVE);
 		}
 
-		userQueryService.getUser(userId).updateUserStatus(UserStatus.ACTIVE);
 		return true;
 	}
 
@@ -114,6 +114,8 @@ public class PortfolioAnalysisWorkerProcessor {
 
 		log.info("[PortfolioAnalysis] fallback completed. traceId={}, userId={}, portfolioId={}, scoreCount={}",
 			traceId, userId, portfolio.getId(), result.scores().size());
+
+		userQueryService.getUser(userId).updateUserStatus(UserStatus.ACTIVE);
 		return true;
 	}
 
