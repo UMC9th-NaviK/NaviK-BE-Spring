@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -50,4 +51,7 @@ public class KpiCard extends BaseEntity {
 
 	@Column(name = "image_url", nullable = false, length = 500)
 	private String imageUrl;
+
+	@OneToOne(mappedBy = "kpiCard", fetch = FetchType.LAZY)
+	private KpiCardEmbedding kpiCardEmbedding;
 }
