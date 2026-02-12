@@ -35,6 +35,9 @@ public interface PortfolioControllerDocs {
 			- **COMPLETED**: 모든 KPI 점수가 정상 반영됨
 			- **RETRY_REQUIRED**: 일부 KPI의 basis가 none으로 판정되어 해당 항목은 0점 처리됨. 추가 정보 제출(submitAdditionalInfo)을 통해 재분석 필요
 			- **FAILED**: 분석 자체가 실패함 (빈 응답 등)
+			
+			### 회원 상태
+			- 분석 결과가 **COMPLETED**,**RETRY_REQUIRED**인 경우 사용자 상태가 `ACTIVE`로 변경됩니다.
 			"""
 	)
 	@ApiResponses(value = {
