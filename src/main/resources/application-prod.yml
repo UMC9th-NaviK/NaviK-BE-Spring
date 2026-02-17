@@ -60,7 +60,7 @@ spring:
             scope:
               - email
               - profile
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "https://api.navik.kro.kr/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
             client-name: Google
           kakao:
@@ -68,7 +68,7 @@ spring:
             client-secret: ${KAKAO_CLIENT_SECRET}
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "https://api.navik.kro.kr/login/oauth2/code/{registrationId}"
             scope:
               - profile_nickname
               - account_email
@@ -78,7 +78,7 @@ spring:
             client-secret: ${NAVER_CLIENT_SECRET}
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "https://api.navik.kro.kr/login/oauth2/code/{registrationId}"
             scope:
               - name
               - email
