@@ -68,9 +68,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		ResponseCookie cookie = ResponseCookie.from("refresh_token", tokenDto.getRefreshToken())
 			.httpOnly(true)
 			.secure(true) // HTTPS 환경에서만 전송 (개발 환경에서는 false로 설정해야 할 수도 있음, 여기서는 true로 설정)
-			.path("/")
+			.path("/v1/auth")
 			.maxAge(refreshTokenValidityInSeconds)
 			.sameSite("None") // Cross-Site 요청 허용 (필요에 따라 설정)
+			.domain(".navik.kr")
 			.build();
 
 		response.addHeader("Set-Cookie", cookie.toString());
