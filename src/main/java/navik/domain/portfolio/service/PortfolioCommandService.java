@@ -44,7 +44,7 @@ public class PortfolioCommandService {
 		Portfolio portfolio = Portfolio.builder()
 			.inputType(request.inputType())
 			.content(content)
-			.fileUrl(S3Prefix + request.fileUrl())
+			.fileUrl(applyPrefix(request.fileUrl()))
 			.user(user)
 			.build();
 
@@ -76,5 +76,14 @@ public class PortfolioCommandService {
 			new PortfolioAnalysisEvent(userId, portfolioId, true, AnalysisType.BASIC));
 
 		return new PortfolioResponseDTO.AdditionalInfoSubmitted(portfolioId);
+	}
+
+	private String applyPrefix(String url) {
+		if (url == null)
+			return null;
+		if (!url.startsWith("https://"))
+			return S3Prefix + url;
+		else
+			return url;
 	}
 }

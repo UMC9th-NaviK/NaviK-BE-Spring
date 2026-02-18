@@ -208,6 +208,7 @@ public class StudyQueryService {
 		// 4. N+1 문제 해결을 위한 관련 데이터 Map 추출
 		List<Long> studyIds = pagingList.stream().map(Study::getId).toList();
 		Map<Long, Integer> participantCountMap = getParticipantCountMap(studyIds);
+    
 		String kpiName = studyKpiRepository.findByStudyIdIn(studyIds).stream()
 			.filter(sk -> sk.getKpiCard().getId().equals(kpiId))
 			.findFirst()
@@ -221,6 +222,7 @@ public class StudyQueryService {
 				participantCountMap.getOrDefault(s.getId(), 0),
 				kpiName,
 				kpiId
+
 			)).toList();
 
 		// 6. 다음 커서 생성 및 응답
