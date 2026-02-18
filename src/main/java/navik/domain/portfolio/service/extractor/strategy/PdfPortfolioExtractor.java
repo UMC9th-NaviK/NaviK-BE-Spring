@@ -24,7 +24,10 @@ public class PdfPortfolioExtractor implements PortfolioTextExtractor {
 
 	@Override
 	public String extractText(PortfolioRequestDTO.Create request) {
-		return portfolioAiClient.extractTextFromPdf(S3Prefix + request.fileUrl());
+		if (request.fileUrl().startsWith("https://"))
+			return portfolioAiClient.extractTextFromPdf(S3Prefix + request.fileUrl());
+		else
+			return portfolioAiClient.extractTextFromPdf(request.fileUrl());
 	}
 }
 
