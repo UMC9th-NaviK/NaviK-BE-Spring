@@ -78,7 +78,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			.secure(true)
 			.path("/v1/auth")
 			.maxAge(refreshTokenValidityInSeconds)
-			.sameSite("None")
+			.sameSite("Lax")
 			.domain(cookieDomain)
 			.build();
 
@@ -92,7 +92,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			.path("/v1/auth")
 			.domain(cookieDomain)
 			.maxAge(0) // 즉시 만료
-			.sameSite("None")
+			.sameSite("Lax")
 			.build();
 
 		response.addHeader("Set-Cookie", clearOldCookie.toString());

@@ -102,6 +102,26 @@ public class StudyController implements StudyControllerDocs {
 	}
 
 	/**
+	 * 특정 KPI ID 기반 맞춤형 스터디 추천 목록 조회
+	 * @param kpiId 특정 역량(KPI) ID
+	 * @param cursor 페이징 커서 (마지막 스터디 ID)
+	 * @param size 페이지 크기
+	 * @param userId 인증된 유저 ID
+	 * @return
+	 */
+	@GetMapping("/recommendation/{kpiId}")
+	public ApiResponse<CursorResponseDTO<StudyRecommendDTO>> getRecommendedStudiesByKpi(
+		@PathVariable(value = "kpiId") Long kpiId,
+		@RequestParam(value = "cursor", required = false) Long cursor,
+		@RequestParam(value = "size", defaultValue = "10") int size,
+		@AuthUser Long userId
+	) {
+		CursorResponseDTO<StudyRecommendDTO> response = studyQueryService.getRecommendedStudyListByKpi(userId, kpiId,
+			cursor, size);
+		return ApiResponse.onSuccess(GeneralSuccessCode._OK, response);
+	}
+
+	/**
 	 * 스터디 신청하기 버튼 클릭
 	 * @param studyId
 	 * @param userId

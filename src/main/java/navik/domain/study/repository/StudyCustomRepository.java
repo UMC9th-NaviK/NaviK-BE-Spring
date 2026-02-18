@@ -16,4 +16,6 @@ public interface StudyCustomRepository {
 		int pageSize);
 
 	List<StudyUser> findApplicants(Long studyId, Long cursor, int pageSize);
+
+	List<Study> findRecommendedStudyBySingleKpi(Long kpiId, List<Long> excludeStudyIds, Long cursor, int pageSize);
 }

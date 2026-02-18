@@ -77,6 +77,24 @@ public interface StudyControllerDocs {
 		@AuthUser Long userId
 	);
 
+	@Operation(summary = "특정 KPI 기반 맞춤형 스터디 추천 목록 조회 API",
+		description = "특정 역량(KPI) ID를 기반으로 해당 역량을 강화할 수 있는 맞춤 스터디를 조회합니다.")
+	@Parameters({
+		@Parameter(name = "kpiId", description = "추천의 기준이 되는 특정 KPI 카드의 ID"),
+		@Parameter(name = "cursor", description = "마지막으로 조회된 스터디 ID (첫 조회 시에는 X)"),
+		@Parameter(name = "size", description = "한 번에 조회할 스터디 개수", example = "10")
+	})
+	@ApiErrorCodes(
+		enumClass = StudyErrorCode.class,
+		includes = {"USER_NOT_FOUND"}
+	)
+	ApiResponse<CursorResponseDTO<StudyRecommendDTO>> getRecommendedStudiesByKpi(
+		@PathVariable(value = "kpiId") Long kpiId,
+		@RequestParam(value = "cursor", required = false) Long cursor,
+		@RequestParam(value = "size", defaultValue = "10") int size,
+		@AuthUser Long userId
+	);
+
 	@Operation(summary = "스터디 신청하기 API", description = "사용자가 특정 스터디에 참여 신청을 합니다.")
 	@ApiErrorCodes(
 		enumClass = StudyErrorCode.class,
