@@ -57,6 +57,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 	}
 
 	private void saveRefreshToken(Authentication authentication, TokenDTO tokenDto) {
+		String userId = authentication.getName();
+
+		refreshTokenRepository.findById(userId)
+			.ifPresent(refreshTokenRepository::delete);
 
 		RefreshToken refreshToken = RefreshToken.builder()
 			.id(authentication.getName()) // 사용자 ID (PK)
