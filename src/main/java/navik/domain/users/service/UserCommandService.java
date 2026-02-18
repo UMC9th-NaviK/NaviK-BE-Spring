@@ -2,10 +2,12 @@ package navik.domain.users.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import navik.domain.departments.repository.DepartmentRepository;
 import navik.domain.job.entity.Job;
 import navik.domain.job.repository.JobRepository;
@@ -15,6 +17,7 @@ import navik.domain.users.entity.User;
 import navik.domain.users.entity.UserDepartment;
 import navik.domain.users.repository.UserDepartmentRepository;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserCommandService {
@@ -22,6 +25,9 @@ public class UserCommandService {
 	private final DepartmentRepository departmentRepository;
 	private final UserDepartmentRepository userDepartmentRepository;
 	private final UserQueryService userQueryService;
+
+	@Value("${spring.cloud.aws.s3.prefix}")
+	private String S3Prefix;
 
 	@Transactional
 	public UserResponseDTO.BasicInfoDTO updateBasicInfo(Long userId, UserRequestDTO.BasicInfoDTO req) {
@@ -61,6 +67,6 @@ public class UserCommandService {
 		if (imageUrl != null) {
 			cleanUrl = imageUrl.replaceAll("^\"|\"$", "");
 		}
-		userQueryService.getUser(userId).updateProfileImage(cleanUrl);
+		userQueryService.getUser(userId).updateProfileImage(S3Prefix + cleanUrl);
 	}
 }
