@@ -39,7 +39,7 @@ public class UserCommandService {
 
 		user.updateMyInfo(req.nickname(), req.isEntryLevel(), req.educationLevel());
 
-		if (req.departmentIds() != null) {
+		if (req.departmentIds() != null && !req.departmentIds().isEmpty()) {
 			userDepartmentRepository.deleteAllByUserId(userId);
 
 			List<UserDepartment> newDepartments = req.departmentIds()
