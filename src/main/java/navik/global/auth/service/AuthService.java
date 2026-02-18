@@ -97,7 +97,7 @@ public class AuthService {
 			.secure(true)
 			.path("/v1/auth")
 			.maxAge(refreshTokenValidityInSeconds)
-			.sameSite("None")
+			.sameSite("Lax")
 			.domain(cookieDomain)
 			.build();
 	}
@@ -108,7 +108,7 @@ public class AuthService {
 			.secure(true)
 			.path("/v1/auth")
 			.maxAge(0)
-			.sameSite("None")
+			.sameSite("Lax")
 			.domain(cookieDomain)
 			.build();
 	}
