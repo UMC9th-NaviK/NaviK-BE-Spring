@@ -48,14 +48,7 @@ public class AuthController implements AuthControllerDocs {
 		authService.logout(accessToken, refreshToken);
 
 		// 쿠키 삭제 (빈 값으로 덮어쓰기)
-		ResponseCookie cookie = ResponseCookie.from("refresh_token", "")
-			.httpOnly(true)
-			.secure(true)
-			.path("/v1/auth")
-			.maxAge(0) // 만료
-			.sameSite("None")
-			.domain(cookieDomain)
-			.build();
+		ResponseCookie cookie = authService.clearRefreshTokenCookie();
 		response.addHeader("Set-Cookie", cookie.toString());
 
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, "로그아웃 되었습니다.");
