@@ -208,16 +208,21 @@ public class StudyQueryService {
 		// 4. N+1 문제 해결을 위한 관련 데이터 Map 추출
 		List<Long> studyIds = pagingList.stream().map(Study::getId).toList();
 		Map<Long, Integer> participantCountMap = getParticipantCountMap(studyIds);
-		Map<Long, String> kpiNameMap = getKpiNameMap(studyIds);
-		Map<Long, Long> kpiIdMap = getKpiIdMap(studyIds);
+    
+		String kpiName = studyKpiRepository.findByStudyIdIn(studyIds).stream()
+			.filter(sk -> sk.getKpiCard().getId().equals(kpiId))
+			.findFirst()
+			.map(sk -> sk.getKpiCard().getName())
+			.orElse("KPI 정보 없음");
 
 		// 5. DTO 변환
 		List<StudyRecommendDTO> content = pagingList.stream()
 			.map(s -> StudyRecommendConverter.toStudyRecommendDTO(
 				s,
 				participantCountMap.getOrDefault(s.getId(), 0),
-				kpiNameMap.getOrDefault(s.getId(), "KPI 정보 없음"),
-				kpiIdMap.getOrDefault(s.getId(), null)
+				kpiName,
+				kpiId
+
 			)).toList();
 
 		// 6. 다음 커서 생성 및 응답
@@ -253,7 +258,8 @@ public class StudyQueryService {
 		return studyKpiRepository.findByStudyIdIn(studyIds).stream()
 			.collect(Collectors.toMap(
 				sk -> sk.getStudy().getId(),
-				sk -> sk.getKpiCard().getId()
+				sk -> sk.getKpiCard().getId(),
+				(oldVal, newVal) -> oldVal
 			));
 	}
 
