@@ -49,6 +49,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		// 2. Refresh Token 저장
 		saveRefreshToken(authentication, tokenDto);
 
+		clearOldRefreshTokenCookie(response);
 		// 3. Refresh Token을 HttpOnly Cookie로 설정
 		setRefreshTokenCookie(response, tokenDto);
 
@@ -82,5 +83,18 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			.build();
 
 		response.addHeader("Set-Cookie", cookie.toString());
+	}
+
+	private void clearOldRefreshTokenCookie(HttpServletResponse response) {
+		ResponseCookie clearOldCookie = ResponseCookie.from("refresh_token", "")
+			.httpOnly(true)
+			.secure(true)
+			.path("/v1/auth")
+			.domain(cookieDomain)
+			.maxAge(0) // 즉시 만료
+			.sameSite("None")
+			.build();
+
+		response.addHeader("Set-Cookie", clearOldCookie.toString());
 	}
 }
