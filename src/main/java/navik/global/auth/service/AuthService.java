@@ -99,6 +99,16 @@ public class AuthService {
 			.build();
 	}
 
+	public org.springframework.http.ResponseCookie clearRefreshTokenCookie(){
+		return org.springframework.http.ResponseCookie.from("refresh_token", "")
+			.httpOnly(true)
+			.secure(true)
+			.path("/v1/auth")
+			.maxAge(0)
+			.sameSite("None")
+			.build();
+	}
+
 	@Transactional
 	public TokenDTO createDevToken(Long userId, Long accessTokenValidityInSeconds, Long refreshTokenValidityInSeconds) {
 		// 1. 사용자 정보 로드
