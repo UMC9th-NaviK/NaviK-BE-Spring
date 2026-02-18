@@ -30,6 +30,7 @@ spring:
       s3:
         enabled: false
         bucket: ${AWS_S3_BUCKET:dummy-ci-bucket}
+        prefix: ${AWS_S3_PREFIX:https://hello-world}
 
   jwt:
     secret: ${JWT_SECRET:eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHg=} # this is dummy secret
