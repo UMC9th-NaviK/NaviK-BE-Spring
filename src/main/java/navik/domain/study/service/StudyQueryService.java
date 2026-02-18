@@ -170,6 +170,61 @@ public class StudyQueryService {
 		return CursorResponseDTO.of(content, hasNext, nextCursor);
 	}
 
+	/**
+	 * 특정 KPI ID 기반 맞춤형 스터디 추천 목록 조회
+	 * @param userId 현재 접속 유저 ID
+	 * @param kpiId 추천받고자 하는 특정 KPI ID
+	 * @param cursor 페이징 커서 (마지막 스터디 ID)
+	 * @param pageSize 페이지 크기
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public CursorResponseDTO<StudyRecommendDTO> getRecommendedStudyListByKpi(Long userId, Long kpiId, Long cursor,
+		int pageSize) {
+
+		// 1. 이미 참여 중이거나 신청한 스터디 제외 리스트 생성
+		List<Long> excludeStudyIds = studyUserRepository.findByUserId(userId)
+			.stream()
+			.map(su -> su.getStudy().getId())
+			.toList();
+
+		if (excludeStudyIds.isEmpty()) {
+			excludeStudyIds = List.of(-1L);
+		}
+
+		// 2.  특정 KPI ID 하나에 해당하는 스터디 조회
+		List<Study> recommendedStudies = studyCustomRepository.findRecommendedStudyBySingleKpi(
+			kpiId, excludeStudyIds, cursor, pageSize
+		);
+
+		if (recommendedStudies.isEmpty()) {
+			return CursorResponseDTO.of(Collections.emptyList(), false, null);
+		}
+
+		// 3. 페이징 처리 (pageSize + 1개 조회 기반)
+		boolean hasNext = recommendedStudies.size() > pageSize;
+		List<Study> pagingList = hasNext ? recommendedStudies.subList(0, pageSize) : recommendedStudies;
+
+		// 4. N+1 문제 해결을 위한 관련 데이터 Map 추출
+		List<Long> studyIds = pagingList.stream().map(Study::getId).toList();
+		Map<Long, Integer> participantCountMap = getParticipantCountMap(studyIds);
+		Map<Long, String> kpiNameMap = getKpiNameMap(studyIds);
+		Map<Long, Long> kpiIdMap = getKpiIdMap(studyIds);
+
+		// 5. DTO 변환
+		List<StudyRecommendDTO> content = pagingList.stream()
+			.map(s -> StudyRecommendConverter.toStudyRecommendDTO(
+				s,
+				participantCountMap.getOrDefault(s.getId(), 0),
+				kpiNameMap.getOrDefault(s.getId(), "KPI 정보 없음"),
+				kpiIdMap.getOrDefault(s.getId(), null)
+			)).toList();
+
+		// 6. 다음 커서 생성 및 응답
+		String nextCursor = hasNext ? pagingList.get(pagingList.size() - 1).getId().toString() : null;
+		return CursorResponseDTO.of(content, hasNext, nextCursor);
+	}
+
 	private Map<Long, Integer> getParticipantCountMap(List<Long> studyIds) {
 		return studyUserRepository.countParticipantsByStudyIds(studyIds).stream()
 			.collect(Collectors.toMap(
