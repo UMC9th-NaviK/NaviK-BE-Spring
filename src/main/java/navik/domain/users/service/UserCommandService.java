@@ -57,9 +57,10 @@ public class UserCommandService {
 
 	@Transactional
 	public void updateProfileImage(Long userId, String imageUrl) {
+		String cleanUrl = null;
 		if (imageUrl != null) {
-			imageUrl = imageUrl.replaceAll("^\"|\"$", "");
+			cleanUrl = imageUrl.replaceAll("^\"|\"$", "");
 		}
-		userQueryService.getUser(userId).updateProfileImage(imageUrl);
+		userQueryService.getUser(userId).updateProfileImage(cleanUrl);
 	}
 }
