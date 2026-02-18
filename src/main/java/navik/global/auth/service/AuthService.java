@@ -33,6 +33,8 @@ public class AuthService {
 	private long refreshTokenValidityInSeconds;
 	@Value("${spring.jwt.access-token-validity-in-seconds}")
 	private long accessTokenValidityInSeconds;
+	@Value("${spring.oauth2.cookie-domain}")
+	private String cookieDomain;
 
 	@Transactional
 	public RefreshDTO reissue(String refreshToken) {
@@ -96,6 +98,18 @@ public class AuthService {
 			.path("/v1/auth")
 			.maxAge(refreshTokenValidityInSeconds)
 			.sameSite("None")
+			.domain(cookieDomain)
+			.build();
+	}
+
+	public org.springframework.http.ResponseCookie clearRefreshTokenCookie(){
+		return org.springframework.http.ResponseCookie.from("refresh_token", "")
+			.httpOnly(true)
+			.secure(true)
+			.path("/v1/auth")
+			.maxAge(0)
+			.sameSite("None")
+			.domain(cookieDomain)
 			.build();
 	}
 
