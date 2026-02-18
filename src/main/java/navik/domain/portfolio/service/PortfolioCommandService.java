@@ -79,7 +79,9 @@ public class PortfolioCommandService {
 	}
 
 	private String applyPrefix(String url) {
-		if (url.startsWith("https://"))
+		if (url == null)
+			return null;
+		if (!url.startsWith("https://"))
 			return S3Prefix + url;
 		else
 			return url;
