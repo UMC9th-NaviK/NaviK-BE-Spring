@@ -40,6 +40,7 @@ spring:
 
   oauth2:
     redirect-url: https://navik.kr/oauth2/redirect  # 리액트 로컬이므로 테스트 후 실 주소로 변경 필요
+    cookie-domain: ".navik.kr"
 
   data:
     redis:

@@ -1,5 +1,6 @@
 package navik.global.auth.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,9 @@ import navik.global.auth.service.AuthService;
 public class AuthController implements AuthControllerDocs {
 
 	private final AuthService authService;
+
+	@Value("${spring.oauth2.cookie-domain}")
+	private String cookieDomain;
 
 	@PostMapping("/refresh")
 	public ApiResponse<RefreshResponseDTO> reissue(@CookieValue("refresh_token") String refreshToken,
@@ -50,6 +54,7 @@ public class AuthController implements AuthControllerDocs {
 			.path("/v1/auth")
 			.maxAge(0) // 만료
 			.sameSite("None")
+			.domain(cookieDomain)
 			.build();
 		response.addHeader("Set-Cookie", cookie.toString());
 
