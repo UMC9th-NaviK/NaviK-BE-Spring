@@ -30,7 +30,8 @@ public class KpiScoreQueryService {
 			.map(ks -> new KpiCardResponseDTO.GridItem(
 				ks.getKpiCard().getId(),
 				ks.getKpiCard().getName(),
-				ks.getKpiCard().getImageUrl()
+				ks.getKpiCard().getImageUrl(),
+				ks.getKpiCard().getSharedImageUrl()
 			))
 			.toList();
 	}
@@ -41,7 +42,8 @@ public class KpiScoreQueryService {
 			.map(ks -> new KpiCardResponseDTO.GridItem(
 				ks.getKpiCard().getId(),
 				ks.getKpiCard().getName(),
-				ks.getKpiCard().getImageUrl()
+				ks.getKpiCard().getImageUrl(),
+				ks.getKpiCard().getSharedImageUrl()
 			))
 			.toList();
 	}

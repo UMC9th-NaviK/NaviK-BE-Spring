@@ -52,6 +52,9 @@ public class KpiCard extends BaseEntity {
 	@Column(name = "image_url", nullable = false, length = 500)
 	private String imageUrl;
 
+	@Column(name = "shared_image_url", length = 500)
+	private String sharedImageUrl;
+
 	@OneToOne(mappedBy = "kpiCard")
 	private KpiCardEmbedding kpiCardEmbedding;
 }
