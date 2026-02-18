@@ -114,6 +114,44 @@ public class StudyCustomRepositoryImpl implements StudyCustomRepository {
 	}
 
 	/**
+	 * 특정 KPI ID 하나에 해당하는 맞춤 스터디 추천
+	 * @param kpiId
+	 * @param excludeStudyIds
+	 * @param cursor
+	 * @param pageSize
+	 * @return
+	 */
+	@Override
+	public List<Study> findRecommendedStudyBySingleKpi(Long kpiId, List<Long> excludeStudyIds, Long cursor,
+		int pageSize) {
+		QStudy study = QStudy.study;
+		QStudyKpi studyKpi = QStudyKpi.studyKpi;
+		QStudyUser subStudyUser = new QStudyUser("subStudyUser");
+
+		return queryFactory
+			.selectFrom(study)
+			.join(studyKpi).on(studyKpi.study.eq(study))
+			.where(
+				studyKpi.kpiCard.id.eq(kpiId),
+				study.id.notIn(excludeStudyIds),
+				study.recruitmentStatus.ne(RecruitmentStatus.CLOSED),
+
+				JPAExpressions.select(subStudyUser.count())
+					.from(subStudyUser)
+					.where(
+						subStudyUser.study.eq(study),
+						subStudyUser.attend.eq(AttendStatus.ACCEPTANCE)
+					)
+					.lt(study.capacity.longValue()),
+				ltStudyId(cursor)
+			)
+			.distinct()
+			.orderBy(study.id.desc())
+			.limit(pageSize + 1)
+			.fetch();
+	}
+
+	/**
 	 * 스터디 신청 현항
 	 * @param studyId
 	 * @param cursor
