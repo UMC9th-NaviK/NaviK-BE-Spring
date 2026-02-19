@@ -1,5 +1,6 @@
 package navik.domain.recruitment.service.recruitment;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -9,9 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import navik.domain.ability.repository.AbilityRepository;
+import navik.domain.kpi.dto.res.KpiCardResponseDTO;
 import navik.domain.kpi.entity.KpiCard;
 import navik.domain.kpi.exception.code.KpiCardErrorCode;
 import navik.domain.kpi.repository.KpiCardRepository;
+import navik.domain.kpi.service.query.KpiScoreQueryService;
 import navik.domain.recruitment.converter.recruitment.RecruitmentConverter;
 import navik.domain.recruitment.dto.recruitment.RecruitmentResponseDTO;
 import navik.domain.recruitment.enums.ExperienceType;
@@ -32,6 +36,8 @@ public class RecruitmentQueryService {
 	private final RecruitmentRepository recruitmentRepository;
 	private final UserRepository userRepository;
 	private final KpiCardRepository kpiCardRepository;
+	private final AbilityRepository abilityRepository;
+	private final KpiScoreQueryService kpiScoreQueryService;
 
 	/**
 	 * @param userId
@@ -43,7 +49,17 @@ public class RecruitmentQueryService {
 		User user = userRepository.findByIdWithUserDepartmentAndDepartment(userId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.USER_NOT_FOUND));
 
-		// 2. 전공 검색
+		// 2. 역량이 하나도 없으면 상위 KPI 기반 공고 추천
+		if (abilityRepository.countByUser(user) == 0) {
+			List<KpiCardResponseDTO.GridItem> topKpiCards = kpiScoreQueryService.getTop3KpiCards(userId);
+			if (topKpiCards.isEmpty()) {
+				return Collections.emptyList();
+			}
+			Collections.shuffle(topKpiCards);
+			return getRecommendedPostsByCard(topKpiCards.getFirst().kpiCardId());
+		}
+
+		// 3. 역량이 존재하면 역량 기반 추천
 		List<String> departments = user.getUserDepartments().stream()
 			.map(userDepartment -> userDepartment.getDepartment().getName())
 			.toList();
@@ -59,7 +75,6 @@ public class RecruitmentQueryService {
 			.filter(Objects::nonNull)
 			.toList();
 
-		// 3. 모든 ability <-> 모든 PositionKPI => 종합 유사도 합산이 가장 높은 공고 반환
 		List<RecommendedRecruitmentProjection> results = recruitmentRepository.findRecommendedPosts(
 			user,
 			user.getJob(),
@@ -69,7 +84,6 @@ public class RecruitmentQueryService {
 			PageRequest.of(0, 5)    // 5건
 		);
 
-		// 4. DTO 반환 (position batchSize)
 		return results.stream()
 			.map(RecruitmentConverter::toRecommendedPost)
 			.toList();

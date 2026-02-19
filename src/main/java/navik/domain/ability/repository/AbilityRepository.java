@@ -1,6 +1,7 @@
 package navik.domain.ability.repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -32,4 +33,8 @@ public interface AbilityRepository extends JpaRepository<Ability, Long> {
 	Slice<Ability> findByUserOrderByCreatedAtDescIdDesc(User user, Pageable pageable);
 
 	boolean existsByUser(User user);
+
+	long countByUser(User user);
+
+	List<Ability> findAllByUserId(Long userId);
 }

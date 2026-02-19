@@ -74,4 +74,16 @@ public class AbilityCommandService {
 			abilityEmbeddingRepository.save(embedding);
 		}
 	}
+
+	@Transactional
+	public void deleteAbilities(Long userId) {
+		List<Ability> abilities = abilityRepository.findAllByUserId(userId);
+
+		abilities.forEach(
+			ability -> {
+				abilityEmbeddingRepository.deleteById(ability.getId());
+				abilityRepository.delete(ability);
+			}
+		);
+	}
 }
