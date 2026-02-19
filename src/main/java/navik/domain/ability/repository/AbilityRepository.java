@@ -32,4 +32,6 @@ public interface AbilityRepository extends JpaRepository<Ability, Long> {
 	Slice<Ability> findByUserOrderByCreatedAtDescIdDesc(User user, Pageable pageable);
 
 	boolean existsByUser(User user);
+
+	long countByUser(User user);
 }
