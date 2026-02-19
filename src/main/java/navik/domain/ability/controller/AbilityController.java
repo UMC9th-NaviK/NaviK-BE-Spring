@@ -35,7 +35,7 @@ public class AbilityController implements AbilityControllerDocs {
 	}
 
 	@Override
-	public ApiResponse<Void> deleteAbilities(Long userId) {
+	public ApiResponse<Void> deleteAbilities(@AuthUser Long userId) {
 		abilityCommandService.deleteAbilities(userId);
 		return ApiResponse.onSuccess(GeneralSuccessCode._DELETED, null);
 	}
