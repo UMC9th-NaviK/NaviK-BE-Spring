@@ -15,7 +15,6 @@ import navik.domain.kpi.dto.res.KpiCardResponseDTO;
 import navik.domain.kpi.entity.KpiCard;
 import navik.domain.kpi.exception.code.KpiCardErrorCode;
 import navik.domain.kpi.repository.KpiCardRepository;
-import navik.domain.kpi.service.query.KpiCardQueryService;
 import navik.domain.kpi.service.query.KpiScoreQueryService;
 import navik.domain.recruitment.converter.recruitment.RecruitmentConverter;
 import navik.domain.recruitment.dto.recruitment.RecruitmentResponseDTO;
@@ -38,7 +37,6 @@ public class RecruitmentQueryService {
 	private final UserRepository userRepository;
 	private final KpiCardRepository kpiCardRepository;
 	private final AbilityRepository abilityRepository;
-	private final KpiCardQueryService kpiCardQueryService;
 	private final KpiScoreQueryService kpiScoreQueryService;
 
 	/**
