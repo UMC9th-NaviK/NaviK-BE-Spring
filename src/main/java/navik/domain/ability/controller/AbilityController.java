@@ -1,5 +1,6 @@
 package navik.domain.ability.controller;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,6 +36,7 @@ public class AbilityController implements AbilityControllerDocs {
 	}
 
 	@Override
+	@DeleteMapping
 	public ApiResponse<Void> deleteAbilities(@AuthUser Long userId) {
 		abilityCommandService.deleteAbilities(userId);
 		return ApiResponse.onSuccess(GeneralSuccessCode._DELETED, null);
