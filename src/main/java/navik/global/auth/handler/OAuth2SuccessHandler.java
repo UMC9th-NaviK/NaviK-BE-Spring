@@ -1,6 +1,7 @@
 package navik.global.auth.handler;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
@@ -86,15 +87,37 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 	}
 
 	private void clearOldRefreshTokenCookie(HttpServletResponse response) {
-		ResponseCookie clearOldCookie = ResponseCookie.from("refresh_token", "")
-			.httpOnly(true)
-			.secure(true)
-			.path("/v1/auth")
-			.domain(cookieDomain)
-			.maxAge(0) // 즉시 만료
-			.sameSite("Lax")
-			.build();
-
-		response.addHeader("Set-Cookie", clearOldCookie.toString());
+		List.of(
+			ResponseCookie.from("refresh_token", "")
+				.httpOnly(true)
+				.secure(true)
+				.path("/v1/auth")
+				.domain(cookieDomain)
+				.maxAge(0)
+				.sameSite("Lax")
+				.build(),
+			ResponseCookie.from("refresh_token", "")
+				.httpOnly(true)
+				.secure(true)
+				.path("/v1/auth")
+				.maxAge(0)
+				.sameSite("Lax")
+				.build(),
+			ResponseCookie.from("refresh_token", "")
+				.httpOnly(true)
+				.secure(true)
+				.path("/")
+				.domain(cookieDomain)
+				.maxAge(0)
+				.sameSite("Lax")
+				.build(),
+			ResponseCookie.from("refresh_token", "")
+				.httpOnly(true)
+				.secure(true)
+				.path("/")
+				.maxAge(0)
+				.sameSite("Lax")
+				.build()
+		).forEach(cookie -> response.addHeader("Set-Cookie", cookie.toString()));
 	}
 }
