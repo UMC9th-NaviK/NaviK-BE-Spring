@@ -222,7 +222,7 @@ public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 		@Param("expectedStatus") GrowthLogStatus expectedStatus
 	);
 
-	@Modifying
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query("""
 			update GrowthLog g
 			   set g.appliedProcessingToken = :token
