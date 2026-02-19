@@ -114,6 +114,12 @@ public class RecruitmentConsumer
 			return;
 		}
 
+		if (recruitmentDTO.getPostId() == null) {
+			log.error("[RecruitmentConsumer] postId가 null입니다. recordId={}", recordId);
+			handleError(recordId);
+			return;
+		}
+
 		try {
 			String duplicateCheckKey = "RECRUITMENT:LOCK:" + recruitmentDTO.getPostId();
 			Boolean isAcquired = redisTemplate.opsForValue()
@@ -124,6 +130,8 @@ public class RecruitmentConsumer
 				if ("DONE".equals(currentStatus)) {
 					log.info("[RecruitmentConsumer] 이미 처리 완료된 공고입니다. (ACK 유실 방지)");
 					redisTemplate.opsForStream().acknowledge(receivedStreamKey, consumerGroupName, recordId);
+				} else if (currentStatus == null) {
+					log.warn("[RecruitmentConsumer] 락 키가 만료/삭제되었습니다. PEL 재처리 대기.");
 				} else {
 					log.info("[RecruitmentConsumer] 다른 컨슈머가 현재 처리 중입니다. (Skip)");
 				}
