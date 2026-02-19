@@ -89,7 +89,6 @@ public class RecruitmentConsumer
 
 	/**
 	 * 채용 공고 처리 작업
-	 * TODO: 멱등성 보장 로직 + 죽은 메시지를 저장하여 나중에 관리 창에서 확인할 수 있도록 로직 추가
 	 */
 	@Override
 	public void onMessage(ObjectRecord<String, String> message) {
@@ -99,17 +98,55 @@ public class RecruitmentConsumer
 
 		try {
 			log.info("[RecruitmentConsumer] 채용 공고 적재 시도");
-			if (StringUtils.isNotEmpty(receivedStreamKey) && StringUtils.isNotEmpty(recordId)) {
-				RecruitmentRequestDTO.Recruitment recruitmentDTO = objectMapper.readValue(
-					message.getValue(),
-					RecruitmentRequestDTO.Recruitment.class
-				);
-				recruitmentCommandService.saveRecruitment(recruitmentDTO); // save
-				redisTemplate.opsForStream().acknowledge(receivedStreamKey, consumerGroupName, recordId);  // ACK
-				log.info("[RecruitmentConsumer] 채용 공고 적재 완료하였습니다.");
-			} else {
+			if (StringUtils.isEmpty(receivedStreamKey) || StringUtils.isEmpty(recordId)) {
 				log.error("[RecruitmentConsumer] streamKey 또는 recordId가 비어있습니다.");
+				return;
 			}
+
+			RecruitmentRequestDTO.Recruitment recruitmentDTO = objectMapper.readValue(
+				message.getValue(),
+				RecruitmentRequestDTO.Recruitment.class
+			);
+
+			String duplicateCheckKey = "RECRUITMENT:LOCK:" + recruitmentDTO.getPostId();
+			Boolean isAcquired = redisTemplate.opsForValue()
+				.setIfAbsent(duplicateCheckKey, "PROCESSING", Duration.ofSeconds(60));
+
+			if (Boolean.FALSE.equals(isAcquired)) {
+				String currentStatus = (String)redisTemplate.opsForValue().get(duplicateCheckKey);
+
+				if ("DONE".equals(currentStatus)) {
+					log.info("[RecruitmentConsumer] 이미 처리 완료된 공고입니다.");
+					redisTemplate.opsForStream()
+						.acknowledge(receivedStreamKey, consumerGroupName, recordId); // ACK 유실 처리
+				} else {
+					log.info("[RecruitmentConsumer] 다른 컨슈머에서 처리 중입니다.");
+				}
+
+				return;
+			}
+
+			try {
+				log.info("[RecruitmentConsumer] 채용 공고 적재 시도: {}", recruitmentDTO.getPostId());
+
+				recruitmentCommandService.saveRecruitment(recruitmentDTO);
+
+				redisTemplate.opsForValue().set(duplicateCheckKey, "DONE", Duration.ofDays(1));
+				redisTemplate.opsForStream().acknowledge(receivedStreamKey, consumerGroupName, recordId);
+				log.info("[RecruitmentConsumer] 채용 공고 적재 완료");
+
+			} catch (Exception e) {
+				redisTemplate.delete(duplicateCheckKey); // 재시도를 위한 락 제거
+				throw e;
+			}
+
+			// 2. save post
+			recruitmentCommandService.saveRecruitment(recruitmentDTO); // save
+
+			// 3. ack & mark send done
+			redisTemplate.opsForStream().acknowledge(receivedStreamKey, consumerGroupName, recordId);  // ACK
+			log.info("[RecruitmentConsumer] 채용 공고 적재 완료하였습니다.");
+
 		} catch (Exception e) {
 			// 처리 오류 발생 시 자체 ErrorCount++
 			redisTemplate.opsForValue().increment(RETRY_COUNT_KEY + recordId);
