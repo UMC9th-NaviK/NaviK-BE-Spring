@@ -89,7 +89,6 @@ public class RecruitmentConsumer
 
 	/**
 	 * 채용 공고 처리 작업
-	 * TODO: 멱등성 보장 로직 + 죽은 메시지를 저장하여 나중에 관리 창에서 확인할 수 있도록 로직 추가
 	 */
 	@Override
 	public void onMessage(ObjectRecord<String, String> message) {
@@ -97,23 +96,64 @@ public class RecruitmentConsumer
 		String receivedStreamKey = message.getStream();
 		String recordId = message.getId().getValue();
 
+		if (StringUtils.isEmpty(receivedStreamKey) || StringUtils.isEmpty(recordId)) {
+			log.error("[RecruitmentConsumer] streamKey 또는 recordId가 비어있습니다.");
+			return;
+		}
+
+		RecruitmentRequestDTO.Recruitment recruitmentDTO = null;
+
 		try {
-			log.info("[RecruitmentConsumer] 채용 공고 적재 시도");
-			if (StringUtils.isNotEmpty(receivedStreamKey) && StringUtils.isNotEmpty(recordId)) {
-				RecruitmentRequestDTO.Recruitment recruitmentDTO = objectMapper.readValue(
-					message.getValue(),
-					RecruitmentRequestDTO.Recruitment.class
-				);
-				recruitmentCommandService.saveRecruitment(recruitmentDTO); // save
-				redisTemplate.opsForStream().acknowledge(receivedStreamKey, consumerGroupName, recordId);  // ACK
-				log.info("[RecruitmentConsumer] 채용 공고 적재 완료하였습니다.");
-			} else {
-				log.error("[RecruitmentConsumer] streamKey 또는 recordId가 비어있습니다.");
-			}
+			recruitmentDTO = objectMapper.readValue(
+				message.getValue(),
+				RecruitmentRequestDTO.Recruitment.class
+			);
 		} catch (Exception e) {
-			// 처리 오류 발생 시 자체 ErrorCount++
-			redisTemplate.opsForValue().increment(RETRY_COUNT_KEY + recordId);
-			log.error("[RecruitmentConsumer] 채용 공고 처리 중 오류 발생 ErrorCount++ : {}", e.getMessage(), e);
+			log.error("[RecruitmentConsumer] JSON 파싱 실패: {}", e.getMessage());
+			handleError(recordId);
+			return;
+		}
+
+		if (recruitmentDTO.getPostId() == null) {
+			log.error("[RecruitmentConsumer] postId가 null입니다. recordId={}", recordId);
+			handleError(recordId);
+			return;
+		}
+
+		try {
+			String duplicateCheckKey = "RECRUITMENT:LOCK:" + recruitmentDTO.getPostId();
+			Boolean isAcquired = redisTemplate.opsForValue()
+				.setIfAbsent(duplicateCheckKey, "PROCESSING", Duration.ofSeconds(60));
+
+			if (Boolean.FALSE.equals(isAcquired)) {
+				String currentStatus = (String)redisTemplate.opsForValue().get(duplicateCheckKey);
+				if ("DONE".equals(currentStatus)) {
+					log.info("[RecruitmentConsumer] 이미 처리 완료된 공고입니다. (ACK 유실 방지)");
+					redisTemplate.opsForStream().acknowledge(receivedStreamKey, consumerGroupName, recordId);
+				} else if (currentStatus == null) {
+					log.warn("[RecruitmentConsumer] 락 키가 만료/삭제되었습니다. PEL 재처리 대기.");
+				} else {
+					log.info("[RecruitmentConsumer] 다른 컨슈머가 현재 처리 중입니다. (Skip)");
+				}
+				return;
+			}
+
+			try {
+				log.info("[RecruitmentConsumer] 채용 공고 적재 시작: {}", recruitmentDTO.getPostId());
+				recruitmentCommandService.saveRecruitment(recruitmentDTO);
+				redisTemplate.opsForValue().set(duplicateCheckKey, "DONE", Duration.ofDays(1));
+				redisTemplate.opsForStream().acknowledge(receivedStreamKey, consumerGroupName, recordId);
+				redisTemplate.delete(RETRY_COUNT_KEY + recordId);
+				log.info("[RecruitmentConsumer] 채용 공고 적재 완료");
+			} catch (Exception e) {
+				log.warn("[RecruitmentConsumer] 채용 공고 적재 실패로 락 해제");
+				redisTemplate.delete(duplicateCheckKey);
+				throw e;  // for error count
+			}
+
+		} catch (Exception e) {
+			log.error("[RecruitmentConsumer] 채용 공고 적재 중 오류 발생 ErrorCount++");
+			handleError(recordId);
 		}
 	}
 
@@ -158,5 +198,12 @@ public class RecruitmentConsumer
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * 에러 발생 시 record retry count 증가
+	 */
+	private void handleError(String recordId) {
+		redisTemplate.opsForValue().increment(RETRY_COUNT_KEY + recordId);
 	}
 }
