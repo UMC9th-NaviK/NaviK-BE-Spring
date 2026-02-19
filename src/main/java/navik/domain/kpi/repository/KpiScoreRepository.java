@@ -62,9 +62,9 @@ public interface KpiScoreRepository extends JpaRepository<KpiScore, Long> {
 		        where kpi_card_id = :kpiCardId
 		    )
 		    select
-		        r.score as score,
-		        cast(round((1 - r.cd) * 100) as int) as topPercent,
-		        cast(round(r.cd * 100) as int) as bottomPercent
+		      r.score as score,
+		      greatest(1, cast(round((1 - r.cd) * 100) as int)) as topPercent,
+		      cast(round(r.cd * 100) as int) as bottomPercent
 		    from ranked r
 		    where r.user_id = :userId
 		""", nativeQuery = true)
