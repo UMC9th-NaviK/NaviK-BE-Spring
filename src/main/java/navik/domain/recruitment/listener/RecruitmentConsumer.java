@@ -135,6 +135,7 @@ public class RecruitmentConsumer
 				recruitmentCommandService.saveRecruitment(recruitmentDTO);
 				redisTemplate.opsForValue().set(duplicateCheckKey, "DONE", Duration.ofDays(1));
 				redisTemplate.opsForStream().acknowledge(receivedStreamKey, consumerGroupName, recordId);
+				redisTemplate.delete(RETRY_COUNT_KEY + recordId);
 				log.info("[RecruitmentConsumer] 채용 공고 적재 완료");
 			} catch (Exception e) {
 				log.warn("[RecruitmentConsumer] 채용 공고 적재 실패로 락 해제");
