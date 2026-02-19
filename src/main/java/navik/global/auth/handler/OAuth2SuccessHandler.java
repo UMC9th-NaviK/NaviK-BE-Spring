@@ -86,7 +86,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 	}
 
 	private void clearOldRefreshTokenCookie(HttpServletResponse response) {
-		ResponseCookie clearOldCookie = ResponseCookie.from("refresh_token", "")
+		ResponseCookie clearOldCookie_1 = ResponseCookie.from("refresh_token", "")
 			.httpOnly(true)
 			.secure(true)
 			.path("/v1/auth")
@@ -95,6 +95,37 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			.sameSite("Lax")
 			.build();
 
-		response.addHeader("Set-Cookie", clearOldCookie.toString());
+		// 과거 잘못된 쿠키
+		ResponseCookie clearOldCookie_2 = ResponseCookie.from("refresh_token", "")
+			.httpOnly(true)
+			.secure(true)
+			.path("/v1/auth")
+			.maxAge(0) // 즉시 만료
+			.sameSite("Lax")
+			.build();
+
+		// 과거 잘못된 쿠키
+		ResponseCookie clearOldCookie_3 = ResponseCookie.from("refresh_token", "")
+			.httpOnly(true)
+			.secure(true)
+			.path("/")
+			.maxAge(0) // 즉시 만료
+			.sameSite("Lax")
+			.domain(cookieDomain)
+			.build();
+
+		// 과거 잘못된 쿠키
+		ResponseCookie clearOldCookie_4 = ResponseCookie.from("refresh_token", "")
+			.httpOnly(true)
+			.secure(true)
+			.path("/")
+			.maxAge(0) // 즉시 만료
+			.sameSite("Lax")
+			.build();
+
+		response.addHeader("Set-Cookie", clearOldCookie_1.toString());
+		response.addHeader("Set-Cookie", clearOldCookie_2.toString());
+		response.addHeader("Set-Cookie", clearOldCookie_3.toString());
+		response.addHeader("Set-Cookie", clearOldCookie_4.toString());
 	}
 }
