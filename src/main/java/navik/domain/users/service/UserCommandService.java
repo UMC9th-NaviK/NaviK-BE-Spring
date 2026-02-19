@@ -45,9 +45,9 @@ public class UserCommandService {
 
 		user.updateMyInfo(req.nickname(), req.isEntryLevel(), req.educationLevel());
 
-		if (req.departmentIds() != null && !req.departmentIds().isEmpty()) {
-			userDepartmentRepository.deleteAllByUserId(userId);
+		userDepartmentRepository.deleteAllByUserId(userId);
 
+		if (req.departmentIds() != null && !req.departmentIds().isEmpty()) {
 			List<UserDepartment> newDepartments = req.departmentIds()
 				.stream()
 				.map(deptId -> UserDepartment.builder()
@@ -58,7 +58,6 @@ public class UserCommandService {
 
 			userDepartmentRepository.saveAll(newDepartments);
 		}
-
 	}
 
 	@Transactional
