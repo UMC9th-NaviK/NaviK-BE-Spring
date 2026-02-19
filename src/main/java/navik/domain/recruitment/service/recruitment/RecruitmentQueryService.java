@@ -3,6 +3,7 @@ package navik.domain.recruitment.service.recruitment;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -55,8 +56,9 @@ public class RecruitmentQueryService {
 			if (topKpiCards.isEmpty()) {
 				return Collections.emptyList();
 			}
-			Collections.shuffle(topKpiCards);
-			return getRecommendedPostsByCard(topKpiCards.getFirst().kpiCardId());
+			int randomIndex = ThreadLocalRandom.current().nextInt(topKpiCards.size());
+			KpiCardResponseDTO.GridItem randomCard = topKpiCards.get(randomIndex);
+			return getRecommendedPostsByCard(randomCard.kpiCardId());
 		}
 
 		// 3. 역량이 존재하면 역량 기반 추천
