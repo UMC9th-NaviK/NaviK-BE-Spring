@@ -56,7 +56,7 @@ public class NotificationFacadeService {
 		List<MajorType> majorTypes = departments.stream()
 			.map(name -> {
 				try {
-					return MajorType.valueOf(name);
+					return MajorType.fromString(name);
 				} catch (Exception e) {
 					log.error("[NotificationFacadeService] 존재하지 않는 학과 타입입니다 : {}", name, e);
 					return null;
