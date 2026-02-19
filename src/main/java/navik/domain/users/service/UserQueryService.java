@@ -54,7 +54,7 @@ public class UserQueryService {
 			user.getProfileImageUrl(),
 			user.getName(),
 			user.getNickname(),
-			user.getJob().getName(),
+			user.getJob() == null ? null : user.getJob().getName(),
 			user.getIsEntryLevel(),
 			user.getEducationLevel(),
 			departmentList
