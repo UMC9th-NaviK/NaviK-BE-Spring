@@ -64,4 +64,10 @@ public interface AbilityControllerDocs {
 		@RequestParam(value = "cursor", required = false) String cursor,
 		@RequestParam(value = "size", defaultValue = "10") int size
 	);
+
+	@Operation(
+		summary = "내 활동 및 이력 삭제 API",
+		description = "현재까지 등록되어있는 `내 활동 및 이력`을 모두 삭제합니다."
+	)
+	ApiResponse<Void> deleteAbilities(@AuthUser Long userId);
 }

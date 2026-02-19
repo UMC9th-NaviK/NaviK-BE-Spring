@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import navik.domain.ability.dto.AbilityResponseDTO;
+import navik.domain.ability.service.AbilityCommandService;
 import navik.domain.ability.service.AbilityQueryService;
 import navik.global.apiPayload.ApiResponse;
 import navik.global.apiPayload.exception.code.GeneralSuccessCode;
@@ -19,6 +20,7 @@ import navik.global.dto.CursorResponseDTO;
 public class AbilityController implements AbilityControllerDocs {
 
 	private final AbilityQueryService abilityQueryService;
+	private final AbilityCommandService abilityCommandService;
 
 	@Override
 	@GetMapping
@@ -30,5 +32,11 @@ public class AbilityController implements AbilityControllerDocs {
 		CursorResponseDTO<AbilityResponseDTO.AbilityDTO> result = abilityQueryService.getAbilities(userId, cursor,
 			size);
 		return ApiResponse.onSuccess(GeneralSuccessCode._OK, result);
+	}
+
+	@Override
+	public ApiResponse<Void> deleteAbilities(Long userId) {
+		abilityCommandService.deleteAbilities(userId);
+		return ApiResponse.onSuccess(GeneralSuccessCode._DELETED, null);
 	}
 }
