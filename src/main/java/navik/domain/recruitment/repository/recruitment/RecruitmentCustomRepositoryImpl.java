@@ -21,6 +21,7 @@ import navik.domain.ability.entity.QAbility;
 import navik.domain.ability.entity.QAbilityEmbedding;
 import navik.domain.job.entity.Job;
 import navik.domain.kpi.entity.KpiCard;
+import navik.domain.recruitment.constants.SimilarityThreshold;
 import navik.domain.recruitment.entity.QPosition;
 import navik.domain.recruitment.entity.QPositionKpi;
 import navik.domain.recruitment.entity.QPositionKpiEmbedding;
@@ -65,14 +66,14 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 
 		// 2. 유효 매칭 카운트
 		NumberExpression<Long> matchCount = new CaseBuilder()
-			.when(similarityQuery.goe(0.42))
+			.when(similarityQuery.goe(SimilarityThreshold.KPI_SIMILARITY))
 			.then(positionKpi.id)
 			.otherwise((Long)null)
 			.countDistinct();
 
 		// 3. 매칭 평균 유사도
 		NumberExpression<Double> similarityAvg = new CaseBuilder()
-			.when(similarityQuery.goe(0.42))
+			.when(similarityQuery.goe(SimilarityThreshold.KPI_SIMILARITY))
 			.then(similarityQuery)
 			.otherwise((Double)null)
 			.avg()
@@ -85,7 +86,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 				experienceTypeSatisfy(experienceType),
 				majorTypeSatisfy(majorTypes),
 				endDateSatisfy(),
-				similarityQuery.goe(0.42)
+				similarityQuery.goe(SimilarityThreshold.KPI_SIMILARITY)
 			)
 			.filter(Objects::nonNull)
 			.reduce(BooleanExpression::and)
@@ -130,14 +131,14 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 
 		// 2. 유효 매칭 카운트
 		NumberExpression<Long> matchCount = new CaseBuilder()
-			.when(similarityQuery.goe(0.42))
+			.when(similarityQuery.goe(SimilarityThreshold.KPI_SIMILARITY))
 			.then(positionKpi.id)
 			.otherwise((Long)null)
 			.countDistinct();
 
 		// 3. 매칭 평균 유사도
 		NumberExpression<Double> similarityAvg = new CaseBuilder()
-			.when(similarityQuery.goe(0.42))
+			.when(similarityQuery.goe(SimilarityThreshold.KPI_SIMILARITY))
 			.then(similarityQuery)
 			.otherwise((Double)null)
 			.avg()
@@ -147,7 +148,7 @@ public class RecruitmentCustomRepositoryImpl implements RecruitmentCustomReposit
 		BooleanExpression where = Stream.of(
 				jobSatisfy(job),
 				endDateSatisfy(),
-				similarityQuery.goe(0.42)
+				similarityQuery.goe(SimilarityThreshold.KPI_SIMILARITY)
 			)
 			.filter(Objects::nonNull)
 			.reduce(BooleanExpression::and)

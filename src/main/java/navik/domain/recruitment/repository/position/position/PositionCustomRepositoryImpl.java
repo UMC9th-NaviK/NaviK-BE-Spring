@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import navik.domain.ability.entity.QAbility;
 import navik.domain.ability.entity.QAbilityEmbedding;
 import navik.domain.job.entity.Job;
+import navik.domain.recruitment.constants.SimilarityThreshold;
 import navik.domain.recruitment.dto.position.PositionRequestDTO;
 import navik.domain.recruitment.entity.Position;
 import navik.domain.recruitment.entity.QPosition;
@@ -84,14 +85,14 @@ public class PositionCustomRepositoryImpl implements PositionCustomRepository {
 
 		// 2. 유효 매칭 카운트
 		NumberExpression<Long> matchCount = new CaseBuilder()
-			.when(similarityQuery.goe(0.42))
+			.when(similarityQuery.goe(SimilarityThreshold.KPI_SIMILARITY))
 			.then(positionKpi.id)
 			.otherwise((Long)null) // count 집계 대상 제외
 			.countDistinct();
 
 		// 3. 매칭 평균 유사도
 		NumberExpression<Double> similarityAvg = new CaseBuilder()
-			.when(similarityQuery.goe(0.42))
+			.when(similarityQuery.goe(SimilarityThreshold.KPI_SIMILARITY))
 			.then(similarityQuery)
 			.otherwise((Double)null) // 마찬가지, 집계 대상 제외
 			.avg()
