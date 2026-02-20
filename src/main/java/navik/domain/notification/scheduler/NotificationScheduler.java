@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -93,21 +94,14 @@ public class NotificationScheduler {
 	 * 매일 자정, 7일 이상 지난 알림을 삭제합니다.
 	 */
 	@Scheduled(cron = "0 0 0 * * *")
+	@Transactional
 	public void deleteExpiredNotifications() {
 		log.info("[NotificationScheduler] 만료 알림 삭제 스케쥴러 실행");
 
 		LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
-		notificationRepository.findAllIdsByCreatedAtBefore(sevenDaysAgo).forEach(
-			notificationId -> {
-				try {
-					notificationCommandService.deleteNotification(notificationId);
-				} catch (Exception e) {
-					log.error("❌ 만료 알림 삭제 실패 - Notification ID: {}", notificationId, e);
-				}
-			}
-		);
+		long deletedCount = notificationRepository.deleteByCreatedAtBefore(sevenDaysAgo);
 
-		log.info("[NotificationScheduler] 만료 알림 삭제 스케쥴러 완료");
+		log.info("[NotificationScheduler] 만료 알림 삭제 완료 개수 : {}", deletedCount);
 	}
 
 	/**
