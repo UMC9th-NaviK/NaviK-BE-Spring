@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import navik.domain.study.annotation.KakaoOpenChat;
 import navik.domain.study.enums.StudySynergy;
 
 public class StudyCreateDTO {
@@ -37,6 +38,7 @@ public class StudyCreateDTO {
 		@NotNull
 		private LocalDateTime endDate;
 		@NotBlank(message = "오픈채팅방 링크를 입력해주세요")
+		@KakaoOpenChat
 		private String openChatUrl;
 		@NotNull
 		@Min(1)
