@@ -104,7 +104,7 @@ public class User extends BaseEntity {
 
 	public void updateMyInfo(String nickname, Boolean isEntryLevel, EducationLevel educationLevel) {
 		if (nickname != null && !nickname.isBlank())
-			this.nickname = "사용자" + UUID.randomUUID().toString().substring(0, 5);
+			this.nickname = nickname;
 		if (isEntryLevel != null)
 			this.isEntryLevel = isEntryLevel;
 		if (educationLevel != null)
