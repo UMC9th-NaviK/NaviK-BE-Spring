@@ -1,0 +1,192 @@
+{
+  "recorded_date": "2026-09-05",
+  "repository": "NaviK-BE-Spring",
+  "environment": {
+    "os": "Windows",
+    "java": 21,
+    "database": "Isolated local PostgreSQL 17; unique schema per test",
+    "redis": "Isolated official redis:7.4-alpine Docker container",
+    "external_ai": "Mocked; no paid LLM/embedding requests"
+  },
+  "selection": [
+    "navik.domain.growthLog.*",
+    "navik.pipeline.*"
+  ],
+  "totals": {
+    "tests": 58,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "scope_note": "SQL/store/queue integration and mocked business-effect ledger; not a deployed full application or production performance benchmark",
+  "suites": [
+    {
+      "name": "navik.domain.growthLog.pipeline.GrowthPipelineDatabaseTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 8.771,
+      "cases": [
+        "duplicateCompletionDoesNotApplyBusinessEffectsTwice()",
+        "concurrentCompletionsSerializeOnTheJobRow()",
+        "vectorFailureRollsBackBusinessEffectAndCompletionBeforeRetry()",
+        "outboxFailureLeavesEventUnpublishedAndRelayCanRetry()",
+        "oldProcessingTokenNeverOverwritesCurrentJob()",
+        "retryIsDelayedAndReconciliationRecreatesLostPublishedWakeup()",
+        "admissionAndEnqueueParticipateInTheCreationTransaction()"
+      ]
+    },
+    {
+      "name": "applyResult()",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.107,
+      "cases": [
+        "성공 시 persistence 호출 후 토큰 정리",
+        "존재하지 않는 growthLog면 예외를 던진다",
+        "이미 COMPLETED 상태면 즉시 return (멱등)",
+        "토큰 불일치 시 예외를 던진다",
+        "여러 KPI delta 합산이 정확하다",
+        "lock 획득 실패 시 즉시 return"
+      ]
+    },
+    {
+      "name": "startProcessing()",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.033,
+      "cases": [
+        "이미 같은 토큰으로 PROCESSING 상태면 즉시 return (멱등)",
+        "상태 전환 실패 시 예외를 던진다",
+        "PENDING 상태에서 PROCESSING으로 전환 성공",
+        "존재하지 않는 growthLog면 예외를 던진다",
+        "이미 COMPLETED 상태면 즉시 return (멱등)",
+        "다른 토큰으로 PROCESSING 상태면 상태 전환 시도 후 실패"
+      ]
+    },
+    {
+      "name": "navik.domain.growthLog.service.command.GrowthLogEvaluationServiceTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.047,
+      "cases": [
+        "create 호출은 GrowthLogEvaluationStrategy로 위임된다",
+        "retry 호출은 GrowthLogEvaluationStrategy로 위임된다"
+      ]
+    },
+    {
+      "name": "create()",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.036,
+      "cases": [
+        "상태 전환 실패 시 FAILED로 롤백하고 예외를 던진다",
+        "성공 시 PENDING 상태로 반환하고 메시지를 발행한다",
+        "빈 입력은 '(내용 없음)'으로 변환된다",
+        "토큰 설정 실패 시 FAILED로 롤백하고 예외를 던진다",
+        "publish 실패 시 PROCESSING에서 FAILED로 롤백하고 예외를 던진다"
+      ]
+    },
+    {
+      "name": "retry()",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.125,
+      "cases": [
+        "성공 시 PENDING 상태로 반환하고 메시지를 발행한다",
+        "USER_INPUT 타입이 아니면 예외를 던진다",
+        "존재하지 않는 growthLog면 예외를 던진다",
+        "publish 실패 시 PROCESSING에서 FAILED로 롤백하고 예외를 던진다",
+        "Rate limit 초과 시 예외를 던진다",
+        "상태가 FAILED가 아니면 예외를 던진다"
+      ]
+    },
+    {
+      "name": "create()",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.025,
+      "cases": [
+        "성공 시 COMPLETED 상태로 반환한다",
+        "빈 입력은 '(내용 없음)'으로 변환된다",
+        "buildContext 예외 발생 시 FAILED 상태로 저장한다",
+        "persistence 저장 예외 발생 시 FAILED 상태로 저장한다",
+        "evaluate 예외 발생 시 FAILED 상태로 저장한다"
+      ]
+    },
+    {
+      "name": "retry()",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.309,
+      "cases": [
+        "성공 시 COMPLETED 상태로 반환한다",
+        "USER_INPUT 타입이 아니면 예외를 던진다",
+        "존재하지 않는 growthLog면 예외를 던진다",
+        "빈 content는 '(내용 없음)'으로 변환된다",
+        "평가 중 예외 발생 시 FAILED로 롤백하고 FAILED 상태로 반환한다",
+        "Rate limit 초과 시 예외를 던진다",
+        "상태가 FAILED가 아니면 예외를 던진다"
+      ]
+    },
+    {
+      "name": "markFailedIfProcessing()",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.006,
+      "cases": [
+        "토큰이 일치하면 PROCESSING → FAILED로 변경"
+      ]
+    },
+    {
+      "name": "process()",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.05,
+      "cases": [
+        "성공 시 COMPLETED 반환하고 persistence 호출",
+        "PROCESSING이 아닌 상태(PENDING/FAILED)면 SKIP_NOT_PROCESSING 반환",
+        "이미 COMPLETED 상태면 SKIP_ALREADY_COMPLETED 반환",
+        "여러 KPI delta 합산이 정확하다",
+        "빈 content는 '(내용 없음)'으로 변환",
+        "Lock 획득 실패면 SKIP_ALREADY_APPLYING 반환",
+        "PROCESSING이 아닌 상태(FAILED)면 SKIP_NOT_PROCESSING 반환",
+        "존재하지 않는 growthLog면 SKIP_NOT_FOUND 반환",
+        "토큰 불일치면 SKIP_TOKEN_MISMATCH 반환"
+      ]
+    },
+    {
+      "name": "navik.pipeline.PipelineStreamConsumerIntegrationTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 3.157,
+      "cases": [
+        "groupCreatedAfterPublishConsumesBacklogAndDeletesOnlyAfterSuccess()",
+        "abandonedMessageIsClaimedAndProcessed()",
+        "consumersReadOnlyUpToTheirExecutionCapacity()",
+        "workerFailureLeavesPendingForRecovery()"
+      ]
+    }
+  ]
+}

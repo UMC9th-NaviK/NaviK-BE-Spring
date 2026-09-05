@@ -19,6 +19,15 @@ import navik.domain.growthLog.enums.GrowthType;
 @Repository
 public interface GrowthLogRepository extends JpaRepository<GrowthLog, Long> {
 
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query("""
+		update GrowthLog g set g.processingToken = :token, g.appliedProcessingToken = null,
+		g.processingStartedAt = null where g.user.id = :userId and g.id = :growthLogId
+		and g.status = navik.domain.growthLog.enums.GrowthLogStatus.PENDING
+		""")
+	int prepareStreamJob(@Param("userId") Long userId, @Param("growthLogId") Long growthLogId,
+		@Param("token") String token);
+
 	List<GrowthLog> findTop20ByUserIdAndStatusOrderByCreatedAtDesc(
 		Long userId,
 		GrowthLogStatus status

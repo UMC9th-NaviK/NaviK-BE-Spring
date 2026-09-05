@@ -9,6 +9,7 @@ import navik.global.apiPayload.exception.code.BaseCode;
 @Getter
 @RequiredArgsConstructor
 public enum GrowthLogErrorCode implements BaseCode {
+    ANALYSIS_QUEUE_FULL(HttpStatus.SERVICE_UNAVAILABLE, "GROWTH_LOG_503_01", "분석 요청이 많습니다. 잠시 후 다시 시도해주세요."),
 
 	GROWTH_LOG_NOT_FOUND_OR_ALREADY_MAPPED(
 		HttpStatus.BAD_REQUEST,
