@@ -21,6 +21,10 @@ spring:
 
 navik:
   growth-log:
+    pipeline:
+      enabled: ${GROWTH_PIPELINE_ENABLED:false}
+      max-outstanding-jobs: ${GROWTH_PIPELINE_MAX_OUTSTANDING:1000}
+      retention-days: ${GROWTH_PIPELINE_RETENTION_DAYS:30}
     evaluation-mode: ${GROWTH_LOG_EVALUATION_MODE:async}
     worker:
       enabled: ${GROWTH_LOG_WORKER_ENABLED:true}
