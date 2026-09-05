@@ -155,6 +155,19 @@ class GrowthPipelineDatabaseTest {
     }
 
     @Test
+    void retryIsDelayedAndReconciliationRecreatesLostPublishedWakeup() throws Exception {
+        assumeTrue(postgres, "PostgreSQL interval/reconciliation test requires PIPELINE_TEST_JDBC_URL");
+        insertResult();
+        tx.executeWithoutResult(status -> results.retryOrFail(id));
+        apply();
+        verifyNoInteractions(persistence);
+        jdbc.update("UPDATE growth_analysis_outbox SET published_at = CURRENT_TIMESTAMP, created_at = CURRENT_TIMESTAMP - INTERVAL '10 minutes'");
+        jdbc.update("UPDATE growth_analysis_job SET next_attempt_at = CURRENT_TIMESTAMP - INTERVAL '1 minute', updated_at = CURRENT_TIMESTAMP - INTERVAL '10 minutes'");
+        var maintenance = new GrowthPipelineMaintenance(jdbc, mock(StringRedisTemplate.class), new SimpleMeterRegistry(), 30);
+        tx.executeWithoutResult(status -> maintenance.reconcileAndMeasure());
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM growth_analysis_outbox WHERE published_at IS NULL", Long.class)).isEqualTo(1);
+    }
+    @Test
     void concurrentCompletionsSerializeOnTheJobRow() throws Exception {
         insertResult();
         try (var executor = java.util.concurrent.Executors.newFixedThreadPool(2)) {
