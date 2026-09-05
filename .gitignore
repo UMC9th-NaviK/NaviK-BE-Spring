@@ -78,3 +78,6 @@ logs
 
 ### Local documentation ###
 /docs/
+
+### Local experiment bytecode ###
+/scripts/__pycache__/
