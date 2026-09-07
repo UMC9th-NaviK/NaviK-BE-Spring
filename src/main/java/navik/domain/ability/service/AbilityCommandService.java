@@ -27,6 +27,18 @@ public class AbilityCommandService {
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void saveAbilities(Long userId,
 		List<GrowthLogAiResponseDTO.GrowthLogEvaluationResult.AbilityResult> abilities) {
+		saveAbilityRows(userId, abilities);
+	}
+
+	/** Pipeline result and vectors must commit or roll back together. */
+	@Transactional(propagation = Propagation.MANDATORY)
+	public void saveAbilitiesAtomically(Long userId,
+		List<GrowthLogAiResponseDTO.GrowthLogEvaluationResult.AbilityResult> abilities) {
+		saveAbilityRows(userId, abilities);
+	}
+
+	private void saveAbilityRows(Long userId,
+		List<GrowthLogAiResponseDTO.GrowthLogEvaluationResult.AbilityResult> abilities) {
 		if (abilities == null || abilities.isEmpty()) {
 			return;
 		}

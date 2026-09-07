@@ -7,7 +7,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "navik.growth-log.worker.enabled", havingValue = "true")
+@ConditionalOnExpression("'${navik.growth-log.evaluation-mode:sync}' == 'async' && ${navik.growth-log.worker.enabled:false}")
 public class RedisStreamGrowthLogEvaluationWorker {
 
 	private static final String STREAM_KEY = "growthlog:evaluate";
